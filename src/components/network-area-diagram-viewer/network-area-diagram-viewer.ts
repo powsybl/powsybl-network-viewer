@@ -9,9 +9,9 @@ import { Point, SVG, ViewBoxLike, Svg } from '@svgdotjs/svg.js';
 import '@svgdotjs/svg.panzoom.js';
 import * as DiagramUtils from './diagram-utils';
 import { SvgParameters } from './svg-parameters';
+import { CSS_RULE, DEFAULT_DYNAMIC_CSS_RULES } from './dynamic-css-utils';
 import { LayoutParameters } from './layout-parameters';
 import { DiagramMetadata, EdgeMetadata, BusNodeMetadata, NodeMetadata, TextNodeMetadata } from './diagram-metadata';
-import { CSS_DECLARATION, CSS_RULE, THRESHOLD_STATUS, DEFAULT_DYNAMIC_CSS_RULES } from './dynamic-css-utils';
 
 type DIMENSIONS = { width: number; height: number; viewbox: VIEWBOX };
 type VIEWBOX = { x: number; y: number; width: number; height: number };
@@ -1275,7 +1275,7 @@ export class NetworkAreaDiagramViewer {
     // Will explore the SVG's <style> tags to find the css rule associated with "cssSelector" and update the
     // rule using "cssDeclaration".
     // Will create a style tag or/and new css rule if not found in the SVG.
-    public updateSvgCssDisplayValue(svg: SVGSVGElement, cssSelector: string, cssDeclaration: CSS_DECLARATION) {
+    public updateSvgCssDisplayValue(svg: SVGSVGElement, cssSelector: string, cssDeclaration: Record<string, string>) {
         const innerSvg = svg.querySelector('svg');
         if (!innerSvg) {
             console.error('Cannot find the SVG to update!');
@@ -1325,19 +1325,17 @@ export class NetworkAreaDiagramViewer {
 
     public initializeDynamicCssRules(maxDisplayedSize: number) {
         this.getDynamicCssRules().forEach((rule) => {
-            rule.thresholdStatus = maxDisplayedSize < rule.threshold ? THRESHOLD_STATUS.BELOW : THRESHOLD_STATUS.ABOVE;
+            for (const [property, getPropertyValue] of Object.entries(rule.cssDeclaration)) {
+                rule.currentValue[property] = getPropertyValue(maxDisplayedSize);
+            }
         });
     }
 
     public injectDynamicCssRules(htmlElementSvg: HTMLElement) {
         const rules = this.getDynamicCssRules()
             .map((rule) => {
-                const ruleToInject =
-                    rule.thresholdStatus === THRESHOLD_STATUS.BELOW
-                        ? rule.belowThresholdCssDeclaration
-                        : rule.aboveThresholdCssDeclaration;
-                const key = Object.keys(ruleToInject)[0];
-                const value = ruleToInject[key];
+                const key = Object.keys(rule.currentValue)[0];
+                const value = rule.currentValue[key];
                 return `${rule.cssSelector} {${key}: ${value};}`;
             })
             .join('\n');
@@ -1365,18 +1363,22 @@ export class NetworkAreaDiagramViewer {
         // We will check each dynamic css rule to see if we crossed a zoom threshold. If this is the case, we
         // update the rule's threshold status and trigger the CSS change in the SVG.
         this.getDynamicCssRules().forEach((rule) => {
-            if (rule.thresholdStatus === THRESHOLD_STATUS.ABOVE && maxDisplayedSize < rule.threshold) {
-                console.debug(
-                    'CSS Rule ' + rule.cssSelector + ' below threshold ' + maxDisplayedSize + ' < ' + rule.threshold
-                );
-                rule.thresholdStatus = THRESHOLD_STATUS.BELOW;
-                this.updateSvgCssDisplayValue(svg, rule.cssSelector, rule.belowThresholdCssDeclaration);
-            } else if (rule.thresholdStatus === THRESHOLD_STATUS.BELOW && maxDisplayedSize >= rule.threshold) {
-                console.debug(
-                    'CSS Rule ' + rule.cssSelector + ' above threshold ' + maxDisplayedSize + ' >= ' + rule.threshold
-                );
-                rule.thresholdStatus = THRESHOLD_STATUS.ABOVE;
-                this.updateSvgCssDisplayValue(svg, rule.cssSelector, rule.aboveThresholdCssDeclaration);
+            for (const [property, getPropertyValue] of Object.entries(rule.cssDeclaration)) {
+                const valueToUpdate = getPropertyValue(maxDisplayedSize);
+                if (valueToUpdate !== rule.currentValue[property]) {
+                    console.debug(
+                        'CSS Rule ' +
+                            rule.cssSelector +
+                            ' will be update for ' +
+                            maxDisplayedSize +
+                            ' from ' +
+                            rule.currentValue[property] +
+                            ' to ' +
+                            valueToUpdate
+                    );
+                    rule.currentValue[property] = valueToUpdate;
+                    this.updateSvgCssDisplayValue(svg, rule.cssSelector, rule.currentValue);
+                }
             }
         });
     }
