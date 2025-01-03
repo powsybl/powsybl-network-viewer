@@ -539,6 +539,11 @@ const NetworkMap = forwardRef((props, ref) => {
         );
     }, [props.mapEquipments, props.geoData, props.filteredNominalVoltages]);
 
+    // reset zoom and position to make the map centered around the displayed network
+    const resetZoomAndPosition = useCallback(() => {
+        setCentered(INITIAL_CENTERED);
+    }, []);
+
     useImperativeHandle(
         ref,
         () => ({
@@ -551,8 +556,9 @@ const NetworkMap = forwardRef((props, ref) => {
                 onDrawEvent(DRAW_EVENT.DELETE);
             },
             getMapDrawer,
+            resetZoomAndPosition,
         }),
-        [onPolygonChanged, getSelectedSubstations, getSelectedLines, onDrawEvent]
+        resetZoomAndPosition
     );
 
     const onDelete = useCallback(() => {

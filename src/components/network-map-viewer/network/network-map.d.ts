@@ -75,6 +75,7 @@ export type NetworkMapRef = {
     getSelectedLines: () => Line[];
     cleanDraw: () => void;
     getMapDrawer: () => MapboxDraw | undefined;
+    resetZoomAndPosition: () => void;
 };
 
 const NetworkMap: ForwardRefExoticComponent<PropsWithoutRef<NetworkMapProps> & RefAttributes<NetworkMapRef>>;

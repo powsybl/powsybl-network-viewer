@@ -98,6 +98,7 @@ export class MapEquipments {
     updateSubstations(substations, fullReload) {
         if (fullReload) {
             this.substations = [];
+            this.nominalVoltages = [];
         }
 
         // replace current modified substations
