@@ -558,7 +558,7 @@ const NetworkMap = forwardRef((props, ref) => {
             getMapDrawer,
             resetZoomAndPosition,
         }),
-        resetZoomAndPosition
+        [onPolygonChanged, resetZoomAndPosition, getSelectedSubstations, getSelectedLines, onDrawEvent]
     );
 
     const onDelete = useCallback(() => {
