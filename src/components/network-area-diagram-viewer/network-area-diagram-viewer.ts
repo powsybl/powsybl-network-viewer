@@ -8,7 +8,7 @@
 import { Point, SVG, ViewBoxLike, Svg } from '@svgdotjs/svg.js';
 import '@svgdotjs/svg.panzoom.js';
 import * as DiagramUtils from './diagram-utils';
-import { SvgParameters } from './svg-parameters';
+import { SvgParameters, EdgeInfoEnum } from './svg-parameters';
 import { LayoutParameters } from './layout-parameters';
 import { DiagramMetadata, EdgeMetadata, BusNodeMetadata, NodeMetadata, TextNodeMetadata } from './diagram-metadata';
 import { CSS_DECLARATION, CSS_RULE, THRESHOLD_STATUS, DEFAULT_DYNAMIC_CSS_RULES } from './dynamic-css-utils';
@@ -1419,49 +1419,45 @@ export class NetworkAreaDiagramViewer {
                 }
                 this.edgesMap.set(branchState.branchId, edge);
             }
-            this.setBranchSideLabel(
-                branchState.branchId,
-                '1',
-                this.edgesMap.get(branchState.branchId)?.svgId ?? '-1',
-                branchState.value1
-            );
-            this.setBranchSideLabel(
-                branchState.branchId,
-                '2',
-                this.edgesMap.get(branchState.branchId)?.svgId ?? '-1',
-                branchState.value2
-            );
-            this.setBranchSideConnection(
-                branchState.branchId,
-                '1',
-                this.edgesMap.get(branchState.branchId)?.svgId ?? '-1',
-                branchState.connected1
-            );
-            this.setBranchSideConnection(
-                branchState.branchId,
-                '2',
-                this.edgesMap.get(branchState.branchId)?.svgId ?? '-1',
-                branchState.connected2
-            );
+            const edgeId = this.edgesMap.get(branchState.branchId)?.svgId ?? '-1';
+            this.setBranchSideLabel(branchState.branchId, '1', edgeId, branchState.value1);
+            this.setBranchSideLabel(branchState.branchId, '2', edgeId, branchState.value2);
+            this.setBranchSideConnection(branchState.branchId, '1', edgeId, branchState.connected1);
+            this.setBranchSideConnection(branchState.branchId, '2', edgeId, branchState.connected2);
         });
     }
 
     private setBranchSideLabel(branchId: string, side: string, edgeId: string, value: number | string) {
-        const halfEdge: SVGGraphicsElement | null = this.container.querySelector("[id='" + edgeId + '.' + side + "']");
-        const arrowGElement = halfEdge?.lastElementChild?.firstElementChild;
-        if (arrowGElement !== null && arrowGElement !== undefined) {
+        const arrowGElement: SVGGraphicsElement | null = this.container.querySelector(
+            "[id='" + edgeId + '.' + side + "'] .nad-edge-infos g"
+        );
+        if (arrowGElement !== null) {
             arrowGElement.classList.remove('nad-state-in', 'nad-state-out');
             if (typeof value === 'number') {
                 arrowGElement.classList.add(DiagramUtils.getArrowClass(value));
             }
-            const branchLabelElement = arrowGElement.lastElementChild;
+            const branchLabelElement = arrowGElement.querySelector('text');
             if (branchLabelElement !== null && branchLabelElement !== undefined) {
-                branchLabelElement.innerHTML = typeof value === 'number' ? value.toFixed(0) : value;
+                branchLabelElement.innerHTML =
+                    typeof value === 'number' ? value.toFixed(this.getValuePrecision()) : value;
             } else {
-                console.warn('Skipping updating branch ' + branchId + ' side ' + side + ' label: edge not found');
+                console.warn('Skipping updating branch ' + branchId + ' side ' + side + ' label: text not found');
             }
         } else {
-            console.warn('Skipping updating branch ' + branchId + ' side ' + side + ' label: edge not found');
+            console.warn('Skipping updating branch ' + branchId + ' side ' + side + ' label: label not found');
+        }
+    }
+
+    private getValuePrecision() {
+        const edgeInfoDisplayed = this.svgParameters.getEdgeInfoDisplayed();
+        switch (edgeInfoDisplayed) {
+            case EdgeInfoEnum.ACTIVE_POWER:
+            case EdgeInfoEnum.REACTIVE_POWER:
+                return this.svgParameters.getPowerValuePrecision();
+            case EdgeInfoEnum.CURRENT:
+                return this.svgParameters.getCurrentValuePrecision();
+            default:
+                return 0;
         }
     }
 
@@ -1474,7 +1470,7 @@ export class NetworkAreaDiagramViewer {
                 halfEdge.classList.add('nad-disconnected');
             }
         } else {
-            console.warn('Skipping updating branch ' + branchId + ' side ' + side + ' status: edges not found');
+            console.warn('Skipping updating branch ' + branchId + ' side ' + side + ' status: edge not found');
         }
     }
 }

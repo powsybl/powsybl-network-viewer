@@ -8,6 +8,18 @@
 import { SvgParametersMetadata } from './diagram-metadata';
 import { degToRad } from './diagram-utils';
 
+export enum EdgeInfoEnum {
+    ACTIVE_POWER,
+    REACTIVE_POWER,
+    CURRENT,
+}
+
+const EdgeInfoEnumMapping: { [key: string]: EdgeInfoEnum } = {
+    ACTIVE_POWER: EdgeInfoEnum.ACTIVE_POWER,
+    REACTIVE_POWER: EdgeInfoEnum.REACTIVE_POWER,
+    CURRENT: EdgeInfoEnum.CURRENT,
+};
+
 export class SvgParameters {
     static readonly VOLTAGE_LEVEL_CIRCLE_RADIUS_DEFAULT = 30.0;
     static readonly INTER_ANNULUS_SPACE_DEFAULT = 5.0;
@@ -21,6 +33,9 @@ export class SvgParameters {
     static readonly UNKNOWN_BUS_NODE_EXTRA_RADIUS_DEFAULT = 10.0;
     static readonly EDGE_NAME_DISPLAYED_DEFAULT = true;
     static readonly FICTITIOUS_VOLTAGE_LEVEL_CIRCLE_RADIUS_DEFAULT = 15.0;
+    static readonly EDGE_INFO_DISPLAYED_DEFAULT = EdgeInfoEnum.ACTIVE_POWER;
+    static readonly POWER_VALUE_PRECISION_RADIUS_DEFAULT = 0;
+    static readonly CURRENT_VALUE_PRECISION_DEFAULT = 0;
 
     svgParametersMetadata: SvgParametersMetadata | undefined;
 
@@ -81,5 +96,19 @@ export class SvgParameters {
             this.svgParametersMetadata?.fictitiousVoltageLevelCircleRadius ??
             SvgParameters.FICTITIOUS_VOLTAGE_LEVEL_CIRCLE_RADIUS_DEFAULT
         );
+    }
+
+    public getEdgeInfoDisplayed(): EdgeInfoEnum {
+        return this.svgParametersMetadata?.edgeInfoDisplayed
+            ? EdgeInfoEnumMapping[this.svgParametersMetadata?.edgeInfoDisplayed]
+            : SvgParameters.EDGE_INFO_DISPLAYED_DEFAULT;
+    }
+
+    public getPowerValuePrecision(): number {
+        return this.svgParametersMetadata?.powerValuePrecision ?? SvgParameters.POWER_VALUE_PRECISION_RADIUS_DEFAULT;
+    }
+
+    public getCurrentValuePrecision(): number {
+        return this.svgParametersMetadata?.currentValuePrecision ?? SvgParameters.CURRENT_VALUE_PRECISION_DEFAULT;
     }
 }

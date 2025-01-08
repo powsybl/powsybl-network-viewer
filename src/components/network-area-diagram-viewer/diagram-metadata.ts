@@ -32,6 +32,9 @@ export interface SvgParametersMetadata {
     unknownBusNodeExtraRadius: number;
     edgeNameDisplayed: boolean;
     fictitiousVoltageLevelCircleRadius: number;
+    edgeInfoDisplayed: string;
+    powerValuePrecision: number;
+    currentValuePrecision: number;
 }
 
 export interface BusNodeMetadata {
