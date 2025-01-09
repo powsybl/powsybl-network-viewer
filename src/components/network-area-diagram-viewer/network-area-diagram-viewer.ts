@@ -1469,7 +1469,7 @@ export class NetworkAreaDiagramViewer {
     public setBranchStates(branchStates: BranchState[]) {
         branchStates.forEach((branchState) => {
             if (!this.edgesMap.has(branchState.branchId)) {
-                const edge: EdgeMetadata | undefined = this.diagramMetadata?.edges.find(
+                const edge: EdgeMetadata | undefined = (this.diagramMetadata?.edges ?? []).find(
                     (edge) => edge.equipmentId == branchState.branchId
                 );
                 if (edge === undefined) {
@@ -1496,7 +1496,7 @@ export class NetworkAreaDiagramViewer {
                 arrowGElement.classList.add(DiagramUtils.getArrowClass(value));
             }
             const branchLabelElement = arrowGElement.querySelector('text');
-            if (branchLabelElement !== null && branchLabelElement !== undefined) {
+            if (branchLabelElement !== null) {
                 branchLabelElement.innerHTML =
                     typeof value === 'number' ? value.toFixed(this.getValuePrecision()) : value;
             } else {
@@ -1520,9 +1520,9 @@ export class NetworkAreaDiagramViewer {
         }
     }
 
-    private setBranchSideConnection(branchId: string, side: string, edgeId: string, connected: boolean) {
+    private setBranchSideConnection(branchId: string, side: string, edgeId: string, connected: boolean | undefined) {
         const halfEdge: SVGGraphicsElement | null = this.container.querySelector("[id='" + edgeId + '.' + side + "']");
-        if (halfEdge !== null && halfEdge != undefined) {
+        if (halfEdge !== null) {
             if (connected == undefined || connected) {
                 halfEdge.classList.remove('nad-disconnected');
             } else {
