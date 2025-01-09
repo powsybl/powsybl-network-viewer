@@ -8,7 +8,7 @@
 import { Point, SVG, ViewBoxLike, Svg } from '@svgdotjs/svg.js';
 import '@svgdotjs/svg.panzoom.js';
 import * as DiagramUtils from './diagram-utils';
-import { SvgParameters } from './svg-parameters';
+import { SvgParameters, EdgeInfoEnum } from './svg-parameters';
 import { LayoutParameters } from './layout-parameters';
 import { DiagramMetadata, EdgeMetadata, BusNodeMetadata, NodeMetadata, TextNodeMetadata } from './diagram-metadata';
 import { CSS_DECLARATION, CSS_RULE, THRESHOLD_STATUS, DEFAULT_DYNAMIC_CSS_RULES } from './dynamic-css-utils';
@@ -16,6 +16,13 @@ import { debounce } from '@mui/material';
 
 type DIMENSIONS = { width: number; height: number; viewbox: VIEWBOX };
 type VIEWBOX = { x: number; y: number; width: number; height: number };
+export type BranchState = {
+    branchId: string;
+    value1: number | string;
+    value2: number | string;
+    connected1: boolean;
+    connected2: boolean;
+};
 
 export type OnMoveNodeCallbackType = (
     equipmentId: string,
@@ -86,6 +93,7 @@ export class NetworkAreaDiagramViewer {
     dynamicCssRules: CSS_RULE[];
     onToggleHoverCallback: OnToggleNadHoverCallbackType | null;
     previousMaxDisplayedSize: number;
+    edgesMap: Map<string, EdgeMetadata> = new Map<string, EdgeMetadata>();
 
     constructor(
         container: HTMLElement,
@@ -1450,6 +1458,78 @@ export class NetworkAreaDiagramViewer {
                     child.innerHTML += '';
                 }
             }
+        }
+    }
+
+    public setJsonBranchStates(branchStates: string) {
+        const branchStatesArray: BranchState[] = JSON.parse(branchStates);
+        this.setBranchStates(branchStatesArray);
+    }
+
+    public setBranchStates(branchStates: BranchState[]) {
+        branchStates.forEach((branchState) => {
+            if (!this.edgesMap.has(branchState.branchId)) {
+                const edge: EdgeMetadata | undefined = (this.diagramMetadata?.edges ?? []).find(
+                    (edge) => edge.equipmentId == branchState.branchId
+                );
+                if (edge === undefined) {
+                    console.warn('Skipping updating branch ' + branchState.branchId + ' labels: branch not found');
+                    return;
+                }
+                this.edgesMap.set(branchState.branchId, edge);
+            }
+            const edgeId = this.edgesMap.get(branchState.branchId)?.svgId ?? '-1';
+            this.setBranchSideLabel(branchState.branchId, '1', edgeId, branchState.value1);
+            this.setBranchSideLabel(branchState.branchId, '2', edgeId, branchState.value2);
+            this.setBranchSideConnection(branchState.branchId, '1', edgeId, branchState.connected1);
+            this.setBranchSideConnection(branchState.branchId, '2', edgeId, branchState.connected2);
+        });
+    }
+
+    private setBranchSideLabel(branchId: string, side: string, edgeId: string, value: number | string) {
+        const arrowGElement: SVGGraphicsElement | null = this.container.querySelector(
+            "[id='" + edgeId + '.' + side + "'] .nad-edge-infos g"
+        );
+        if (arrowGElement !== null) {
+            arrowGElement.classList.remove('nad-state-in', 'nad-state-out');
+            if (typeof value === 'number') {
+                arrowGElement.classList.add(DiagramUtils.getArrowClass(value));
+            }
+            const branchLabelElement = arrowGElement.querySelector('text');
+            if (branchLabelElement !== null) {
+                branchLabelElement.innerHTML =
+                    typeof value === 'number' ? value.toFixed(this.getValuePrecision()) : value;
+            } else {
+                console.warn('Skipping updating branch ' + branchId + ' side ' + side + ' label: text not found');
+            }
+        } else {
+            console.warn('Skipping updating branch ' + branchId + ' side ' + side + ' label: label not found');
+        }
+    }
+
+    private getValuePrecision() {
+        const edgeInfoDisplayed = this.svgParameters.getEdgeInfoDisplayed();
+        switch (edgeInfoDisplayed) {
+            case EdgeInfoEnum.ACTIVE_POWER:
+            case EdgeInfoEnum.REACTIVE_POWER:
+                return this.svgParameters.getPowerValuePrecision();
+            case EdgeInfoEnum.CURRENT:
+                return this.svgParameters.getCurrentValuePrecision();
+            default:
+                return 0;
+        }
+    }
+
+    private setBranchSideConnection(branchId: string, side: string, edgeId: string, connected: boolean | undefined) {
+        const halfEdge: SVGGraphicsElement | null = this.container.querySelector("[id='" + edgeId + '.' + side + "']");
+        if (halfEdge !== null) {
+            if (connected == undefined || connected) {
+                halfEdge.classList.remove('nad-disconnected');
+            } else {
+                halfEdge.classList.add('nad-disconnected');
+            }
+        } else {
+            console.warn('Skipping updating branch ' + branchId + ' side ' + side + ' status: edge not found');
         }
     }
 }
