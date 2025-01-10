@@ -5,12 +5,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-export {
-    NetworkAreaDiagramViewer,
-    type OnMoveNodeCallbackType,
-    type OnMoveTextNodeCallbackType,
-    type OnSelectNodeCallbackType,
-    type OnToggleNadHoverCallbackType,
+export { NetworkAreaDiagramViewer } from './components/network-area-diagram-viewer/network-area-diagram-viewer';
+export type {
+    OnMoveNodeCallbackType,
+    OnMoveTextNodeCallbackType,
+    OnSelectNodeCallbackType,
+    OnToggleNadHoverCallbackType,
+    BranchState,
 } from './components/network-area-diagram-viewer/network-area-diagram-viewer';
 export type {
     BusNodeMetadata,
