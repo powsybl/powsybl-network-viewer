@@ -36,6 +36,7 @@ export class SvgParameters {
     static readonly EDGE_INFO_DISPLAYED_DEFAULT = EdgeInfoEnum.ACTIVE_POWER;
     static readonly POWER_VALUE_PRECISION_RADIUS_DEFAULT = 0;
     static readonly CURRENT_VALUE_PRECISION_DEFAULT = 0;
+    static readonly INSERT_NAME_DESCR_DEFAULT = false;
 
     svgParametersMetadata: SvgParametersMetadata | undefined;
 
@@ -110,5 +111,9 @@ export class SvgParameters {
 
     public getCurrentValuePrecision(): number {
         return this.svgParametersMetadata?.currentValuePrecision ?? SvgParameters.CURRENT_VALUE_PRECISION_DEFAULT;
+    }
+
+    public getInsertNameDesc(): boolean {
+        return this.svgParametersMetadata?.insertNameDesc ?? SvgParameters.INSERT_NAME_DESCR_DEFAULT;
     }
 }

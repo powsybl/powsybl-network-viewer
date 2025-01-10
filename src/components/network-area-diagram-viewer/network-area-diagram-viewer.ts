@@ -1131,7 +1131,8 @@ export class NetworkAreaDiagramViewer {
             const edgeNode: SVGGraphicsElement | null = this.container.querySelector("[id='" + edgeId + "']");
             if (edgeNode) {
                 const side = busNode.svgId == edge.busNode1 ? 0 : 1;
-                const halfEdge: HTMLElement = <HTMLElement>edgeNode.children.item(side)?.firstElementChild;
+                const childIndex = this.svgParameters.getInsertNameDesc() ? side + 1 : side;
+                const halfEdge: HTMLElement = <HTMLElement>edgeNode.children.item(childIndex)?.firstElementChild;
                 if (halfEdge != null) {
                     const angle = isLoopEdge
                         ? DiagramUtils.getPathAngle(halfEdge)
@@ -1169,7 +1170,8 @@ export class NetworkAreaDiagramViewer {
             busNodeRadius,
             this.svgParameters.getNodeHollowWidth()
         );
-        const busElement: HTMLElement | null = <HTMLElement>node.children.item(busIndex);
+        const childIndex = this.svgParameters.getInsertNameDesc() ? busIndex + 1 : busIndex;
+        const busElement: HTMLElement | null = <HTMLElement>node.children.item(childIndex);
         if (busElement != null) {
             busElement.setAttribute('d', path);
         }
