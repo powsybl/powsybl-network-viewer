@@ -58,7 +58,7 @@ export default class ForkLineLayer<DataT = unknown> extends LineLayer<DataT, Req
     // noinspection JSUnusedGlobalSymbols -- it's dynamically get by deck.gl
     static readonly defaultProps = defaultProps;
 
-    getShaders() {
+    override getShaders() {
         const shaders = super.getShaders();
         shaders.inject = {
             'vs:#decl': `
@@ -96,7 +96,9 @@ uniform float minSubstationRadiusPixel;
         return shaders;
     }
 
-    initializeState(...params: Parameters<LineLayer<DataT, Required<_ForkLineLayerProps<DataT>>>['initializeState']>) {
+    override initializeState(
+        ...params: Parameters<LineLayer<DataT, Required<_ForkLineLayerProps<DataT>>>['initializeState']>
+    ) {
         super.initializeState(...params);
 
         const attributeManager = this.getAttributeManager();
@@ -125,7 +127,7 @@ uniform float minSubstationRadiusPixel;
     }
 
     // TODO find the full type for record values
-    draw({ uniforms }: { uniforms: Record<string, UniformValues<object>> }) {
+    override draw({ uniforms }: { uniforms: Record<string, UniformValues<object>> }) {
         super.draw({
             uniforms: {
                 ...uniforms,

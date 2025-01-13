@@ -54,7 +54,7 @@ type _SubstationLayerProps = {
 };
 export type SubstationLayerProps = _SubstationLayerProps & CompositeLayerProps;
 
-export class SubstationLayer extends CompositeLayer<Required<_SubstationLayerProps>> {
+export default class SubstationLayer extends CompositeLayer<Required<_SubstationLayerProps>> {
     // noinspection JSUnusedGlobalSymbols -- it's dynamically get by deck.gl
     static readonly layerName = 'SubstationLayer';
     // noinspection JSUnusedGlobalSymbols -- it's dynamically get by deck.gl
@@ -74,7 +74,7 @@ export class SubstationLayer extends CompositeLayer<Required<_SubstationLayerPro
         metaVoltageLevelsByNominalVoltage: MetaVoltageLevelsByNominalVoltage[];
     };
 
-    initializeState(...args: Parameters<CompositeLayer<Required<_SubstationLayerProps>>['initializeState']>) {
+    override initializeState(...args: Parameters<CompositeLayer<Required<_SubstationLayerProps>>['initializeState']>) {
         super.initializeState(...args);
 
         this.state = {
@@ -84,7 +84,7 @@ export class SubstationLayer extends CompositeLayer<Required<_SubstationLayerPro
         };
     }
 
-    updateState({ props, oldProps, changeFlags }: UpdateParameters<this>) {
+    override updateState({ props, oldProps, changeFlags }: UpdateParameters<this>) {
         if (changeFlags.dataChanged) {
             const metaVoltageLevelsByNominalVoltage = new Map<number, MetaVoltageLevel[]>();
 

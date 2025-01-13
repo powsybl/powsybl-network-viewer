@@ -26,7 +26,7 @@ import { PathStyleExtension } from '@deck.gl/extensions';
 import { type GeoData } from './geo-data';
 import { MapEquipments } from './map-equipments';
 import { type LonLat, type MapAnyLine, type MapAnyLineWithType } from '../../../equipment-types';
-import { type Arrow, ArrowDirection, ArrowLayer, type ArrowLayerProps } from './layers/arrow-layer';
+import ArrowLayer, { type Arrow, ArrowDirection, type ArrowLayerProps } from './layers/arrow-layer';
 import ParallelPathLayer, { type ParallelPathLayerProps } from './layers/parallel-path-layer';
 import ForkLineLayer, { type ForkLineLayerProps } from './layers/fork-line-layer';
 import { getDistance } from 'geolib';
@@ -279,7 +279,7 @@ export type LineLayerProps = _LineLayerProps & CompositeLayerProps;
 //         onHover?: ((pickingInfo: LinePickingInfo, event: MjolnirEvent) => boolean | void) | null;
 //     };
 
-export class LineLayer extends CompositeLayer<Required<_LineLayerProps>> {
+export default class LineLayer extends CompositeLayer<Required<_LineLayerProps>> {
     // noinspection JSUnusedGlobalSymbols -- it's dynamically get by deck.gl
     static readonly layerName = 'LineLayer';
     // noinspection JSUnusedGlobalSymbols -- it's dynamically get by deck.gl
@@ -315,7 +315,7 @@ export class LineLayer extends CompositeLayer<Required<_LineLayerProps>> {
         linesStatus: Map<string, LinesStatus>;
     };
 
-    initializeState(...args: Parameters<CompositeLayer<Required<_LineLayerProps>>['initializeState']>) {
+    override initializeState(...args: Parameters<CompositeLayer<Required<_LineLayerProps>>['initializeState']>) {
         super.initializeState(...args);
 
         this.state = {
@@ -345,7 +345,7 @@ export class LineLayer extends CompositeLayer<Required<_LineLayerProps>> {
     }
 
     //TODO this is a huge function, refactor
-    updateState({ props, oldProps, changeFlags }: UpdateParameters<this>) {
+    override updateState({ props, oldProps, changeFlags }: UpdateParameters<this>) {
         let compositeData: Partial<CompositeData>[];
         let linesConnection: Map<string, LineConnection>;
         let linesStatus: Map<string, LinesStatus>;
@@ -753,7 +753,7 @@ export class LineLayer extends CompositeLayer<Required<_LineLayerProps>> {
         return angle;
     }
 
-    renderLayers() {
+    override renderLayers() {
         const layers: Layer[] = [];
 
         const linePathUpdateTriggers = [

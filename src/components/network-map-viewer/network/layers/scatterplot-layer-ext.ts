@@ -28,7 +28,7 @@ export default class ScatterplotLayerExt<DataT = unknown> extends ScatterplotLay
     // noinspection JSUnusedGlobalSymbols -- it's dynamically get by deck.gl
     static readonly defaultProps = defaultProps;
 
-    getShaders() {
+    override getShaders() {
         const shaders = super.getShaders();
         return Object.assign({}, shaders, {
             vs: shaders.vs.replace(', radiusMaxPixels', ', instanceRadiusMaxPixels'), // hack to replace the uniform variable to corresponding attribute
@@ -40,7 +40,7 @@ attribute float instanceRadiusMaxPixels;
         });
     }
 
-    initializeState(
+    override initializeState(
         ...params: Parameters<ScatterplotLayer<Required<_ScatterplotLayerExtProps<DataT>>>['initializeState']>
     ) {
         super.initializeState(...params);

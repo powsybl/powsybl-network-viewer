@@ -88,7 +88,7 @@ const defaultProps: DefaultProps<ArrowLayerProps> = {
  * or with a parallel offset. The initial point is also shifted to coincide with the fork line ends.
  * Needs to be kept in sync with ForkLineLayer and ParallelPathLayer because they draw the lines.
  */
-export class ArrowLayer extends Layer<Required<_ArrowLayerProps>> {
+export default class ArrowLayer extends Layer<Required<_ArrowLayerProps>> {
     // noinspection JSUnusedGlobalSymbols -- it's dynamically get by deck.gl
     static readonly layerName = 'ArrowLayer';
     // noinspection JSUnusedGlobalSymbols -- it's dynamically get by deck.gl
@@ -105,7 +105,7 @@ export class ArrowLayer extends Layer<Required<_ArrowLayerProps>> {
         webgl2: boolean;
     };
 
-    getShaders() {
+    override getShaders() {
         return super.getShaders({ vs, fs, modules: [project32, picking] });
     }
 
@@ -121,7 +121,7 @@ export class ArrowLayer extends Layer<Required<_ArrowLayerProps>> {
         return attributes;
     }
 
-    initializeState() {
+    override initializeState() {
         const { gl } = this.context;
 
         if (!hasFeatures(gl, [FEATURES.TEXTURE_FLOAT])) {
@@ -222,7 +222,7 @@ export class ArrowLayer extends Layer<Required<_ArrowLayerProps>> {
         });
     }
 
-    finalizeState(...args: Parameters<Layer<Required<_ArrowLayerProps>>['finalizeState']>) {
+    override finalizeState(...args: Parameters<Layer<Required<_ArrowLayerProps>>['finalizeState']>) {
         super.finalizeState(...args);
         // we do not use setState to avoid a redraw, it is just used to stop the animation
         this.state.stop = true;
@@ -387,7 +387,7 @@ export class ArrowLayer extends Layer<Required<_ArrowLayerProps>> {
         }
     }
 
-    updateState(updateParams: UpdateParameters<this>) {
+    override updateState(updateParams: UpdateParameters<this>) {
         super.updateState(updateParams);
 
         this.updateGeometry(updateParams);
@@ -421,7 +421,7 @@ export class ArrowLayer extends Layer<Required<_ArrowLayerProps>> {
     }
 
     // TODO find the full type for record values
-    draw({ uniforms }: { uniforms: Record<string, UniformValues<object>> }) {
+    override draw({ uniforms }: { uniforms: Record<string, UniformValues<object>> }) {
         const { sizeMinPixels, sizeMaxPixels } = this.props;
 
         const { linePositionsTexture, lineDistancesTexture, timestamp, webgl2 } = this.state;

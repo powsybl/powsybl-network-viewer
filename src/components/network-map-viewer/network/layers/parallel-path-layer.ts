@@ -46,7 +46,7 @@ export default class ParallelPathLayer<DataT = unknown> extends PathLayer<
     // noinspection JSUnusedGlobalSymbols -- it's dynamically get by deck.gl
     static readonly defaultProps = defaultProps;
 
-    getShaders() {
+    override getShaders() {
         const shaders = super.getShaders();
         shaders.inject = Object.assign({}, shaders.inject, {
             'vs:#decl':
@@ -119,7 +119,7 @@ gl_Position += project_common_position_to_clipspace(trans) - project_uCenter;
         return shaders;
     }
 
-    initializeState(
+    override initializeState(
         ...params: Parameters<PathLayer<DataT, Required<ParallelPathLayerProps<DataT>>>['initializeState']>
     ) {
         super.initializeState(...params);
@@ -135,7 +135,7 @@ gl_Position += project_common_position_to_clipspace(trans) - project_uCenter;
     }
 
     // TODO find the full type for record values
-    draw({ uniforms }: { uniforms: Record<string, UniformValues<object>> }) {
+    override draw({ uniforms }: { uniforms: Record<string, UniformValues<object>> }) {
         super.draw({
             uniforms: {
                 ...uniforms,
