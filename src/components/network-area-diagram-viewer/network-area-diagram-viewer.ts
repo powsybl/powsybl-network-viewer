@@ -8,7 +8,7 @@
 import { Point, SVG, ViewBoxLike, Svg } from '@svgdotjs/svg.js';
 import '@svgdotjs/svg.panzoom.js';
 import * as DiagramUtils from './diagram-utils';
-import { SvgParameters } from './svg-parameters';
+import { SvgParameters, EdgeInfoEnum } from './svg-parameters';
 import { LayoutParameters } from './layout-parameters';
 import { DiagramMetadata, EdgeMetadata, BusNodeMetadata, NodeMetadata, TextNodeMetadata } from './diagram-metadata';
 import { CSS_DECLARATION, CSS_RULE, THRESHOLD_STATUS, DEFAULT_DYNAMIC_CSS_RULES } from './dynamic-css-utils';
@@ -16,6 +16,13 @@ import { debounce } from '@mui/material';
 
 type DIMENSIONS = { width: number; height: number; viewbox: VIEWBOX };
 type VIEWBOX = { x: number; y: number; width: number; height: number };
+export type BranchState = {
+    branchId: string;
+    value1: number | string;
+    value2: number | string;
+    connected1: boolean;
+    connected2: boolean;
+};
 
 export type OnMoveNodeCallbackType = (
     equipmentId: string,
@@ -48,6 +55,18 @@ export type OnToggleNadHoverCallbackType = (
     equipmentType: string
 ) => void;
 
+// update css rules when zoom changes by this amount. This allows to not
+// update when only translating (when translating, round errors lead to
+// epsilon changes in the float values), or not too often a bit when smooth
+// scrolling (the update may be entirely missed when smooth scrolling if
+// you don't go over the threshold but that's ok, the user doesn't see rule
+// threshold values so he will continue to zoom in or out to trigger the
+// rule update. Using a debounce that ensure the last update is done
+// eventually may be even worse as it could introduce flicker after the
+// delay after the last zoom change.  We need a value that gives good
+// performance but doesn't change the user experience
+const dynamicCssRulesUpdateThreshold = 0.01;
+
 export class NetworkAreaDiagramViewer {
     container: HTMLElement;
     svgContent: string;
@@ -73,6 +92,8 @@ export class NetworkAreaDiagramViewer {
     onSelectNodeCallback: OnSelectNodeCallbackType | null;
     dynamicCssRules: CSS_RULE[];
     onToggleHoverCallback: OnToggleNadHoverCallbackType | null;
+    previousMaxDisplayedSize: number;
+    edgesMap: Map<string, EdgeMetadata> = new Map<string, EdgeMetadata>();
 
     constructor(
         container: HTMLElement,
@@ -113,6 +134,7 @@ export class NetworkAreaDiagramViewer {
         this.onMoveTextNodeCallback = onMoveTextNodeCallback;
         this.onSelectNodeCallback = onSelectNodeCallback;
         this.onToggleHoverCallback = onToggleHoverCallback;
+        this.previousMaxDisplayedSize = 0;
     }
 
     public setWidth(width: number): void {
@@ -169,6 +191,14 @@ export class NetworkAreaDiagramViewer {
 
     public setViewBox(viewBox: ViewBoxLike): void {
         this.svgDraw?.viewbox(viewBox);
+    }
+
+    public setPreviousMaxDisplayedSize(previousMaxDisplayedSize: number): void {
+        this.previousMaxDisplayedSize = previousMaxDisplayedSize;
+    }
+
+    public getPreviousMaxDisplayedSize(): number {
+        return this.previousMaxDisplayedSize;
     }
 
     public getDynamicCssRules() {
@@ -1375,6 +1405,15 @@ export class NetworkAreaDiagramViewer {
 
     public checkAndUpdateLevelOfDetail(svg: SVGSVGElement) {
         const maxDisplayedSize = this.getCurrentlyMaxDisplayedSize();
+        const previousMaxDisplayedSize = this.getPreviousMaxDisplayedSize();
+        // in case of bad or unset values NaN or Infinity, this condition is skipped and the function behaves as if zoom changed
+        if (
+            Math.abs(previousMaxDisplayedSize - maxDisplayedSize) / previousMaxDisplayedSize <
+            dynamicCssRulesUpdateThreshold
+        ) {
+            return;
+        }
+        this.setPreviousMaxDisplayedSize(maxDisplayedSize);
         // We will check each dynamic css rule to see if we crossed a zoom threshold. If this is the case, we
         // update the rule's threshold status and trigger the CSS change in the SVG.
         this.getDynamicCssRules().forEach((rule) => {
@@ -1392,5 +1431,105 @@ export class NetworkAreaDiagramViewer {
                 this.updateSvgCssDisplayValue(svg, rule.cssSelector, rule.aboveThresholdCssDeclaration);
             }
         });
+        //Workaround chromium (tested on edge and google-chrome 131) doesn't
+        //redraw things with percentages on viewbox changes but it should, so
+        //we force it. This is not strictly related to the enableLevelOfDetail
+        //and dynamic css feature, but it turns out that we use percentages in
+        //css only in the case where enableLevelOfDetail=true, so we can do the
+        //workaround here at each viewbox change until we have other needs or
+        //until we remove the workaround entirely. Firefox does correctly
+        //redraw, but we force for everyone to have the same behavior
+        //everywhere and detect problems more easily. We can't use
+        //innerHtml+='' on the <style> tags because values set with
+        //setProperty(key, value) in updateSvgCssDisplayValue are not reflected
+        //in the html text so the innerHTML trick has the effect of resetting
+        //them. So instead of doing it on the svg, we do it on all its children
+        //that are not style elements. This won't work if there are deeply
+        //nested style elements that need dynamic css rules but in practice
+        //only the root style element has dynamic rules so it's ok.
+        //TODO Remove this when chromium fixes their bug.
+        //TODO If this workaround causes problems, we can find a better way to
+        //force a redraw that doesnt change the elements in the dom.
+        const innerSvg = svg.querySelector('svg');
+        if (innerSvg) {
+            for (const child of innerSvg.children) {
+                // annoying, sometimes lowercase (html), sometimes uppercase (xml in xhtml or svg))
+                if (child.nodeName.toUpperCase() != 'STYLE') {
+                    child.innerHTML += '';
+                }
+            }
+        }
+    }
+
+    public setJsonBranchStates(branchStates: string) {
+        const branchStatesArray: BranchState[] = JSON.parse(branchStates);
+        this.setBranchStates(branchStatesArray);
+    }
+
+    public setBranchStates(branchStates: BranchState[]) {
+        branchStates.forEach((branchState) => {
+            if (!this.edgesMap.has(branchState.branchId)) {
+                const edge: EdgeMetadata | undefined = (this.diagramMetadata?.edges ?? []).find(
+                    (edge) => edge.equipmentId == branchState.branchId
+                );
+                if (edge === undefined) {
+                    console.warn('Skipping updating branch ' + branchState.branchId + ' labels: branch not found');
+                    return;
+                }
+                this.edgesMap.set(branchState.branchId, edge);
+            }
+            const edgeId = this.edgesMap.get(branchState.branchId)?.svgId ?? '-1';
+            this.setBranchSideLabel(branchState.branchId, '1', edgeId, branchState.value1);
+            this.setBranchSideLabel(branchState.branchId, '2', edgeId, branchState.value2);
+            this.setBranchSideConnection(branchState.branchId, '1', edgeId, branchState.connected1);
+            this.setBranchSideConnection(branchState.branchId, '2', edgeId, branchState.connected2);
+        });
+    }
+
+    private setBranchSideLabel(branchId: string, side: string, edgeId: string, value: number | string) {
+        const arrowGElement: SVGGraphicsElement | null = this.container.querySelector(
+            "[id='" + edgeId + '.' + side + "'] .nad-edge-infos g"
+        );
+        if (arrowGElement !== null) {
+            arrowGElement.classList.remove('nad-state-in', 'nad-state-out');
+            if (typeof value === 'number') {
+                arrowGElement.classList.add(DiagramUtils.getArrowClass(value));
+            }
+            const branchLabelElement = arrowGElement.querySelector('text');
+            if (branchLabelElement !== null) {
+                branchLabelElement.innerHTML =
+                    typeof value === 'number' ? value.toFixed(this.getValuePrecision()) : value;
+            } else {
+                console.warn('Skipping updating branch ' + branchId + ' side ' + side + ' label: text not found');
+            }
+        } else {
+            console.warn('Skipping updating branch ' + branchId + ' side ' + side + ' label: label not found');
+        }
+    }
+
+    private getValuePrecision() {
+        const edgeInfoDisplayed = this.svgParameters.getEdgeInfoDisplayed();
+        switch (edgeInfoDisplayed) {
+            case EdgeInfoEnum.ACTIVE_POWER:
+            case EdgeInfoEnum.REACTIVE_POWER:
+                return this.svgParameters.getPowerValuePrecision();
+            case EdgeInfoEnum.CURRENT:
+                return this.svgParameters.getCurrentValuePrecision();
+            default:
+                return 0;
+        }
+    }
+
+    private setBranchSideConnection(branchId: string, side: string, edgeId: string, connected: boolean | undefined) {
+        const halfEdge: SVGGraphicsElement | null = this.container.querySelector("[id='" + edgeId + '.' + side + "']");
+        if (halfEdge !== null) {
+            if (connected == undefined || connected) {
+                halfEdge.classList.remove('nad-disconnected');
+            } else {
+                halfEdge.classList.add('nad-disconnected');
+            }
+        } else {
+            console.warn('Skipping updating branch ' + branchId + ' side ' + side + ' status: edge not found');
+        }
     }
 }
