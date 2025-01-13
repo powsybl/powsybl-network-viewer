@@ -6,9 +6,7 @@
  */
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
 import { useCallback } from 'react';
-import { useControl } from 'react-map-gl';
-
-import type { ControlPosition } from 'react-map-gl';
+import { type ControlPosition, useControl } from 'react-map-gl';
 import { EventedListener } from 'mapbox-gl';
 
 let mapDrawerController: MapboxDraw | undefined = undefined;
