@@ -40,11 +40,8 @@ attribute float instanceRadiusMaxPixels;
         });
     }
 
-    override initializeState(
-        ...params: Parameters<ScatterplotLayer<Required<_ScatterplotLayerExtProps<DataT>>>['initializeState']>
-    ) {
-        super.initializeState(...params);
-
+    override initializeState() {
+        super.initializeState();
         this.getAttributeManager()?.addInstanced({
             instanceRadiusMaxPixels: {
                 size: 1,

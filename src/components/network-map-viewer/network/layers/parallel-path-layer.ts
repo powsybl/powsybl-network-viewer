@@ -119,11 +119,8 @@ gl_Position += project_common_position_to_clipspace(trans) - project_uCenter;
         return shaders;
     }
 
-    override initializeState(
-        ...params: Parameters<PathLayer<DataT, Required<ParallelPathLayerProps<DataT>>>['initializeState']>
-    ) {
-        super.initializeState(...params);
-
+    override initializeState() {
+        super.initializeState();
         this.getAttributeManager()?.addInstanced({
             // too much instances variables need to compact some...
             instanceExtraAttributes: {

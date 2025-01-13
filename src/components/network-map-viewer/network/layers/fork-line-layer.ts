@@ -96,11 +96,8 @@ uniform float minSubstationRadiusPixel;
         return shaders;
     }
 
-    override initializeState(
-        ...params: Parameters<LineLayer<DataT, Required<_ForkLineLayerProps<DataT>>>['initializeState']>
-    ) {
-        super.initializeState(...params);
-
+    override initializeState() {
+        super.initializeState();
         const attributeManager = this.getAttributeManager();
         attributeManager?.addInstanced({
             instanceLineParallelIndex: {
