@@ -13,6 +13,7 @@ import {
     IconLayer,
     type IconLayerProps,
     type Layer,
+    type LayerContext,
     type PickingInfo,
     type Position,
     TextLayer,
@@ -315,8 +316,8 @@ export default class LineLayer extends CompositeLayer<Required<_LineLayerProps>>
         linesStatus: Map<string, LinesStatus>;
     };
 
-    override initializeState(...args: Parameters<CompositeLayer<Required<_LineLayerProps>>['initializeState']>) {
-        super.initializeState(...args);
+    override initializeState(context: LayerContext) {
+        super.initializeState(context);
 
         this.state = {
             compositeData: [],
@@ -653,7 +654,7 @@ export default class LineLayer extends CompositeLayer<Required<_LineLayerProps>>
             : line.voltageLevelId2 + '##' + line.voltageLevelId1;
     }
 
-    recomputeParallelLinesIndex(compositeData: CompositeData[], props: UpdateParameters<this>['props']) {
+    recomputeParallelLinesIndex(compositeData: CompositeData[], props: this['props']) {
         compositeData.forEach((compositeData) => {
             const mapOriginDestination = compositeData.mapOriginDestination;
             // calculate index for line with same substation set
@@ -686,7 +687,7 @@ export default class LineLayer extends CompositeLayer<Required<_LineLayerProps>>
         });
     }
 
-    recomputeForkLines(compositeData: CompositeData[], props: UpdateParameters<this>['props']) {
+    recomputeForkLines(compositeData: CompositeData[], props: this['props']) {
         const mapMinProximityFactor = new Map<string, MinProximityFactor>();
         compositeData.forEach((compositeData) => {
             compositeData.lines.forEach((line) => {
@@ -744,7 +745,7 @@ export default class LineLayer extends CompositeLayer<Required<_LineLayerProps>>
         return factor;
     }
 
-    computeAngle(props: UpdateParameters<this>['props'], position1: LonLat, position2: LonLat) {
+    computeAngle(props: this['props'], position1: LonLat, position2: LonLat) {
         let angle = props.geoData.getMapAngle(position1, position2);
         angle = (angle * Math.PI) / 180 + Math.PI;
         if (angle < 0) {

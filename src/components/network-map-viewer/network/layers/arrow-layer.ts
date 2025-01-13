@@ -7,7 +7,15 @@
 import { type DefaultProps, picking, project32 } from '@deck.gl/core';
 import GL from '@luma.gl/constants';
 import { FEATURES, Geometry, hasFeatures, isWebGL2, Model, Texture2D } from '@luma.gl/core';
-import { type Accessor, type Color, Layer, type LayerProps, type Position, type UpdateParameters } from 'deck.gl';
+import {
+    type Accessor,
+    type Color,
+    Layer,
+    type LayerContext,
+    type LayerProps,
+    type Position,
+    type UpdateParameters,
+} from 'deck.gl';
 import { type UniformValues } from 'maplibre-gl';
 import { type MapAnyLineWithType } from '../../../../equipment-types';
 import vs from './arrow-layer-vertex.vert?raw';
@@ -54,6 +62,7 @@ type _ArrowLayerProps = {
     getLineAngles?: Accessor<Arrow, number[]>;
     /** distance in meters between line when no pixel clamping is applied */
     getDistanceBetweenLines?: Accessor<Arrow, number>;
+    // TODO missing getProximityFactors?: Accessor<Arrow, number[]>;
     /** max pixel distance */
     maxParallelOffset?: number;
     /** min pixel distance */
@@ -222,8 +231,8 @@ export default class ArrowLayer extends Layer<Required<_ArrowLayerProps>> {
         });
     }
 
-    override finalizeState(...args: Parameters<Layer<Required<_ArrowLayerProps>>['finalizeState']>) {
-        super.finalizeState(...args);
+    override finalizeState(context: LayerContext) {
+        super.finalizeState(context);
         // we do not use setState to avoid a redraw, it is just used to stop the animation
         this.state.stop = true;
     }
@@ -279,7 +288,7 @@ export default class ArrowLayer extends Layer<Required<_ArrowLayerProps>> {
         return texture2d;
     }
 
-    createTexturesStructure(props: UpdateParameters<this>['props']) {
+    createTexturesStructure(props: this['props']) {
         const start = performance.now();
 
         const linePositionsTextureData: number[] = [];
@@ -433,6 +442,7 @@ export default class ArrowLayer extends Layer<Required<_ArrowLayerProps>> {
                 sizeMaxPixels,
                 linePositionsTexture,
                 lineDistancesTexture,
+                // TODO we ask an opacity but we don't seem to set or used it?
                 // @ts-expect-error TODO TS2339: Properties width and height does not exists on type Texture2D
                 linePositionsTextureSize: [linePositionsTexture?.width, linePositionsTexture?.height],
                 // @ts-expect-error TODO TS2339: Properties width and height does not exists on type Texture2D
@@ -446,9 +456,8 @@ export default class ArrowLayer extends Layer<Required<_ArrowLayerProps>> {
             .draw();
     }
 
-    _getModel(gl: ConstructorParameters<typeof Model>[0]) {
-        const positions = [-1, -1, 0, 0, 1, 0, 0, -0.6, 0, 1, -1, 0, 0, 1, 0, 0, -0.6, 0];
-
+    // TODO Did you mean getModels?
+    private _getModel(gl: WebGLRenderingContext) {
         return new Model(
             gl,
             Object.assign(this.getShaders(), {
@@ -459,7 +468,7 @@ export default class ArrowLayer extends Layer<Required<_ArrowLayerProps>> {
                     attributes: {
                         positions: {
                             size: 3,
-                            value: new Float32Array(positions),
+                            value: new Float32Array([-1, -1, 0, 0, 1, 0, 0, -0.6, 0, 1, -1, 0, 0, 1, 0, 0, -0.6, 0]),
                         },
                     },
                 }),

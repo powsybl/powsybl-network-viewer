@@ -10,6 +10,7 @@ import {
     CompositeLayer,
     type CompositeLayerProps,
     type Layer,
+    type LayerContext,
     TextLayer,
     type TextLayerProps,
     type UpdateParameters,
@@ -74,8 +75,8 @@ export default class SubstationLayer extends CompositeLayer<Required<_Substation
         metaVoltageLevelsByNominalVoltage: MetaVoltageLevelsByNominalVoltage[];
     };
 
-    override initializeState(...args: Parameters<CompositeLayer<Required<_SubstationLayerProps>>['initializeState']>) {
-        super.initializeState(...args);
+    override initializeState(context: LayerContext) {
+        super.initializeState(context);
 
         this.state = {
             compositeData: [],
@@ -130,14 +131,10 @@ export default class SubstationLayer extends CompositeLayer<Required<_Substation
 
             // sort the map by descending nominal voltages
             const metaVoltageLevelsByNominalVoltageArray = Array.from(metaVoltageLevelsByNominalVoltage)
-                .map((e) => {
-                    return { nominalV: e[0], metaVoltageLevels: e[1] };
-                })
+                .map((e) => ({ nominalV: e[0], metaVoltageLevels: e[1] }))
                 .sort((a, b) => b.nominalV - a.nominalV);
 
-            this.setState({
-                metaVoltageLevelsByNominalVoltage: metaVoltageLevelsByNominalVoltageArray,
-            });
+            this.setState({ metaVoltageLevelsByNominalVoltage: metaVoltageLevelsByNominalVoltageArray });
         }
 
         if (
@@ -161,7 +158,7 @@ export default class SubstationLayer extends CompositeLayer<Required<_Substation
         }
     }
 
-    renderLayers() {
+    override renderLayers() {
         const layers: Layer[] = [];
 
         // substations : create one layer per nominal voltage, starting from higher to lower nominal voltage
@@ -173,7 +170,6 @@ export default class SubstationLayer extends CompositeLayer<Required<_Substation
                     radiusMinPixels: SUBSTATION_RADIUS_MIN_PIXEL,
                     getRadiusMaxPixels: (metaVoltageLevel) =>
                         SUBSTATION_RADIUS_MAX_PIXEL * (metaVoltageLevel.nominalVoltageIndex + 1),
-                    // @ts-expect-error TODO TS2322: Type number[] is not assignable to type Position
                     getPosition: (metaVoltageLevel) =>
                         this.props.geoData.getSubstationPosition(metaVoltageLevel.voltageLevels[0].substationId),
                     getFillColor: this.props.getNominalVoltageColor(e.nominalV),
@@ -193,7 +189,6 @@ export default class SubstationLayer extends CompositeLayer<Required<_Substation
             this.getSubLayerProps({
                 id: 'Label',
                 data: this.state.substationsLabels,
-                // @ts-expect-error TODO TS2322: Type (substation: MapSubstation) => number[] is not assignable to type Accessor<MapSubstation, Position> | undefined
                 getPosition: (substation) => this.props.geoData.getSubstationPosition(substation.id),
                 getText: (substation) => this.props.getNameOrId(substation) ?? '',
                 getColor: this.props.labelColor,

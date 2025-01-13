@@ -65,7 +65,7 @@ export class GeoData {
             .forEach((id) => this.substationPositionsById.delete(id));
     }
 
-    getSubstationPosition(substationId: string) {
+    getSubstationPosition(substationId: string): LonLat {
         const position = this.substationPositionsById.get(substationId);
         if (!position) {
             console.warn(`Position not found for ${substationId}`);
@@ -94,7 +94,7 @@ export class GeoData {
     /**
      * Get line positions always ordered from side 1 to side 2.
      */
-    getLinePositions(network: MapEquipments, line: MapAnyLine, detailed = true) {
+    getLinePositions(network: MapEquipments, line: MapAnyLine, detailed = true): LonLat[] {
         const voltageLevel1 = network.getVoltageLevel(line.voltageLevelId1);
         if (!voltageLevel1) {
             throw new Error(`Voltage level side 1 '${line.voltageLevelId1}' not found`);
