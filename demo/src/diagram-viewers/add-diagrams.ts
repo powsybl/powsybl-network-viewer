@@ -268,7 +268,7 @@ export const addNadToDemo = () => {
                 handleTextNodeMove,
                 handleNodeSelect,
                 true,
-                false,
+                true,
                 null,
                 handleToggleNadHover
             );
