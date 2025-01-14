@@ -277,6 +277,28 @@ export const addNadToDemo = () => {
                 .getElementById('svg-container-nad-partial-network')
                 ?.getElementsByTagName('svg')[0]
                 .setAttribute('style', 'border:2px; border-style:solid;');
+
+            new NetworkAreaDiagramViewer(
+                document.getElementById('svg-container-nad-partial-network2')!,
+                svgContent,
+                NadSvgPartialNetworkExampleMeta,
+                500,
+                600,
+                1000,
+                1200,
+                handleNodeMove,
+                handleTextNodeMove,
+                handleNodeSelect,
+                true,
+                true,
+                null,
+                handleToggleNadHover
+            );
+
+            document
+                .getElementById('svg-container-nad-partial-network2')
+                ?.getElementsByTagName('svg')[0]
+                .setAttribute('style', 'border:2px; border-style:solid;');
         });
 };
 
