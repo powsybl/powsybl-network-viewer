@@ -1327,20 +1327,20 @@ export class NetworkAreaDiagramViewer {
     }
 
     private updateTextNodeMetadataCallback(
-        vlNode: SVGGraphicsElement,
+        textNodeElement: SVGGraphicsElement,
         mousePosition: Point,
         callMoveTextNodeCallback: boolean
     ) {
         // get from metadata node connected to moved text node
         const node: NodeMetadata | undefined = this.diagramMetadata?.nodes.find(
-            (node) => node.svgId == DiagramUtils.getVoltageLevelNodeId(vlNode.id)
+            (node) => node.svgId == DiagramUtils.getVoltageLevelNodeId(textNodeElement.id)
         );
         const textNode: TextNodeMetadata | undefined = this.diagramMetadata?.textNodes.find(
-            (textNode) => textNode.svgId == vlNode.id
+            (textNode) => textNode.svgId == textNodeElement.id
         );
         if (node != null && textNode != null) {
             // get new text node position
-            const textPosition = DiagramUtils.getTextNodeAngleFromCentre(vlNode, mousePosition);
+            const textPosition = DiagramUtils.getTextNodeAngleFromCentre(textNodeElement, mousePosition);
             const textNodeMoves = DiagramUtils.getTextNodeMoves(textNode, node, textPosition, this.endTextEdge);
             // update text node position in metadata
             textNode.shiftX = textNodeMoves[0].xNew;
