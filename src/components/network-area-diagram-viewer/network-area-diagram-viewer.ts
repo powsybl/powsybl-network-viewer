@@ -343,6 +343,14 @@ export class NetworkAreaDiagramViewer {
         }
     }
 
+    public getSvg(): string | null {
+        return this.svgDraw !== undefined ? this.svgDraw.svg() : null;
+    }
+
+    public getJsonMetadata(): string | null {
+        return JSON.stringify(this.diagramMetadata);
+    }
+
     public getDimensionsFromSvg(): DIMENSIONS | null {
         // Dimensions are set in the main svg tag attributes. We want to parse those data without loading the whole svg in the DOM.
         const result = this.svgContent.match('<svg[^>]*>');
