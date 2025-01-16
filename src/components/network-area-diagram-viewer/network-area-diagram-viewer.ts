@@ -1125,25 +1125,22 @@ export class NetworkAreaDiagramViewer {
     }
 
     private getEdgeAngle(busNode: BusNodeMetadata, edge: EdgeMetadata, edgeId: string, isLoopEdge: boolean) {
-        const angleId = busNode.svgId == edge.busNode1 ? edgeId + '.1' : edgeId + '.2';
-        if (!this.edgeAngles.has(angleId)) {
+        const halfEdgeId = busNode.svgId == edge.busNode1 ? edgeId + '.1' : edgeId + '.2';
+        if (!this.edgeAngles.has(halfEdgeId)) {
             // if not yet stored in angle map -> compute and store it
-            const edgeNode: SVGGraphicsElement | null = this.container.querySelector("[id='" + edgeId + "']");
-            if (edgeNode) {
-                const side = busNode.svgId == edge.busNode1 ? 0 : 1;
-                const childIndex = this.svgParameters.getInsertNameDesc() ? side + 1 : side;
-                const halfEdge: HTMLElement = <HTMLElement>edgeNode.children.item(childIndex)?.firstElementChild;
-                if (halfEdge != null) {
-                    const angle = isLoopEdge
-                        ? DiagramUtils.getPathAngle(halfEdge)
-                        : DiagramUtils.getPolylineAngle(halfEdge);
-                    if (angle != null) {
-                        this.edgeAngles.set(angleId, angle);
-                    }
+            const halfEdgeDrawElement: HTMLElement | null = <HTMLElement>(
+                (this.container.querySelector("[id='" + halfEdgeId + "']")?.querySelector('path, polyline') as Element)
+            );
+            if (halfEdgeDrawElement != null) {
+                const angle = isLoopEdge
+                    ? DiagramUtils.getPathAngle(halfEdgeDrawElement)
+                    : DiagramUtils.getPolylineAngle(halfEdgeDrawElement);
+                if (angle != null) {
+                    this.edgeAngles.set(halfEdgeId, angle);
                 }
             }
         }
-        return this.edgeAngles.get(angleId);
+        return this.edgeAngles.get(halfEdgeId);
     }
 
     private redrawBusNode(
@@ -1170,8 +1167,7 @@ export class NetworkAreaDiagramViewer {
             busNodeRadius,
             this.svgParameters.getNodeHollowWidth()
         );
-        const childIndex = this.svgParameters.getInsertNameDesc() ? busIndex + 1 : busIndex;
-        const busElement: HTMLElement | null = <HTMLElement>node.children.item(childIndex);
+        const busElement: HTMLElement | null = <HTMLElement>node.querySelectorAll('.nad-busnode')[busIndex];
         if (busElement != null) {
             busElement.setAttribute('d', path);
         }
