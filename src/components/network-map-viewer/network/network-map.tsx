@@ -194,6 +194,7 @@ export type NetworkMapRef = {
     getSelectedLines: () => MapAnyLine[];
     cleanDraw: () => void;
     getMapDrawer: () => MapboxDraw | undefined;
+    resetZoomAndPosition: () => void;
 };
 
 const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) => {
