@@ -11,7 +11,13 @@ import * as DiagramUtils from './diagram-utils';
 import { SvgParameters, EdgeInfoEnum } from './svg-parameters';
 import { LayoutParameters } from './layout-parameters';
 import { DiagramMetadata, EdgeMetadata, BusNodeMetadata, NodeMetadata, TextNodeMetadata } from './diagram-metadata';
-import { CSS_DECLARATION, CSS_RULE, THRESHOLD_STATUS, DEFAULT_DYNAMIC_CSS_RULES } from './dynamic-css-utils';
+import {
+    CSS_DECLARATION,
+    CSS_RULE,
+    THRESHOLD_STATUS,
+    DEFAULT_DYNAMIC_CSS_RULES,
+    cloneRules,
+} from './dynamic-css-utils';
 import { debounce } from '@mui/material';
 
 type DIMENSIONS = { width: number; height: number; viewbox: VIEWBOX };
@@ -118,7 +124,8 @@ export class NetworkAreaDiagramViewer {
         this.height = 0;
         this.originalWidth = 0;
         this.originalHeight = 0;
-        this.dynamicCssRules = customDynamicCssRules ?? DEFAULT_DYNAMIC_CSS_RULES;
+        // rules need to be cloned because we store the threshold inside them
+        this.dynamicCssRules = cloneRules(customDynamicCssRules ?? DEFAULT_DYNAMIC_CSS_RULES);
         this.init(
             minWidth,
             minHeight,
