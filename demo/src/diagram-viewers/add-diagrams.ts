@@ -253,6 +253,9 @@ export const addNadToDemo = () => {
                 .setAttribute('style', 'border:2px; border-style:solid;');
         });
 
+    const enableLevelOfDetail: boolean =
+        new URLSearchParams(window.location.search).get('enableLevelOfDetail') === 'true';
+
     fetch(NadSvgPartialNetworkExample)
         .then((response) => response.text())
         .then((svgContent) => {
@@ -268,15 +271,21 @@ export const addNadToDemo = () => {
                 handleTextNodeMove,
                 handleNodeSelect,
                 true,
-                false,
+                enableLevelOfDetail,
                 null,
                 handleToggleNadHover
             );
 
-            document
-                .getElementById('svg-container-nad-partial-network')
+            const svgContainerNadPartialNetwork = document.getElementById('svg-container-nad-partial-network');
+
+            svgContainerNadPartialNetwork
                 ?.getElementsByTagName('svg')[0]
                 .setAttribute('style', 'border:2px; border-style:solid;');
+
+            svgContainerNadPartialNetwork.insertAdjacentHTML(
+                'afterbegin',
+                `<p>enableLevelOfDetail=${enableLevelOfDetail}, <a href=".?enableLevelOfDetail=${!enableLevelOfDetail}">reload toggle enableLevelOfDetail</a></p>`
+            );
         });
 };
 
