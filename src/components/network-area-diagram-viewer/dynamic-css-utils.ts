@@ -113,3 +113,5 @@ export const DEFAULT_DYNAMIC_CSS_RULES: CSS_RULE[] = [
         thresholdStatus: THRESHOLD_STATUS.ABOVE,
     },
 ];
+
+export const cloneRules = (rules: CSS_RULE[]) => rules.map((rule) => ({ ...rule }));

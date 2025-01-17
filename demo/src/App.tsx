@@ -126,6 +126,9 @@ export default function App() {
                                 console.log('Selected Lines: ', networkMapRef.current?.getSelectedLines().length);
                             }}
                         />
+                        <button onClick={() => networkMapRef.current?.resetZoomAndPosition()}>
+                            Reset zoom and position
+                        </button>
                     </div>
                 </ThemeProvider>
             </StyledEngineProvider>
