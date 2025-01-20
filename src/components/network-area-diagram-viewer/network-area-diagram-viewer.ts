@@ -260,8 +260,13 @@ export class NetworkAreaDiagramViewer {
         if (!elemToMove) {
             return;
         }
+        const textNodeWidth = elemToMove?.firstElementChild?.scrollWidth ?? 0;
+        const textNodeHeight = elemToMove?.firstElementChild?.scrollHeight ?? 0;
         this.endTextEdge = new Point(nodePosition.x + connectionShiftX, nodePosition.y + connectionShiftY);
-        this.moveElement(elemToMove, new Point(nodePosition.x + shiftX, nodePosition.y + shiftY));
+        this.moveElement(
+            elemToMove,
+            new Point(nodePosition.x + shiftX + textNodeWidth / 2, nodePosition.y + shiftY + textNodeHeight / 2)
+        );
         // update metadata only
         this.updateTextNodeMetadataCallback(
             elemToMove,
