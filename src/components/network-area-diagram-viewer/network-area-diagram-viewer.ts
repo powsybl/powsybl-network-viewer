@@ -260,19 +260,17 @@ export class NetworkAreaDiagramViewer {
         if (!elemToMove) {
             return;
         }
-        const textNodeWidth = elemToMove?.firstElementChild?.scrollWidth ?? 0;
-        const textNodeHeight = elemToMove?.firstElementChild?.scrollHeight ?? 0;
         this.endTextEdge = new Point(nodePosition.x + connectionShiftX, nodePosition.y + connectionShiftY);
-        this.moveElement(
+
+        const textNodeTopLeftCornerPosition = new Point(nodePosition.x + shiftX, nodePosition.y + shiftY);
+        const textNodeCenterPosition = DiagramUtils.getTextNodeCenterFromTopLeftCorner(
             elemToMove,
-            new Point(nodePosition.x + shiftX + textNodeWidth / 2, nodePosition.y + shiftY + textNodeHeight / 2)
+            textNodeTopLeftCornerPosition
         );
+        this.moveElement(elemToMove, textNodeCenterPosition);
+
         // update metadata only
-        this.updateTextNodeMetadataCallback(
-            elemToMove,
-            new Point(nodePosition.x + shiftX, nodePosition.y + shiftY),
-            false
-        );
+        this.updateTextNodeMetadataCallback(elemToMove, textNodeCenterPosition, false);
     }
 
     public init(
@@ -577,7 +575,7 @@ export class NetworkAreaDiagramViewer {
 
     private moveVoltageLevelText(textNode: SVGGraphicsElement, vlNode: SVGGraphicsElement, mousePosition: Point) {
         window.getSelection()?.empty(); // to avoid text highlighting in firefox
-        this.moveText(textNode, vlNode, mousePosition, DiagramUtils.getTextNodeAngleFromCentre);
+        this.moveText(textNode, vlNode, mousePosition, DiagramUtils.getTextNodeTopLeftCornerFromCenter);
     }
 
     private moveVoltageLevelNode(vlNode: SVGGraphicsElement, mousePosition: Point) {
@@ -1360,7 +1358,7 @@ export class NetworkAreaDiagramViewer {
         );
         if (node != null && textNode != null) {
             // get new text node position
-            const textPosition = DiagramUtils.getTextNodeAngleFromCentre(textNodeElement, mousePosition);
+            const textPosition = DiagramUtils.getTextNodeTopLeftCornerFromCenter(textNodeElement, mousePosition);
             const textNodeMoves = DiagramUtils.getTextNodeMoves(textNode, node, textPosition, this.endTextEdge);
             // update text node position in metadata
             textNode.shiftX = textNodeMoves[0].xNew;
@@ -1382,6 +1380,13 @@ export class NetworkAreaDiagramViewer {
                     textNodeMoves[1].yNew,
                     textNodeMoves[1].xOrig,
                     textNodeMoves[1].yOrig
+                );
+                this.moveTextNodeToCoordinates(
+                    node.equipmentId,
+                    textNode.shiftX,
+                    textNode.shiftY,
+                    textNode.connectionShiftX,
+                    textNode.connectionShiftY
                 );
             }
         }
