@@ -1381,13 +1381,6 @@ export class NetworkAreaDiagramViewer {
                     textNodeMoves[1].xOrig,
                     textNodeMoves[1].yOrig
                 );
-                this.moveTextNodeToCoordinates(
-                    node.equipmentId,
-                    textNode.shiftX,
-                    textNode.shiftY,
-                    textNode.connectionShiftX,
-                    textNode.connectionShiftY
-                );
             }
         }
     }
