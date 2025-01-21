@@ -17,6 +17,8 @@ import NadSvgThreeWTDanglingLineUnknownBusExample from './data/nad-scada.svg';
 import NadSvgThreeWTDanglingLineUnknownBusExampleMeta from './data/nad-scada_metadata.json';
 import NadSvgPartialNetworkExample from './data/nad-ieee300cdf-VL9006.svg';
 import NadSvgPartialNetworkExampleMeta from './data/nad-ieee300cdf-VL9006_metadata.json';
+import NadSvgPegaseNetworkExample from './data/case1354pegase.svg';
+import NadSvgPegaseNetworkExampleMeta from './data/case1354pegase.json';
 import SldSvgExample from './data/sld-example.svg';
 import SldSvgExampleMeta from './data/sld-example-meta.json';
 import SldSvgSubExample from './data/sld-sub-example.svg';
@@ -286,6 +288,32 @@ export const addNadToDemo = () => {
                 'afterbegin',
                 `<p>enableLevelOfDetail=${enableLevelOfDetail}, <a href=".?enableLevelOfDetail=${!enableLevelOfDetail}">reload toggle enableLevelOfDetail</a></p>`
             );
+        });
+
+    fetch(NadSvgPegaseNetworkExample)
+        .then((response) => response.text())
+        .then((svgContent) => {
+            new NetworkAreaDiagramViewer(
+                document.getElementById('svg-container-nad-pegase-network')!,
+                svgContent,
+                NadSvgPegaseNetworkExampleMeta,
+                500,
+                600,
+                1000,
+                1200,
+                handleNodeMove,
+                handleTextNodeMove,
+                handleNodeSelect,
+                true,
+                enableLevelOfDetail,
+                null,
+                handleToggleNadHover
+            );
+
+            document
+                .getElementById('svg-container-nad-pegase-network')
+                ?.getElementsByTagName('svg')[0]
+                ?.setAttribute('style', 'border:2px; border-style:solid;');
         });
 };
 
