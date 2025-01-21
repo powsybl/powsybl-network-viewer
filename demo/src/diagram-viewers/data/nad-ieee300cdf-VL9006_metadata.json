@@ -18,7 +18,7 @@
     },
     "insertNameDesc" : true,
     "svgWidthAndHeightAdded" : false,
-    "cssLocation" : "INSERTED_IN_SVG",
+    "cssLocation" : "EXTERNAL_NO_IMPORT",
     "sizeConstraint" : "FIXED_SCALE",
     "fixedWidth" : -1,
     "fixedHeight" : -1,

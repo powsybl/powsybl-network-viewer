@@ -282,7 +282,7 @@ export const addNadToDemo = () => {
                 ?.getElementsByTagName('svg')[0]
                 .setAttribute('style', 'border:2px; border-style:solid;');
 
-            svgContainerNadPartialNetwork.insertAdjacentHTML(
+            svgContainerNadPartialNetwork?.insertAdjacentHTML(
                 'afterbegin',
                 `<p>enableLevelOfDetail=${enableLevelOfDetail}, <a href=".?enableLevelOfDetail=${!enableLevelOfDetail}">reload toggle enableLevelOfDetail</a></p>`
             );
