@@ -16,7 +16,7 @@
       "right" : 200.0,
       "bottom" : 200.0
     },
-    "insertNameDesc" : false,
+    "insertNameDesc" : true,
     "svgWidthAndHeightAdded" : false,
     "cssLocation" : "EXTERNAL_NO_IMPORT",
     "sizeConstraint" : "FIXED_SCALE",
