@@ -313,7 +313,7 @@ export const addNadToDemo = () => {
             document
                 .getElementById('svg-container-nad-pegase-network')
                 ?.getElementsByTagName('svg')[0]
-                ?.setAttribute('style', 'border:2px; border-style:solid;');
+                .setAttribute('style', 'border:2px; border-style:solid;');
         });
 };
 
