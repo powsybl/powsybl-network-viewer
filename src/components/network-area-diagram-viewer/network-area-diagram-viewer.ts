@@ -261,13 +261,16 @@ export class NetworkAreaDiagramViewer {
             return;
         }
         this.endTextEdge = new Point(nodePosition.x + connectionShiftX, nodePosition.y + connectionShiftY);
-        this.moveElement(elemToMove, new Point(nodePosition.x + shiftX, nodePosition.y + shiftY));
-        // update metadata only
-        this.updateTextNodeMetadataCallback(
+
+        const textNodeTopLeftCornerPosition = new Point(nodePosition.x + shiftX, nodePosition.y + shiftY);
+        const textNodeCenterPosition = DiagramUtils.getTextNodeCenterFromTopLeftCorner(
             elemToMove,
-            new Point(nodePosition.x + shiftX, nodePosition.y + shiftY),
-            false
+            textNodeTopLeftCornerPosition
         );
+        this.moveElement(elemToMove, textNodeCenterPosition);
+
+        // update metadata only
+        this.updateTextNodeMetadataCallback(elemToMove, textNodeCenterPosition, false);
     }
 
     public init(
@@ -572,7 +575,7 @@ export class NetworkAreaDiagramViewer {
 
     private moveVoltageLevelText(textNode: SVGGraphicsElement, vlNode: SVGGraphicsElement, mousePosition: Point) {
         window.getSelection()?.empty(); // to avoid text highlighting in firefox
-        this.moveText(textNode, vlNode, mousePosition, DiagramUtils.getTextNodeAngleFromCentre);
+        this.moveText(textNode, vlNode, mousePosition, DiagramUtils.getTextNodeTopLeftCornerFromCenter);
     }
 
     private moveVoltageLevelNode(vlNode: SVGGraphicsElement, mousePosition: Point) {
@@ -1355,7 +1358,7 @@ export class NetworkAreaDiagramViewer {
         );
         if (node != null && textNode != null) {
             // get new text node position
-            const textPosition = DiagramUtils.getTextNodeAngleFromCentre(textNodeElement, mousePosition);
+            const textPosition = DiagramUtils.getTextNodeTopLeftCornerFromCenter(textNodeElement, mousePosition);
             const textNodeMoves = DiagramUtils.getTextNodeMoves(textNode, node, textPosition, this.endTextEdge);
             // update text node position in metadata
             textNode.shiftX = textNodeMoves[0].xNew;
