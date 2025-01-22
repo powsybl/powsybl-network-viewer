@@ -255,9 +255,6 @@ export const addNadToDemo = () => {
                 .setAttribute('style', 'border:2px; border-style:solid;');
         });
 
-    const enableLevelOfDetail: boolean =
-        new URLSearchParams(window.location.search).get('enableLevelOfDetail') === 'true';
-
     fetch(NadSvgPartialNetworkExample)
         .then((response) => response.text())
         .then((svgContent) => {
@@ -273,28 +270,26 @@ export const addNadToDemo = () => {
                 handleTextNodeMove,
                 handleNodeSelect,
                 true,
-                enableLevelOfDetail,
+                false,
                 null,
                 handleToggleNadHover
             );
 
-            const svgContainerNadPartialNetwork = document.getElementById('svg-container-nad-partial-network');
-
-            svgContainerNadPartialNetwork
+            document
+                .getElementById('svg-container-nad-partial-network')
                 ?.getElementsByTagName('svg')[0]
                 .setAttribute('style', 'border:2px; border-style:solid;');
-
-            svgContainerNadPartialNetwork?.insertAdjacentHTML(
-                'afterbegin',
-                `<p>enableLevelOfDetail=${enableLevelOfDetail}, <a href=".?enableLevelOfDetail=${!enableLevelOfDetail}">reload toggle enableLevelOfDetail</a></p>`
-            );
         });
+
+    const enableLevelOfDetail: boolean =
+        new URLSearchParams(window.location.search).get('enableLevelOfDetail') === 'true';
 
     fetch(NadSvgPegaseNetworkExample)
         .then((response) => response.text())
         .then((svgContent) => {
+            const svgContainerNadPegase = document.getElementById('svg-container-nad-pegase-network');
             new NetworkAreaDiagramViewer(
-                document.getElementById('svg-container-nad-pegase-network')!,
+                svgContainerNadPegase!,
                 svgContent,
                 NadSvgPegaseNetworkExampleMeta,
                 500,
@@ -310,10 +305,14 @@ export const addNadToDemo = () => {
                 handleToggleNadHover
             );
 
-            document
-                .getElementById('svg-container-nad-pegase-network')
+            svgContainerNadPegase
                 ?.getElementsByTagName('svg')[0]
                 .setAttribute('style', 'border:2px; border-style:solid;');
+
+            svgContainerNadPegase?.insertAdjacentHTML(
+                'afterbegin',
+                `<p>enableLevelOfDetail=${enableLevelOfDetail}, <a href=".?enableLevelOfDetail=${!enableLevelOfDetail}">reload toggle enableLevelOfDetail</a></p>`
+            );
         });
 };
 
