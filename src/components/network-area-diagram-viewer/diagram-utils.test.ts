@@ -270,13 +270,51 @@ test('getTextEdgeEnd', () => {
     expect(textEdgeEnd.y).toBe(110);
 });
 
-test('getTextNodeAngleFromCentre', () => {
-    // not so useful test: in the test scrollWidth and scrollHeight of the div element
-    // inside the foreignObject are not correctly detected, they are always 0,
-    // so the input position is not moved to the text box angle
-    const textNodeAngle = DiagramUtils.getTextNodeAngleFromCentre(getSvgTextNode(), new Point(240, -310));
-    expect(textNodeAngle.x).toBe(240);
-    expect(textNodeAngle.y).toBe(-310);
+test('getTextNodeTopLeftCornerFromCenter', () => {
+    // In the tests, the scrollWidth and scrollHeight of the foreignObject's div element are not correctly detected.
+    // We have to mock them to test the getTextNodeTopLeftCornerFromCenter function.
+
+    // Mock the SVGGraphicsElement and its child scroll dimensions
+    const mockGetSvgTextNode = getSvgTextNode();
+
+    // Mock the scrollWidth and scrollHeight on the first child
+    Object.defineProperty(mockGetSvgTextNode.firstElementChild, 'scrollWidth', {
+        value: 100,
+        writable: true,
+    });
+    Object.defineProperty(mockGetSvgTextNode.firstElementChild, 'scrollHeight', {
+        value: 50,
+        writable: true,
+    });
+
+    const textNodeTopLeftCorner = DiagramUtils.getTextNodeTopLeftCornerFromCenter(
+        mockGetSvgTextNode,
+        new Point(240, -310)
+    );
+    expect(textNodeTopLeftCorner.x).toBe(240 - 100 / 2);
+    expect(textNodeTopLeftCorner.y).toBe(-310 - 50 / 2);
+});
+
+test('getTextNodeCenterFromTopLeftCorner', () => {
+    // In the tests, the scrollWidth and scrollHeight of the foreignObject's div element are not correctly detected.
+    // We have to mock them to test the getTextNodeCenterFromTopLeftCorner function.
+
+    // Mock the SVGGraphicsElement and its child scroll dimensions
+    const mockGetSvgTextNode = getSvgTextNode();
+
+    // Mock the scrollWidth and scrollHeight on the first child
+    Object.defineProperty(mockGetSvgTextNode.firstElementChild, 'scrollWidth', {
+        value: 100,
+        writable: true,
+    });
+    Object.defineProperty(mockGetSvgTextNode.firstElementChild, 'scrollHeight', {
+        value: 50,
+        writable: true,
+    });
+
+    const textNodeCenter = DiagramUtils.getTextNodeCenterFromTopLeftCorner(mockGetSvgTextNode, new Point(290, -285));
+    expect(textNodeCenter.x).toBe(290 + 100 / 2);
+    expect(textNodeCenter.y).toBe(-285 + 50 / 2);
 });
 
 test('getTextNodeTranslatedPosition', () => {

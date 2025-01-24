@@ -17,6 +17,8 @@ import NadSvgThreeWTDanglingLineUnknownBusExample from './data/nad-scada.svg';
 import NadSvgThreeWTDanglingLineUnknownBusExampleMeta from './data/nad-scada_metadata.json';
 import NadSvgPartialNetworkExample from './data/nad-ieee300cdf-VL9006.svg';
 import NadSvgPartialNetworkExampleMeta from './data/nad-ieee300cdf-VL9006_metadata.json';
+import NadSvgPegaseNetworkExample from './data/case1354pegase.svg';
+import NadSvgPegaseNetworkExampleMeta from './data/case1354pegase.json';
 import SldSvgExample from './data/sld-example.svg';
 import SldSvgExampleMeta from './data/sld-example-meta.json';
 import SldSvgSubExample from './data/sld-sub-example.svg';
@@ -299,6 +301,40 @@ export const addNadToDemo = () => {
                 .getElementById('svg-container-nad-partial-network2')
                 ?.getElementsByTagName('svg')[0]
                 .setAttribute('style', 'border:2px; border-style:solid;');
+        });
+
+    const enableLevelOfDetail: boolean =
+        new URLSearchParams(window.location.search).get('enableLevelOfDetail') === 'true';
+
+    fetch(NadSvgPegaseNetworkExample)
+        .then((response) => response.text())
+        .then((svgContent) => {
+            const svgContainerNadPegase = document.getElementById('svg-container-nad-pegase-network');
+            new NetworkAreaDiagramViewer(
+                svgContainerNadPegase!,
+                svgContent,
+                NadSvgPegaseNetworkExampleMeta,
+                500,
+                600,
+                1000,
+                1200,
+                handleNodeMove,
+                handleTextNodeMove,
+                handleNodeSelect,
+                true,
+                enableLevelOfDetail,
+                null,
+                handleToggleNadHover
+            );
+
+            svgContainerNadPegase
+                ?.getElementsByTagName('svg')[0]
+                .setAttribute('style', 'border:2px; border-style:solid;');
+
+            svgContainerNadPegase?.insertAdjacentHTML(
+                'afterbegin',
+                `<p>enableLevelOfDetail=${enableLevelOfDetail}, <a href=".?enableLevelOfDetail=${!enableLevelOfDetail}">reload toggle enableLevelOfDetail</a></p>`
+            );
         });
 };
 

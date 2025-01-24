@@ -458,11 +458,21 @@ export function getTextEdgeEnd(
     return new Point(textNodePosition.x, textNodePosition.y + detailedTextNodeYShift);
 }
 
-// get position of angle of a text box computing from the centre position
-export function getTextNodeAngleFromCentre(textNode: SVGGraphicsElement | null, centrePosition: Point): Point {
-    const scrollWidth = textNode?.firstElementChild?.scrollWidth ?? 0;
-    const scrollHeight = textNode?.firstElementChild?.scrollHeight ?? 0;
-    return new Point(centrePosition.x - scrollWidth / 2, centrePosition.y - scrollHeight / 2);
+// Get the top left corner position of a text box using the box's center position
+export function getTextNodeTopLeftCornerFromCenter(textNode: SVGGraphicsElement | null, centrePosition: Point): Point {
+    const textNodeWidth = textNode?.firstElementChild?.scrollWidth ?? 0;
+    const textNodeHeight = textNode?.firstElementChild?.scrollHeight ?? 0;
+    return new Point(centrePosition.x - textNodeWidth / 2, centrePosition.y - textNodeHeight / 2);
+}
+
+// Get the center position of a text box using the box's top left corner position
+export function getTextNodeCenterFromTopLeftCorner(
+    textNode: SVGGraphicsElement | null,
+    topLeftCornerPosition: Point
+): Point {
+    const textNodeWidth = textNode?.firstElementChild?.scrollWidth ?? 0;
+    const textNodeHeight = textNode?.firstElementChild?.scrollHeight ?? 0;
+    return new Point(topLeftCornerPosition.x + textNodeWidth / 2, topLeftCornerPosition.y + textNodeHeight / 2);
 }
 
 // get the position of a translated text box

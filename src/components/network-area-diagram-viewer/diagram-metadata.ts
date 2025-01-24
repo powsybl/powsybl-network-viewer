@@ -35,6 +35,7 @@ export interface SvgParametersMetadata {
     edgeInfoDisplayed: string;
     powerValuePrecision: number;
     currentValuePrecision: number;
+    insertNameDesc: boolean;
 }
 
 export interface BusNodeMetadata {
