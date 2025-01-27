@@ -602,25 +602,23 @@ function getRightClickableFrom(element: SVGElement): SVGElement | undefined {
 }
 
 function getElementType(element: SVGElement | null): ElemenType {
-    if (element != null && element.parentElement != null) {
-        if (element.parentElement.classList.contains('nad-text-nodes')) {
-            return ElemenType.TEXT_NODE;
-        }
-        if (element.parentElement.classList.contains('nad-3wt-nodes')) {
-            return ElemenType.THREE_WINDINGS_TRANSFORMER;
-        }
-        if (
-            element.parentElement.classList.contains('nad-vl-nodes') ||
-            element.parentElement.classList.contains('nad-boundary-nodes')
-        ) {
-            return ElemenType.VOLTAGE_LEVEL;
-        }
-        if (
-            element.parentElement.classList.contains('nad-branch-edges') ||
-            element.parentElement.classList.contains('nad-3wt-edges')
-        ) {
-            return ElemenType.BRANCH;
-        }
+    if (element?.parentElement?.classList.contains('nad-text-nodes')) {
+        return ElemenType.TEXT_NODE;
+    }
+    if (element?.parentElement?.classList.contains('nad-3wt-nodes')) {
+        return ElemenType.THREE_WINDINGS_TRANSFORMER;
+    }
+    if (
+        element?.parentElement?.classList.contains('nad-vl-nodes') ||
+        element?.parentElement?.classList.contains('nad-boundary-nodes')
+    ) {
+        return ElemenType.VOLTAGE_LEVEL;
+    }
+    if (
+        element?.parentElement?.classList.contains('nad-branch-edges') ||
+        element?.parentElement?.classList.contains('nad-3wt-edges')
+    ) {
+        return ElemenType.BRANCH;
     }
     return ElemenType.UNKNOWN;
 }
