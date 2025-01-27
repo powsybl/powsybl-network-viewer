@@ -37,6 +37,7 @@ import {
     OnSelectNodeCallbackType,
     OnToggleNadHoverCallbackType,
     BranchState,
+    OnRightClickCallbackType,
 } from '../../../src';
 
 export const addNadToDemo = () => {
@@ -57,7 +58,8 @@ export const addNadToDemo = () => {
                 true,
                 false,
                 null,
-                handleToggleNadHover
+                handleToggleNadHover,
+                handleRightClick
             );
 
             document
@@ -99,7 +101,6 @@ export const addNadToDemo = () => {
                     ', "value2": ' +
                     (621 - +branchLabelsSlider.value * 20) +
                     '}]';
-                console.log(branchStates);
                 nadViewer.setJsonBranchStates(branchStates);
             });
 
@@ -123,7 +124,8 @@ export const addNadToDemo = () => {
                 false,
                 false,
                 null,
-                handleToggleNadHover
+                handleToggleNadHover,
+                handleRightClick
             );
 
             document
@@ -149,7 +151,8 @@ export const addNadToDemo = () => {
                 true,
                 false,
                 null,
-                handleToggleNadHover
+                handleToggleNadHover,
+                handleRightClick
             );
 
             document
@@ -194,7 +197,8 @@ export const addNadToDemo = () => {
                 true,
                 false,
                 null,
-                handleToggleNadHover
+                handleToggleNadHover,
+                handleRightClick
             );
 
             document
@@ -220,7 +224,8 @@ export const addNadToDemo = () => {
                 true,
                 false,
                 null,
-                handleToggleNadHover
+                handleToggleNadHover,
+                handleRightClick
             );
 
             document
@@ -246,7 +251,8 @@ export const addNadToDemo = () => {
                 true,
                 false,
                 null,
-                handleToggleNadHover
+                handleToggleNadHover,
+                handleRightClick
             );
 
             document
@@ -272,7 +278,8 @@ export const addNadToDemo = () => {
                 true,
                 false,
                 null,
-                handleToggleNadHover
+                handleToggleNadHover,
+                handleRightClick
             );
 
             document
@@ -302,7 +309,8 @@ export const addNadToDemo = () => {
                 true,
                 enableLevelOfDetail,
                 null,
-                handleToggleNadHover
+                handleToggleNadHover,
+                handleRightClick
             );
 
             svgContainerNadPegase
@@ -509,4 +517,19 @@ const handleToggleNadHover: OnToggleNadHoverCallbackType = (hovered, mousePositi
             mousePosition?.y;
         console.log(msg);
     }
+};
+
+const handleRightClick: OnRightClickCallbackType = (svgId, equipmentId, equipmentType, mousePosition) => {
+    const msg =
+        'Right click on element : ' +
+        svgId +
+        ', equipment: ' +
+        equipmentId +
+        ', equipmentType: ' +
+        equipmentType +
+        ', mousePosition : x =' +
+        mousePosition?.x +
+        ', y=' +
+        mousePosition?.y;
+    console.log(msg);
 };

@@ -61,6 +61,13 @@ export type OnToggleNadHoverCallbackType = (
     equipmentType: string
 ) => void;
 
+export type OnRightClickCallbackType = (
+    svgId: string,
+    equipmentId: string,
+    equipmentType: string,
+    mousePosition: Point
+) => void;
+
 // update css rules when zoom changes by this amount. This allows to not
 // update when only translating (when translating, round errors lead to
 // epsilon changes in the float values), or not too often a bit when smooth
@@ -100,6 +107,7 @@ export class NetworkAreaDiagramViewer {
     onToggleHoverCallback: OnToggleNadHoverCallbackType | null;
     previousMaxDisplayedSize: number;
     edgesMap: Map<string, EdgeMetadata> = new Map<string, EdgeMetadata>();
+    onRightClickCallback: OnRightClickCallbackType | null;
 
     constructor(
         container: HTMLElement,
@@ -115,7 +123,8 @@ export class NetworkAreaDiagramViewer {
         enableNodeInteraction: boolean,
         enableLevelOfDetail: boolean,
         customDynamicCssRules: CSS_RULE[] | null,
-        onToggleHoverCallback: OnToggleNadHoverCallbackType | null
+        onToggleHoverCallback: OnToggleNadHoverCallbackType | null,
+        onRightClickCallback: OnRightClickCallbackType | null
     ) {
         this.container = container;
         this.svgContent = svgContent;
@@ -126,6 +135,7 @@ export class NetworkAreaDiagramViewer {
         this.originalHeight = 0;
         // rules need to be cloned because we store the threshold inside them
         this.dynamicCssRules = cloneRules(customDynamicCssRules ?? DEFAULT_DYNAMIC_CSS_RULES);
+        this.onRightClickCallback = onRightClickCallback;
         this.init(
             minWidth,
             minHeight,
@@ -333,6 +343,13 @@ export class NetworkAreaDiagramViewer {
                 this.onToggleHoverCallback?.(false, null, '', '');
             });
         }
+        if (this.onRightClickCallback != null && hasMetadata) {
+            this.svgDraw.on('mousedown', (e: Event) => {
+                if ((e as MouseEvent).button == 2) {
+                    this.onMouseRightDown(e as MouseEvent);
+                }
+            });
+        }
         this.svgDraw.on('panStart', function () {
             if (drawnSvg.parentElement != undefined) {
                 drawnSvg.parentElement.style.cursor = 'move';
@@ -385,6 +402,15 @@ export class NetworkAreaDiagramViewer {
             // fill empty elements: unknown buses and three windings transformers
             const emptyElements: NodeListOf<SVGGraphicsElement> = this.container.querySelectorAll(
                 '.nad-unknown-busnode, .nad-3wt-nodes .nad-winding'
+            );
+            emptyElements.forEach((emptyElement) => {
+                emptyElement.style.fill = '#0000';
+            });
+        }
+        if (this.onRightClickCallback != null && hasMetadata) {
+            // fill empty branch elements: two windings transformers
+            const emptyElements: NodeListOf<SVGGraphicsElement> = this.container.querySelectorAll(
+                '.nad-branch-edges .nad-winding'
             );
             emptyElements.forEach((emptyElement) => {
                 emptyElement.style.fill = '#0000';
@@ -1612,5 +1638,20 @@ export class NetworkAreaDiagramViewer {
         } else {
             console.warn('Skipping updating branch ' + branchId + ' side ' + side + ' status: edge not found');
         }
+    }
+
+    private onMouseRightDown(event: MouseEvent) {
+        const elementData = DiagramUtils.getRightClickableElementData(
+            event.target as SVGElement,
+            this.diagramMetadata?.nodes,
+            this.diagramMetadata?.textNodes,
+            this.diagramMetadata?.edges
+        );
+        if (!elementData) {
+            return;
+        }
+        this.ctm = this.svgDraw?.node.getScreenCTM();
+        const mousePosition: Point = this.getMousePosition(event);
+        this.onRightClickCallback?.(elementData.svgId, elementData.equipmentId, elementData.type, mousePosition);
     }
 }
