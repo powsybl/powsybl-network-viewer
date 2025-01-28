@@ -27,7 +27,7 @@ export enum EdgeType {
     UNKNOWN,
 }
 
-export enum ElemenType {
+export enum ElementType {
     VOLTAGE_LEVEL,
     THREE_WINDINGS_TRANSFORMER,
     TEXT_NODE,
@@ -567,22 +567,22 @@ export function getRightClickableElementData(
     if (!element) {
         return undefined;
     }
-    const elementType: ElemenType = getElementType(element);
+    const elementType: ElementType = getElementType(element);
     switch (elementType) {
-        case ElemenType.VOLTAGE_LEVEL:
-        case ElemenType.THREE_WINDINGS_TRANSFORMER: {
+        case ElementType.VOLTAGE_LEVEL:
+        case ElementType.THREE_WINDINGS_TRANSFORMER: {
             const node: NodeMetadata | undefined = nodes?.find((node) => node.svgId == element.id);
             return node != null
-                ? { svgId: node.svgId, equipmentId: node.equipmentId, type: ElemenType[elementType] }
+                ? { svgId: node.svgId, equipmentId: node.equipmentId, type: ElementType[elementType] }
                 : undefined;
         }
-        case ElemenType.TEXT_NODE: {
+        case ElementType.TEXT_NODE: {
             const textNode: TextNodeMetadata | undefined = textNodes?.find((textNode) => textNode.svgId == element.id);
             return textNode != null
-                ? { svgId: textNode.svgId, equipmentId: textNode.equipmentId, type: ElemenType[elementType] }
+                ? { svgId: textNode.svgId, equipmentId: textNode.equipmentId, type: ElementType[elementType] }
                 : undefined;
         }
-        case ElemenType.BRANCH: {
+        case ElementType.BRANCH: {
             const edge: EdgeMetadata | undefined = edges?.find((edge) => edge.svgId == element.id);
             return edge != null
                 ? { svgId: edge.svgId, equipmentId: edge.equipmentId, type: getStringEdgeType(edge) }
@@ -601,24 +601,24 @@ function getRightClickableFrom(element: SVGElement): SVGElement | undefined {
     }
 }
 
-function getElementType(element: SVGElement | null): ElemenType {
+function getElementType(element: SVGElement | null): ElementType {
     if (element?.parentElement?.classList.contains('nad-text-nodes')) {
-        return ElemenType.TEXT_NODE;
+        return ElementType.TEXT_NODE;
     }
     if (element?.parentElement?.classList.contains('nad-3wt-nodes')) {
-        return ElemenType.THREE_WINDINGS_TRANSFORMER;
+        return ElementType.THREE_WINDINGS_TRANSFORMER;
     }
     if (
         element?.parentElement?.classList.contains('nad-vl-nodes') ||
         element?.parentElement?.classList.contains('nad-boundary-nodes')
     ) {
-        return ElemenType.VOLTAGE_LEVEL;
+        return ElementType.VOLTAGE_LEVEL;
     }
     if (
         element?.parentElement?.classList.contains('nad-branch-edges') ||
         element?.parentElement?.classList.contains('nad-3wt-edges')
     ) {
-        return ElemenType.BRANCH;
+        return ElementType.BRANCH;
     }
-    return ElemenType.UNKNOWN;
+    return ElementType.UNKNOWN;
 }

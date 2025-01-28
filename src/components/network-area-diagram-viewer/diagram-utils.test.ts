@@ -465,11 +465,11 @@ test('getRightClickableElementData', () => {
     let elementData = DiagramUtils.getRightClickableElementData(getSvgNode(), nodes, textNodes, edges);
     expect(elementData?.svgId).toBe('0');
     expect(elementData?.equipmentId).toBe('VLGEN');
-    expect(elementData?.type).toBe(DiagramUtils.ElemenType[DiagramUtils.ElemenType.VOLTAGE_LEVEL]);
+    expect(elementData?.type).toBe(DiagramUtils.ElementType[DiagramUtils.ElementType.VOLTAGE_LEVEL]);
     elementData = DiagramUtils.getRightClickableElementData(getSvgTextNode(), nodes, textNodes, edges);
     expect(elementData?.svgId).toBe('0-textnode');
     expect(elementData?.equipmentId).toBe('VLGEN');
-    expect(elementData?.type).toBe(DiagramUtils.ElemenType[DiagramUtils.ElemenType.TEXT_NODE]);
+    expect(elementData?.type).toBe(DiagramUtils.ElementType[DiagramUtils.ElementType.TEXT_NODE]);
     elementData = DiagramUtils.getRightClickableElementData(getSvgLoopEdge(), nodes, textNodes, edges);
     expect(elementData?.svgId).toBe('16');
     expect(elementData?.equipmentId).toBe('T4-1-0');
