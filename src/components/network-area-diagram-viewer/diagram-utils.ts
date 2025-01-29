@@ -7,6 +7,10 @@
 
 import { Point } from '@svgdotjs/svg.js';
 import { EdgeMetadata, BusNodeMetadata, NodeMetadata, TextNodeMetadata } from './diagram-metadata';
+import { SvgParameters } from './svg-parameters';
+
+export type Dimensions = { width: number; height: number; viewbox: ViewBox };
+export type ViewBox = { x: number; y: number; width: number; height: number };
 
 // node move: original and new position
 export type NODEMOVE = {
@@ -621,4 +625,62 @@ function getElementType(element: SVGElement | null): ElementType {
         return ElementType.BRANCH;
     }
     return ElementType.UNKNOWN;
+}
+
+// get view box computed starting from node and text positions
+// defined in diagram metadata
+export function getViewBox(
+    nodes: NodeMetadata[] | undefined,
+    textNodes: TextNodeMetadata[] | undefined,
+    svgParameters: SvgParameters
+): ViewBox {
+    const size = { minX: Number.MAX_VALUE, maxX: -Number.MAX_VALUE, minY: Number.MAX_VALUE, maxY: -Number.MAX_VALUE };
+    const nodesMap: Map<string, NodeMetadata> = new Map<string, NodeMetadata>();
+    nodes?.forEach((node) => {
+        nodesMap.set(node.equipmentId, node);
+        size.minX = Math.min(size.minX, node.x);
+        size.maxX = Math.max(size.maxX, node.x);
+        size.minY = Math.min(size.minY, node.y);
+        size.maxY = Math.max(size.maxY, node.y);
+    });
+    textNodes?.forEach((textNode) => {
+        const node = nodesMap.get(textNode.equipmentId);
+        if (node !== undefined) {
+            size.minX = Math.min(size.minX, node.x + textNode.shiftX);
+            size.maxX = Math.max(size.maxX, node.x + textNode.shiftX + svgParameters.getTextBoxWidth());
+            size.minY = Math.min(size.minY, node.y + textNode.shiftY);
+            size.maxY = Math.max(size.maxY, node.y + textNode.shiftY + svgParameters.getTextBoxHeight());
+        }
+    });
+    return {
+        x: round(size.minX - svgParameters.getDiagramPadding().left),
+        y: round(size.minY - svgParameters.getDiagramPadding().top),
+        width: round(
+            size.maxX - size.minX + svgParameters.getDiagramPadding().left + svgParameters.getDiagramPadding().right
+        ),
+        height: round(
+            size.maxY - size.minY + svgParameters.getDiagramPadding().top + svgParameters.getDiagramPadding().bottom
+        ),
+    };
+}
+
+function getButton(svg: string, title: string): HTMLButtonElement {
+    const button = document.createElement('button');
+    button.innerHTML = svg;
+    button.title = title;
+    button.style.height = '25px';
+    button.style.width = '25px';
+    button.style.marginRight = '1px';
+    button.style.marginLeft = '3px';
+    button.style.marginTop = '3px';
+    button.style.padding = '0px';
+    button.style.border = 'none';
+    return button;
+}
+
+export function getZoomToFitButton(): HTMLButtonElement {
+    return getButton(
+        '<svg xmlns="http://www.w3.org/2000/svg" height="15px" viewBox="0 0 32 32" width="15px" fill="#5f6368"><path d="M21.4479,20A10.856,10.856,0,0,0,24,13,11,11,0,1,0,13,24a10.856,10.856,0,0,0,7-2.5521L27.5859,29,29,27.5859ZM13,22a9,9,0,1,1,9-9A9.01,9.01,0,0,1,13,22Z"/><path d="M10,12H8V10a2.0023,2.0023,0,0,1,2-2h2v2H10Z"/><path d="M18,12H16V10H14V8h2a2.0023,2.0023,0,0,1,2,2Z"/><path d="M12,18H10a2.0023,2.0023,0,0,1-2-2V14h2v2h2Z"/><path d="M16,18H14V16h2V14h2v2A2.0023,2.0023,0,0,1,16,18Z"/></svg>',
+        'Zoom to fit'
+    );
 }

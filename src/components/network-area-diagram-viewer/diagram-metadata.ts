@@ -20,6 +20,7 @@ export interface LayoutParametersMetadata {
 }
 
 export interface SvgParametersMetadata {
+    diagramPadding: DiagramPaddingMetadata;
     voltageLevelCircleRadius: number;
     interAnnulusSpace: number;
     transformerCircleRadius: number;
@@ -36,6 +37,13 @@ export interface SvgParametersMetadata {
     powerValuePrecision: number;
     currentValuePrecision: number;
     insertNameDesc: boolean;
+}
+
+export interface DiagramPaddingMetadata {
+    left: number;
+    top: number;
+    right: number;
+    bottom: number;
 }
 
 export interface BusNodeMetadata {
