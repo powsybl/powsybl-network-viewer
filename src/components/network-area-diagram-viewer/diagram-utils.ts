@@ -27,6 +27,20 @@ export enum EdgeType {
     UNKNOWN,
 }
 
+export enum ElementType {
+    VOLTAGE_LEVEL,
+    THREE_WINDINGS_TRANSFORMER,
+    TEXT_NODE,
+    BRANCH,
+    UNKNOWN,
+}
+
+export type ElementData = {
+    svgId: string;
+    equipmentId: string;
+    type: string;
+};
+
 const EdgeTypeMapping: { [key: string]: EdgeType } = {
     LineEdge: EdgeType.LINE,
     TwoWtEdge: EdgeType.TWO_WINDINGS_TRANSFORMER,
@@ -540,4 +554,71 @@ export function getArrowClass(p: number): string {
 export function isVlNodeFictitious(vlNodeId: string, nodes: NodeMetadata[] | undefined): boolean {
     const node: NodeMetadata | undefined = nodes?.find((node) => node.svgId == vlNodeId);
     return node?.fictitious ?? false;
+}
+
+// get the element data from the element selected using the rigth button of the mouse
+export function getRightClickableElementData(
+    clickedElement: SVGElement,
+    nodes: NodeMetadata[] | undefined,
+    textNodes: TextNodeMetadata[] | undefined,
+    edges: EdgeMetadata[] | undefined
+): ElementData | undefined {
+    const element = getRightClickableFrom(clickedElement);
+    if (!element) {
+        return undefined;
+    }
+    const elementType: ElementType = getElementType(element);
+    switch (elementType) {
+        case ElementType.VOLTAGE_LEVEL:
+        case ElementType.THREE_WINDINGS_TRANSFORMER: {
+            const node: NodeMetadata | undefined = nodes?.find((node) => node.svgId == element.id);
+            return node != null
+                ? { svgId: node.svgId, equipmentId: node.equipmentId, type: ElementType[elementType] }
+                : undefined;
+        }
+        case ElementType.TEXT_NODE: {
+            const textNode: TextNodeMetadata | undefined = textNodes?.find((textNode) => textNode.svgId == element.id);
+            return textNode != null
+                ? { svgId: textNode.svgId, equipmentId: textNode.equipmentId, type: ElementType[elementType] }
+                : undefined;
+        }
+        case ElementType.BRANCH: {
+            const edge: EdgeMetadata | undefined = edges?.find((edge) => edge.svgId == element.id);
+            return edge != null
+                ? { svgId: edge.svgId, equipmentId: edge.equipmentId, type: getStringEdgeType(edge) }
+                : undefined;
+        }
+        default:
+            return undefined;
+    }
+}
+
+function getRightClickableFrom(element: SVGElement): SVGElement | undefined {
+    if (isDraggable(element) || isHoverable(element)) {
+        return element;
+    } else if (element.parentElement) {
+        return getRightClickableFrom(element.parentNode as SVGElement);
+    }
+}
+
+function getElementType(element: SVGElement | null): ElementType {
+    if (element?.parentElement?.classList.contains('nad-text-nodes')) {
+        return ElementType.TEXT_NODE;
+    }
+    if (element?.parentElement?.classList.contains('nad-3wt-nodes')) {
+        return ElementType.THREE_WINDINGS_TRANSFORMER;
+    }
+    if (
+        element?.parentElement?.classList.contains('nad-vl-nodes') ||
+        element?.parentElement?.classList.contains('nad-boundary-nodes')
+    ) {
+        return ElementType.VOLTAGE_LEVEL;
+    }
+    if (
+        element?.parentElement?.classList.contains('nad-branch-edges') ||
+        element?.parentElement?.classList.contains('nad-3wt-edges')
+    ) {
+        return ElementType.BRANCH;
+    }
+    return ElementType.UNKNOWN;
 }

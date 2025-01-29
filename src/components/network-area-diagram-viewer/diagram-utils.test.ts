@@ -407,6 +407,75 @@ test('isVlNodeFictitious', () => {
     expect(DiagramUtils.isVlNodeFictitious('2', nodes)).toBe(true);
 });
 
+test('getRightClickableElementData', () => {
+    const nodes: NodeMetadata[] = [
+        {
+            svgId: '0',
+            equipmentId: 'VLGEN',
+            x: -452.59,
+            y: -274.01,
+        },
+        {
+            svgId: '2',
+            equipmentId: 'VLHV1',
+            x: -245.26,
+            y: 34.3,
+        },
+    ];
+    const textNodes: TextNodeMetadata[] = [
+        {
+            svgId: '0-textnode',
+            equipmentId: 'VLGEN',
+            vlNode: '0',
+            shiftX: 100.0,
+            shiftY: -40.0,
+            connectionShiftX: 100.0,
+            connectionShiftY: -15.0,
+        },
+        {
+            svgId: '2-textnode',
+            equipmentId: 'VLHV1',
+            vlNode: '2',
+            shiftX: 100.0,
+            shiftY: -40.0,
+            connectionShiftX: 100.0,
+            connectionShiftY: -15.0,
+        },
+    ];
+    const edges: EdgeMetadata[] = [
+        {
+            svgId: '15',
+            equipmentId: 'L6-4-0',
+            node1: '12',
+            node2: '0',
+            busNode1: '13',
+            busNode2: '2',
+            type: 'LineEdge',
+        },
+        {
+            svgId: '16',
+            equipmentId: 'T4-1-0',
+            node1: '0',
+            node2: '0',
+            busNode1: '2',
+            busNode2: '1',
+            type: 'TwoWtEdge',
+        },
+    ];
+    let elementData = DiagramUtils.getRightClickableElementData(getSvgNode(), nodes, textNodes, edges);
+    expect(elementData?.svgId).toBe('0');
+    expect(elementData?.equipmentId).toBe('VLGEN');
+    expect(elementData?.type).toBe(DiagramUtils.ElementType[DiagramUtils.ElementType.VOLTAGE_LEVEL]);
+    elementData = DiagramUtils.getRightClickableElementData(getSvgTextNode(), nodes, textNodes, edges);
+    expect(elementData?.svgId).toBe('0-textnode');
+    expect(elementData?.equipmentId).toBe('VLGEN');
+    expect(elementData?.type).toBe(DiagramUtils.ElementType[DiagramUtils.ElementType.TEXT_NODE]);
+    elementData = DiagramUtils.getRightClickableElementData(getSvgLoopEdge(), nodes, textNodes, edges);
+    expect(elementData?.svgId).toBe('16');
+    expect(elementData?.equipmentId).toBe('T4-1-0');
+    expect(elementData?.type).toBe(DiagramUtils.EdgeType[DiagramUtils.EdgeType.TWO_WINDINGS_TRANSFORMER]);
+});
+
 function getSvgNode(): SVGGraphicsElement {
     const nodeSvg =
         '<g class="nad-vl-nodes"><g transform="translate(-452.59,-274.01)" id="0">' +
