@@ -1665,7 +1665,6 @@ export class NetworkAreaDiagramViewer {
             return;
         }
 
-        // Mettre à jour la métadonnée
         if (side === '1') {
             edge.busNode1 = busId;
         } else {
@@ -1688,8 +1687,6 @@ export class NetworkAreaDiagramViewer {
                     busNodeEdges.set(busNode.svgId, busEdges);
                 }
             });
-            console.log(busNodeEdges);
-
             this.redrawVoltageLevelNode(vlElement, busNodeEdges, null);
         }
     }

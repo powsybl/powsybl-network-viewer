@@ -132,8 +132,8 @@
         </g>
         <g id="18">
             <g id="18.1" class="nad-vl70to120-line">
-                <polyline class="nad-edge-path nad-stretchable nad-glued-1" points="-241.54,-129.82 -125.38,-241.13"/>
-                <g class="nad-glued-1 nad-edge-infos" transform="translate(-218.08,-152.31)">
+                <polyline class="nad-edge-path nad-stretchable nad-glued-1 " points="-241.54,-129.82 -125.38,-241.13"/>
+                <g class="nad-glued-1 nad-edge-infos " transform="translate(-218.08,-152.31)">
                     <g class="nad-active">
                         <g transform="rotate(46.22)">
                             <path class="nad-arrow-in" transform="scale(10.00)" d="M-1 -1 H1 L0 1z"/>
