@@ -622,3 +622,23 @@ function getElementType(element: SVGElement | null): ElementType {
     }
     return ElementType.UNKNOWN;
 }
+
+function classIsContainerOfMovableBranches(element: SVGElement): boolean {
+    return element.classList.contains('nad-branch-edges');
+}
+
+function isMovableBranch(element: SVGElement): boolean {
+    return (
+        hasId(element) &&
+        element.parentNode != null &&
+        classIsContainerOfMovableBranches(element.parentNode as SVGElement)
+    );
+}
+
+export function getMovableBranchFrom(element: SVGElement): SVGElement | undefined {
+    if (isMovableBranch(element)) {
+        return element;
+    } else if (element.parentElement) {
+        return getMovableBranchFrom(element.parentNode as SVGElement);
+    }
+}
