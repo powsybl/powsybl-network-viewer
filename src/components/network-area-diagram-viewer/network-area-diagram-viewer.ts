@@ -1203,20 +1203,17 @@ export class NetworkAreaDiagramViewer {
                     if (typeof edgeAngle !== 'undefined') {
                         traversingBusEdgesAngles.push(edgeAngle);
                     }
-                    // redraw only if there is an edge going to another voltage level
-                    if (edge.node1 != edge.node2) {
                         // redraw only if the edge has been moved
                         if (movedEdges != null) {
                             movedEdges.forEach((movedEdge) => {
                                 if (edge.svgId == movedEdge.svgId) {
                                     redraw = true;
-                                }
+                            }
                             });
                         } else {
                             // movedEdges == null -> all edges have been moved
                             redraw = true;
                         }
-                    }
                 });
             }
         }
@@ -1592,8 +1589,8 @@ export class NetworkAreaDiagramViewer {
             this.setBranchSideLabel(branchState.branchId, '2', edgeId, branchState.value2);
             this.setBranchSideConnection(branchState.branchId, '1', edgeId, branchState.connected1);
             this.setBranchSideConnection(branchState.branchId, '2', edgeId, branchState.connected2);
-            this.setBranchBusConnection('1', edgeId, branchState.connectedBus1);
-            this.setBranchBusConnection('2', edgeId, branchState.connectedBus2);
+            this.setBranchBusConnection(branchState.branchId, '1', edgeId, branchState.connectedBus1);
+            this.setBranchBusConnection(branchState.branchId, '2', edgeId, branchState.connectedBus2);
         });
     }
 
@@ -1644,16 +1641,23 @@ export class NetworkAreaDiagramViewer {
         }
     }
 
-    private setBranchBusConnection(side: string, edgeId: string, busId: string) {
+    /**
+     * Updates the connection between a branch and a bus in the electrical network diagram
+     * @param branchId - the ID of the branch
+     * @param side - The side of the branch to connect ('1' or '2')
+     * @param edgeId - The ID of the edge representing the branch
+     * @param busId - The ID of the target bus to connect to
+     */
+    private setBranchBusConnection(branchId: string, side: string, edgeId: string, busId: string) {
         const targetBusNode = this.diagramMetadata?.busNodes.find((busNode) => busNode.svgId === busId);
         if (!targetBusNode) {
-            console.warn(`Bus ${busId} not found in metadata`);
+            console.warn('Skipping updating branch ' + branchId + ' side ' + side + ' status: Bus '+ busId +' not found in metadata');
             return;
         }
 
         const edge = this.diagramMetadata?.edges.find((e) => e.svgId === edgeId);
         if (!edge) {
-            console.warn(`Edge ${edgeId} not found in metadata`);
+            console.warn('Skipping updating branch ' + branchId + ' side ' + side + ' status: edge '+ edgeId +' not found in metadata');
             return;
         }
 
@@ -1661,7 +1665,7 @@ export class NetworkAreaDiagramViewer {
         const currentBusNode = this.diagramMetadata?.busNodes.find((busNode) => busNode.svgId === currentBusNodeId);
 
         if (currentBusNode && currentBusNode.vlNode !== targetBusNode.vlNode) {
-            console.warn(`Cannot connect to bus from different voltage level`);
+            console.warn('Skipping updating branch ' + branchId + ' side ' + side + ' status: Cannot connect to bus from different voltage level');
             return;
         }
 
@@ -1672,23 +1676,27 @@ export class NetworkAreaDiagramViewer {
         }
 
         const vlElement = this.container.querySelector(`[id='${targetBusNode.vlNode}']`) as SVGGraphicsElement;
-        if (vlElement) {
-            const currentPosition = DiagramUtils.getPosition(vlElement);
-            this.moveStraightEdge(edge, vlElement, currentPosition);
-            const vlBusNodes = this.diagramMetadata?.busNodes.filter(
-                (busNode) => busNode.vlNode === targetBusNode.vlNode
-            );
-            const busNodeEdges = new Map<string, EdgeMetadata[]>();
-            vlBusNodes?.forEach((busNode) => {
-                const busEdges = this.diagramMetadata?.edges.filter(
-                    (e) => e.busNode1 === busNode.svgId || e.busNode2 === busNode.svgId
-                );
-                if (busEdges?.length) {
-                    busNodeEdges.set(busNode.svgId, busEdges);
-                }
-            });
-            this.redrawVoltageLevelNode(vlElement, busNodeEdges, null);
+        if(!vlElement) {
+            console.warn('Skipping updating branch ' + branchId + ' side ' + side + ' status: Cannot found voltageLevel ' + targetBusNode.vlNode);
+            return;
         }
+
+        const currentPosition = DiagramUtils.getPosition(vlElement);
+        this.moveStraightEdge(edge, vlElement, currentPosition);
+        const vlBusNodes = this.diagramMetadata?.busNodes.filter(
+            (busNode) => busNode.vlNode === targetBusNode.vlNode
+        );
+        const busNodeEdges = new Map<string, EdgeMetadata[]>();
+        vlBusNodes?.forEach((busNode) => {
+            const busEdges = this.diagramMetadata?.edges.filter(
+                (e) => e.busNode1 === busNode.svgId || e.busNode2 === busNode.svgId
+            );
+            if (busEdges?.length) {
+                busNodeEdges.set(busNode.svgId, busEdges);
+            }
+        });
+        this.redrawVoltageLevelNode(vlElement, busNodeEdges, null);
+
     }
 
     private onMouseRightDown(event: MouseEvent) {
