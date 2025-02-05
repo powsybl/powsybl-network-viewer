@@ -195,13 +195,13 @@ export const addNadToDemo = () => {
                 const value = +branchBusSlider.value;
                 const branchStates = [
                     {
-                        branchId: "L7-5-0",
+                        branchId: 'L7-5-0',
                         value1: 609 - value * 20,
                         value2: -611 + value * 20,
                         connected1: true,
                         connected2: true,
-                        connectedBus1: value < 10 ? "4" : "5",
-                        connectedBus2: "11"
+                        connectedBus1: value < 10 ? '4' : '5',
+                        connectedBus2: '11',
                     },
                 ];
                 nadViewer.setBranchStates(branchStates);
