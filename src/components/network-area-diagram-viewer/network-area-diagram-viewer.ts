@@ -1589,8 +1589,12 @@ export class NetworkAreaDiagramViewer {
             this.setBranchSideLabel(branchState.branchId, '2', edgeId, branchState.value2);
             this.setBranchSideConnection(branchState.branchId, '1', edgeId, branchState.connected1);
             this.setBranchSideConnection(branchState.branchId, '2', edgeId, branchState.connected2);
-            this.setBranchBusConnection(branchState.branchId, '1', edgeId, branchState.connectedBus1);
-            this.setBranchBusConnection(branchState.branchId, '2', edgeId, branchState.connectedBus2);
+            if (branchState.connectedBus1){
+                this.setBranchBusConnection(branchState.branchId, '1', edgeId, branchState.connectedBus1);
+            }
+            if (branchState.connectedBus2) {
+                this.setBranchBusConnection(branchState.branchId, '2', edgeId, branchState.connectedBus2);
+            }
         });
     }
 
