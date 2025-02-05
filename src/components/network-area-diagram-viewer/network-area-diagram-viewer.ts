@@ -421,7 +421,7 @@ export class NetworkAreaDiagramViewer {
         }
         if (this.onRightClickCallback != null && hasMetadata) {
             // fill empty branch elements: two windings transformers
-            const emptyElements: NodeListOf<SVGGraphicsElement> = this.container.querySelectorAll(
+            const emptyElements: NodeListOf<SVGGraphicsElement> = this.svgDiv.querySelectorAll(
                 '.nad-branch-edges .nad-winding'
             );
             emptyElements.forEach((emptyElement) => {
