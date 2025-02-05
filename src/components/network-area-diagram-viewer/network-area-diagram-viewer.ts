@@ -1680,7 +1680,7 @@ export class NetworkAreaDiagramViewer {
         }
 
         const vlElement = this.container.querySelector(`[id='${targetBusNode.vlNode}']`) as SVGGraphicsElement;
-        if(!vlElement) {
+        if (!vlElement) {
             console.warn('Skipping updating branch ' + branchId + ' side ' + side + ' status: Cannot found voltageLevel ' + targetBusNode.vlNode);
             return;
         }
