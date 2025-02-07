@@ -47,8 +47,6 @@ export class SvgParameters {
     static readonly DIAGRAM_PADDING_TOP_DEFAULT = 200.0;
     static readonly DIAGRAM_PADDING_RIGHT_DEFAULT = 200.0;
     static readonly DIAGRAM_PADDING_BOTTON_DEFAULT = 200.0;
-    static readonly TEXT_BOX_WIDTH_DEFAULT = 200.0;
-    static readonly TEXT_BOX_HEIGHT_DEFAULT = 100.0;
 
     svgParametersMetadata: SvgParametersMetadata | undefined;
 
@@ -132,13 +130,5 @@ export class SvgParameters {
             right: this.svgParametersMetadata?.diagramPadding.right ?? SvgParameters.DIAGRAM_PADDING_RIGHT_DEFAULT,
             bottom: this.svgParametersMetadata?.diagramPadding.bottom ?? SvgParameters.DIAGRAM_PADDING_BOTTON_DEFAULT,
         };
-    }
-
-    public getTextBoxWidth(): number {
-        return SvgParameters.TEXT_BOX_WIDTH_DEFAULT;
-    }
-
-    public getTextBoxHeight(): number {
-        return SvgParameters.TEXT_BOX_HEIGHT_DEFAULT;
     }
 }

@@ -55,6 +55,9 @@ const EdgeTypeMapping: { [key: string]: EdgeType } = {
     ThreeWtEdge: EdgeType.THREE_WINDINGS_TRANSFORMER,
 };
 
+const TEXT_BOX_WIDTH_DEFAULT = 200.0;
+const TEXT_BOX_HEIGHT_DEFAULT = 100.0;
+
 // format number to string
 export function getFormattedValue(value: number): string {
     return value.toFixed(2);
@@ -647,9 +650,9 @@ export function getViewBox(
         const node = nodesMap.get(textNode.equipmentId);
         if (node !== undefined) {
             size.minX = Math.min(size.minX, node.x + textNode.shiftX);
-            size.maxX = Math.max(size.maxX, node.x + textNode.shiftX + svgParameters.getTextBoxWidth());
+            size.maxX = Math.max(size.maxX, node.x + textNode.shiftX + TEXT_BOX_WIDTH_DEFAULT);
             size.minY = Math.min(size.minY, node.y + textNode.shiftY);
-            size.maxY = Math.max(size.maxY, node.y + textNode.shiftY + svgParameters.getTextBoxHeight());
+            size.maxY = Math.max(size.maxY, node.y + textNode.shiftY + TEXT_BOX_HEIGHT_DEFAULT);
         }
     });
     return {
