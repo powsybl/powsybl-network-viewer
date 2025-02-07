@@ -20,6 +20,13 @@ const EdgeInfoEnumMapping: { [key: string]: EdgeInfoEnum } = {
     CURRENT: EdgeInfoEnum.CURRENT,
 };
 
+type DiagramPadding = {
+    left: number;
+    top: number;
+    right: number;
+    bottom: number;
+};
+
 export class SvgParameters {
     static readonly VOLTAGE_LEVEL_CIRCLE_RADIUS_DEFAULT = 30.0;
     static readonly INTER_ANNULUS_SPACE_DEFAULT = 5.0;
@@ -36,6 +43,10 @@ export class SvgParameters {
     static readonly EDGE_INFO_DISPLAYED_DEFAULT = EdgeInfoEnum.ACTIVE_POWER;
     static readonly POWER_VALUE_PRECISION_RADIUS_DEFAULT = 0;
     static readonly CURRENT_VALUE_PRECISION_DEFAULT = 0;
+    static readonly DIAGRAM_PADDING_LEFT_DEFAULT = 200.0;
+    static readonly DIAGRAM_PADDING_TOP_DEFAULT = 200.0;
+    static readonly DIAGRAM_PADDING_RIGHT_DEFAULT = 200.0;
+    static readonly DIAGRAM_PADDING_BOTTON_DEFAULT = 200.0;
 
     svgParametersMetadata: SvgParametersMetadata | undefined;
 
@@ -110,5 +121,14 @@ export class SvgParameters {
 
     public getCurrentValuePrecision(): number {
         return this.svgParametersMetadata?.currentValuePrecision ?? SvgParameters.CURRENT_VALUE_PRECISION_DEFAULT;
+    }
+
+    public getDiagramPadding(): DiagramPadding {
+        return {
+            left: this.svgParametersMetadata?.diagramPadding.left ?? SvgParameters.DIAGRAM_PADDING_LEFT_DEFAULT,
+            top: this.svgParametersMetadata?.diagramPadding.top ?? SvgParameters.DIAGRAM_PADDING_TOP_DEFAULT,
+            right: this.svgParametersMetadata?.diagramPadding.right ?? SvgParameters.DIAGRAM_PADDING_RIGHT_DEFAULT,
+            bottom: this.svgParametersMetadata?.diagramPadding.bottom ?? SvgParameters.DIAGRAM_PADDING_BOTTON_DEFAULT,
+        };
     }
 }
