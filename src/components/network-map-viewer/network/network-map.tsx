@@ -10,6 +10,7 @@ import PropTypes from 'prop-types';
 import {
     forwardRef,
     memo,
+    PropsWithChildren,
     type ReactNode,
     RefObject,
     useCallback,
@@ -24,11 +25,28 @@ import { MapboxOverlay, type MapboxOverlayProps } from '@deck.gl/mapbox';
 import { Replay } from '@mui/icons-material';
 import { Button, type ButtonProps, useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
-import { Map, type MapProps, type MapRef, NavigationControl, useControl, type ViewState } from 'react-map-gl';
+import {
+    Map as MapGL,
+    type MapMouseEvent as MapBoxLayerMouseEvent,
+    type MapProps as MapGlProps,
+    type MapRef as MapGlRef,
+    type ViewState,
+    type ViewStateChangeEvent as ViewStateChangeEventGl,
+    NavigationControl as NavigationControlGl,
+    useControl as useControlGl,
+} from 'react-map-gl/mapbox';
+import {
+    Map as MapLibre,
+    type MapLayerMouseEvent as MapLibreLayerMouseEvent,
+    type MapProps as MapLibreProps,
+    type MapRef as MapLibreRef,
+    type ViewStateChangeEvent as ViewStateChangeEventLibre,
+    NavigationControl as NavigationControlLibre,
+    useControl as useControlLibre,
+} from 'react-map-gl/maplibre';
 import type { Feature, Polygon } from 'geojson';
 import { type Layer, type PickingInfo } from 'deck.gl';
 import type MapboxDraw from '@mapbox/mapbox-gl-draw';
-//import type { MjolnirGestureEvent } from 'mjolnir.js';
 import { getNominalVoltageColor } from '../../../utils/colors';
 import { useNameOrId } from '../utils/equipmentInfosHandler';
 import { GeoData } from './geo-data';
@@ -38,9 +56,9 @@ import { MapEquipments } from './map-equipments';
 import SubstationLayer from './substation-layer';
 import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
 import LoaderWithOverlay from '../utils/loader-with-overlay';
-import mapboxgl, { type MapLayerMouseEvent as MapBoxLayerMouseEvent } from 'mapbox-gl';
+import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import maplibregl, { type MapLayerMouseEvent as MapLibreLayerMouseEvent } from 'maplibre-gl';
+import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
 import {
@@ -60,8 +78,8 @@ const MOUSE_EVENT_BUTTON_LEFT = 0;
 const MOUSE_EVENT_BUTTON_RIGHT = 2;
 
 /**
- * Represents the draw event types for the network map.
- * when a draw event is triggered, the event type is passed to the onDrawEvent callback
+ * Represents the draw event types for the network map.<br/>
+ * when a draw event is triggered, the event type is passed to the onDrawEvent callback<br/>
  * On create, when the user create a new polygon (shape finished)
  */
 export enum DRAW_EVENT {
@@ -72,9 +90,22 @@ export enum DRAW_EVENT {
 
 // Small boilerplate recommended by deckgl, to bridge to a react-map-gl control declaratively
 // see https://deck.gl/docs/api-reference/mapbox/mapbox-overlay#using-with-react-map-gl
-const DeckGLOverlay = forwardRef<MapboxOverlay, MapboxOverlayProps>((props, ref) => {
-    const overlay = useControl(() => new MapboxOverlay(props));
-    overlay.setProps(props);
+type DeckGLOverlayProps = MapboxOverlayProps & { isMapGl?: boolean };
+const DeckGLOverlay = forwardRef<MapboxOverlay, DeckGLOverlayProps>(({ isMapGl, ...props }, ref) => {
+    let overlay: MapboxOverlay;
+    /* We can ignore ESlint rule react-hooks/rules-of-hooks here because useControl implementation is the same in the two cases,
+     *   and we don't break the order of hooks calls
+     * https://github.com/visgl/react-map-gl/blob/8.0-release/modules/react-mapbox/src/components/use-control.ts
+     * https://github.com/visgl/react-map-gl/blob/8.0-release/modules/react-maplibre/src/components/use-control.ts
+     */
+    if (isMapGl) {
+        // @ts-expect-error TODO: what?? the two extends mapbox-gl.IControl ?..
+        overlay = useControlGl<MapboxOverlay>(() => new MapboxOverlay(props)); // eslint-disable-line react-hooks/rules-of-hooks
+    } else {
+        // @ts-expect-error TODO: MapboxOverlay extends mapbox-gl.IControl while useControl ask for maplibre-gl.IControl ...
+        overlay = useControlLibre<MapboxOverlay>(() => new MapboxOverlay(props)); // eslint-disable-line react-hooks/rules-of-hooks
+    }
+    overlay.setProps(props); // useControl can reuse an instance of previous render, so update it
     useImperativeHandle(ref, () => overlay, [overlay]);
     return null;
 });
@@ -126,7 +157,7 @@ const INITIAL_CENTERED: Centered = {
 
 const DEFAULT_LOCATE_SUBSTATION_ZOOM_LEVEL = 12;
 
-// get polygon coordinates (features) or an empty object
+/** get polygon coordinates (features) or an empty object */
 function getPolygonFeatures() {
     return getMapDrawer()?.getAll()?.features[0] ?? ({} as Record<string, never>);
 }
@@ -140,6 +171,36 @@ type TooltipType = {
 };
 
 export type MenuClickFunction<T extends MapEquipment> = (equipment: T, eventX: number, eventY: number) => void;
+
+function getMapStyle(mapLibrary: LiteralUnion<MapLibrary, string>, mapTheme: LiteralUnion<MapTheme, string>) {
+    switch (mapLibrary) {
+        case MAPBOX:
+            // https://docs.mapbox.com/api/maps/styles/#classic-mapbox-styles
+            if (mapTheme === LIGHT) {
+                // https://www.mapbox.com/maps/light
+                return 'mapbox://styles/mapbox/light-v11';
+            } else {
+                // https://www.mapbox.com/maps/dark
+                return 'mapbox://styles/mapbox/dark-v11';
+            }
+        // https://openmaptiles.org/styles/ ; https://openmaptiles.org/docs/website/maplibre-gl-js/#use-the-openmaptiles-styles
+        // https://github.com/CartoDB/basemap-styles ; https://docs.carto.com/carto-for-developers/carto-for-react/guides/basemaps
+        case CARTO:
+            if (mapTheme === LIGHT) {
+                return 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json';
+            } else {
+                return 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json';
+            }
+        case CARTO_NOLABEL:
+            if (mapTheme === LIGHT) {
+                return 'https://basemaps.cartocdn.com/gl/positron-nolabels-gl-style/style.json';
+            } else {
+                return 'https://basemaps.cartocdn.com/gl/dark-matter-nolabels-gl-style/style.json';
+            }
+        default:
+            return 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json';
+    }
+}
 
 export type NetworkMapProps = {
     disabled?: boolean;
@@ -240,11 +301,13 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
         onPolygonChanged: rawProps.onPolygonChanged ?? (() => {}),
         onDrawEvent: rawProps.onDrawEvent ?? (() => {}),
     };
+    // explicit variables for eslint react rule on deps for useMemo & useCallback
+    const { onPolygonChanged, centerOnSubstation, onDrawEvent, shouldDisableToolTip } = props;
 
     const [labelsVisible, setLabelsVisible] = useState(false);
     const [showLineFlow, setShowLineFlow] = useState(true);
     const [showTooltip, setShowTooltip] = useState(true);
-    const mapRef = useRef<MapRef>(null);
+    const mapRef = useRef<MapGlRef | MapLibreRef>(null); //TODO replaced since v7.? by https://visgl.github.io/react-map-gl/docs/api-reference/mapbox/use-map
     const deckRef = useRef<MapboxOverlay>(null);
     const [centered, setCentered] = useState(INITIAL_CENTERED);
     const lastViewStateRef = useRef<ViewState>();
@@ -252,16 +315,15 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
     const theme = useTheme();
     const foregroundNeutralColor = useMemo(() => {
         const labelColor = decomposeColor(theme.palette.text.primary).values;
-        // @ts-expect-error TODO: manage undefined case; are we in argb or rgb here?
-        labelColor[3] *= 255;
+        if (labelColor.length === 4) {
+            labelColor[3] *= 255;
+        }
         return labelColor;
     }, [theme]);
     const [cursorType, setCursorType] = useState('grab');
     const [isDragging, setDragging] = useState(false);
-
-    //NOTE these constants are moved to the component's parameters list
-    //const currentNode = useSelector((state) => state.currentTreeNode);
-    const { onPolygonChanged, centerOnSubstation, onDrawEvent, shouldDisableToolTip } = props;
+    const setDraggingTrue = useCallback(() => setDragging(true), []);
+    const setDraggingFalse = useCallback(() => setDragging(false), []);
 
     const { getNameOrId } = useNameOrId(props.useName);
 
@@ -344,50 +406,37 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
                         centered: true,
                     });
                 } else {
-                    // @ts-expect-error TODO: manage undefined case
-                    const coords = Array.from(props.geoData?.substationPositionsById.entries()).map((x) => x[1]);
-                    const maxlon = Math.max.apply(
-                        null,
-                        coords.map((x) => x.lon)
-                    );
-                    const minlon = Math.min.apply(
-                        null,
-                        coords.map((x) => x.lon)
-                    );
-                    const maxlat = Math.max.apply(
-                        null,
-                        coords.map((x) => x.lat)
-                    );
-                    const minlat = Math.min.apply(
-                        null,
-                        coords.map((x) => x.lat)
-                    );
-                    const marginlon = (maxlon - minlon) / 10;
-                    const marginlat = (maxlat - minlat) / 10;
+                    const coords = Array.from(props.geoData?.substationPositionsById.entries() ?? []).map((x) => x[1]);
+                    const coordsLon = coords.map((x) => x.lon);
+                    const maxLon = Math.max(...coordsLon);
+                    const minLon = Math.min(...coordsLon);
+                    const marginlon = (maxLon - minLon) / 10;
+                    const coordLat = coords.map((x) => x.lat);
+                    const maxLat = Math.max(...coordLat);
+                    const minLat = Math.min(...coordLat);
+                    const marginLat = (maxLat - minLat) / 10;
                     mapRef.current?.fitBounds(
                         [
-                            [minlon - marginlon / 2, minlat - marginlat / 2],
-                            [maxlon + marginlon / 2, maxlat + marginlat / 2],
+                            [minLon - marginlon / 2, minLat - marginLat / 2],
+                            [maxLon + marginlon / 2, maxLat + marginLat / 2],
                         ],
                         { animate: false }
                     );
-                    setCentered({
-                        lastCenteredSubstation: null,
-                        centered: true,
-                    });
+                    setCentered({ lastCenteredSubstation: null, centered: true });
                 }
             }
         }
     }
 
-    const onViewStateChange = useCallback<NonNullable<MapProps['onMove']>>(
-        (info) => {
+    const onViewStateChange = useCallback(
+        (event: ViewStateChangeEventGl | ViewStateChangeEventLibre) => {
+            const info = event as ViewStateChangeEventGl; // because tsc don't support union of Gl|Libre
             lastViewStateRef.current = info.viewState;
             if (
-                // @ts-expect-error TODO TS2339: Property interactionState does not exist on type ViewStateChangeEvent
+                // @ts-expect-error TODO TS2339: Property interactionState does not exist on type ViewStateChangeEvent of MapBox & MapLibre
                 !info.interactionState || // first event of before an animation (e.g. clicking the +/- buttons of the navigation controls, gives the target
-                // @ts-expect-error TODO TS2339: Property interactionState does not exist on type ViewStateChangeEvent
-                (info.interactionState && !info.interactionState.inTransition) // Any event not part of a animation (mouse panning or zooming)
+                // @ts-expect-error TODO TS2339: Property interactionState does not exist on type ViewStateChangeEvent of MapBox & MapLibre
+                (info.interactionState && !info.interactionState.inTransition) // Any event not part of an animation (mouse panning or zooming)
             ) {
                 if (info.viewState.zoom >= props.labelsZoomThreshold && !labelsVisible) {
                     setLabelsVisible(true);
@@ -529,23 +578,18 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
         ]
     );
 
-    const onMapContextMenu = useCallback<NonNullable<MapProps['onContextMenu']>>(
-        (event) => {
-            const info =
-                deckRef.current &&
-                deckRef.current.pickObject({
-                    x: event.point.x,
-                    y: event.point.y,
-                    radius: PICKING_RADIUS,
-                });
+    const onMapContextMenu = useCallback(
+        (e: MapBoxLayerMouseEvent | MapLibreLayerMouseEvent) => {
+            const event = e as MapBoxLayerMouseEvent; // because tsc don't support union of MBox|MLibre
+            const info = deckRef.current?.pickObject({
+                x: event.point.x,
+                y: event.point.y,
+                radius: PICKING_RADIUS,
+            });
             info && onClickHandler(info, event, props.mapEquipments);
         },
         [onClickHandler, props.mapEquipments]
     );
-
-    function cursorHandler() {
-        return isDragging ? 'grabbing' : cursorType;
-    }
 
     const layers: Layer[] = [];
 
@@ -567,9 +611,7 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
                 labelColor: foregroundNeutralColor,
                 labelSize: LABEL_SIZE,
                 pickable: true,
-                onHover: ({ object }) => {
-                    setCursorType(object ? 'pointer' : 'grab');
-                },
+                onHover: ({ object }) => setCursorType(object ? 'pointer' : 'grab'),
                 getNameOrId: _getNameOrId,
             })
         );
@@ -626,60 +668,17 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
         bearing: 0,
     };
 
-    const renderOverlay = () => (
-        <LoaderWithOverlay color="inherit" loaderSize={70} isFixed={false} loadingMessageText={'loadingGeoData'} />
-    );
-
     useEffect(() => {
         mapRef.current?.resize();
     }, [props.triggerMapResizeOnChange]);
 
-    const getMapStyle = (mapLibrary: LiteralUnion<MapLibrary, string>, mapTheme: LiteralUnion<MapTheme, string>) => {
-        switch (mapLibrary) {
-            case MAPBOX:
-                if (mapTheme === LIGHT) {
-                    return 'mapbox://styles/mapbox/light-v9';
-                } else {
-                    return 'mapbox://styles/mapbox/dark-v9';
-                }
-            case CARTO:
-                if (mapTheme === LIGHT) {
-                    return 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json';
-                } else {
-                    return 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json';
-                }
-            case CARTO_NOLABEL:
-                if (mapTheme === LIGHT) {
-                    return 'https://basemaps.cartocdn.com/gl/positron-nolabels-gl-style/style.json';
-                } else {
-                    return 'https://basemaps.cartocdn.com/gl/dark-matter-nolabels-gl-style/style.json';
-                }
-            default:
-                return 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json';
-        }
-    };
-
     const mapStyle = useMemo(() => getMapStyle(props.mapLibrary, props.mapTheme), [props.mapLibrary, props.mapTheme]);
-
-    const mapLib =
-        props.mapLibrary === MAPBOX
-            ? (mToken && {
-                  key: 'mapboxgl',
-                  mapLib: mapboxgl,
-                  mapboxAccessToken: mToken,
-              }) ||
-              undefined
-            : {
-                  key: 'maplibregl',
-                  mapLib: maplibregl,
-              };
 
     // because the mapLib prop of react-map-gl is not reactive, we need to
     // unmount/mount the Map with 'key', so we need also to reset all state
     // associated with uncontrolled state of the map
-    useEffect(() => {
-        setCentered(INITIAL_CENTERED);
-    }, [mapLib?.key]);
+    const mapKey = props.mapLibrary === MAPBOX ? (mToken ? 'mapboxgl' : undefined) : 'maplibregl';
+    useEffect(() => setCentered(INITIAL_CENTERED), [mapKey]);
 
     const onUpdate = useCallback(() => {
         onPolygonChanged(getPolygonFeatures());
@@ -693,12 +692,12 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
     const getSelectedLines = useCallback(() => {
         const polygonFeatures = getPolygonFeatures();
         const polygonCoordinates = polygonFeatures?.geometry as Polygon | undefined;
-        // @ts-expect-error TODO TS2365: Operator < cannot be applied to types Position[][] and number
-        if (!polygonCoordinates || polygonCoordinates.coordinates < 3) {
+        if (!polygonCoordinates || polygonCoordinates.coordinates.length < 3) {
             return [];
         }
         //for each line, check if it is in the polygon
         const selectedLines = getSelectedLinesInPolygon(
+            // @ts-expect-error TODO: manage undefined case
             props.mapEquipments,
             mapEquipmentsLines,
             props.geoData,
@@ -750,66 +749,90 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
         onDrawEvent(DRAW_EVENT.DELETE);
     }, [onPolygonChanged, onDrawEvent]);
 
+    function Map({ children }: Readonly<PropsWithChildren>) {
+        const commonProps = {
+            style: { zIndex: 0 },
+            onMove: onViewStateChange,
+            doubleClickZoom: false,
+            mapStyle: mapStyle,
+            styleDiffing: false,
+            initialViewState: initialViewState,
+            cursor: isDragging ? 'grabbing' : cursorType, //TODO needed for pointer on our polygonFeatures, but forces us to reimplement grabbing/grab for panning. Can we avoid reimplementing?
+            onDrag: setDraggingTrue,
+            onDragEnd: setDraggingFalse,
+            onContextMenu: onMapContextMenu,
+        } satisfies Omit<MapGlProps, 'mapLib' | 'mapboxAccessToken'> satisfies Omit<MapLibreProps, 'mapLib'>;
+        if (props.mapLibrary === MAPBOX) {
+            if (mToken) {
+                return (
+                    <MapGL
+                        ref={mapRef as RefObject<MapGlRef>}
+                        mapLib={mapboxgl}
+                        mapboxAccessToken={mToken}
+                        {...commonProps}
+                    >
+                        {children}
+                    </MapGL>
+                );
+            } else return undefined;
+        } else {
+            return (
+                <MapLibre ref={mapRef as RefObject<MapLibreRef>} mapLib={maplibregl} {...commonProps}>
+                    {children}
+                </MapLibre>
+            );
+        }
+    }
+
     return (
-        mapLib && (
-            <Map
-                ref={mapRef}
-                style={{ zIndex: 0 }}
-                onMove={onViewStateChange}
-                doubleClickZoom={false}
-                mapStyle={mapStyle}
-                styleDiffing={false}
-                // @ts-expect-error TODO TS2322: Type typeof mapboxgl is not assignable to type MapLib<Map>|Promise<MapLib<Map>>|undefined
-                mapLib={mapLib.mapLib}
-                mapboxAccessToken={mapLib.mapboxAccessToken}
-                initialViewState={initialViewState}
-                cursor={cursorHandler()} //TODO needed for pointer on our polygonFeatures, but forces us to reeimplement grabbing/grab for panning. Can we avoid reimplementing?
-                onDrag={() => setDragging(true)}
-                onDragEnd={() => setDragging(false)}
-                onContextMenu={onMapContextMenu}
-            >
-                {props.displayOverlayLoader && renderOverlay()}
-                {props.isManualRefreshBackdropDisplayed && (
-                    <Box sx={styles.mapManualRefreshBackdrop}>
-                        <Button onClick={props.onManualRefreshClick} aria-label="reload" color="inherit" size="large">
-                            <Replay />
-                            <FormattedMessage id="ManuallyRefreshGeoData" />
-                        </Button>
-                    </Box>
-                )}
-                <DeckGLOverlay
-                    ref={deckRef}
-                    onClick={(info, event) => {
-                        // @ts-expect-error TODO: we have MouseEvent|TouchEvent|PointerEvent here...
-                        onClickHandler(info, event.srcEvent, props.mapEquipments);
-                    }}
-                    onAfterRender={onAfterRender} // TODO simplify this
-                    layers={layers}
-                    pickingRadius={PICKING_RADIUS}
+        <Map>
+            {props.displayOverlayLoader && (
+                <LoaderWithOverlay
+                    color="inherit"
+                    loaderSize={70}
+                    isFixed={false}
+                    loadingMessageText="loadingGeoData"
                 />
-                {showTooltip && renderTooltip()}
-                {/* visualizePitch true makes the compass reset the pitch when clicked in addition to visualizing it */}
-                <NavigationControl visualizePitch={true} />
-                <DrawControl
-                    position="bottom-left"
-                    displayControlsDefault={false}
-                    controls={{
-                        polygon: true,
-                        trash: true,
-                    }}
-                    //
-                    // defaultMode="simple_select | draw_polygon | ...
-                    defaultMode="simple_select"
-                    readyToDisplay={readyToDisplay}
-                    onDrawPolygonModeActive={(polygon_draw) => {
-                        props.onDrawPolygonModeActive(polygon_draw);
-                    }}
-                    onCreate={onCreate}
-                    onUpdate={onUpdate}
-                    onDelete={onDelete}
-                />
-            </Map>
-        )
+            )}
+            {props.isManualRefreshBackdropDisplayed && (
+                <Box sx={styles.mapManualRefreshBackdrop}>
+                    <Button onClick={props.onManualRefreshClick} aria-label="reload" color="inherit" size="large">
+                        <Replay />
+                        <FormattedMessage id="ManuallyRefreshGeoData" />
+                    </Button>
+                </Box>
+            )}
+            <DeckGLOverlay
+                isMapGl={props.mapLibrary === MAPBOX}
+                ref={deckRef}
+                onClick={(info, event) => {
+                    // @ts-expect-error TODO: we have MouseEvent|TouchEvent|PointerEvent here...
+                    onClickHandler(info, event.srcEvent, props.mapEquipments);
+                }}
+                onAfterRender={onAfterRender} // TODO simplify this
+                layers={layers}
+                pickingRadius={PICKING_RADIUS}
+            />
+            {showTooltip && renderTooltip()}
+            {/* visualizePitch true makes the compass reset the pitch when clicked in addition to visualizing it */}
+            {props.mapLibrary === MAPBOX ? (
+                <NavigationControlGl visualizePitch={true} />
+            ) : (
+                <NavigationControlLibre visualizePitch={true} />
+            )}
+            <DrawControl
+                position="bottom-left"
+                displayControlsDefault={false}
+                controls={{ polygon: true, trash: true }}
+                // defaultMode = "simple_select" | "draw_polygon" | ...
+                defaultMode="simple_select"
+                readyToDisplay={readyToDisplay}
+                onDrawPolygonModeActive={(polygon_draw) => props.onDrawPolygonModeActive(polygon_draw)}
+                onCreate={onCreate}
+                onUpdate={onUpdate}
+                onDelete={onDelete}
+            />
+        </Map>
     );
 });
 
@@ -871,8 +894,7 @@ function getSubstationsInPolygon(
     geoData: GeoData | undefined
 ) {
     const polygonCoordinates = features?.geometry as Polygon | undefined;
-    // @ts-expect-error TODO TS2365: Operator < cannot be applied to types Position[][] and number
-    if (!polygonCoordinates || polygonCoordinates.coordinates < 3) {
+    if (!polygonCoordinates || polygonCoordinates.coordinates.length < 3) {
         return [];
     }
     //get the list of substation
@@ -881,20 +903,22 @@ function getSubstationsInPolygon(
     return substationsList // keep only the substation in the polygon
         .filter((substation) => {
             const pos = geoData?.getSubstationPosition(substation.id);
-            // @ts-expect-error TODO: manage undefined case
+            if (!pos) {
+                // we do like the library: https://github.com/Turfjs/turf/blob/master/packages/turf-boolean-point-in-polygon/index.ts#L50
+                throw new Error('point is required');
+            }
             return booleanPointInPolygon(pos, polygonCoordinates);
         });
 }
 
 function getSelectedLinesInPolygon(
-    network: MapEquipments | undefined,
+    network: MapEquipments,
     lines: MapAnyLine[],
     geoData: GeoData | undefined,
     polygonCoordinates: Polygon
 ) {
     return lines.filter((line) => {
         try {
-            // @ts-expect-error TODO: manage undefined case
             const linePos = geoData?.getLinePositions(network, line);
             if (!linePos) {
                 return false;

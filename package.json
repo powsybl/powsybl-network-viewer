@@ -23,7 +23,7 @@
         "dist"
     ],
     "scripts": {
-        "postinstall": "rimraf -I -g ./node_modules/@types/deck.gl* ./node_modules/@types/luma.gl* ./node_modules/@types/math.gl*",
+        "postinstall": "rimraf -I -g ./node_modules/@types/deck.gl* ./node_modules/@types/luma.gl* ./node_modules/@types/math.gl* ./node_modules/@types/mapbox-gl",
         "watch": "vite watch",
         "build": "vite build",
         "prepublishOnly": "$npm_execpath run build",
@@ -33,17 +33,22 @@
         "lint": "eslint . --ext js,mjs,jsx,ts,mts,tsx --max-warnings 0",
         "licenses-check": "license-checker --summary --excludePrivatePackages --production --onlyAllow \"$( jq -r .onlyAllow[] license-checker-config.json | tr '\n' ';')\" --excludePackages \"$( jq -r .excludePackages[] license-checker-config.json | tr '\n' ';')\""
     },
+    "overrides": {
+        "@deck.gl/mapbox": {
+            "@types/mapbox-gl": "npm:mapbox-gl@^3.9.4"
+        }
+    },
     "dependencies": {
-        "@mapbox/mapbox-gl-draw": "^1.4.3",
+        "@mapbox/mapbox-gl-draw": "^1.5.0",
         "@svgdotjs/svg.js": "^3.2.4",
         "@svgdotjs/svg.panzoom.js": "^2.1.2",
-        "@turf/boolean-point-in-polygon": "^6.5.0",
-        "cheap-ruler": "^3.0.2",
-        "deck.gl": "^8.9.35",
+        "@turf/boolean-point-in-polygon": "^7.2.0",
+        "cheap-ruler": "^4.0.0",
+        "deck.gl": "^8.9.36",
         "geolib": "^3.3.4",
-        "mapbox-gl": "^3.2.0",
-        "maplibre-gl": "^4.1.2",
-        "react-map-gl": "^7.1.7"
+        "mapbox-gl": "^3.9.4",
+        "maplibre-gl": "^4.7.1",
+        "react-map-gl": "^8.0.1"
     },
     "peerDependencies": {
         "@emotion/styled": "^11.14.0",
@@ -68,8 +73,7 @@
         "@types/eslint-plugin-react-refresh": "^0.4.0",
         "@types/jest": "^29.5.14",
         "@types/license-checker": "^25.0.6",
-        "@types/mapbox__mapbox-gl-draw": "^1.4.6",
-        "@types/mapbox-gl": "^3.1.0",
+        "@types/mapbox__mapbox-gl-draw": "^1.4.8",
         "@types/node": "^18.19.75",
         "@types/react": "^18.3.18",
         "@types/react-dom": "^18.3.5",
