@@ -110,6 +110,8 @@ export class NetworkAreaDiagramViewer {
     edgesMap: Map<string, EdgeMetadata> = new Map<string, EdgeMetadata>();
     onRightClickCallback: OnRightClickCallbackType | null;
     edgeAlphasMap: Map<string, number> = new Map<string, number>();
+    edgeForkLengthMap: Map<string, number> = new Map<string, number>();
+    useOrthogonalProjection: boolean = false;
 
     constructor(
         container: HTMLElement,
@@ -563,25 +565,52 @@ export class NetworkAreaDiagramViewer {
         if (!node1 || !node2) {
             return; // do not move partial edges
         }
+        const point1 = DiagramUtils.getPosition(node1);
+        const point2 = DiagramUtils.getPosition(node2);
+
         // apply movement to first fork point
-        const translation = this.getTranslation(newPosition);
+        let translation = this.getTranslation(newPosition);
         const halfEdgePolyline: HTMLElement | null = <HTMLElement>(
             (branch.querySelector("[id='" + branch.id + ".1']")?.querySelector('polyline') as Element)
         );
         const polylinePoints = DiagramUtils.getPolylinePoints(halfEdgePolyline);
-        const movedFork =
-            polylinePoints != null
-                ? new Point(polylinePoints[1].x + translation.x, polylinePoints[1].y + translation.y)
-                : newPosition;
+        const fork1 = DiagramUtils.getFork(polylinePoints, point1, this.svgParameters.getEdgesForkLength());
+        if (this.useOrthogonalProjection) {
+            // recompute orthogonal translation
+            const halfEdgePolyline2: HTMLElement | null = <HTMLElement>(
+                (branch.querySelector("[id='" + branch.id + ".2']")?.querySelector('polyline') as Element)
+            );
+            const polylinePoints2 = DiagramUtils.getPolylinePoints(halfEdgePolyline2);
+            const fork2 = DiagramUtils.getFork(polylinePoints2, point2, this.svgParameters.getEdgesForkLength());
+            if (fork1 != null && fork2 != null) {
+                const projectedPoint = DiagramUtils.projectMovementOntoEdge(
+                    fork1,
+                    fork2,
+                    this.initialPosition,
+                    newPosition
+                );
+                translation = new Point(newPosition.x - projectedPoint.x, newPosition.y - projectedPoint.y);
+            }
+        }
+        const movedFork = fork1 != null ? new Point(fork1.x + translation.x, fork1.y + translation.y) : newPosition;
+
         // compute edge angle w.r.t. moved fork point
-        const point1 = DiagramUtils.getPosition(node1);
-        const point2 = DiagramUtils.getPosition(node2);
         const angle = DiagramUtils.getAngle(point1, point2);
-        const angle1 = DiagramUtils.getAngle(point1, movedFork);
-        const alpha = -angle1 + angle;
-        this.edgeAlphasMap.set(branch.id, alpha); // store edge angle, to use it when moving nodes
+        const angleFork = DiagramUtils.getAngle(point1, movedFork);
+        const alpha = -angleFork + angle;
+
+        // compute edge fork length w.r.t. moved fork point
+        let edgeForkLength = this.edgeForkLengthMap.get(branch.id) ?? this.svgParameters.getEdgesForkLength();
+        if (Math.abs(alpha) > 0.5) {
+            edgeForkLength = DiagramUtils.getDistance(point1, movedFork);
+        }
+
+        // store edge angle and fork lenght, to use them when moving nodes
+        this.edgeAlphasMap.set(branch.id, alpha);
+        this.edgeForkLengthMap.set(branch.id, edgeForkLength);
+
         // move edge using new edge angle
-        this.moveNoStraightEdge(branch, edge, point1, point2, angle, alpha);
+        this.moveNoStraightEdge(branch, edge, point1, point2, angle, alpha, edgeForkLength);
         // redraw both voltage levels
         this.redrawOtherVoltageLevelNode(node1, [edge]);
         this.redrawOtherVoltageLevelNode(node2, [edge]);
@@ -921,7 +950,10 @@ export class NetworkAreaDiagramViewer {
                     const alpha =
                         this.edgeAlphasMap.get(edgeNode.id) ?? // branch moved
                         -this.svgParameters.getEdgesForkAperture() / 2 + i * angleStep;
-                    this.moveNoStraightEdge(edgeNode, edge, point1, point2, angle, alpha);
+                    const edgeForkLength =
+                        this.edgeForkLengthMap.get(edgeNode.id) ?? // branch  moved
+                        this.svgParameters.getEdgesForkLength();
+                    this.moveNoStraightEdge(edgeNode, edge, point1, point2, angle, alpha, edgeForkLength);
                 }
                 i++;
             });
@@ -994,13 +1026,14 @@ export class NetworkAreaDiagramViewer {
         point1: Point,
         point2: Point,
         angle: number,
-        alpha: number
+        alpha: number,
+        edgeForkLength: number
     ) {
         // compute moved edge data: polyline points
         const angleFork1 = angle - alpha;
         const angleFork2 = angle + Math.PI + alpha;
-        const edgeFork1 = DiagramUtils.getEdgeFork(point1, this.svgParameters.getEdgesForkLength(), angleFork1);
-        const edgeFork2 = DiagramUtils.getEdgeFork(point2, this.svgParameters.getEdgesForkLength(), angleFork2);
+        const edgeFork1 = DiagramUtils.getEdgeFork(point1, edgeForkLength, angleFork1);
+        const edgeFork2 = DiagramUtils.getEdgeFork(point2, edgeForkLength, angleFork2);
         const unknownBusNode1 = edge.busNode1 != null && edge.busNode1.length == 0;
         const nodeRadius1 = this.getNodeRadius(edge.busNode1 ?? '-1', edge.node1 ?? '-1');
         const edgeStart1 = DiagramUtils.getPointAtDistance(

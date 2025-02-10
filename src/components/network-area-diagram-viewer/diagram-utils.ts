@@ -107,11 +107,16 @@ export function getMidPosition(point1: Point, point2: Point): Point {
     return new Point(0.5 * (point1.x + point2.x), 0.5 * (point1.y + point2.y));
 }
 
-// get a point at a distance between two points
-export function getPointAtDistance(point1: Point, point2: Point, radius: number): Point {
+// get distance between two points
+export function getDistance(point1: Point, point2: Point): number {
     const deltax = point1.x - point2.x;
     const deltay = point1.y - point2.y;
-    const distance = Math.sqrt(deltax * deltax + deltay * deltay);
+    return Math.sqrt(deltax * deltax + deltay * deltay);
+}
+
+// get a point at a distance between two points
+export function getPointAtDistance(point1: Point, point2: Point, radius: number): Point {
+    const distance = getDistance(point1, point2);
     const r = radius / distance;
     return new Point(point1.x + r * (point2.x - point1.x), point1.y + r * (point2.y - point1.y));
 }
@@ -635,10 +640,36 @@ function isMovableBranch(element: SVGElement): boolean {
     );
 }
 
+// get the movable branch, if present,
+// from the element selected using the mouse
 export function getMovableBranchFrom(element: SVGElement): SVGElement | undefined {
     if (isMovableBranch(element)) {
         return element;
     } else if (element.parentElement) {
         return getMovableBranchFrom(element.parentNode as SVGElement);
     }
+}
+
+// project a segment [pv, pt] onto an edge segment [p1, p2]
+export function projectMovementOntoEdge(p1: Point, p2: Point, pv: Point, pt: Point): Point {
+    const sx = p2.x - p1.x;
+    const sy = p2.y - p1.y;
+    const segmentLengthSquared = sx * sx + sy * sy;
+    const vx = pt.x - pv.x;
+    const vy = pt.y - pv.y;
+    const dotProduct = vx * sx + vy * sy;
+    const scalar = dotProduct / segmentLengthSquared;
+    return new Point(pv.x + scalar * sx, pv.y + scalar * sy);
+}
+
+// get fork of polyline
+export function getFork(polylinePoints: Point[] | null, vlPoint: Point, edgesForkLength: number): Point | null {
+    if (polylinePoints != null) {
+        if (polylinePoints.length == 3) {
+            return polylinePoints[1];
+        } else {
+            return getPointAtDistance(vlPoint, polylinePoints[1], edgesForkLength);
+        }
+    }
+    return null;
 }
