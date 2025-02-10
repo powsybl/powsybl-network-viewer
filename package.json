@@ -55,7 +55,6 @@
         "@emotion/styled": "^11.14.0",
         "@mui/icons-material": "^5.15.14",
         "@mui/material": "^5.15.14",
-        "@mui/system": "^5.15.14",
         "react": "^18.3.1",
         "react-dom": "^18.3.1",
         "react-intl": "^6.8.9"
@@ -67,7 +66,6 @@
         "@danmarshall/deckgl-typings": "^4.9.28",
         "@mui/icons-material": "^5.16.14",
         "@mui/material": "^5.16.14",
-        "@mui/system": "^5.16.14",
         "@types/eslint": "^7.29.0",
         "@types/eslint-config-prettier": "^6.11.3",
         "@types/eslint-plugin-prettier": "^3.1.3",

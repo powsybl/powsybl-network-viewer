@@ -20,29 +20,28 @@ import {
     useRef,
     useState,
 } from 'react';
-import { Box, decomposeColor } from '@mui/system';
 import { MapboxOverlay, type MapboxOverlayProps } from '@deck.gl/mapbox';
 import { Replay } from '@mui/icons-material';
-import { Button, type ButtonProps, useTheme } from '@mui/material';
+import { Box, Button, type ButtonProps, decomposeColor, useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import {
     Map as MapGL,
     type MapMouseEvent as MapBoxLayerMouseEvent,
     type MapProps as MapGlProps,
     type MapRef as MapGlRef,
-    type ViewState,
-    type ViewStateChangeEvent as ViewStateChangeEventGl,
     NavigationControl as NavigationControlGl,
     useControl as useControlGl,
+    type ViewState,
+    type ViewStateChangeEvent as ViewStateChangeEventGl,
 } from 'react-map-gl/mapbox';
 import {
     Map as MapLibre,
     type MapLayerMouseEvent as MapLibreLayerMouseEvent,
     type MapProps as MapLibreProps,
     type MapRef as MapLibreRef,
-    type ViewStateChangeEvent as ViewStateChangeEventLibre,
     NavigationControl as NavigationControlLibre,
     useControl as useControlLibre,
+    type ViewStateChangeEvent as ViewStateChangeEventLibre,
 } from 'react-map-gl/maplibre';
 import type { Feature, Polygon } from 'geojson';
 import { type Layer, type PickingInfo } from 'deck.gl';
