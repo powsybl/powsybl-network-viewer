@@ -129,6 +129,7 @@ export class NetworkAreaDiagramViewer {
     ) {
         this.container = container;
         this.svgDiv = document.createElement('div');
+        this.svgDiv.id = 'svg-container';
         this.svgContent = svgContent;
         this.diagramMetadata = diagramMetadata;
         this.width = 0;
@@ -308,13 +309,19 @@ export class NetworkAreaDiagramViewer {
         // clear the previous svg in div element before replacing
         this.container.innerHTML = '';
 
-        // add buttons bar
+        // add nad viewer div
+        const nadViewerDiv = document.createElement('div');
+        nadViewerDiv.id = 'nad-viewer';
+        nadViewerDiv.style.position = 'relative';
+        this.container.appendChild(nadViewerDiv);
+
+        // add buttons bar div
         if (addButtons) {
-            this.container.appendChild(this.getButtonsBar());
+            nadViewerDiv.appendChild(this.getButtonsBar());
         }
 
         // add svg div
-        this.container.appendChild(this.svgDiv);
+        nadViewerDiv.appendChild(this.svgDiv);
 
         // set dimensions
         this.setOriginalWidth(dimensions.width);
@@ -432,9 +439,12 @@ export class NetworkAreaDiagramViewer {
 
     private getButtonsBar(): HTMLDivElement {
         const buttonsDiv = document.createElement('div');
-        buttonsDiv.style.display = 'flex';
+        buttonsDiv.id = 'buttons-bars';
+        buttonsDiv.style.display = 'inline-grid';
         buttonsDiv.style.alignItems = 'center';
         buttonsDiv.style.position = 'absolute';
+        buttonsDiv.style.left = '3px';
+        buttonsDiv.style.bottom = '7px';
         buttonsDiv.style.zIndex = '2';
 
         const zoomToFitButton = DiagramUtils.getZoomToFitButton();

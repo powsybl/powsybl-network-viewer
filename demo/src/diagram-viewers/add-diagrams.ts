@@ -65,8 +65,8 @@ export const addNadToDemo = () => {
 
             document
                 .getElementById('svg-container-nad')
-                ?.querySelectorAll('div > svg')[0]
-                .setAttribute('style', 'border:2px; border-style:solid;');
+                ?.querySelector('#svg-container > svg')
+                ?.setAttribute('style', 'border:2px; border-style:solid;');
 
             // add range slider to update branch labels
             const branchLabelsSlider = document.createElement('input');
@@ -132,8 +132,8 @@ export const addNadToDemo = () => {
 
             document
                 .getElementById('svg-container-nad-no-moving')
-                ?.querySelectorAll('div > svg')[0]
-                .setAttribute('style', 'border:2px; border-style:solid;');
+                ?.querySelector('#svg-container > svg')
+                ?.setAttribute('style', 'border:2px; border-style:solid;');
         });
 
     fetch(NadSvgMultibusVLNodesExample)
@@ -160,8 +160,8 @@ export const addNadToDemo = () => {
 
             document
                 .getElementById('svg-container-nad-multibus-vlnodes')
-                ?.querySelectorAll('div > svg')[0]
-                .setAttribute('style', 'border:2px; border-style:solid;');
+                ?.querySelector('#svg-container > svg')
+                ?.setAttribute('style', 'border:2px; border-style:solid;');
 
             // add button to update branch labels
             const branchLabels = '[{"branchId": "L7-5-0", "value1": 609, "value2": -611}]';
@@ -207,8 +207,8 @@ export const addNadToDemo = () => {
 
             document
                 .getElementById('svg-container-nad-multibus-vlnodes14')
-                ?.querySelectorAll('div > svg')[0]
-                .setAttribute('style', 'border:2px; border-style:solid;');
+                ?.querySelector('#svg-container > svg')
+                ?.setAttribute('style', 'border:2px; border-style:solid;');
         });
 
     fetch(NadSvgPstHvdcExample)
@@ -235,8 +235,8 @@ export const addNadToDemo = () => {
 
             document
                 .getElementById('svg-container-nad-pst-hvdc')
-                ?.querySelectorAll('div > svg')[0]
-                .setAttribute('style', 'border:2px; border-style:solid;');
+                ?.querySelector('#svg-container > svg')
+                ?.setAttribute('style', 'border:2px; border-style:solid;');
         });
 
     fetch(NadSvgThreeWTDanglingLineUnknownBusExample)
@@ -263,8 +263,8 @@ export const addNadToDemo = () => {
 
             document
                 .getElementById('svg-container-nad-threewt-dl-ub')
-                ?.querySelectorAll('div > svg')[0]
-                .setAttribute('style', 'border:2px; border-style:solid;');
+                ?.querySelector('#svg-container > svg')
+                ?.setAttribute('style', 'border:2px; border-style:solid;');
         });
 
     fetch(NadSvgPartialNetworkExample)
@@ -291,8 +291,8 @@ export const addNadToDemo = () => {
 
             document
                 .getElementById('svg-container-nad-partial-network')
-                ?.querySelectorAll('div > svg')[0]
-                .setAttribute('style', 'border:2px; border-style:solid;');
+                ?.querySelector('#svg-container > svg')
+                ?.setAttribute('style', 'border:2px; border-style:solid;');
         });
 
     const enableLevelOfDetail: boolean =
@@ -322,8 +322,8 @@ export const addNadToDemo = () => {
             );
 
             svgContainerNadPegase
-                ?.querySelectorAll('div > svg')[0]
-                .setAttribute('style', 'border:2px; border-style:solid;');
+                ?.querySelector('#svg-container > svg')
+                ?.setAttribute('style', 'border:2px; border-style:solid;');
 
             svgContainerNadPegase?.insertAdjacentHTML(
                 'afterbegin',
