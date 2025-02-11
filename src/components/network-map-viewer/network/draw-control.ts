@@ -6,7 +6,7 @@
  */
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
 import { useCallback } from 'react';
-import { type ControlPosition, useControl } from 'react-map-gl/mapbox';
+import { type ControlPosition, useControl } from 'react-map-gl/mapbox-legacy';
 
 // type has been removed from react-map-gl or mapbox-gl
 type EventedListener = (event?: unknown) => unknown;
