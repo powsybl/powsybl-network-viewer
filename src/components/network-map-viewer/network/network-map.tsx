@@ -20,9 +20,9 @@ import {
     useRef,
     useState,
 } from 'react';
+import { Box, Button, type ButtonProps, decomposeColor, useTheme } from '@mui/material';
 import { MapboxOverlay, type MapboxOverlayProps } from '@deck.gl/mapbox';
 import { Replay } from '@mui/icons-material';
-import { Box, Button, type ButtonProps, decomposeColor, useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import {
     Map as MapGL,
