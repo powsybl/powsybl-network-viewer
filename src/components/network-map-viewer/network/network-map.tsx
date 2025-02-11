@@ -103,6 +103,10 @@ const styles = {
         zIndex: 99,
         fontSize: 30,
     },
+    manualRefreshButton: {
+        backgroundColor: '#6e6e6e',
+        opacity: '1',
+    },
 };
 
 const FALLBACK_MAPBOX_TOKEN =
@@ -771,22 +775,30 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
                 {props.displayOverlayLoader && renderOverlay()}
                 {props.isManualRefreshBackdropDisplayed && (
                     <Box sx={styles.mapManualRefreshBackdrop}>
-                        <Button onClick={props.onManualRefreshClick} aria-label="reload" color="inherit" size="large">
+                        <Button
+                            sx={styles.manualRefreshButton}
+                            onClick={props.onManualRefreshClick}
+                            aria-label="reload"
+                            color="inherit"
+                            size="large"
+                        >
                             <Replay />
                             <FormattedMessage id="ManuallyRefreshGeoData" />
                         </Button>
                     </Box>
                 )}
-                <DeckGLOverlay
-                    ref={deckRef}
-                    onClick={(info, event) => {
-                        // @ts-expect-error TODO: we have MouseEvent|TouchEvent|PointerEvent here...
-                        onClickHandler(info, event.srcEvent, props.mapEquipments);
-                    }}
-                    onAfterRender={onAfterRender} // TODO simplify this
-                    layers={layers}
-                    pickingRadius={PICKING_RADIUS}
-                />
+                {!props.isManualRefreshBackdropDisplayed && (
+                    <DeckGLOverlay
+                        ref={deckRef}
+                        onClick={(info, event) => {
+                            // @ts-expect-error TODO: we have MouseEvent|TouchEvent|PointerEvent here...
+                            onClickHandler(info, event.srcEvent, props.mapEquipments);
+                        }}
+                        onAfterRender={onAfterRender} // TODO simplify this
+                        layers={layers}
+                        pickingRadius={PICKING_RADIUS}
+                    />
+                )}
                 {showTooltip && renderTooltip()}
                 {/* visualizePitch true makes the compass reset the pitch when clicked in addition to visualizing it */}
                 <NavigationControl visualizePitch={true} />
