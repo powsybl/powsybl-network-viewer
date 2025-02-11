@@ -133,6 +133,7 @@ export const addNadToDemo = () => {
                 ?.getElementsByTagName('svg')[0]
                 .setAttribute('style', 'border:2px; border-style:solid;');
         });
+
     fetch(NadSvgMultibusVLNodesExample)
         .then((response) => response.text())
         .then((svgContent) => {
@@ -159,8 +160,8 @@ export const addNadToDemo = () => {
                 ?.getElementsByTagName('svg')[0]
                 .setAttribute('style', 'border:2px; border-style:solid;');
 
-            const branchLabels =
-                '[{"branchId": "L7-5-0", "value1": 609, "value2": -611,"connectedBus1":"4","connectedBus2":"11"}]';
+            // add button to update branch labels
+            const branchLabels = '[{"branchId": "L7-5-0", "value1": 609, "value2": -611,"connectedBus1":"4","connectedBus2":"11"}]';
             const updateFlowsTextArea = document.createElement('textarea');
             updateFlowsTextArea.rows = 2;
             updateFlowsTextArea.cols = 65;
@@ -177,39 +178,6 @@ export const addNadToDemo = () => {
             updateFlowsDiv.appendChild(br);
             updateFlowsDiv.appendChild(updateFlowsButton);
             document.getElementById('svg-container-nad-multibus-vlnodes')?.appendChild(updateFlowsDiv);
-
-            const sliderDemo = document.createElement('div');
-            sliderDemo.style.marginTop = '20px';
-
-            const branchBusSlider = document.createElement('input');
-            branchBusSlider.type = 'range';
-            branchBusSlider.min = '1';
-            branchBusSlider.max = '20';
-            branchBusSlider.value = '1';
-            branchBusSlider.step = 'any';
-            branchBusSlider.style.width = '97%';
-            branchBusSlider.style.display = 'flex';
-            branchBusSlider.style.justifyContent = 'space-between';
-            branchBusSlider.style.padding = '0 5px';
-            branchBusSlider.addEventListener('input', () => {
-                const value = +branchBusSlider.value;
-                const branchStates = [
-                    {
-                        branchId: 'L7-5-0',
-                        value1: 609 - value * 20,
-                        value2: -611 + value * 20,
-                        connected1: true,
-                        connected2: true,
-                        connectedBus1: value < 10 ? '4' : '5',
-                        connectedBus2: '11',
-                    },
-                ];
-                nadViewer.setBranchStates(branchStates);
-            });
-
-            sliderDemo.appendChild(branchBusSlider);
-
-            document.getElementById('svg-container-nad-multibus-vlnodes')?.appendChild(sliderDemo);
         });
 
     fetch(NadSvgMultibusVLNodes14Example)
