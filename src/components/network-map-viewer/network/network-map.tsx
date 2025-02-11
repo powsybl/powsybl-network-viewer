@@ -748,7 +748,7 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
         onDrawEvent(DRAW_EVENT.DELETE);
     }, [onPolygonChanged, onDrawEvent]);
 
-    function Map({ children }: Readonly<PropsWithChildren>) {
+    function TheMap({ children }: Readonly<PropsWithChildren>) {
         const commonProps = {
             style: { zIndex: 0 },
             onMove: onViewStateChange,
@@ -784,7 +784,7 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
     }
 
     return (
-        <Map>
+        <TheMap>
             {props.displayOverlayLoader && (
                 <LoaderWithOverlay
                     color="inherit"
@@ -831,7 +831,7 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
                 onUpdate={onUpdate}
                 onDelete={onDelete}
             />
-        </Map>
+        </TheMap>
     );
 });
 
