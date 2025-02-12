@@ -679,12 +679,15 @@ function getButton(svg: string, title: string): HTMLButtonElement {
     button.style.marginBottom = '1px';
     button.style.padding = '0px';
     button.style.border = 'none';
+    button.style.display = 'flex';
+    button.style.alignItems = 'center';
+    button.style.justifyContent = 'center';
     return button;
 }
 
 export function getZoomToFitButton(): HTMLButtonElement {
     return getButton(
-        '<svg xmlns="http://www.w3.org/2000/svg" height="15px" viewBox="0 0 32 32" width="15px" fill="#5f6368"><path d="M21.4479,20A10.856,10.856,0,0,0,24,13,11,11,0,1,0,13,24a10.856,10.856,0,0,0,7-2.5521L27.5859,29,29,27.5859ZM13,22a9,9,0,1,1,9-9A9.01,9.01,0,0,1,13,22Z"/><path d="M10,12H8V10a2.0023,2.0023,0,0,1,2-2h2v2H10Z"/><path d="M18,12H16V10H14V8h2a2.0023,2.0023,0,0,1,2,2Z"/><path d="M12,18H10a2.0023,2.0023,0,0,1-2-2V14h2v2h2Z"/><path d="M16,18H14V16h2V14h2v2A2.0023,2.0023,0,0,1,16,18Z"/></svg>',
+        '<svg xmlns="http://www.w3.org/2000/svg" height="15px" viewBox="0 -960 960 960" width="15px" fill="#5f6368"><path d="M200-120q-33 0-56.5-23.5T120-200v-160h80v160h160v80H200Zm400 0v-80h160v-160h80v160q0 33-23.5 56.5T760-120H600ZM120-600v-160q0-33 23.5-56.5T200-840h160v80H200v160h-80Zm640 0v-160H600v-80h160q33 0 56.5 23.5T840-760v160h-80Z"/></svg>',
         'Zoom to fit'
     );
 }
