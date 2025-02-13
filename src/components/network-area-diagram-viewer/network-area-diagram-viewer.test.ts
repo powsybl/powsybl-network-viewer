@@ -28,7 +28,8 @@ describe('Test network-area-diagram-viewer', () => {
             false,
             null,
             null,
-            null
+            null,
+            false
         );
 
         nad.moveNodeToCoordinates('', 0, 0);
