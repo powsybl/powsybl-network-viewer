@@ -677,6 +677,7 @@ function getButton(svg: string, title: string): HTMLButtonElement {
     button.style.marginLeft = '1px';
     button.style.marginTop = '1px';
     button.style.marginBottom = '1px';
+    button.style.borderRadius = '5px';
     button.style.padding = '0px';
     button.style.border = 'none';
     button.style.display = 'flex';
