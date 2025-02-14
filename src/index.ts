@@ -52,14 +52,13 @@ export {
 } from './components/network-map-viewer/network/geo-data';
 export { LineFlowMode, LineFlowColorMode } from './components/network-map-viewer/network/line-layer';
 export { MapEquipments } from './components/network-map-viewer/network/map-equipments';
+export { default as NetworkMap, type NetworkMapProps } from './components/network-map-viewer/network/network-map';
 export {
-    default as NetworkMap,
-    type NetworkMapProps,
     type NetworkMapRef,
     DRAW_EVENT,
     type MenuClickFunction,
-} from './components/network-map-viewer/network/network-map';
-export { DRAW_MODES } from './components/network-map-viewer/network/draw-control';
+} from './components/network-map-viewer/network/network-map-common';
+export { DRAW_MODES } from './components/network-map-viewer/network/draw-control-common';
 
 export {
     EQUIPMENT_TYPES,

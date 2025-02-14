@@ -6,10 +6,8 @@
  */
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
 import { useCallback } from 'react';
-import { type ControlPosition, useControl } from 'react-map-gl/mapbox';
-
-// type has been removed from react-map-gl or mapbox-gl
-type EventedListener = (event?: unknown) => unknown;
+import { type ControlPosition, useControl } from 'react-map-gl/maplibre';
+import { DRAW_MODES, type DrawControlProps as DrawControlBaseProps } from './draw-control-common';
 
 let mapDrawerController: MapboxDraw | undefined = undefined;
 
@@ -19,29 +17,16 @@ export function getMapDrawer() {
 
 const emptyFn = () => {};
 
-export enum DRAW_MODES {
-    DRAW_POLYGON = 'draw_polygon',
-    DRAW_POINT = 'draw_point',
-    SIMPLE_SELECT = 'simple_select',
-    DIRECT_SELECT = 'direct_select',
-}
+export type DrawControlProps = DrawControlBaseProps<ControlPosition>;
 
-export type DrawControlProps = ConstructorParameters<typeof MapboxDraw>[0] & {
-    position?: ControlPosition;
-    readyToDisplay: boolean;
-    onDrawPolygonModeActive: (polygoneDrawing: DRAW_MODES) => void;
-    onCreate?: EventedListener;
-    onUpdate?: EventedListener;
-    onDelete?: EventedListener;
-};
-
-export default function DrawControl(props: DrawControlProps) {
+export default function DrawControl(props: Readonly<DrawControlProps>) {
     const { onDrawPolygonModeActive } = props;
     const onModeChange = useCallback(
         (e: { mode: DRAW_MODES }) => onDrawPolygonModeActive(e.mode),
         [onDrawPolygonModeActive]
     );
 
+    // @ts-expect-error TS2344: Type MapboxDraw does not satisfy the constraint IControl
     useControl<MapboxDraw>(
         //onCreate
         () => {

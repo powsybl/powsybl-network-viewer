@@ -9,15 +9,14 @@ import { useCallback } from 'react';
 
 type EquipmentInfos = {
     id: string;
-    name: string | null;
+    name?: string;
 };
 
 export const useNameOrId = (useName: boolean) => {
     const getNameOrId = useCallback(
         (infos: EquipmentInfos | null) => {
-            if (infos != null) {
-                const name = infos.name;
-                return useName && name != null && name.trim() !== '' ? name : infos?.id ?? null;
+            if (infos !== null) {
+                return useName && infos.name !== undefined && infos.name.trim() !== '' ? infos.name : infos?.id ?? null;
             }
             return null;
         },
