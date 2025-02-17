@@ -19,16 +19,14 @@ import {
     useRef,
     useState,
 } from 'react';
-import { Box, decomposeColor } from '@mui/system';
+import { Box, Button, type ButtonProps, decomposeColor, useTheme } from '@mui/material';
 import { MapboxOverlay, type MapboxOverlayProps } from '@deck.gl/mapbox';
 import { Replay } from '@mui/icons-material';
-import { Button, type ButtonProps, useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import { Map, type MapProps, type MapRef, NavigationControl, useControl, type ViewState } from 'react-map-gl';
 import type { Feature, Polygon } from 'geojson';
 import { type Layer, type PickingInfo } from 'deck.gl';
 import type MapboxDraw from '@mapbox/mapbox-gl-draw';
-//import type { MjolnirGestureEvent } from 'mjolnir.js';
 import { getNominalVoltageColor } from '../../../utils/colors';
 import { useNameOrId } from '../utils/equipmentInfosHandler';
 import { GeoData } from './geo-data';
