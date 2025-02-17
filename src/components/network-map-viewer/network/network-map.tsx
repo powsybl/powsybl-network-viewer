@@ -102,8 +102,10 @@ const styles = {
         fontSize: 30,
     },
     manualRefreshButton: {
-        backgroundColor: '#6e6e6e',
+        backgroundColor: '#3f3f3f',
+        color: 'white',
         opacity: '1',
+        border: '2px solid white',
     },
 };
 
