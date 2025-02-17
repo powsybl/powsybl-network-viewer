@@ -447,6 +447,16 @@ export class NetworkAreaDiagramViewer {
         buttonsDiv.style.bottom = '7px';
         buttonsDiv.style.zIndex = '2';
 
+        const zoomInButton = DiagramUtils.getZoomInButton();
+        buttonsDiv.appendChild(zoomInButton);
+        zoomInButton.addEventListener('click', () => {
+            this.zoomIn();
+        });
+        const zoomOutButton = DiagramUtils.getZoomOutButton();
+        buttonsDiv.appendChild(zoomOutButton);
+        zoomOutButton.addEventListener('click', () => {
+            this.zoomOut();
+        });
         const zoomToFitButton = DiagramUtils.getZoomToFitButton();
         buttonsDiv.appendChild(zoomToFitButton);
         zoomToFitButton.addEventListener('click', () => {
@@ -1698,5 +1708,15 @@ export class NetworkAreaDiagramViewer {
             this.svgParameters
         );
         this.svgDraw?.viewbox(viewBox.x, viewBox.y, viewBox.width, viewBox.height);
+    }
+
+    public zoomIn() {
+        const zoom = this.svgDraw?.zoom() ?? 1;
+        this.svgDraw?.zoom(1.1 * zoom);
+    }
+
+    public zoomOut() {
+        const zoom = this.svgDraw?.zoom() ?? 1;
+        this.svgDraw?.zoom(0.9 * zoom);
     }
 }
