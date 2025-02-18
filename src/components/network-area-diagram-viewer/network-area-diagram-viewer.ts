@@ -1574,9 +1574,10 @@ export class NetworkAreaDiagramViewer {
 
     public setBranchStates(branchStates: BranchState[]) {
         branchStates.forEach((branchState) => {
-            let edge: EdgeMetadata | undefined;
             if (!this.edgesMap.has(branchState.branchId)) {
-                edge = (this.diagramMetadata?.edges ?? []).find((edge) => edge.equipmentId == branchState.branchId);
+                const edge = (this.diagramMetadata?.edges ?? []).find(
+                    (edge) => edge.equipmentId == branchState.branchId
+                );
                 if (edge === undefined) {
                     console.warn('Skipping updating branch ' + branchState.branchId + ' labels: branch not found');
                     return;
@@ -1588,6 +1589,8 @@ export class NetworkAreaDiagramViewer {
             this.setBranchSideLabel(branchState.branchId, '2', edgeId, branchState.value2);
             this.setBranchSideConnection(branchState.branchId, '1', edgeId, branchState.connected1);
             this.setBranchSideConnection(branchState.branchId, '2', edgeId, branchState.connected2);
+
+            const edge = (this.diagramMetadata?.edges ?? []).find((edge) => edge.equipmentId == branchState.branchId);
 
             if (branchState.connectedBus1 && edge) {
                 this.setBranchBusConnection(edge, branchState.branchId, '1', branchState.connectedBus1);
@@ -1693,22 +1696,8 @@ export class NetworkAreaDiagramViewer {
             return;
         }
 
-        const busNodeEdges = new Map<string, EdgeMetadata[]>();
-        const connectedEdges =
-            this.diagramMetadata?.edges.filter(
-                (e) => e.node1 === targetBusNode.vlNode || e.node2 === targetBusNode.vlNode
-            ) ?? [];
-
-        connectedEdges.forEach((e) => {
-            const busNodeId = e.node1 === targetBusNode.vlNode ? e.busNode1 : e.busNode2;
-            if (busNodeId) {
-                const edgeList = busNodeEdges.get(busNodeId) ?? [];
-                edgeList.push(e);
-                busNodeEdges.set(busNodeId, edgeList);
-            }
-        });
-
-        this.redrawVoltageLevelNode(vlElement, busNodeEdges, null);
+        const currentPosition = DiagramUtils.getPosition(vlElement);
+        this.moveElement(vlElement, currentPosition);
     }
 
     private onMouseRightDown(event: MouseEvent) {
@@ -1725,4 +1714,7 @@ export class NetworkAreaDiagramViewer {
         const mousePosition: Point = this.getMousePosition(event);
         this.onRightClickCallback?.(elementData.svgId, elementData.equipmentId, elementData.type, mousePosition);
     }
+
+
+
 }
