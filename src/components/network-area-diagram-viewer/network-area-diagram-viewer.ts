@@ -230,12 +230,14 @@ export class NetworkAreaDiagramViewer {
         );
         return node?.svgId || null;
     }
+
     private getTextNodeIdFromEquipmentId(equipmentId: string) {
         const node: TextNodeMetadata | undefined = this.diagramMetadata?.textNodes.find(
             (node) => node.equipmentId == equipmentId
         );
         return node?.svgId || null;
     }
+
     public moveNodeToCoordinates(equipmentId: string, x: number, y: number) {
         const nodeId = this.getNodeIdFromEquipmentId(equipmentId);
         if (nodeId != null) {
@@ -608,12 +610,8 @@ export class NetworkAreaDiagramViewer {
     private moveVoltageLevelText(textNode: SVGGraphicsElement, vlNode: SVGGraphicsElement) {
         window.getSelection()?.empty(); // to avoid text highlighting in firefox
 
-        const textNodeMetadata = this.diagramMetadata?.textNodes.find(
-            (node) => node.svgId === textNode.id
-        );
-        const vlNodeMetadata = this.diagramMetadata?.nodes.find(
-            (node) => node.svgId === vlNode.id
-        );
+        const textNodeMetadata = this.diagramMetadata?.textNodes.find((node) => node.svgId === textNode.id);
+        const vlNodeMetadata = this.diagramMetadata?.nodes.find((node) => node.svgId === vlNode.id);
 
         if (textNodeMetadata && vlNodeMetadata) {
             const position = new Point(
@@ -625,9 +623,7 @@ export class NetworkAreaDiagramViewer {
     }
 
     private moveVoltageLevelNode(vlNode: SVGGraphicsElement) {
-        const nodeMetadata = this.diagramMetadata?.nodes.find(
-            (node) => node.svgId === vlNode.id
-        );
+        const nodeMetadata = this.diagramMetadata?.nodes.find((node) => node.svgId === vlNode.id);
         if (nodeMetadata) {
             const position = new Point(nodeMetadata.x, nodeMetadata.y);
             this.moveNode(vlNode, position);
@@ -635,7 +631,7 @@ export class NetworkAreaDiagramViewer {
                 "[id='" + DiagramUtils.getTextNodeId(vlNode.id) + "']"
             );
             if (textNode) {
-                this.moveVoltageLevelText(textNode,vlNode);
+                this.moveVoltageLevelText(textNode, vlNode);
             }
             this.moveEdges(vlNode, position);
         }
@@ -645,11 +641,7 @@ export class NetworkAreaDiagramViewer {
         vlNode.setAttribute('transform', 'translate(' + DiagramUtils.getFormattedPoint(mousePosition) + ')');
     }
 
-    private moveText(
-        textNode: SVGGraphicsElement | null,
-        vlNode: SVGGraphicsElement | null,
-        position: Point,
-    ) {
+    private moveText(textNode: SVGGraphicsElement | null, vlNode: SVGGraphicsElement | null, position: Point) {
         if (!textNode) {
             return;
         }
@@ -1197,10 +1189,7 @@ export class NetworkAreaDiagramViewer {
         }
     }
 
-    private redrawVoltageLevelNode(
-        node: SVGGraphicsElement | null,
-        busNodeEdges: Map<string, EdgeMetadata[]>,
-    ) {
+    private redrawVoltageLevelNode(node: SVGGraphicsElement | null, busNodeEdges: Map<string, EdgeMetadata[]>) {
         if (node != null) {
             // get buses belonging to voltage level
             const busNodes: BusNodeMetadata[] | undefined = this.diagramMetadata?.busNodes.filter(
@@ -1723,22 +1712,20 @@ export class NetworkAreaDiagramViewer {
                 const busNodeId = e.node1 == vlElement.id ? e.busNode1 : e.busNode2;
                 this.addBusNodeEdge(busNodeId, e, busNodeEdges);
             }
-        })
+        });
 
-        this.redrawVoltageLevelNode(vlElement,busNodeEdges);
+        this.redrawVoltageLevelNode(vlElement, busNodeEdges);
 
-        const edgeGroup = this.diagramMetadata?.edges.filter(e =>
-            (e.node1 === edge.node1 && e.node2 === edge.node2) ||
-            (e.node1 === edge.node2 && e.node2 === edge.node1)
+        const edgeGroup = this.diagramMetadata?.edges.filter(
+            (e) =>
+                (e.node1 === edge.node1 && e.node2 === edge.node2) || (e.node1 === edge.node2 && e.node2 === edge.node1)
         );
         if (edgeGroup && edgeGroup.length > 1) {
             this.moveEdgeGroup(edgeGroup, vlElement, DiagramUtils.getPosition(vlElement));
         } else {
-            this.moveStraightEdge(edge,vlElement,DiagramUtils.getPosition(vlElement));
+            this.moveStraightEdge(edge, vlElement, DiagramUtils.getPosition(vlElement));
         }
-
     }
-
 
     private onMouseRightDown(event: MouseEvent) {
         const elementData = DiagramUtils.getRightClickableElementData(
@@ -1754,5 +1741,4 @@ export class NetworkAreaDiagramViewer {
         const mousePosition: Point = this.getMousePosition(event);
         this.onRightClickCallback?.(elementData.svgId, elementData.equipmentId, elementData.type, mousePosition);
     }
-
 }
