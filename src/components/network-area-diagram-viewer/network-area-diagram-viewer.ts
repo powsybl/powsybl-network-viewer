@@ -628,34 +628,14 @@ export class NetworkAreaDiagramViewer {
         const nodeMetadata = this.diagramMetadata?.nodes.find(
             (node) => node.svgId === vlNode.id
         );
-
         if (nodeMetadata) {
             const position = new Point(nodeMetadata.x, nodeMetadata.y);
             this.moveNode(vlNode, position);
             const textNode: SVGGraphicsElement | null = this.container.querySelector(
                 "[id='" + DiagramUtils.getTextNodeId(vlNode.id) + "']"
             );
-
             if (textNode) {
-                const textNodeMetadata = this.diagramMetadata?.textNodes.find(
-                    (node) => node.svgId === textNode.id
-                );
-
-                if (textNodeMetadata) {
-                    if (this.draggedElement === vlNode) {
-                        const textPosition = new Point(
-                            position.x + textNodeMetadata.shiftX,
-                            position.y + textNodeMetadata.shiftY
-                        );
-                        this.moveText(textNode, vlNode, textPosition);
-                    } else {
-                        const textPosition = new Point(
-                            position.x + textNodeMetadata.shiftX,
-                            position.y + textNodeMetadata.shiftY
-                        );
-                        this.moveText(textNode, vlNode, textPosition);
-                    }
-                }
+                this.moveVoltageLevelText(textNode,vlNode);
             }
             this.moveEdges(vlNode, position);
         }
@@ -797,7 +777,7 @@ export class NetworkAreaDiagramViewer {
             this.moveLoopEdgeGroup(edgeGroup, mousePosition);
         }
         // redraw node
-        this.redrawVoltageLevelNode(vlNode, busNodeEdges, null);
+        this.redrawVoltageLevelNode(vlNode, busNodeEdges);
     }
 
     private addBusNodeEdge(busNodeId: string | null, edge: EdgeMetadata, busNodeEdges: Map<string, EdgeMetadata[]>) {
@@ -926,7 +906,7 @@ export class NetworkAreaDiagramViewer {
             });
             // redraw other voltage level node
             const otherNode: SVGGraphicsElement | null = this.getOtherNode(edgeNodes, vlNode);
-            this.redrawOtherVoltageLevelNode(otherNode, edges);
+            this.redrawOtherVoltageLevelNode(otherNode);
         }
     }
 
@@ -964,12 +944,12 @@ export class NetworkAreaDiagramViewer {
             this.redrawBoundaryNode(edgeNodes[1], DiagramUtils.getAngle(edgeStart2, edgeMiddle), nodeRadius2[1]);
             if (vlNode.id == edgeNodes[1]?.id) {
                 // if boundary node moved -> redraw other voltage level node
-                this.redrawOtherVoltageLevelNode(edgeNodes[0], [edge]);
+                this.redrawOtherVoltageLevelNode(edgeNodes[0]);
             }
         } else {
             // redraw other voltage level node
             const otherNode: SVGGraphicsElement | null = this.getOtherNode(edgeNodes, vlNode);
-            this.redrawOtherVoltageLevelNode(otherNode, [edge]);
+            this.redrawOtherVoltageLevelNode(otherNode);
         }
     }
 
@@ -1220,7 +1200,6 @@ export class NetworkAreaDiagramViewer {
     private redrawVoltageLevelNode(
         node: SVGGraphicsElement | null,
         busNodeEdges: Map<string, EdgeMetadata[]>,
-        movedEdges: EdgeMetadata[] | null // list of moved edges, null = all edges
     ) {
         if (node != null) {
             // get buses belonging to voltage level
@@ -1234,11 +1213,10 @@ export class NetworkAreaDiagramViewer {
             // sort buses by index
             const sortedBusNodes: BusNodeMetadata[] = DiagramUtils.getSortedBusNodes(busNodes);
             const traversingBusEdgesAngles: number[] = [];
-            let redraw = false;
             for (let index = 0; index < sortedBusNodes.length; index++) {
                 const busNode = sortedBusNodes[index];
                 // skip redrawing of first bus
-                if (index > 0 && redraw) {
+                if (index > 0) {
                     this.redrawBusNode(node, busNode, index, traversingBusEdgesAngles);
                 }
                 // add angles of edges starting from bus to traversing edges angles
@@ -1247,17 +1225,6 @@ export class NetworkAreaDiagramViewer {
                     const edgeAngle = this.getEdgeAngle(busNode, edge, edge.svgId, edge.node1 == edge.node2);
                     if (typeof edgeAngle !== 'undefined') {
                         traversingBusEdgesAngles.push(edgeAngle);
-                    }
-                    // redraw only if the edge has been moved
-                    if (movedEdges != null) {
-                        movedEdges.forEach((movedEdge) => {
-                            if (edge.svgId == movedEdge.svgId) {
-                                redraw = true;
-                            }
-                        });
-                    } else {
-                        // movedEdges == null -> all edges have been moved
-                        redraw = true;
                     }
                 });
             }
@@ -1313,7 +1280,7 @@ export class NetworkAreaDiagramViewer {
         }
     }
 
-    private redrawOtherVoltageLevelNode(otherNode: SVGGraphicsElement | null, movedEdges: EdgeMetadata[]) {
+    private redrawOtherVoltageLevelNode(otherNode: SVGGraphicsElement | null) {
         if (otherNode != null) {
             // get other voltage level node edges
             const edges: EdgeMetadata[] | undefined = this.diagramMetadata?.edges.filter(
@@ -1332,7 +1299,7 @@ export class NetworkAreaDiagramViewer {
                 }
             });
             // redraw other voltage level node
-            this.redrawVoltageLevelNode(otherNode, busNodeEdges, movedEdges);
+            this.redrawVoltageLevelNode(otherNode, busNodeEdges);
         }
     }
 
@@ -1369,7 +1336,7 @@ export class NetworkAreaDiagramViewer {
                 this.edgeAngles.set(edgeNode.id + '.1', DiagramUtils.getAngle(edgeStart, edgeEnd));
                 // redraw voltage level node connected to three windings transformer
                 if (threeWtMoved) {
-                    this.redrawOtherVoltageLevelNode(edgeNodes[0], [edge]);
+                    this.redrawOtherVoltageLevelNode(edgeNodes[0]);
                 }
             }
         }
@@ -1740,8 +1707,38 @@ export class NetworkAreaDiagramViewer {
             console.warn(`VoltageLevel ${targetBusNode.vlNode} not found`);
             return;
         }
-        this.moveElement(vlElement);
+        // Récupérer toutes les edges connectées au voltageLevel
+        const connectedEdges: EdgeMetadata[] | undefined = this.diagramMetadata?.edges.filter(
+            (e) => e.node1 == vlElement.id || e.node2 == vlElement.id
+        );
+
+        // Construire la Map des edges pour tous les bus
+        const busNodeEdges: Map<string, EdgeMetadata[]> = new Map<string, EdgeMetadata[]>();
+        connectedEdges?.forEach((e) => {
+            if (e.node1 == e.node2) {
+                // loop edge
+                this.addBusNodeEdge(e.busNode1, e, busNodeEdges);
+                this.addBusNodeEdge(e.busNode2, e, busNodeEdges);
+            } else {
+                const busNodeId = e.node1 == vlElement.id ? e.busNode1 : e.busNode2;
+                this.addBusNodeEdge(busNodeId, e, busNodeEdges);
+            }
+        })
+
+        this.redrawVoltageLevelNode(vlElement,busNodeEdges);
+
+        const edgeGroup = this.diagramMetadata?.edges.filter(e =>
+            (e.node1 === edge.node1 && e.node2 === edge.node2) ||
+            (e.node1 === edge.node2 && e.node2 === edge.node1)
+        );
+        if (edgeGroup && edgeGroup.length > 1) {
+            this.moveEdgeGroup(edgeGroup, vlElement, DiagramUtils.getPosition(vlElement));
+        } else {
+            this.moveStraightEdge(edge,vlElement,DiagramUtils.getPosition(vlElement));
+        }
+
     }
+
 
     private onMouseRightDown(event: MouseEvent) {
         const elementData = DiagramUtils.getRightClickableElementData(
