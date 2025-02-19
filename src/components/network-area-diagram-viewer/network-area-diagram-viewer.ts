@@ -443,9 +443,8 @@ export class NetworkAreaDiagramViewer {
         buttonsDiv.style.display = 'inline-grid';
         buttonsDiv.style.alignItems = 'center';
         buttonsDiv.style.position = 'absolute';
-        buttonsDiv.style.left = '3px';
-        buttonsDiv.style.bottom = '7px';
-        buttonsDiv.style.zIndex = '2';
+        buttonsDiv.style.left = '6px';
+        buttonsDiv.style.bottom = '6px';
 
         const zoomInButton = DiagramUtils.getZoomInButton();
         buttonsDiv.appendChild(zoomInButton);
