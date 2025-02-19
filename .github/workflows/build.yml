@@ -16,7 +16,7 @@ jobs:
                 persist-credentials: false
           - uses: actions/setup-node@v4
             with:
-                node-version: 20
+                node-version: 22
           - name: Check License Header (Check Mode)
             uses: apache/skywalking-eyes/header@v0.5.0
             with:
@@ -32,7 +32,7 @@ jobs:
 
             - uses: actions/setup-node@v4
               with:
-                  node-version: 20
+                  node-version: 22
             - name: FixForNodeWarnings
               run: echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
 

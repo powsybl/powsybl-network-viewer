@@ -10,8 +10,8 @@
         "url": "git+https://github.com/powsybl/powsybl-network-viewer.git"
     },
     "engines": {
-        "node": ">=20",
-        "npm": "^10.8.2"
+        "node": ">=22",
+        "npm": "^10.9.2"
     },
     "type": "module",
     "types": "./dist/index.d.ts",
@@ -75,7 +75,7 @@
         "@types/jest": "^29.5.14",
         "@types/license-checker": "^25.0.6",
         "@types/mapbox__mapbox-gl-draw": "^1.4.8",
-        "@types/node": "^20.17.19",
+        "@types/node": "^22.13.4",
         "@types/react": "^18.3.18",
         "@types/react-dom": "^18.3.5",
         "@typescript-eslint/eslint-plugin": "^6.21.0",
