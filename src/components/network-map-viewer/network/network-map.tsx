@@ -11,7 +11,7 @@ import {
     forwardRef,
     memo,
     type ReactNode,
-    RefObject,
+    type RefObject,
     useCallback,
     useEffect,
     useImperativeHandle,
@@ -23,7 +23,14 @@ import { Box, Button, type ButtonProps, decomposeColor, useTheme } from '@mui/ma
 import { MapboxOverlay, type MapboxOverlayProps } from '@deck.gl/mapbox';
 import { Replay } from '@mui/icons-material';
 import { FormattedMessage } from 'react-intl';
-import { Map, type MapProps, type MapRef, NavigationControl, useControl, type ViewState } from 'react-map-gl';
+import {
+    Map,
+    type MapProps,
+    type MapRef,
+    NavigationControl,
+    useControl,
+    type ViewState,
+} from 'react-map-gl/mapbox-legacy';
 import type { Feature, Polygon } from 'geojson';
 import { type Layer, type PickingInfo } from 'deck.gl';
 import type MapboxDraw from '@mapbox/mapbox-gl-draw';
@@ -58,8 +65,8 @@ const MOUSE_EVENT_BUTTON_LEFT = 0;
 const MOUSE_EVENT_BUTTON_RIGHT = 2;
 
 /**
- * Represents the draw event types for the network map.
- * when a draw event is triggered, the event type is passed to the onDrawEvent callback
+ * Represents the draw event types for the network map.<br/>
+ * when a draw event is triggered, the event type is passed to the onDrawEvent callback<br/>
  * On create, when the user create a new polygon (shape finished)
  */
 export enum DRAW_EVENT {
@@ -71,7 +78,8 @@ export enum DRAW_EVENT {
 // Small boilerplate recommended by deckgl, to bridge to a react-map-gl control declaratively
 // see https://deck.gl/docs/api-reference/mapbox/mapbox-overlay#using-with-react-map-gl
 const DeckGLOverlay = forwardRef<MapboxOverlay, MapboxOverlayProps>((props, ref) => {
-    const overlay = useControl(() => new MapboxOverlay(props));
+    // @ts-expect-error TS2322: Type MapboxOverlay is not assignable to type IControl
+    const overlay = useControl<MapboxOverlay>(() => new MapboxOverlay(props));
     overlay.setProps(props);
     useImperativeHandle(ref, () => overlay, [overlay]);
     return null;
@@ -130,7 +138,7 @@ const INITIAL_CENTERED: Centered = {
 
 const DEFAULT_LOCATE_SUBSTATION_ZOOM_LEVEL = 12;
 
-// get polygon coordinates (features) or an empty object
+/** get polygon coordinates (features) or an empty object */
 function getPolygonFeatures() {
     return getMapDrawer()?.getAll()?.features[0] ?? ({} as Record<string, never>);
 }
@@ -248,7 +256,7 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
     const [labelsVisible, setLabelsVisible] = useState(false);
     const [showLineFlow, setShowLineFlow] = useState(true);
     const [showTooltip, setShowTooltip] = useState(true);
-    const mapRef = useRef<MapRef>(null);
+    const mapRef = useRef<MapRef>(null); //TODO replaced since v7.? by https://visgl.github.io/react-map-gl/docs/api-reference/mapbox/use-map
     const deckRef = useRef<MapboxOverlay>(null);
     const [centered, setCentered] = useState(INITIAL_CENTERED);
     const lastViewStateRef = useRef<ViewState>();
@@ -388,9 +396,7 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
         (info) => {
             lastViewStateRef.current = info.viewState;
             if (
-                // @ts-expect-error TODO TS2339: Property interactionState does not exist on type ViewStateChangeEvent
                 !info.interactionState || // first event of before an animation (e.g. clicking the +/- buttons of the navigation controls, gives the target
-                // @ts-expect-error TODO TS2339: Property interactionState does not exist on type ViewStateChangeEvent
                 (info.interactionState && !info.interactionState.inTransition) // Any event not part of a animation (mouse panning or zooming)
             ) {
                 if (info.viewState.zoom >= props.labelsZoomThreshold && !labelsVisible) {
