@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import { type ControlPosition, useControl } from 'react-map-gl/mapbox-legacy';
 
 // type has been removed from react-map-gl or mapbox-gl
@@ -41,6 +41,12 @@ export default function DrawControl(props: DrawControlProps) {
         (e: { mode: DRAW_MODES }) => onDrawPolygonModeActive(e.mode),
         [onDrawPolygonModeActive]
     );
+
+    useEffect(() => {
+        return () => {
+            mapDrawerController = undefined;
+        };
+    }, []);
 
     useControl<MapboxDraw>(
         //onCreate
