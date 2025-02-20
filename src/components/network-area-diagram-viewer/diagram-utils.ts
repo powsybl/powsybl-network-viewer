@@ -7,6 +7,10 @@
 
 import { Point } from '@svgdotjs/svg.js';
 import { EdgeMetadata, BusNodeMetadata, NodeMetadata, TextNodeMetadata } from './diagram-metadata';
+import { SvgParameters } from './svg-parameters';
+
+export type Dimensions = { width: number; height: number; viewbox: ViewBox };
+export type ViewBox = { x: number; y: number; width: number; height: number };
 
 // node move: original and new position
 export type NODEMOVE = {
@@ -50,6 +54,9 @@ const EdgeTypeMapping: { [key: string]: EdgeType } = {
     TieLineEdge: EdgeType.TIE_LINE,
     ThreeWtEdge: EdgeType.THREE_WINDINGS_TRANSFORMER,
 };
+
+const TEXT_BOX_WIDTH_DEFAULT = 200.0;
+const TEXT_BOX_HEIGHT_DEFAULT = 100.0;
 
 // format number to string
 export function getFormattedValue(value: number): string {
@@ -621,4 +628,67 @@ function getElementType(element: SVGElement | null): ElementType {
         return ElementType.BRANCH;
     }
     return ElementType.UNKNOWN;
+}
+
+// get view box computed starting from node and text positions
+// defined in diagram metadata
+export function getViewBox(
+    nodes: NodeMetadata[] | undefined,
+    textNodes: TextNodeMetadata[] | undefined,
+    svgParameters: SvgParameters
+): ViewBox {
+    const size = { minX: Number.MAX_VALUE, maxX: -Number.MAX_VALUE, minY: Number.MAX_VALUE, maxY: -Number.MAX_VALUE };
+    const nodesMap: Map<string, NodeMetadata> = new Map<string, NodeMetadata>();
+    nodes?.forEach((node) => {
+        nodesMap.set(node.equipmentId, node);
+        size.minX = Math.min(size.minX, node.x);
+        size.maxX = Math.max(size.maxX, node.x);
+        size.minY = Math.min(size.minY, node.y);
+        size.maxY = Math.max(size.maxY, node.y);
+    });
+    textNodes?.forEach((textNode) => {
+        const node = nodesMap.get(textNode.equipmentId);
+        if (node !== undefined) {
+            size.minX = Math.min(size.minX, node.x + textNode.shiftX);
+            size.maxX = Math.max(size.maxX, node.x + textNode.shiftX + TEXT_BOX_WIDTH_DEFAULT);
+            size.minY = Math.min(size.minY, node.y + textNode.shiftY);
+            size.maxY = Math.max(size.maxY, node.y + textNode.shiftY + TEXT_BOX_HEIGHT_DEFAULT);
+        }
+    });
+    return {
+        x: round(size.minX - svgParameters.getDiagramPadding().left),
+        y: round(size.minY - svgParameters.getDiagramPadding().top),
+        width: round(
+            size.maxX - size.minX + svgParameters.getDiagramPadding().left + svgParameters.getDiagramPadding().right
+        ),
+        height: round(
+            size.maxY - size.minY + svgParameters.getDiagramPadding().top + svgParameters.getDiagramPadding().bottom
+        ),
+    };
+}
+
+function getButton(svg: string, title: string): HTMLButtonElement {
+    const button = document.createElement('button');
+    button.innerHTML = svg;
+    button.title = title;
+    button.style.height = '25px';
+    button.style.width = '25px';
+    button.style.marginRight = '1px';
+    button.style.marginLeft = '1px';
+    button.style.marginTop = '1px';
+    button.style.marginBottom = '1px';
+    button.style.borderRadius = '5px';
+    button.style.padding = '0px';
+    button.style.border = 'none';
+    button.style.display = 'flex';
+    button.style.alignItems = 'center';
+    button.style.justifyContent = 'center';
+    return button;
+}
+
+export function getZoomToFitButton(): HTMLButtonElement {
+    return getButton(
+        '<svg xmlns="http://www.w3.org/2000/svg" height="15px" viewBox="0 -960 960 960" width="15px" fill="#5f6368"><path d="M200-120q-33 0-56.5-23.5T120-200v-160h80v160h160v80H200Zm400 0v-80h160v-160h80v160q0 33-23.5 56.5T760-120H600ZM120-600v-160q0-33 23.5-56.5T200-840h160v80H200v160h-80Zm640 0v-160H600v-80h160q33 0 56.5 23.5T840-760v160h-80Z"/></svg>',
+        'Zoom to fit'
+    );
 }
