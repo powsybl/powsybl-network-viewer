@@ -22,4 +22,5 @@
 # lcov reporst
 /coverage
 
-
+# Vite dev mode
+/vite.config.ts.timestamp-*-*.mjs
