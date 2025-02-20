@@ -673,22 +673,42 @@ function getButton(svg: string, title: string): HTMLButtonElement {
     button.title = title;
     button.style.height = '25px';
     button.style.width = '25px';
-    button.style.marginRight = '1px';
-    button.style.marginLeft = '1px';
-    button.style.marginTop = '1px';
-    button.style.marginBottom = '1px';
-    button.style.borderRadius = '5px';
     button.style.padding = '0px';
     button.style.border = 'none';
     button.style.display = 'flex';
     button.style.alignItems = 'center';
     button.style.justifyContent = 'center';
+    button.style.fill = '#5f6368';
     return button;
 }
 
 export function getZoomToFitButton(): HTMLButtonElement {
-    return getButton(
-        '<svg xmlns="http://www.w3.org/2000/svg" height="15px" viewBox="0 -960 960 960" width="15px" fill="#5f6368"><path d="M200-120q-33 0-56.5-23.5T120-200v-160h80v160h160v80H200Zm400 0v-80h160v-160h80v160q0 33-23.5 56.5T760-120H600ZM120-600v-160q0-33 23.5-56.5T200-840h160v80H200v160h-80Zm640 0v-160H600v-80h160q33 0 56.5 23.5T840-760v160h-80Z"/></svg>',
+    const b = getButton(
+        '<svg xmlns="http://www.w3.org/2000/svg" height="15px" viewBox="0 -960 960 960" width="15px"><path d="M200-120q-33 0-56.5-23.5T120-200v-160h80v160h160v80H200Zm400 0v-80h160v-160h80v160q0 33-23.5 56.5T760-120H600ZM120-600v-160q0-33 23.5-56.5T200-840h160v80H200v160h-80Zm640 0v-160H600v-80h160q33 0 56.5 23.5T840-760v160h-80Z"/></svg>',
         'Zoom to fit'
     );
+    // button at the bottom: rounded bottom corners and top margin
+    b.style.borderRadius = '0 0 5px 5px';
+    b.style.marginTop = '1px';
+    return b;
+}
+
+export function getZoomInButton(): HTMLButtonElement {
+    const b = getButton(
+        '<svg xmlns="http://www.w3.org/2000/svg" height="15px" viewBox="0 -960 960 960" width="15px"><path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"/></svg>',
+        'Zoom in'
+    );
+    // button at the top: rounded top corners (and no margin)
+    b.style.borderRadius = '5px 5px 0 0';
+    return b;
+}
+
+export function getZoomOutButton(): HTMLButtonElement {
+    const b = getButton(
+        '<svg xmlns="http://www.w3.org/2000/svg" height="15px" viewBox="0 -960 960 960" width="15px"><path d="M200-440v-80h560v80H200Z"/></svg>',
+        'Zoom out'
+    );
+    // button in the middle: top margin (and no rounded corners)
+    b.style.marginTop = '1px';
+    return b;
 }
