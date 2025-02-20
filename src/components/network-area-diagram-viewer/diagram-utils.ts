@@ -688,7 +688,7 @@ function getButton(inputFile: URL, title: string): HTMLButtonElement {
 }
 
 export function getZoomToFitButton(): HTMLButtonElement {
-    const b = getButton(<URL>ZoomToFitSvg, 'Zoom to fit');
+    const b = getButton(ZoomToFitSvg, 'Zoom to fit');
     // button at the bottom: rounded bottom corners and top margin
     b.style.borderRadius = '0 0 5px 5px';
     b.style.marginTop = '1px';
@@ -696,14 +696,14 @@ export function getZoomToFitButton(): HTMLButtonElement {
 }
 
 export function getZoomInButton(): HTMLButtonElement {
-    const b = getButton(<URL>ZoomInSvg, 'Zoom in');
+    const b = getButton(ZoomInSvg, 'Zoom in');
     // button at the top: rounded top corners (and no margin)
     b.style.borderRadius = '5px 5px 0 0';
     return b;
 }
 
 export function getZoomOutButton(): HTMLButtonElement {
-    const b = getButton(<URL>ZoomOutSvg, 'Zoom out');
+    const b = getButton(ZoomOutSvg, 'Zoom out');
     // button in the middle: top margin (and no rounded corners)
     b.style.marginTop = '1px';
     return b;
