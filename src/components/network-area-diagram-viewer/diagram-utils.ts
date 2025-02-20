@@ -8,9 +8,9 @@
 import { Point } from '@svgdotjs/svg.js';
 import { EdgeMetadata, BusNodeMetadata, NodeMetadata, TextNodeMetadata } from './diagram-metadata';
 import { SvgParameters } from './svg-parameters';
-import ZoomToFitSvg from '../../resources/materialIcons/zoomToFit.svg';
-import ZoomInSvg from '../../resources/materialIcons/zoomIn.svg';
-import ZoomOutSvg from '../../resources/materialIcons/zoomOut.svg';
+import ZoomToFitSvg from '../../resources/material-icons/zoom-to-fit.svg';
+import ZoomInSvg from '../../resources/material-icons/zoom-in.svg';
+import ZoomOutSvg from '../../resources/material-icons/zoom-out.svg';
 
 export type Dimensions = { width: number; height: number; viewbox: ViewBox };
 export type ViewBox = { x: number; y: number; width: number; height: number };
