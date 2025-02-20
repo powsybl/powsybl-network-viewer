@@ -17,5 +17,9 @@ export default {
     // The test environment that will be used for testing
     testEnvironment: 'jsdom',
 
+    transform: {
+        '^.+\\.svg$': '<rootDir>/svgTransform.ts',
+    },
+
     setupFiles: ['<rootDir>/setupTests.ts'],
 };
