@@ -8,6 +8,9 @@
 import { Point } from '@svgdotjs/svg.js';
 import { EdgeMetadata, BusNodeMetadata, NodeMetadata, TextNodeMetadata } from './diagram-metadata';
 import { SvgParameters } from './svg-parameters';
+import ZoomToFitSvg from '../../resources/materialIcons/zoomToFit.svg';
+import ZoomInSvg from '../../resources/materialIcons/zoomIn.svg';
+import ZoomOutSvg from '../../resources/materialIcons/zoomOut.svg';
 
 export type Dimensions = { width: number; height: number; viewbox: ViewBox };
 export type ViewBox = { x: number; y: number; width: number; height: number };
@@ -667,9 +670,11 @@ export function getViewBox(
     };
 }
 
-function getButton(svg: string, title: string): HTMLButtonElement {
+function getButton(inputFile: URL, title: string): HTMLButtonElement {
     const button = document.createElement('button');
-    button.innerHTML = svg;
+    fetch(inputFile)
+        .then((response) => response.text())
+        .then((svgContent) => (button.innerHTML = svgContent));
     button.title = title;
     button.style.height = '25px';
     button.style.width = '25px';
@@ -683,10 +688,7 @@ function getButton(svg: string, title: string): HTMLButtonElement {
 }
 
 export function getZoomToFitButton(): HTMLButtonElement {
-    const b = getButton(
-        '<svg xmlns="http://www.w3.org/2000/svg" height="15px" viewBox="0 -960 960 960" width="15px"><path d="M200-120q-33 0-56.5-23.5T120-200v-160h80v160h160v80H200Zm400 0v-80h160v-160h80v160q0 33-23.5 56.5T760-120H600ZM120-600v-160q0-33 23.5-56.5T200-840h160v80H200v160h-80Zm640 0v-160H600v-80h160q33 0 56.5 23.5T840-760v160h-80Z"/></svg>',
-        'Zoom to fit'
-    );
+    const b = getButton(<URL>ZoomToFitSvg, 'Zoom to fit');
     // button at the bottom: rounded bottom corners and top margin
     b.style.borderRadius = '0 0 5px 5px';
     b.style.marginTop = '1px';
@@ -694,20 +696,14 @@ export function getZoomToFitButton(): HTMLButtonElement {
 }
 
 export function getZoomInButton(): HTMLButtonElement {
-    const b = getButton(
-        '<svg xmlns="http://www.w3.org/2000/svg" height="15px" viewBox="0 -960 960 960" width="15px"><path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"/></svg>',
-        'Zoom in'
-    );
+    const b = getButton(<URL>ZoomInSvg, 'Zoom in');
     // button at the top: rounded top corners (and no margin)
     b.style.borderRadius = '5px 5px 0 0';
     return b;
 }
 
 export function getZoomOutButton(): HTMLButtonElement {
-    const b = getButton(
-        '<svg xmlns="http://www.w3.org/2000/svg" height="15px" viewBox="0 -960 960 960" width="15px"><path d="M200-440v-80h560v80H200Z"/></svg>',
-        'Zoom out'
-    );
+    const b = getButton(<URL>ZoomOutSvg, 'Zoom out');
     // button in the middle: top margin (and no rounded corners)
     b.style.marginTop = '1px';
     return b;
