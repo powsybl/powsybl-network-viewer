@@ -670,7 +670,7 @@ export function getViewBox(
     };
 }
 
-function getButton(inputFile: URL, title: string): HTMLButtonElement {
+function getButton(inputFile: string, title: string): HTMLButtonElement {
     const button = document.createElement('button');
     fetch(inputFile)
         .then((response) => response.text())
