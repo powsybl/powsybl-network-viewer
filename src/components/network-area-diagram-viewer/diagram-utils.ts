@@ -670,11 +670,11 @@ export function getViewBox(
     };
 }
 
-function getButton(inputFile: string, title: string): HTMLButtonElement {
+function getButton(inputImg: string, title: string): HTMLButtonElement {
     const button = document.createElement('button');
-    fetch(inputFile)
-        .then((response) => response.text())
-        .then((svgContent) => (button.innerHTML = svgContent));
+    button.style.backgroundImage = `url(${inputImg})`;
+    button.style.backgroundRepeat = 'no-repeat';
+    button.style.backgroundPosition = 'center center';
     button.title = title;
     button.style.height = '25px';
     button.style.width = '25px';
