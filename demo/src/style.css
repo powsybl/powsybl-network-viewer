@@ -13,6 +13,10 @@
     height: 0;
 }
 
+#nad-viewer, [id^=svg-container-sld] {
+    border: 2px solid;
+}
+
 .mapbox-gl-draw_ctrl-draw-btn.active,
 .mapbox-gl-draw_ctrl-draw-btn.active:hover {
     background-color: lightblue !important;
