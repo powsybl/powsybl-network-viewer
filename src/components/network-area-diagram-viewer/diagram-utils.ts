@@ -672,7 +672,7 @@ export function getViewBox(
 
 function getButton(inputImg: string, title: string): HTMLButtonElement {
     const button = document.createElement('button');
-    button.style.backgroundImage = `url(${inputImg})`;
+    button.style.backgroundImage = `url("${inputImg}")`;
     button.style.backgroundRepeat = 'no-repeat';
     button.style.backgroundPosition = 'center center';
     button.title = title;
