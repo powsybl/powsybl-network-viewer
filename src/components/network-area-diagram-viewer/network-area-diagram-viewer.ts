@@ -612,7 +612,7 @@ export class NetworkAreaDiagramViewer {
         // update text node position
         this.updateTextNodePosition(textNode, position);
         if (vlNode != null) {
-            // move text edge
+            // redraw text edge
             this.redrawTextEdge(
                 DiagramUtils.getTextEdgeId(vlNode?.id),
                 position,
@@ -1054,7 +1054,7 @@ export class NetworkAreaDiagramViewer {
         const transformerElement: SVGGraphicsElement = edgeNode.lastElementChild as SVGGraphicsElement;
         // move transformer circles
         const transformerCircles: NodeListOf<SVGGraphicsElement> = transformerElement?.querySelectorAll('circle');
-        this.moveTransformerCircle(
+        this.redrawTransformerCircle(
             transformerCircles.item(0),
             startPolyline1,
             DiagramUtils.getPointAtDistance(
@@ -1063,7 +1063,7 @@ export class NetworkAreaDiagramViewer {
                 1.5 * this.svgParameters.getTransformerCircleRadius()
             )
         );
-        this.moveTransformerCircle(
+        this.redrawTransformerCircle(
             transformerCircles.item(1),
             startPolyline2,
             DiagramUtils.getPointAtDistance(
@@ -1075,7 +1075,7 @@ export class NetworkAreaDiagramViewer {
         // if phase shifting transformer move transformer arrow
         const isPSTransformerEdge = edgeType == DiagramUtils.EdgeType.PHASE_SHIFT_TRANSFORMER;
         if (isPSTransformerEdge) {
-            this.moveTransformerArrow(
+            this.redrawTransformerArrow(
                 transformerElement,
                 startPolyline1,
                 endPolyline1,
@@ -1084,7 +1084,7 @@ export class NetworkAreaDiagramViewer {
         }
     }
 
-    private moveTransformerCircle(transformerCircle: SVGGraphicsElement, startPolyline: Point, endPolyline: Point) {
+    private redrawTransformerCircle(transformerCircle: SVGGraphicsElement, startPolyline: Point, endPolyline: Point) {
         const circleCenter: Point = DiagramUtils.getPointAtDistance(
             endPolyline,
             startPolyline,
@@ -1094,7 +1094,7 @@ export class NetworkAreaDiagramViewer {
         transformerCircle.setAttribute('cy', DiagramUtils.getFormattedValue(circleCenter.y));
     }
 
-    private moveTransformerArrow(
+    private redrawTransformerArrow(
         transformerElement: SVGGraphicsElement,
         startPolyline: Point,
         endPolyline: Point,
