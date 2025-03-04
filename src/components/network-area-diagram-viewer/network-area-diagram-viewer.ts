@@ -243,11 +243,51 @@ export class NetworkAreaDiagramViewer {
         if (nodeId != null) {
             const elemToMove: SVGGraphicsElement | null = this.container.querySelector('[id="' + nodeId + '"]');
             if (elemToMove) {
-                this.updateElement(elemToMove);
                 // update metadata only
                 this.updateNodeMetadataCallback(elemToMove, new Point(x, y), false);
+                // update and redraw element
+                this.updateElement(elemToMove);
             }
         }
+    }
+    public moveTextNodeToCoordinates(
+        equipmentId: string,
+        shiftX: number,
+        shiftY: number,
+        connectionShiftX: number,
+        connectionShiftY: number
+    ) {
+        const nodeId = this.getNodeIdFromEquipmentId(equipmentId);
+        if (nodeId == null) {
+            return;
+        }
+        const nodeElement: SVGGraphicsElement | null = this.container.querySelector('[id="' + nodeId + '"]');
+        if (!nodeElement) {
+            return;
+        }
+        const nodePosition: Point = DiagramUtils.getPosition(nodeElement);
+
+        const textnodeId = this.getTextNodeIdFromEquipmentId(equipmentId);
+        if (textnodeId == null) {
+            return;
+        }
+        const elemToMove: SVGGraphicsElement | null = this.container.querySelector('[id="' + textnodeId + '"]');
+        if (!elemToMove) {
+            return;
+        }
+        this.endTextEdge = new Point(nodePosition.x + connectionShiftX, nodePosition.y + connectionShiftY);
+
+        const textNodeTopLeftCornerPosition = new Point(nodePosition.x + shiftX, nodePosition.y + shiftY);
+        const textNodeCenterPosition = DiagramUtils.getTextNodeCenterFromTopLeftCorner(
+            elemToMove,
+            textNodeTopLeftCornerPosition
+        );
+
+        // update metadata only
+        this.updateTextNodeMetadataCallback(elemToMove, textNodeCenterPosition, false);
+
+        //update and redraw element
+        this.updateElement(elemToMove);
     }
 
     public init(
