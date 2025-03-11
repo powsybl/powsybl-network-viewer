@@ -42,7 +42,7 @@ jobs:
                   npm run licenses-check
                   npm run lint
                   npm run test:coverage
-                  npm run build
+                  npm run build:all
 
             - name: SonarCloud Scan
               uses: SonarSource/sonarqube-scan-action@bfd4e558cda28cda6b5defafb9232d191be8c203 #v4.2.1
