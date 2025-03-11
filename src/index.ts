@@ -5,15 +5,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-export { NetworkAreaDiagramViewer } from './components/network-area-diagram-viewer/network-area-diagram-viewer';
-export type {
-    OnMoveNodeCallbackType,
-    OnMoveTextNodeCallbackType,
-    OnSelectNodeCallbackType,
-    OnToggleNadHoverCallbackType,
-    BranchState,
-    OnRightClickCallbackType,
-} from './components/network-area-diagram-viewer/network-area-diagram-viewer';
 export type {
     BusNodeMetadata,
     DiagramMetadata,
@@ -24,11 +15,20 @@ export type {
     TextNodeMetadata,
 } from './components/network-area-diagram-viewer/diagram-metadata';
 export {
+    THRESHOLD_STATUS,
     type CSS_DECLARATION,
     type CSS_RULE,
-    THRESHOLD_STATUS,
 } from './components/network-area-diagram-viewer/dynamic-css-utils';
 export { LayoutParameters } from './components/network-area-diagram-viewer/layout-parameters';
+export { NetworkAreaDiagramViewer } from './components/network-area-diagram-viewer/network-area-diagram-viewer';
+export type {
+    BranchState,
+    OnMoveNodeCallbackType,
+    OnMoveTextNodeCallbackType,
+    OnRightClickCallbackType,
+    OnSelectNodeCallbackType,
+    OnToggleNadHoverCallbackType,
+} from './components/network-area-diagram-viewer/network-area-diagram-viewer';
 export { SvgParameters } from './components/network-area-diagram-viewer/svg-parameters';
 
 export {
@@ -46,23 +46,29 @@ export {
 
 export {
     GeoData,
+    LineFlowColorMode,
+    LineFlowMode,
+    MapEquipments,
     type GeoDataEquipment,
     type GeoDataLine,
     type GeoDataSubstation,
-} from './components/network-map-viewer/network/geo-data';
-export { LineFlowMode, LineFlowColorMode } from './components/network-map-viewer/network/line-layer';
-export { MapEquipments } from './components/network-map-viewer/network/map-equipments';
+} from '@powsybl/network-map-layers';
+
+export { default as NetworkMap } from './components/network-map-viewer/network/network-map';
+
 export {
-    default as NetworkMap,
-    type NetworkMapProps,
-    type NetworkMapRef,
     DRAW_EVENT,
     type MenuClickFunction,
+    type NetworkMapProps,
+    type NetworkMapRef,
 } from './components/network-map-viewer/network/network-map';
+
 export { DRAW_MODES } from './components/network-map-viewer/network/draw-control';
 
 export {
+    Country,
     EQUIPMENT_TYPES,
+    type Coordinate,
     type LonLat,
     type MapAnyLine,
     type MapAnyLineWithType,
@@ -75,5 +81,4 @@ export {
     type MapTieLine,
     type MapTieLineWithType,
     type MapVoltageLevel,
-} from './equipment-types';
-export { type Coordinate, Country } from './powsybl';
+} from '@powsybl/network-map-layers';

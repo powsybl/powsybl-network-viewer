@@ -1,0 +1,56 @@
+{
+    "name": "@powsybl/network-map-layers",
+    "version": "1.7.1",
+    "description": "Deck.gl layers to integrate PowSyBl network viewers in a JavaScript project.",
+    "author": "PowSyBl team",
+    "homepage": "https://www.powsybl.org/",
+    "license": "MPL-2.0",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/powsybl/powsybl-network-viewer.git"
+    },
+    "engines": {
+        "node": ">=22",
+        "npm": "^10.9.2"
+    },
+    "type": "module",
+    "main": "./dist/powsybl-network-map-layers.cjs",
+    "module": "./dist/powsybl-network-map-layers.js",
+    "types": "./dist/index.d.ts",
+    "files": [
+        "dist"
+    ],
+    "exports": {
+        ".": {
+            "import": {
+                "types": "./dist/index.d.ts",
+                "default": "./dist/powsybl-network-map-layers.js"
+            },
+            "require": {
+                "types": "./dist/index.d.cts",
+                "default": "./dist/powsybl-network-map-layers.cjs"
+            }
+        }
+    },
+    "scripts": {
+        "build": "vite build",
+        "check": "tsc --noEmit",
+        "check:pack": "attw --pack"
+    },
+    "peerDependencies": {
+        "@deck.gl/core": "^8.0.0",
+        "@deck.gl/extensions": "^8.0.0",
+        "@deck.gl/layers": "^8.0.0",
+        "@luma.gl/constants": "^8.0.0",
+        "@luma.gl/core": "^8.0.0",
+        "@luma.gl/engine": "^8.0.0"
+    },
+    "devDependencies": {
+        "@arethetypeswrong/cli": "^0.17.4",
+        "typescript": "~5.3.3",
+        "vite": "^5.4.14",
+        "vite-plugin-dts": "^3.9.1",
+        "vite-plugin-eslint": "^1.8.1",
+        "vite-plugin-svgr": "^4.3.0"
+    }
+}

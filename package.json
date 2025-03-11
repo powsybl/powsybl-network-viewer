@@ -19,8 +19,14 @@
     "module": "./dist/powsybl-network-viewer.js",
     "exports": {
         ".": {
-            "import": "./dist/powsybl-network-viewer.js",
-            "require": "./dist/powsybl-network-viewer.umd.cjs"
+            "import": {
+                "types": "./dist/index.d.ts",
+                "default": "./dist/powsybl-network-viewer.js"
+            },
+            "require": {
+                "types": "./dist/index.d.cts",
+                "default": "./dist/powsybl-network-viewer.umd.cjs"
+            }
         }
     },
     "files": [
@@ -29,7 +35,10 @@
     "scripts": {
         "postinstall": "rimraf -I -g ./node_modules/@types/deck.gl* ./node_modules/@types/luma.gl* ./node_modules/@types/math.gl* ./node_modules/@types/mapbox-gl",
         "watch": "vite watch",
+        "check": "tsc --noEmit",
+        "check:pack": "attw --pack",
         "build": "vite build",
+        "build:all": "npm run build -w @powsybl/network-map-layers && npm run build",
         "prepublishOnly": "$npm_execpath run build",
         "test": "jest",
         "test:coverage": "jest --coverage",
@@ -37,6 +46,9 @@
         "lint": "eslint . --ext js,mjs,jsx,ts,mts,tsx --max-warnings 0",
         "licenses-check": "license-checker --summary --excludePrivatePackages --production --onlyAllow \"$( jq -r .onlyAllow[] license-checker-config.json | tr '\n' ';')\" --excludePackages \"$( jq -r .excludePackages[] license-checker-config.json | tr '\n' ';')\""
     },
+    "workspaces": [
+        "packages/network-map-layers"
+    ],
     "overrides": {
         "@deck.gl/mapbox": {
             "@types/mapbox-gl": "npm:mapbox-gl@^3.9.4"
@@ -44,6 +56,7 @@
     },
     "dependencies": {
         "@mapbox/mapbox-gl-draw": "^1.5.0",
+        "@powsybl/network-map-layers": "workspaces:*",
         "@svgdotjs/svg.js": "^3.2.4",
         "@svgdotjs/svg.panzoom.js": "^2.1.2",
         "@turf/boolean-point-in-polygon": "^7.2.0",
@@ -64,6 +77,7 @@
         "react-intl": "^6.8.9"
     },
     "devDependencies": {
+        "@arethetypeswrong/cli": "^0.17.4",
         "@babel/core": "^7.26.8",
         "@babel/preset-env": "^7.26.8",
         "@babel/preset-typescript": "^7.26.0",

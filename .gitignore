@@ -4,6 +4,7 @@
 # distribution
 /dist
 /powsybl-network-viewer-*.tgz
+/packages/network-map-layers/dist
 
 # distrib for demo
 /output
