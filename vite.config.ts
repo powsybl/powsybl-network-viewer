@@ -22,6 +22,7 @@ export default defineConfig((config) => ({
         }),
         dts({
             include: ['src'],
+            exclude: ['**/*.{spec,test}.{ts,tsx}'],
         }),
     ],
     build: {
