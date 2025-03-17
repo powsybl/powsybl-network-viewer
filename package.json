@@ -15,12 +15,11 @@
     },
     "type": "module",
     "types": "./dist/index.d.ts",
-    "main": "./dist/powsybl-network-viewer.umd.cjs",
     "module": "./dist/powsybl-network-viewer.js",
     "exports": {
         ".": {
             "import": "./dist/powsybl-network-viewer.js",
-            "require": "./dist/powsybl-network-viewer.umd.cjs"
+            "types": "./dist/index.d.ts"
         }
     },
     "files": [

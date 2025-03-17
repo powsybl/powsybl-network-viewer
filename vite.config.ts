@@ -32,44 +32,12 @@ export default defineConfig((config) => ({
             name: 'PowSyBl network viewer',
             // the proper extensions will be added
             fileName: 'powsybl-network-viewer',
+            formats: ['es'],
         },
         rollupOptions: {
             //https://stackoverflow.com/questions/59134241/using-deck-gl-as-webpack-external
             //https://github.com/visgl/deck.gl/blob/94bad4bb209a5da0686fb03f107e86b18199c108/website/webpack.config.js#L128-L141
             external: (id: string) => !id.startsWith('.') && !path.isAbsolute(id),
-            output: {
-                // preserveModules: true,
-                // entryFileNames: '[name].js', // override vite and allow to keep the original tree and .js extension even in ESM
-                // DO NOT define any external deps. External deps are dealt with externalizeDeps from vite-plugin-externalize-deps
-                // defining externals manually will prevent this plugin from working
-                // external:
-                // Provide global variables to use in the UMD build
-                // for externalized deps
-                globals: {
-                    'cheap-ruler': 'CheapRuler',
-                    'deck.gl': 'DeckGl',
-                    geolib: 'Geolib',
-                    'mapbox-gl': 'MapboxGl',
-                    'maplibre-gl': 'MaplibreGl',
-                    'prop-types': 'PropTypes',
-                    react: 'React',
-                    'react/jsx-runtime': 'ReactJsxRuntime',
-                    'react-intl': 'ReactIntl',
-                    'react-map-gl/mapbox-legacy': 'ReactMapGl',
-                    '@deck.gl/core': 'DeckGlCore',
-                    '@deck.gl/extensions': 'DeckGlExtensions',
-                    '@deck.gl/mapbox': 'DeckGlMapbox',
-                    '@emotion/react': 'EmotionReact',
-                    '@mui/icons-material': 'MuiIconsMaterial',
-                    '@mui/material': 'MuiMaterial',
-                    '@mui/system': 'MuiSystem',
-                    '@luma.gl/constants': 'LumaGlConstants',
-                    '@luma.gl/core': 'LumaGlCore',
-                    '@svgdotjs/svg.js': 'SvgJs',
-                    '@mapbox/mapbox-gl-draw': 'MapboxGlDraw',
-                    '@turf/boolean-point-in-polygon': 'BooleanPointInPolygon',
-                },
-            },
         },
     },
 }));
