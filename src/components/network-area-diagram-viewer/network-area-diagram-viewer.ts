@@ -379,7 +379,6 @@ export class NetworkAreaDiagramViewer {
         firstChild.removeAttribute('height');
 
         if (enableLevelOfDetail) {
-
             this.svgDraw.fire('zoom'); // Forces a new dynamic zoom check to correctly update the dynamic CSS
 
             // We add an observer to track when the SVG's viewBox is updated by panzoom
@@ -1492,7 +1491,7 @@ export class NetworkAreaDiagramViewer {
         if (innerSvg) {
             const zoomLevel = this.getZoomLevel(maxDisplayedSize);
             if (zoomLevel != this.lastZoomLevel) {
-                innerSvg.setAttribute('class', "nad-zoom-" + zoomLevel);
+                innerSvg.setAttribute('class', 'nad-zoom-' + zoomLevel);
                 this.lastZoomLevel = zoomLevel;
             }
             for (const child of innerSvg.children) {
