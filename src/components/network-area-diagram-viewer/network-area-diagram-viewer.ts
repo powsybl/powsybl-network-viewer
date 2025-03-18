@@ -11,13 +11,6 @@ import * as DiagramUtils from './diagram-utils';
 import { SvgParameters, EdgeInfoEnum } from './svg-parameters';
 import { LayoutParameters } from './layout-parameters';
 import { DiagramMetadata, EdgeMetadata, BusNodeMetadata, NodeMetadata, TextNodeMetadata } from './diagram-metadata';
-import {
-    CSS_DECLARATION,
-    CSS_RULE,
-    THRESHOLD_STATUS,
-    DEFAULT_DYNAMIC_CSS_RULES,
-    cloneRules,
-} from './dynamic-css-utils';
 import { debounce } from '@mui/material';
 
 export type BranchState = {
@@ -103,11 +96,11 @@ export class NetworkAreaDiagramViewer {
     onMoveNodeCallback: OnMoveNodeCallbackType | null;
     onMoveTextNodeCallback: OnMoveTextNodeCallbackType | null;
     onSelectNodeCallback: OnSelectNodeCallbackType | null;
-    dynamicCssRules: CSS_RULE[];
     onToggleHoverCallback: OnToggleNadHoverCallbackType | null;
     previousMaxDisplayedSize: number;
     edgesMap: Map<string, EdgeMetadata> = new Map<string, EdgeMetadata>();
     onRightClickCallback: OnRightClickCallbackType | null;
+    lastZoomLevel: number = 0;
 
     constructor(
         container: HTMLElement,
@@ -122,7 +115,6 @@ export class NetworkAreaDiagramViewer {
         onSelectNodeCallback: OnSelectNodeCallbackType | null,
         enableNodeInteraction: boolean,
         enableLevelOfDetail: boolean,
-        customDynamicCssRules: CSS_RULE[] | null,
         onToggleHoverCallback: OnToggleNadHoverCallbackType | null,
         onRightClickCallback: OnRightClickCallbackType | null,
         addButtons: boolean
@@ -136,8 +128,6 @@ export class NetworkAreaDiagramViewer {
         this.height = 0;
         this.originalWidth = 0;
         this.originalHeight = 0;
-        // rules need to be cloned because we store the threshold inside them
-        this.dynamicCssRules = cloneRules(customDynamicCssRules ?? DEFAULT_DYNAMIC_CSS_RULES);
         this.onRightClickCallback = onRightClickCallback;
         this.init(
             minWidth,
@@ -220,10 +210,6 @@ export class NetworkAreaDiagramViewer {
 
     public getPreviousMaxDisplayedSize(): number {
         return this.previousMaxDisplayedSize;
-    }
-
-    public getDynamicCssRules() {
-        return this.dynamicCssRules;
     }
 
     private getNodeIdFromEquipmentId(equipmentId: string) {
@@ -393,14 +379,13 @@ export class NetworkAreaDiagramViewer {
         firstChild.removeAttribute('height');
 
         if (enableLevelOfDetail) {
-            // We insert custom CSS to hide details before first load, in order to improve performances
-            this.initializeDynamicCssRules(Math.max(dimensions.viewbox.width, dimensions.viewbox.height));
-            this.injectDynamicCssRules(firstChild);
+
             this.svgDraw.fire('zoom'); // Forces a new dynamic zoom check to correctly update the dynamic CSS
 
             // We add an observer to track when the SVG's viewBox is updated by panzoom
             // (we have to do this instead of using panzoom's 'zoom' event to have accurate viewBox updates)
             const targetNode: SVGSVGElement = this.svgDraw.node;
+            this.checkAndUpdateLevelOfDetail(targetNode);
             // Callback function to execute when mutations are observed
             const observerCallback = (mutationList: MutationRecord[]) => {
                 for (const mutation of mutationList) {
@@ -1467,89 +1452,6 @@ export class NetworkAreaDiagramViewer {
         }
     }
 
-    // Will explore the SVG's <style> tags to find the css rule associated with "cssSelector" and update the
-    // rule using "cssDeclaration".
-    // Will create a style tag or/and new css rule if not found in the SVG.
-    public updateSvgCssDisplayValue(svg: SVGSVGElement, cssSelector: string, cssDeclaration: CSS_DECLARATION) {
-        const innerSvg = svg.querySelector('svg');
-        if (!innerSvg) {
-            console.error('Cannot find the SVG to update!');
-            return;
-        }
-
-        let ruleFound = false;
-
-        let svgStyles = innerSvg.querySelectorAll('style');
-
-        if (svgStyles) {
-            for (const svgStyle of svgStyles) {
-                if (!svgStyle?.sheet?.cssRules) {
-                    continue;
-                }
-                for (const rule of svgStyle.sheet.cssRules) {
-                    const styleRule = rule as CSSStyleRule;
-                    if (styleRule.selectorText === cssSelector) {
-                        const key = Object.keys(cssDeclaration)[0];
-                        const value = cssDeclaration[key];
-                        styleRule.style.setProperty(key, value);
-                        ruleFound = true;
-                        break;
-                    }
-                }
-                if (ruleFound) {
-                    break;
-                }
-            }
-        } else {
-            innerSvg.appendChild(document.createElement('style'));
-            console.debug('[updateSvgCssDisplayValue] Style tag missing from SVG file. It has been created.');
-            svgStyles = innerSvg.querySelectorAll('style');
-            if (!svgStyles) {
-                console.error('Failed to create a style tag in the SVG!');
-                return;
-            }
-        }
-
-        if (!ruleFound) {
-            const key = Object.keys(cssDeclaration)[0];
-            const value = cssDeclaration[key];
-            const styleTag = svgStyles[svgStyles.length - 1]; // Adds the new rule to the last <style> tag in the SVG
-            styleTag.textContent = `${cssSelector} {${key}: ${value};}\n` + styleTag.textContent;
-        }
-    }
-
-    public initializeDynamicCssRules(maxDisplayedSize: number) {
-        this.getDynamicCssRules().forEach((rule) => {
-            rule.thresholdStatus = maxDisplayedSize < rule.threshold ? THRESHOLD_STATUS.BELOW : THRESHOLD_STATUS.ABOVE;
-        });
-    }
-
-    public injectDynamicCssRules(htmlElementSvg: HTMLElement) {
-        const rules = this.getDynamicCssRules()
-            .map((rule) => {
-                const ruleToInject =
-                    rule.thresholdStatus === THRESHOLD_STATUS.BELOW
-                        ? rule.belowThresholdCssDeclaration
-                        : rule.aboveThresholdCssDeclaration;
-                const key = Object.keys(ruleToInject)[0];
-                const value = ruleToInject[key];
-                return `${rule.cssSelector} {${key}: ${value};}`;
-            })
-            .join('\n');
-
-        let styleTag = htmlElementSvg.querySelector('style');
-        if (!styleTag) {
-            htmlElementSvg.appendChild(document.createElement('style'));
-            console.debug('[injectDynamicCssRules] Style tag missing from SVG file. It has been created.');
-            styleTag = htmlElementSvg.querySelector('style');
-        }
-        if (styleTag && 'textContent' in styleTag) {
-            styleTag.textContent = rules + styleTag.textContent;
-        } else {
-            console.error('Failed to create Style tag in SVG file!');
-        }
-    }
-
     public getCurrentlyMaxDisplayedSize(): number {
         const viewbox = this.getViewBox();
         return Math.max(viewbox?.height || 0, viewbox?.width || 0);
@@ -1566,23 +1468,7 @@ export class NetworkAreaDiagramViewer {
             return;
         }
         this.setPreviousMaxDisplayedSize(maxDisplayedSize);
-        // We will check each dynamic css rule to see if we crossed a zoom threshold. If this is the case, we
-        // update the rule's threshold status and trigger the CSS change in the SVG.
-        this.getDynamicCssRules().forEach((rule) => {
-            if (rule.thresholdStatus === THRESHOLD_STATUS.ABOVE && maxDisplayedSize < rule.threshold) {
-                console.debug(
-                    'CSS Rule ' + rule.cssSelector + ' below threshold ' + maxDisplayedSize + ' < ' + rule.threshold
-                );
-                rule.thresholdStatus = THRESHOLD_STATUS.BELOW;
-                this.updateSvgCssDisplayValue(svg, rule.cssSelector, rule.belowThresholdCssDeclaration);
-            } else if (rule.thresholdStatus === THRESHOLD_STATUS.BELOW && maxDisplayedSize >= rule.threshold) {
-                console.debug(
-                    'CSS Rule ' + rule.cssSelector + ' above threshold ' + maxDisplayedSize + ' >= ' + rule.threshold
-                );
-                rule.thresholdStatus = THRESHOLD_STATUS.ABOVE;
-                this.updateSvgCssDisplayValue(svg, rule.cssSelector, rule.aboveThresholdCssDeclaration);
-            }
-        });
+
         //Workaround chromium (tested on edge and google-chrome 131) doesn't
         //redraw things with percentages on viewbox changes but it should, so
         //we force it. This is not strictly related to the enableLevelOfDetail
@@ -1604,12 +1490,39 @@ export class NetworkAreaDiagramViewer {
         //force a redraw that doesnt change the elements in the dom.
         const innerSvg = svg.querySelector('svg');
         if (innerSvg) {
+            const zoomLevel = this.getZoomLevel(maxDisplayedSize);
+            if (zoomLevel != this.lastZoomLevel) {
+                innerSvg.setAttribute('class', "nad-zoom-" + zoomLevel);
+                this.lastZoomLevel = zoomLevel;
+            }
             for (const child of innerSvg.children) {
                 // annoying, sometimes lowercase (html), sometimes uppercase (xml in xhtml or svg))
                 if (child.nodeName.toUpperCase() != 'STYLE') {
                     child.innerHTML += '';
                 }
             }
+        }
+    }
+
+    private getZoomLevel(maxDisplayedSize: number): number {
+        if (maxDisplayedSize >= 20000) {
+            return 20000;
+        } else if (maxDisplayedSize >= 12000) {
+            return 12000;
+        } else if (maxDisplayedSize >= 9000) {
+            return 9000;
+        } else if (maxDisplayedSize >= 4000) {
+            return 4000;
+        } else if (maxDisplayedSize >= 3000) {
+            return 3000;
+        } else if (maxDisplayedSize >= 2500) {
+            return 2500;
+        } else if (maxDisplayedSize >= 2200) {
+            return 2200;
+        } else if (maxDisplayedSize >= 1000) {
+            return 1000;
+        } else {
+            return 0;
         }
     }
 

@@ -57,7 +57,6 @@ export const addNadToDemo = () => {
                 handleNodeSelect,
                 true,
                 false,
-                null,
                 handleToggleNadHover,
                 handleRightClick,
                 true
@@ -119,7 +118,6 @@ export const addNadToDemo = () => {
                 handleNodeSelect,
                 false,
                 false,
-                null,
                 handleToggleNadHover,
                 handleRightClick,
                 false
@@ -142,7 +140,6 @@ export const addNadToDemo = () => {
                 handleNodeSelect,
                 true,
                 false,
-                null,
                 handleToggleNadHover,
                 handleRightClick,
                 true
@@ -184,7 +181,6 @@ export const addNadToDemo = () => {
                 handleNodeSelect,
                 true,
                 false,
-                null,
                 handleToggleNadHover,
                 handleRightClick,
                 true
@@ -207,7 +203,6 @@ export const addNadToDemo = () => {
                 handleNodeSelect,
                 true,
                 false,
-                null,
                 handleToggleNadHover,
                 handleRightClick,
                 true
@@ -230,7 +225,6 @@ export const addNadToDemo = () => {
                 handleNodeSelect,
                 true,
                 false,
-                null,
                 handleToggleNadHover,
                 handleRightClick,
                 true
@@ -253,7 +247,6 @@ export const addNadToDemo = () => {
                 handleNodeSelect,
                 true,
                 false,
-                null,
                 handleToggleNadHover,
                 handleRightClick,
                 true
@@ -280,7 +273,6 @@ export const addNadToDemo = () => {
                 handleNodeSelect,
                 true,
                 enableLevelOfDetail,
-                null,
                 handleToggleNadHover,
                 handleRightClick,
                 true
