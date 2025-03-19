@@ -57,6 +57,7 @@ export const addNadToDemo = () => {
                 handleNodeSelect,
                 true,
                 false,
+                null,
                 handleToggleNadHover,
                 handleRightClick,
                 true
@@ -118,6 +119,7 @@ export const addNadToDemo = () => {
                 handleNodeSelect,
                 false,
                 false,
+                null,
                 handleToggleNadHover,
                 handleRightClick,
                 false
@@ -140,6 +142,7 @@ export const addNadToDemo = () => {
                 handleNodeSelect,
                 true,
                 false,
+                null,
                 handleToggleNadHover,
                 handleRightClick,
                 true
@@ -181,6 +184,7 @@ export const addNadToDemo = () => {
                 handleNodeSelect,
                 true,
                 false,
+                null,
                 handleToggleNadHover,
                 handleRightClick,
                 true
@@ -203,6 +207,7 @@ export const addNadToDemo = () => {
                 handleNodeSelect,
                 true,
                 false,
+                null,
                 handleToggleNadHover,
                 handleRightClick,
                 true
@@ -225,6 +230,7 @@ export const addNadToDemo = () => {
                 handleNodeSelect,
                 true,
                 false,
+                null,
                 handleToggleNadHover,
                 handleRightClick,
                 true
@@ -247,6 +253,7 @@ export const addNadToDemo = () => {
                 handleNodeSelect,
                 true,
                 false,
+                null,
                 handleToggleNadHover,
                 handleRightClick,
                 true
@@ -273,6 +280,7 @@ export const addNadToDemo = () => {
                 handleNodeSelect,
                 true,
                 enableLevelOfDetail,
+                [0, 1000, 2200, 2500, 3000, 4000, 9000, 12000, 20000],
                 handleToggleNadHover,
                 handleRightClick,
                 true

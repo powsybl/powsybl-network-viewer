@@ -101,6 +101,7 @@ export class NetworkAreaDiagramViewer {
     edgesMap: Map<string, EdgeMetadata> = new Map<string, EdgeMetadata>();
     onRightClickCallback: OnRightClickCallbackType | null;
     lastZoomLevel: number = 0;
+    zoomLevels: number[] = [0, 1000, 2200, 2500, 3000, 4000, 9000, 12000, 20000];
 
     constructor(
         container: HTMLElement,
@@ -115,6 +116,7 @@ export class NetworkAreaDiagramViewer {
         onSelectNodeCallback: OnSelectNodeCallbackType | null,
         enableNodeInteraction: boolean,
         enableLevelOfDetail: boolean,
+        zoomLevels: number[] | null,
         onToggleHoverCallback: OnToggleNadHoverCallbackType | null,
         onRightClickCallback: OnRightClickCallbackType | null,
         addButtons: boolean
@@ -129,6 +131,8 @@ export class NetworkAreaDiagramViewer {
         this.originalWidth = 0;
         this.originalHeight = 0;
         this.onRightClickCallback = onRightClickCallback;
+        if (zoomLevels != null) this.zoomLevels = zoomLevels;
+        this.zoomLevels.sort((a, b) => b - a);
         this.init(
             minWidth,
             minHeight,
@@ -1489,40 +1493,28 @@ export class NetworkAreaDiagramViewer {
         //force a redraw that doesnt change the elements in the dom.
         const innerSvg = svg.querySelector('svg');
         if (innerSvg) {
-            const zoomLevel = this.getZoomLevel(maxDisplayedSize);
-            if (zoomLevel != this.lastZoomLevel) {
-                innerSvg.setAttribute('class', 'nad-zoom-' + zoomLevel);
-                this.lastZoomLevel = zoomLevel;
-            }
             for (const child of innerSvg.children) {
                 // annoying, sometimes lowercase (html), sometimes uppercase (xml in xhtml or svg))
                 if (child.nodeName.toUpperCase() != 'STYLE') {
                     child.innerHTML += '';
                 }
             }
+            const zoomLevel = this.getZoomLevel(maxDisplayedSize);
+            if (zoomLevel != this.lastZoomLevel) {
+                innerSvg.setAttribute('class', 'nad-zoom-' + zoomLevel);
+                this.lastZoomLevel = zoomLevel;
+            }
+
         }
     }
 
     private getZoomLevel(maxDisplayedSize: number): number {
-        if (maxDisplayedSize >= 20000) {
-            return 20000;
-        } else if (maxDisplayedSize >= 12000) {
-            return 12000;
-        } else if (maxDisplayedSize >= 9000) {
-            return 9000;
-        } else if (maxDisplayedSize >= 4000) {
-            return 4000;
-        } else if (maxDisplayedSize >= 3000) {
-            return 3000;
-        } else if (maxDisplayedSize >= 2500) {
-            return 2500;
-        } else if (maxDisplayedSize >= 2200) {
-            return 2200;
-        } else if (maxDisplayedSize >= 1000) {
-            return 1000;
-        } else {
-            return 0;
+        for (const zoomLevel of this.zoomLevels) {
+            if (maxDisplayedSize >= zoomLevel) {
+                return zoomLevel;
+            }
         }
+        return 0;
     }
 
     public setJsonBranchStates(branchStates: string) {

@@ -116,291 +116,235 @@ path.nad-arrow-in:not(.nad-state-in .nad-arrow-in) {visibility: hidden}
 .nad-branch-edges .nad-overload .nad-edge-path {animation: line-blink 3s infinite}
 .nad-vl-nodes .nad-overvoltage {animation: node-over-blink 3s infinite}
 .nad-vl-nodes .nad-undervoltage {animation: node-under-blink 3s infinite}
-.nad-zoom-0 {
 
+
+.nad-zoom-0 .nad-disconnected .nad-edge-path {
+    stroke-dasharray: 10 10
+}
+.nad-zoom-0 :is(
     .nad-branch-edges .nad-edge-path,
     .nad-3wt-edges .nad-edge-path,
     .nad-branch-edges .nad-winding,
     .nad-3wt-nodes .nad-winding,
-    .nad-vl-nodes circle.nad-unknown-busnode {
-        stroke-width: 3
-    }
-    .nad-edge-infos,
-    .nad-label-box,
-    .nad-text-edges,
-    [class^="nad-vl0to30"],
-    [class*=" nad-vl0to30"],
-    [class^="nad-vl30to50"],
-    [class*=" nad-vl30to50"],
-    [class^="nad-vl50to70"],
-    [class*=" nad-vl50to70"],
-    [class^="nad-vl70to120"],
-    [class*=" nad-vl70to120"],
-    [class^="nad-vl120to180"],
-    [class*=" nad-vl120to180"],
-    [class^="nad-vl180to300"],
-    [class*=" nad-vl180to300"] {
-        display: block
-    }
-    .nad-disconnected .nad-edge-path {
-        stroke-dasharray: 10 10
-    }
+    .nad-vl-nodes circle.nad-unknown-busnode) {
+    stroke-width: 3
+}
+.nad-zoom-0 :is(
+    .nad-edge-infos, .nad-label-box, .nad-text-edges,
+    .nad-vl0to30-0, .nad-vl0to30-1, .nad-vl0to30-2, .nad-vl0to30-3, .nad-vl0to30-4, .nad-vl0to30-5, .nad-vl0to30-6, .nad-vl0to30-7, .nad-vl0to30-8, .nad-vl0to30-line,
+    .nad-vl30to50-0, .nad-vl30to50-1, .nad-vl30to50-2, .nad-vl30to50-3, .nad-vl30to50-4, .nad-vl30to50-5, .nad-vl30to50-6, .nad-vl30to50-7, .nad-vl30to50-8, .nad-vl30to50-line,
+    .nad-vl50to70-0, .nad-vl50to70-1, .nad-vl50to70-2, .nad-vl50to70-3, .nad-vl50to70-4, .nad-vl50to70-5, .nad-vl50to70-6, .nad-vl50to70-7, .nad-vl50to70-8, .nad-vl50to70-line,
+    .nad-vl70to120-0, .nad-vl70to120-1, .nad-vl70to120-2, .nad-vl70to120-3, .nad-vl70to120-4, .nad-vl70to120-5, .nad-vl70to120-6, .nad-vl70to120-7, .nad-vl70to120-8, .nad-vl70to120-line,
+    .nad-vl120to180-0, .nad-vl120to180-1, .nad-vl120to180-2, .nad-vl120to180-3, .nad-vl120to180-4, .nad-vl120to180-5, .nad-vl120to180-6, .nad-vl120to180-7, .nad-vl120to180-8, .nad-vl120to180-line,
+    .nad-vl180to300-0, .nad-vl180to300-1, .nad-vl180to300-2, .nad-vl180to300-3, .nad-vl180to300-4, .nad-vl180to300-5, .nad-vl180to300-6, .nad-vl180to300-7, .nad-vl180to300-8, .nad-vl180to300-line
+    ) {
+    display: block
 }
 
-.nad-zoom-1000 {
-
+.nad-zoom-1000 .nad-disconnected .nad-edge-path {
+    stroke-dasharray: 10 10
+}
+.nad-zoom-1000 :is(
     .nad-branch-edges .nad-edge-path,
     .nad-3wt-edges .nad-edge-path,
     .nad-branch-edges .nad-winding,
     .nad-3wt-nodes .nad-winding,
-    .nad-vl-nodes circle.nad-unknown-busnode {
-        stroke-width: 0.25%
-    }
-    .nad-edge-infos,
-    .nad-label-box,
-    .nad-text-edges,
-    [class^="nad-vl0to30"],
-    [class*=" nad-vl0to30"],
-    [class^="nad-vl30to50"],
-    [class*=" nad-vl30to50"],
-    [class^="nad-vl50to70"],
-    [class*=" nad-vl50to70"],
-    [class^="nad-vl70to120"],
-    [class*=" nad-vl70to120"],
-    [class^="nad-vl120to180"],
-    [class*=" nad-vl120to180"],
-    [class^="nad-vl180to300"],
-    [class*=" nad-vl180to300"] {
-        display: block
-    }
-    .nad-disconnected .nad-edge-path {
-        stroke-dasharray: 10 10
-    }
+    .nad-vl-nodes circle.nad-unknown-busnode) {
+    stroke-width: 0.25%
 }
-.nad-zoom-2200 {
+.nad-zoom-1000 :is(
+    .nad-edge-infos, .nad-label-box, .nad-text-edges,
+    .nad-vl0to30-0, .nad-vl0to30-1, .nad-vl0to30-2, .nad-vl0to30-3, .nad-vl0to30-4, .nad-vl0to30-5, .nad-vl0to30-6, .nad-vl0to30-7, .nad-vl0to30-8, .nad-vl0to30-line,
+    .nad-vl30to50-0, .nad-vl30to50-1, .nad-vl30to50-2, .nad-vl30to50-3, .nad-vl30to50-4, .nad-vl30to50-5, .nad-vl30to50-6, .nad-vl30to50-7, .nad-vl30to50-8, .nad-vl30to50-line,
+    .nad-vl50to70-0, .nad-vl50to70-1, .nad-vl50to70-2, .nad-vl50to70-3, .nad-vl50to70-4, .nad-vl50to70-5, .nad-vl50to70-6, .nad-vl50to70-7, .nad-vl50to70-8, .nad-vl50to70-line,
+    .nad-vl70to120-0, .nad-vl70to120-1, .nad-vl70to120-2, .nad-vl70to120-3, .nad-vl70to120-4, .nad-vl70to120-5, .nad-vl70to120-6, .nad-vl70to120-7, .nad-vl70to120-8, .nad-vl70to120-line,
+    .nad-vl120to180-0, .nad-vl120to180-1, .nad-vl120to180-2, .nad-vl120to180-3, .nad-vl120to180-4, .nad-vl120to180-5, .nad-vl120to180-6, .nad-vl120to180-7, .nad-vl120to180-8, .nad-vl120to180-line,
+    .nad-vl180to300-0, .nad-vl180to300-1, .nad-vl180to300-2, .nad-vl180to300-3, .nad-vl180to300-4, .nad-vl180to300-5, .nad-vl180to300-6, .nad-vl180to300-7, .nad-vl180to300-8, .nad-vl180to300-line
+    ) {
+    display: block
+}
+
+.nad-zoom-2200 .nad-disconnected .nad-edge-path {
+    stroke-dasharray: 10 10
+}
+.nad-zoom-2200 :is(
     .nad-branch-edges .nad-edge-path,
     .nad-3wt-edges .nad-edge-path,
     .nad-branch-edges .nad-winding,
     .nad-3wt-nodes .nad-winding,
-    .nad-vl-nodes circle.nad-unknown-busnode {
-        stroke-width: 0.25%
-    }
-    .nad-edge-infos {
-        display: none
-    }
-    .nad-label-box,
-    .nad-text-edges,
-    [class^="nad-vl0to30"],
-    [class*=" nad-vl0to30"],
-    [class^="nad-vl30to50"],
-    [class*=" nad-vl30to50"],
-    [class^="nad-vl50to70"],
-    [class*=" nad-vl50to70"],
-    [class^="nad-vl70to120"],
-    [class*=" nad-vl70to120"],
-    [class^="nad-vl120to180"],
-    [class*=" nad-vl120to180"],
-    [class^="nad-vl180to300"],
-    [class*=" nad-vl180to300"] {
-        display: block
-    }
-    .nad-disconnected .nad-edge-path {
-        stroke-dasharray: 10 10
-    }
+    .nad-vl-nodes circle.nad-unknown-busnode) {
+    stroke-width: 0.25%
 }
-.nad-zoom-2500 {
+.nad-zoom-2200 .nad-edge-infos {
+    display: none
+}
+.nad-zoom-2200 :is(
+    .nad-label-box, .nad-text-edges,
+    .nad-vl0to30-0, .nad-vl0to30-1, .nad-vl0to30-2, .nad-vl0to30-3, .nad-vl0to30-4, .nad-vl0to30-5, .nad-vl0to30-6, .nad-vl0to30-7, .nad-vl0to30-8, .nad-vl0to30-line,
+    .nad-vl30to50-0, .nad-vl30to50-1, .nad-vl30to50-2, .nad-vl30to50-3, .nad-vl30to50-4, .nad-vl30to50-5, .nad-vl30to50-6, .nad-vl30to50-7, .nad-vl30to50-8, .nad-vl30to50-line,
+    .nad-vl50to70-0, .nad-vl50to70-1, .nad-vl50to70-2, .nad-vl50to70-3, .nad-vl50to70-4, .nad-vl50to70-5, .nad-vl50to70-6, .nad-vl50to70-7, .nad-vl50to70-8, .nad-vl50to70-line,
+    .nad-vl70to120-0, .nad-vl70to120-1, .nad-vl70to120-2, .nad-vl70to120-3, .nad-vl70to120-4, .nad-vl70to120-5, .nad-vl70to120-6, .nad-vl70to120-7, .nad-vl70to120-8, .nad-vl70to120-line,
+    .nad-vl120to180-0, .nad-vl120to180-1, .nad-vl120to180-2, .nad-vl120to180-3, .nad-vl120to180-4, .nad-vl120to180-5, .nad-vl120to180-6, .nad-vl120to180-7, .nad-vl120to180-8, .nad-vl120to180-line,
+    .nad-vl180to300-0, .nad-vl180to300-1, .nad-vl180to300-2, .nad-vl180to300-3, .nad-vl180to300-4, .nad-vl180to300-5, .nad-vl180to300-6, .nad-vl180to300-7, .nad-vl180to300-8, .nad-vl180to300-line
+    ) {
+    display: block
+}
+
+.nad-zoom-2500 .nad-disconnected .nad-edge-path {
+    stroke-dasharray: 0.5% 0.5%
+}
+.nad-zoom-2500 :is(
     .nad-branch-edges .nad-edge-path,
     .nad-3wt-edges .nad-edge-path,
     .nad-branch-edges .nad-winding,
     .nad-3wt-nodes .nad-winding,
-    .nad-vl-nodes circle.nad-unknown-busnode {
-        stroke-width: 0.25%
-    }
-    .nad-edge-infos {
-        display: none
-    }
-    .nad-label-box,
-    .nad-text-edges,
-    [class^="nad-vl0to30"],
-    [class*=" nad-vl0to30"],
-    [class^="nad-vl30to50"],
-    [class*=" nad-vl30to50"],
-    [class^="nad-vl50to70"],
-    [class*=" nad-vl50to70"],
-    [class^="nad-vl70to120"],
-    [class*=" nad-vl70to120"],
-    [class^="nad-vl120to180"],
-    [class*=" nad-vl120to180"],
-    [class^="nad-vl180to300"],
-    [class*=" nad-vl180to300"] {
-        display: block
-    }
-    .nad-disconnected .nad-edge-path {
-        stroke-dasharray: 0.5%, 0.5%
-    }
+    .nad-vl-nodes circle.nad-unknown-busnode) {
+    stroke-width: 0.25%
 }
-.nad-zoom-3000 {
+.nad-zoom-2500 .nad-edge-infos {
+    display: none
+}
+.nad-zoom-2500 :is(
+    .nad-label-box, .nad-text-edges,
+    .nad-vl0to30-0, .nad-vl0to30-1, .nad-vl0to30-2, .nad-vl0to30-3, .nad-vl0to30-4, .nad-vl0to30-5, .nad-vl0to30-6, .nad-vl0to30-7, .nad-vl0to30-8, .nad-vl0to30-line,
+    .nad-vl30to50-0, .nad-vl30to50-1, .nad-vl30to50-2, .nad-vl30to50-3, .nad-vl30to50-4, .nad-vl30to50-5, .nad-vl30to50-6, .nad-vl30to50-7, .nad-vl30to50-8, .nad-vl30to50-line,
+    .nad-vl50to70-0, .nad-vl50to70-1, .nad-vl50to70-2, .nad-vl50to70-3, .nad-vl50to70-4, .nad-vl50to70-5, .nad-vl50to70-6, .nad-vl50to70-7, .nad-vl50to70-8, .nad-vl50to70-line,
+    .nad-vl70to120-0, .nad-vl70to120-1, .nad-vl70to120-2, .nad-vl70to120-3, .nad-vl70to120-4, .nad-vl70to120-5, .nad-vl70to120-6, .nad-vl70to120-7, .nad-vl70to120-8, .nad-vl70to120-line,
+    .nad-vl120to180-0, .nad-vl120to180-1, .nad-vl120to180-2, .nad-vl120to180-3, .nad-vl120to180-4, .nad-vl120to180-5, .nad-vl120to180-6, .nad-vl120to180-7, .nad-vl120to180-8, .nad-vl120to180-line,
+    .nad-vl180to300-0, .nad-vl180to300-1, .nad-vl180to300-2, .nad-vl180to300-3, .nad-vl180to300-4, .nad-vl180to300-5, .nad-vl180to300-6, .nad-vl180to300-7, .nad-vl180to300-8, .nad-vl180to300-line
+    ) {
+    display: block
+}
+
+.nad-zoom-3000 .nad-disconnected .nad-edge-path {
+    stroke-dasharray: 0.5% 0.5%
+}
+.nad-zoom-3000 :is(
     .nad-branch-edges .nad-edge-path,
     .nad-3wt-edges .nad-edge-path,
     .nad-branch-edges .nad-winding,
     .nad-3wt-nodes .nad-winding,
-    .nad-vl-nodes circle.nad-unknown-busnode {
-        stroke-width: 0.25%
-    }
-    .nad-edge-infos, .nad-label-box, .nad-text-edges {
-        display: none
-    }
-    [class^="nad-vl0to30"],
-    [class*=" nad-vl0to30"],
-    [class^="nad-vl30to50"],
-    [class*=" nad-vl30to50"],
-    [class^="nad-vl50to70"],
-    [class*=" nad-vl50to70"],
-    [class^="nad-vl70to120"],
-    [class*=" nad-vl70to120"],
-    [class^="nad-vl120to180"],
-    [class*=" nad-vl120to180"],
-    [class^="nad-vl180to300"],
-    [class*=" nad-vl180to300"] {
-        display: block
-    }
-    .nad-disconnected .nad-edge-path {
-        stroke-dasharray: 0.5%, 0.5%
-    }
+    .nad-vl-nodes circle.nad-unknown-busnode) {
+    stroke-width: 0.25%
 }
-.nad-zoom-4000 {
+.nad-zoom-3000 :is(.nad-edge-infos, .nad-label-box, .nad-text-edges) {
+    display: none
+}
+.nad-zoom-3000 :is(
+    .nad-vl0to30-0, .nad-vl0to30-1, .nad-vl0to30-2, .nad-vl0to30-3, .nad-vl0to30-4, .nad-vl0to30-5, .nad-vl0to30-6, .nad-vl0to30-7, .nad-vl0to30-8, .nad-vl0to30-line,
+    .nad-vl30to50-0, .nad-vl30to50-1, .nad-vl30to50-2, .nad-vl30to50-3, .nad-vl30to50-4, .nad-vl30to50-5, .nad-vl30to50-6, .nad-vl30to50-7, .nad-vl30to50-8, .nad-vl30to50-line,
+    .nad-vl50to70-0, .nad-vl50to70-1, .nad-vl50to70-2, .nad-vl50to70-3, .nad-vl50to70-4, .nad-vl50to70-5, .nad-vl50to70-6, .nad-vl50to70-7, .nad-vl50to70-8, .nad-vl50to70-line,
+    .nad-vl70to120-0, .nad-vl70to120-1, .nad-vl70to120-2, .nad-vl70to120-3, .nad-vl70to120-4, .nad-vl70to120-5, .nad-vl70to120-6, .nad-vl70to120-7, .nad-vl70to120-8, .nad-vl70to120-line,
+    .nad-vl120to180-0, .nad-vl120to180-1, .nad-vl120to180-2, .nad-vl120to180-3, .nad-vl120to180-4, .nad-vl120to180-5, .nad-vl120to180-6, .nad-vl120to180-7, .nad-vl120to180-8, .nad-vl120to180-line,
+    .nad-vl180to300-0, .nad-vl180to300-1, .nad-vl180to300-2, .nad-vl180to300-3, .nad-vl180to300-4, .nad-vl180to300-5, .nad-vl180to300-6, .nad-vl180to300-7, .nad-vl180to300-8, .nad-vl180to300-line
+    ) {
+    display: block
+}
+
+.nad-zoom-4000 .nad-disconnected .nad-edge-path {
+    stroke-dasharray: 0.5% 0.5%
+}
+.nad-zoom-4000 :is(
     .nad-branch-edges .nad-edge-path,
     .nad-3wt-edges .nad-edge-path,
     .nad-branch-edges .nad-winding,
     .nad-3wt-nodes .nad-winding,
-    .nad-vl-nodes circle.nad-unknown-busnode {
-        stroke-width: 0.25%
-    }
-    .nad-edge-infos,
-    .nad-label-box,
-    .nad-text-edges,
-    [class^="nad-vl0to30"],
-    [class*=" nad-vl0to30"],
-    [class^="nad-vl30to50"],
-    [class*=" nad-vl30to50"] {
-        display: none
-    }
-    [class^="nad-vl50to70"],
-    [class*=" nad-vl50to70"],
-    [class^="nad-vl70to120"],
-    [class*=" nad-vl70to120"],
-    [class^="nad-vl120to180"],
-    [class*=" nad-vl120to180"],
-    [class^="nad-vl180to300"],
-    [class*=" nad-vl180to300"] {
-        display: block
-    }
-    .nad-disconnected .nad-edge-path {
-        stroke-dasharray: 0.5%, 0.5%
-    }
+    .nad-vl-nodes circle.nad-unknown-busnode) {
+    stroke-width: 0.25%
 }
-.nad-zoom-9000 {
+.nad-zoom-4000 :is(
+    .nad-edge-infos, .nad-label-box, .nad-text-edges,
+    .nad-vl0to30-0, .nad-vl0to30-1, .nad-vl0to30-2, .nad-vl0to30-3, .nad-vl0to30-4, .nad-vl0to30-5, .nad-vl0to30-6, .nad-vl0to30-7, .nad-vl0to30-8, .nad-vl0to30-line,
+    .nad-vl30to50-0, .nad-vl30to50-1, .nad-vl30to50-2, .nad-vl30to50-3, .nad-vl30to50-4, .nad-vl30to50-5, .nad-vl30to50-6, .nad-vl30to50-7, .nad-vl30to50-8, .nad-vl30to50-line
+    ) {
+    display: none
+}
+.nad-zoom-4000 :is(
+    .nad-vl50to70-0, .nad-vl50to70-1, .nad-vl50to70-2, .nad-vl50to70-3, .nad-vl50to70-4, .nad-vl50to70-5, .nad-vl50to70-6, .nad-vl50to70-7, .nad-vl50to70-8, .nad-vl50to70-line,
+    .nad-vl70to120-0, .nad-vl70to120-1, .nad-vl70to120-2, .nad-vl70to120-3, .nad-vl70to120-4, .nad-vl70to120-5, .nad-vl70to120-6, .nad-vl70to120-7, .nad-vl70to120-8, .nad-vl70to120-line,
+    .nad-vl120to180-0, .nad-vl120to180-1, .nad-vl120to180-2, .nad-vl120to180-3, .nad-vl120to180-4, .nad-vl120to180-5, .nad-vl120to180-6, .nad-vl120to180-7, .nad-vl120to180-8, .nad-vl120to180-line,
+    .nad-vl180to300-0, .nad-vl180to300-1, .nad-vl180to300-2, .nad-vl180to300-3, .nad-vl180to300-4, .nad-vl180to300-5, .nad-vl180to300-6, .nad-vl180to300-7, .nad-vl180to300-8, .nad-vl180to300-line
+    ) {
+    display: block
+}
 
+.nad-zoom-9000 .nad-disconnected .nad-edge-path {
+    stroke-dasharray: 0.5% 0.5%
+}
+.nad-zoom-9000 :is(
     .nad-branch-edges .nad-edge-path,
     .nad-3wt-edges .nad-edge-path,
     .nad-branch-edges .nad-winding,
     .nad-3wt-nodes .nad-winding,
-    .nad-vl-nodes circle.nad-unknown-busnode {
-        stroke-width: 0.25%
-    }
-
-    .nad-edge-infos,
-    .nad-label-box,
-    .nad-text-edges,
-    [class^="nad-vl0to30"],
-    [class*=" nad-vl0to30"],
-    [class^="nad-vl30to50"],
-    [class*=" nad-vl30to50"],
-    [class^="nad-vl50to70"],
-    [class*=" nad-vl50to70"],
-    [class^="nad-vl70to120"],
-    [class*=" nad-vl70to120"] {
-        display: none
-    }
-
-    [class^="nad-vl120to180"],
-    [class*=" nad-vl120to180"],
-    [class^="nad-vl180to300"],
-    [class*=" nad-vl180to300"] {
-        display: block
-    }
-
-    .nad-disconnected .nad-edge-path {
-        stroke-dasharray: 0.5%, 0.5%
-    }
+    .nad-vl-nodes circle.nad-unknown-busnode) {
+    stroke-width: 0.25%
 }
-.nad-zoom-12000 {
+.nad-zoom-9000 :is(
+    .nad-edge-infos, .nad-label-box, .nad-text-edges,
+    .nad-vl0to30-0, .nad-vl0to30-1, .nad-vl0to30-2, .nad-vl0to30-3, .nad-vl0to30-4, .nad-vl0to30-5, .nad-vl0to30-6, .nad-vl0to30-7, .nad-vl0to30-8, .nad-vl0to30-line,
+    .nad-vl30to50-0, .nad-vl30to50-1, .nad-vl30to50-2, .nad-vl30to50-3, .nad-vl30to50-4, .nad-vl30to50-5, .nad-vl30to50-6, .nad-vl30to50-7, .nad-vl30to50-8, .nad-vl30to50-line,
+    .nad-vl50to70-0, .nad-vl50to70-1, .nad-vl50to70-2, .nad-vl50to70-3, .nad-vl50to70-4, .nad-vl50to70-5, .nad-vl50to70-6, .nad-vl50to70-7, .nad-vl50to70-8, .nad-vl50to70-line,
+    .nad-vl70to120-0, .nad-vl70to120-1, .nad-vl70to120-2, .nad-vl70to120-3, .nad-vl70to120-4, .nad-vl70to120-5, .nad-vl70to120-6, .nad-vl70to120-7, .nad-vl70to120-8, .nad-vl70to120-line
+    ) {
+    display: none
+}
+.nad-zoom-9000 :is(
+    .nad-vl120to180-0, .nad-vl120to180-1, .nad-vl120to180-2, .nad-vl120to180-3, .nad-vl120to180-4, .nad-vl120to180-5, .nad-vl120to180-6, .nad-vl120to180-7, .nad-vl120to180-8, .nad-vl120to180-line,
+    .nad-vl180to300-0, .nad-vl180to300-1, .nad-vl180to300-2, .nad-vl180to300-3, .nad-vl180to300-4, .nad-vl180to300-5, .nad-vl180to300-6, .nad-vl180to300-7, .nad-vl180to300-8, .nad-vl180to300-line
+    ) {
+    display: block
+}
 
+.nad-zoom-12000 .nad-disconnected .nad-edge-path {
+    stroke-dasharray: 0.5% 0.5%
+}
+.nad-zoom-12000 :is(
     .nad-branch-edges .nad-edge-path,
     .nad-3wt-edges .nad-edge-path,
     .nad-branch-edges .nad-winding,
     .nad-3wt-nodes .nad-winding,
-    .nad-vl-nodes circle.nad-unknown-busnode {
-        stroke-width: 0.25%
-    }
-
-    .nad-edge-infos,
-    .nad-label-box,
-    .nad-text-edges,
-    [class^="nad-vl0to30"],
-    [class*=" nad-vl0to30"],
-    [class^="nad-vl30to50"],
-    [class*=" nad-vl30to50"],
-    [class^="nad-vl50to70"],
-    [class*=" nad-vl50to70"],
-    [class^="nad-vl70to120"],
-    [class*=" nad-vl70to120"],
-    [class^="nad-vl120to180"],
-    [class*=" nad-vl120to180"] {
-        display: none
-    }
-
-    [class^="nad-vl180to300"],
-    [class*=" nad-vl180to300"] {
-        display: block
-    }
-
-    .nad-disconnected .nad-edge-path {
-        stroke-dasharray: 0.5%, 0.5%
-    }
+    .nad-vl-nodes circle.nad-unknown-busnode) {
+    stroke-width: 0.25%
 }
-.nad-zoom-20000 {
+.nad-zoom-12000 :is(
+    .nad-edge-infos, .nad-label-box, .nad-text-edges,
+    .nad-vl0to30-0, .nad-vl0to30-1, .nad-vl0to30-2, .nad-vl0to30-3, .nad-vl0to30-4, .nad-vl0to30-5, .nad-vl0to30-6, .nad-vl0to30-7, .nad-vl0to30-8, .nad-vl0to30-line,
+    .nad-vl30to50-0, .nad-vl30to50-1, .nad-vl30to50-2, .nad-vl30to50-3, .nad-vl30to50-4, .nad-vl30to50-5, .nad-vl30to50-6, .nad-vl30to50-7, .nad-vl30to50-8, .nad-vl30to50-line,
+    .nad-vl50to70-0, .nad-vl50to70-1, .nad-vl50to70-2, .nad-vl50to70-3, .nad-vl50to70-4, .nad-vl50to70-5, .nad-vl50to70-6, .nad-vl50to70-7, .nad-vl50to70-8, .nad-vl50to70-line,
+    .nad-vl70to120-0, .nad-vl70to120-1, .nad-vl70to120-2, .nad-vl70to120-3, .nad-vl70to120-4, .nad-vl70to120-5, .nad-vl70to120-6, .nad-vl70to120-7, .nad-vl70to120-8, .nad-vl70to120-line,
+    .nad-vl120to180-0, .nad-vl120to180-1, .nad-vl120to180-2, .nad-vl120to180-3, .nad-vl120to180-4, .nad-vl120to180-5, .nad-vl120to180-6, .nad-vl120to180-7, .nad-vl120to180-8, .nad-vl120to180-line
+    ) {
+    display: none
+}
+.nad-zoom-12000 :is(
+    .nad-vl180to300-0, .nad-vl180to300-1, .nad-vl180to300-2, .nad-vl180to300-3, .nad-vl180to300-4, .nad-vl180to300-5, .nad-vl180to300-6, .nad-vl180to300-7, .nad-vl180to300-8, .nad-vl180to300-line
+    ) {
+    display: block
+}
 
+.nad-zoom-20000 .nad-disconnected .nad-edge-path {
+    stroke-dasharray: 0.5% 0.5%
+}
+.nad-zoom-20000 :is(
     .nad-branch-edges .nad-edge-path,
     .nad-3wt-edges .nad-edge-path,
     .nad-branch-edges .nad-winding,
     .nad-3wt-nodes .nad-winding,
-    .nad-vl-nodes circle.nad-unknown-busnode {
-        stroke-width: 0.25%
-    }
-
-    .nad-edge-infos,
-    .nad-label-box,
-    .nad-text-edges,
-    [class^="nad-vl0to30"],
-    [class*=" nad-vl0to30"],
-    [class^="nad-vl30to50"],
-    [class*=" nad-vl30to50"],
-    [class^="nad-vl50to70"],
-    [class*=" nad-vl50to70"],
-    [class^="nad-vl70to120"],
-    [class*=" nad-vl70to120"],
-    [class^="nad-vl120to180"],
-    [class*=" nad-vl120to180"],
-    [class^="nad-vl180to300"],
-    [class*=" nad-vl180to300"] {
-        display: none
-    }
-
-    .nad-disconnected .nad-edge-path {
-        stroke-dasharray: 0.5%, 0.5%
-    }
+    .nad-vl-nodes circle.nad-unknown-busnode) {
+    stroke-width: 0.25%
 }
+.nad-zoom-20000 :is(
+    .nad-edge-infos, .nad-label-box, .nad-text-edges,
+    .nad-vl0to30-0, .nad-vl0to30-1, .nad-vl0to30-2, .nad-vl0to30-3, .nad-vl0to30-4, .nad-vl0to30-5, .nad-vl0to30-6, .nad-vl0to30-7, .nad-vl0to30-8, .nad-vl0to30-line,
+    .nad-vl30to50-0, .nad-vl30to50-1, .nad-vl30to50-2, .nad-vl30to50-3, .nad-vl30to50-4, .nad-vl30to50-5, .nad-vl30to50-6, .nad-vl30to50-7, .nad-vl30to50-8, .nad-vl30to50-line,
+    .nad-vl50to70-0, .nad-vl50to70-1, .nad-vl50to70-2, .nad-vl50to70-3, .nad-vl50to70-4, .nad-vl50to70-5, .nad-vl50to70-6, .nad-vl50to70-7, .nad-vl50to70-8, .nad-vl50to70-line,
+    .nad-vl70to120-0, .nad-vl70to120-1, .nad-vl70to120-2, .nad-vl70to120-3, .nad-vl70to120-4, .nad-vl70to120-5, .nad-vl70to120-6, .nad-vl70to120-7, .nad-vl70to120-8, .nad-vl70to120-line,
+    .nad-vl120to180-0, .nad-vl120to180-1, .nad-vl120to180-2, .nad-vl120to180-3, .nad-vl120to180-4, .nad-vl120to180-5, .nad-vl120to180-6, .nad-vl120to180-7, .nad-vl120to180-8, .nad-vl120to180-line,
+    .nad-vl180to300-0, .nad-vl180to300-1, .nad-vl180to300-2, .nad-vl180to300-3, .nad-vl180to300-4, .nad-vl180to300-5, .nad-vl180to300-6, .nad-vl180to300-7, .nad-vl180to300-8, .nad-vl180to300-line
+    ) {
+    display: none
+}
+
 @keyframes line-blink {
   0%, 80%, 100% {stroke: var(--nad-vl-color, black); stroke-width: 5}
   40% {stroke: #FFEB3B; stroke-width: 15}
