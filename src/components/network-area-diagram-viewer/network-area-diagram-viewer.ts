@@ -1504,7 +1504,6 @@ export class NetworkAreaDiagramViewer {
                 innerSvg.setAttribute('class', 'nad-zoom-' + zoomLevel);
                 this.lastZoomLevel = zoomLevel;
             }
-
         }
     }
 
