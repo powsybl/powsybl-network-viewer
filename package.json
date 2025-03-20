@@ -20,6 +20,7 @@
     "exports": {
         ".": {
             "import": "./dist/powsybl-network-viewer.js",
+            "types": "./dist/index.d.ts",
             "require": "./dist/powsybl-network-viewer.umd.cjs"
         }
     },
@@ -29,6 +30,7 @@
     "scripts": {
         "postinstall": "rimraf -I -g ./node_modules/@types/deck.gl* ./node_modules/@types/luma.gl* ./node_modules/@types/math.gl* ./node_modules/@types/mapbox-gl",
         "watch": "vite watch",
+        "prebuild": "tsc",
         "build": "vite build",
         "prepublishOnly": "$npm_execpath run build",
         "test": "jest",
