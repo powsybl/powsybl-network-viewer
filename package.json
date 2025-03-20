@@ -20,6 +20,7 @@
     "exports": {
         ".": {
             "import": "./dist/powsybl-network-viewer.js",
+            "types": "./dist/index.d.ts",
             "require": "./dist/powsybl-network-viewer.umd.cjs"
         }
     },
