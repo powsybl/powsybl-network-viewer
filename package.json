@@ -30,11 +30,12 @@
     "scripts": {
         "postinstall": "rimraf -I -g ./node_modules/@types/deck.gl* ./node_modules/@types/luma.gl* ./node_modules/@types/math.gl* ./node_modules/@types/mapbox-gl",
         "watch": "vite watch",
+        "prebuild": "tsc",
         "build": "vite build",
         "prepublishOnly": "$npm_execpath run build",
         "test": "jest",
         "test:coverage": "jest --coverage",
-        "start": "vite demo/ --config vite.config.ts --open",
+        "start": "vite demo/ --open",
         "lint": "eslint . --ext js,mjs,jsx,ts,mts,tsx --max-warnings 0",
         "licenses-check": "license-checker --summary --excludePrivatePackages --production --onlyAllow \"$( jq -r .onlyAllow[] license-checker-config.json | tr '\n' ';')\" --excludePackages \"$( jq -r .excludePackages[] license-checker-config.json | tr '\n' ';')\""
     },
@@ -62,7 +63,7 @@
         "@mui/material": "^5.16.14",
         "react": "^18.3.1",
         "react-dom": "^18.3.1",
-        "react-intl": "^6.8.9"
+        "react-intl": "^7.1.6"
     },
     "devDependencies": {
         "@babel/core": "^7.26.8",
@@ -96,8 +97,8 @@
         "ts-jest": "^29.2.5",
         "ts-node": "^10.9.2",
         "typescript": "~5.3.3",
-        "vite": "^5.4.14",
-        "vite-plugin-dts": "^3.9.1",
+        "vite": "^6.2.2",
+        "vite-plugin-dts": "^4.5.3",
         "vite-plugin-eslint": "^1.8.1",
         "vite-plugin-svgr": "^4.3.0"
     }
