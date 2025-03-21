@@ -260,9 +260,6 @@ export const addNadToDemo = () => {
             );
         });
 
-    const enableLevelOfDetail: boolean =
-        new URLSearchParams(window.location.search).get('enableLevelOfDetail') === 'true';
-
     fetch(NadSvgPegaseNetworkExample)
         .then((response) => response.text())
         .then((svgContent) => {
@@ -279,16 +276,11 @@ export const addNadToDemo = () => {
                 handleTextNodeMove,
                 handleNodeSelect,
                 true,
-                enableLevelOfDetail,
+                true,
                 [0, 1000, 2200, 2500, 3000, 4000, 9000, 12000, 20000],
                 handleToggleNadHover,
                 handleRightClick,
                 true
-            );
-
-            svgContainerNadPegase?.insertAdjacentHTML(
-                'afterbegin',
-                `<p>enableLevelOfDetail=${enableLevelOfDetail}, <a href=".?enableLevelOfDetail=${!enableLevelOfDetail}">reload toggle enableLevelOfDetail</a></p>`
             );
         });
 };
