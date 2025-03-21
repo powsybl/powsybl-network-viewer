@@ -27,6 +27,18 @@ type DiagramPadding = {
     bottom: number;
 };
 
+export enum CssLocationEnum {
+    INSERTED_IN_SVG,
+    EXTERNAL_IMPORTED,
+    EXTERNAL_NO_IMPORT,
+}
+
+const CssLocationEnumMapping: { [key: string]: CssLocationEnum } = {
+    INSERTED_IN_SVG: CssLocationEnum.INSERTED_IN_SVG,
+    EXTERNAL_IMPORTED: CssLocationEnum.EXTERNAL_IMPORTED,
+    EXTERNAL_NO_IMPORT: CssLocationEnum.EXTERNAL_NO_IMPORT,
+};
+
 export class SvgParameters {
     static readonly VOLTAGE_LEVEL_CIRCLE_RADIUS_DEFAULT = 30.0;
     static readonly INTER_ANNULUS_SPACE_DEFAULT = 5.0;
@@ -47,6 +59,7 @@ export class SvgParameters {
     static readonly DIAGRAM_PADDING_TOP_DEFAULT = 200.0;
     static readonly DIAGRAM_PADDING_RIGHT_DEFAULT = 200.0;
     static readonly DIAGRAM_PADDING_BOTTON_DEFAULT = 200.0;
+    static readonly CSS_LOCATION_DEFAULT = CssLocationEnum.EXTERNAL_NO_IMPORT;
 
     svgParametersMetadata: SvgParametersMetadata | undefined;
 
@@ -130,5 +143,11 @@ export class SvgParameters {
             right: this.svgParametersMetadata?.diagramPadding.right ?? SvgParameters.DIAGRAM_PADDING_RIGHT_DEFAULT,
             bottom: this.svgParametersMetadata?.diagramPadding.bottom ?? SvgParameters.DIAGRAM_PADDING_BOTTON_DEFAULT,
         };
+    }
+
+    public getCssLocation(): CssLocationEnum {
+        return this.svgParametersMetadata?.cssLocation
+            ? CssLocationEnumMapping[this.svgParametersMetadata?.cssLocation]
+            : SvgParameters.CSS_LOCATION_DEFAULT;
     }
 }
