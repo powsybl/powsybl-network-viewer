@@ -31,7 +31,14 @@ export type BranchState = {
     connectedBus1: string;
     connectedBus2: string;
 };
-
+export type VoltageLevelState = {
+    voltageLevelId: string;
+    busValue: {
+        busId: string;
+        voltage: number;
+        angle: number;
+    }[];
+};
 export type OnMoveNodeCallbackType = (
     equipmentId: string,
     nodeId: string,
@@ -250,6 +257,7 @@ export class NetworkAreaDiagramViewer {
             }
         }
     }
+
     public moveTextNodeToCoordinates(
         equipmentId: string,
         shiftX: number,
@@ -1601,6 +1609,93 @@ export class NetworkAreaDiagramViewer {
             if (branchState.connectedBus2 && edge) {
                 this.setBranchBusConnection(edge, branchState.branchId, '2', branchState.connectedBus2);
             }
+        });
+    }
+
+    public setVoltageLevelState(voltageLevelStates: VoltageLevelState[]) {
+        voltageLevelStates.forEach((vlState) => {
+            // Trouver le nœud de texte
+            const textNodeId = this.getTextNodeIdFromEquipmentId(vlState.voltageLevelId);
+            if (!textNodeId) {
+                console.warn(`Text node for ${vlState.voltageLevelId} not found`);
+                return;
+            }
+
+            const textNodeElement = this.container.querySelector(`[id='${textNodeId}']`);
+            if (!textNodeElement) {
+                console.warn(`Text node element ${textNodeId} not found in DOM`);
+                return;
+            }
+
+            const labelBox = textNodeElement.querySelector('div.nad-label-box');
+            if (!labelBox) {
+                console.warn(`Label box not found in text node ${textNodeId}`);
+                return;
+            }
+
+            const vlNodeId = DiagramUtils.getVoltageLevelNodeId(textNodeId);
+
+            // get all voltage level
+            const vlBusNodes = this.diagramMetadata?.busNodes.filter((bus) => bus.vlNode === vlNodeId);
+            if (!vlBusNodes || vlBusNodes.length === 0) {
+                console.warn(`No bus nodes found for voltage level ${vlState.voltageLevelId}`);
+                return;
+            }
+
+            const titleDiv = labelBox.querySelector('div');
+            const title = titleDiv ? titleDiv.textContent : vlState.voltageLevelId;
+
+            let tableHtml = '<table>';
+
+            vlBusNodes.forEach((busNode) => {
+                const busElement = this.container.querySelector(`[id='${busNode.svgId}']`);
+                if (!busElement) return;
+
+                let busClass = '';
+                for (let i = 0; i < busElement.classList.length; i++) {
+                    const cls = busElement.classList[i];
+                    if (cls.match(/nad-vl\d+to\d+-\d+/)) {
+                        busClass = cls;
+                        break;
+                    }
+                }
+
+                if (!busClass) return;
+
+                const updatedBusValue = vlState.busValue.find((bv) => bv.busId === busNode.svgId);
+
+                let voltageAngleText = '';
+
+                if (updatedBusValue) {
+                    voltageAngleText = `${updatedBusValue.voltage.toFixed(1)} kV / ${updatedBusValue.angle.toFixed(
+                        1
+                    )}°`;
+                } else {
+                    const busRows = labelBox.querySelectorAll('table tr');
+                    for (let i = 0; i < busRows.length; i++) {
+                        const row = busRows[i];
+                        const squareDiv = row.querySelector(`div.${busClass}`);
+                        if (squareDiv) {
+                            const valueCell = row.querySelector('td:nth-child(2)');
+                            if (valueCell) {
+                                voltageAngleText = valueCell.textContent || '';
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                tableHtml += `
+                <tr>
+                    <td><div class="${busClass} nad-legend-square"></div></td>
+                    <td>${voltageAngleText}</td>
+                </tr>
+            `;
+            });
+
+            tableHtml += '</table>';
+
+            labelBox.innerHTML = `<div>${title}</div>${tableHtml}`;
         });
     }
 
