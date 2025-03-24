@@ -98,6 +98,31 @@ export const addNadToDemo = () => {
                     (621 - +branchLabelsSlider.value * 20) +
                     '}]';
                 nadViewer.setJsonBranchStates(branchStates);
+
+                const voltageLevelStates = [
+                    {
+                        voltageLevelId: 'VLGEN',
+                        busValue: [
+                            {
+                                busId: '1',
+                                voltage: branchLabelsSlider.valueAsNumber,
+                                angle: branchLabelsSlider.valueAsNumber * 0.1,
+                            },
+                        ],
+                    },
+                    {
+                        voltageLevelId: 'VLHV1',
+                        busValue: [
+                            {
+                                busId: '3',
+                                voltage: branchLabelsSlider.valueAsNumber * 10,
+                                angle: branchLabelsSlider.valueAsNumber * 0.1,
+                            },
+                        ],
+                    },
+                ];
+
+                nadViewer.setVoltageLevelState(voltageLevelStates);
             });
 
             document.getElementById('svg-container-nad')?.appendChild(branchLabelsSlider);
