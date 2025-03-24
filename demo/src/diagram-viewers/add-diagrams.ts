@@ -99,14 +99,17 @@ export const addNadToDemo = () => {
                     '}]';
                 nadViewer.setJsonBranchStates(branchStates);
 
+                const powerValue = branchLabelsSlider.valueAsNumber * 6;
+                const loadPercent = powerValue / 600; // 0 à 1
+
                 const voltageLevelStates = [
                     {
                         voltageLevelId: 'VLGEN',
                         busValue: [
                             {
                                 busId: '1',
-                                voltage: branchLabelsSlider.valueAsNumber,
-                                angle: branchLabelsSlider.valueAsNumber * 0.1,
+                                voltage: 24.5 * (1 + 0.02 * (1 - loadPercent)),
+                                angle: 2.3 + 3 * loadPercent,
                             },
                         ],
                     },
@@ -115,8 +118,28 @@ export const addNadToDemo = () => {
                         busValue: [
                             {
                                 busId: '3',
-                                voltage: branchLabelsSlider.valueAsNumber * 10,
-                                angle: branchLabelsSlider.valueAsNumber * 0.1,
+                                voltage: 402.1 * (1 - 0.01 * loadPercent),
+                                angle: 0,
+                            },
+                        ],
+                    },
+                    {
+                        voltageLevelId: 'VLHV2',
+                        busValue: [
+                            {
+                                busId: '5',
+                                voltage: 389.9 * (1 - 0.03 * loadPercent),
+                                angle: -3.5 - 5 * loadPercent,
+                            },
+                        ],
+                    },
+                    {
+                        voltageLevelId: 'VLLOAD',
+                        busValue: [
+                            {
+                                busId: '7',
+                                voltage: 147.6 * (1 - 0.05 * loadPercent),
+                                angle: -9.6 - 10 * loadPercent,
                             },
                         ],
                     },

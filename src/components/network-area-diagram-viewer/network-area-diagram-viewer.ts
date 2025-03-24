@@ -1733,7 +1733,6 @@ export class NetworkAreaDiagramViewer {
 
     public setVoltageLevelState(voltageLevelStates: VoltageLevelState[]) {
         voltageLevelStates.forEach((vlState) => {
-            // Trouver le nœud de texte
             const textNodeId = this.getTextNodeIdFromEquipmentId(vlState.voltageLevelId);
             if (!textNodeId) {
                 console.warn(`Text node for ${vlState.voltageLevelId} not found`);
