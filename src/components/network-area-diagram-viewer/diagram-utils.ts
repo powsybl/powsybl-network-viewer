@@ -11,7 +11,8 @@ import { SvgParameters } from './svg-parameters';
 import ZoomToFitSvg from '../../resources/material-icons/zoom-to-fit.svg';
 import ZoomInSvg from '../../resources/material-icons/zoom-in.svg';
 import ZoomOutSvg from '../../resources/material-icons/zoom-out.svg';
-import SaveSvg from '../../resources/material-icons/save.svg';
+import SaveSvg from '../../resources/material-icons/save_svg.svg';
+import SavePng from '../../resources/material-icons/save_png.svg';
 import ScreenshotSvg from '../../resources/material-icons/screenshot.svg';
 
 export type Dimensions = { width: number; height: number; viewbox: ViewBox };
@@ -727,14 +728,14 @@ export function getBlobFromPng(png: string): Blob {
     return new Blob([buffer], { type: mimeString });
 }
 
-function getButton(inputImg: string, title: string): HTMLButtonElement {
+function getButton(inputImg: string, title: string, size: string): HTMLButtonElement {
     const button = document.createElement('button');
     button.style.backgroundImage = `url("${inputImg}")`;
     button.style.backgroundRepeat = 'no-repeat';
     button.style.backgroundPosition = 'center center';
     button.title = title;
-    button.style.height = '25px';
-    button.style.width = '25px';
+    button.style.height = size;
+    button.style.width = size;
     button.style.padding = '0px';
     button.style.border = 'none';
     button.style.display = 'flex';
@@ -745,7 +746,7 @@ function getButton(inputImg: string, title: string): HTMLButtonElement {
 }
 
 export function getZoomToFitButton(): HTMLButtonElement {
-    const b = getButton(ZoomToFitSvg, 'Zoom to fit');
+    const b = getButton(ZoomToFitSvg, 'Zoom to fit', '25px');
     // button at the bottom: rounded bottom corners and top margin
     b.style.borderRadius = '0 0 5px 5px';
     b.style.marginTop = '1px';
@@ -753,21 +754,21 @@ export function getZoomToFitButton(): HTMLButtonElement {
 }
 
 export function getZoomInButton(): HTMLButtonElement {
-    const b = getButton(ZoomInSvg, 'Zoom in');
+    const b = getButton(ZoomInSvg, 'Zoom in', '25px');
     // button at the top: rounded top corners (and no margin)
     b.style.borderRadius = '5px 5px 0 0';
     return b;
 }
 
 export function getZoomOutButton(): HTMLButtonElement {
-    const b = getButton(ZoomOutSvg, 'Zoom out');
+    const b = getButton(ZoomOutSvg, 'Zoom out', '25px');
     // button in the middle: top margin (and no rounded corners)
     b.style.marginTop = '1px';
     return b;
 }
 
 export function getSaveSvgButton(): HTMLButtonElement {
-    const b = getButton(SaveSvg, 'Save SVG');
+    const b = getButton(SaveSvg, 'Save SVG', '30px');
     // button at the left: rounded left corners and right margin
     b.style.borderRadius = '5px 0 0 5px';
     b.style.marginRight = '1px';
@@ -775,7 +776,7 @@ export function getSaveSvgButton(): HTMLButtonElement {
 }
 
 export function getSavePngButton(): HTMLButtonElement {
-    const b = getButton(SaveSvg, 'Save PNG');
+    const b = getButton(SavePng, 'Save PNG', '30px');
     // button in the middle: no rounded corners and right margin
     b.style.borderRadius = '0 0 0 0';
     b.style.marginRight = '1px';
@@ -783,7 +784,7 @@ export function getSavePngButton(): HTMLButtonElement {
 }
 
 export function getScreenshotButton(): HTMLButtonElement {
-    const b = getButton(ScreenshotSvg, 'Screenshot');
+    const b = getButton(ScreenshotSvg, 'Screenshot', '30px');
     // button at the right: rounded right corners and no margin
     b.style.borderRadius = '0 5px 5px 0';
     return b;
