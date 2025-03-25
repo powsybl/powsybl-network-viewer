@@ -1776,9 +1776,17 @@ export class NetworkAreaDiagramViewer {
 
     public saveSvg() {
         this.addStyle();
+        const userViewBox: DiagramUtils.ViewBox = {
+            x: this.svgDraw?.viewbox().x ?? 0,
+            y: this.svgDraw?.viewbox().y ?? 0,
+            width: this.svgDraw?.viewbox().width ?? 0,
+            height: this.svgDraw?.viewbox().height ?? 0,
+        };
+        this.zoomToFit();
         const blobData = [this.getSvg() ?? ''];
         const blob = new Blob(blobData, { type: 'image/svg+xml' });
         this.downloadFile(blob, 'nad.svg');
+        this.svgDraw?.viewbox(userViewBox.x, userViewBox.y, userViewBox.width, userViewBox.height);
         this.removeStyle();
     }
 
