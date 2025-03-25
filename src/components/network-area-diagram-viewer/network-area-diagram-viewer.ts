@@ -491,23 +491,24 @@ export class NetworkAreaDiagramViewer {
             .query({ name: 'clipboard-write' as PermissionName })
             .then((result) => {
                 if (result.state == 'granted' || result.state == 'prompt') {
-                    this.addScreenshotBUtton(buttonsDiv);
+                    this.addScreenshotBUtton(buttonsDiv, true);
                 } else {
                     console.warn('Write access to clipboard not granted');
+                    this.addScreenshotBUtton(buttonsDiv, false);
                 }
             })
             .catch((err) => {
                 // Firefox does not support clipboard-write permission
                 console.warn('clipboard-write permission not supported: ' + err);
                 // add button anyway
-                this.addScreenshotBUtton(buttonsDiv);
+                this.addScreenshotBUtton(buttonsDiv, true);
             });
 
         return buttonsDiv;
     }
 
-    private addScreenshotBUtton(buttonsDiv: HTMLDivElement) {
-        const screenshotButton = DiagramUtils.getScreenshotButton();
+    private addScreenshotBUtton(buttonsDiv: HTMLDivElement, enabled: boolean) {
+        const screenshotButton = DiagramUtils.getScreenshotButton(enabled);
         buttonsDiv.appendChild(screenshotButton);
         screenshotButton.addEventListener('click', () => {
             this.screenshot(NetworkAreaDiagramViewer.DEFAULT_PNG_BACKGROUND_COLOR);

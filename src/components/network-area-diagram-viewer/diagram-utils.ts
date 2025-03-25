@@ -741,7 +741,6 @@ function getButton(inputImg: string, title: string, size: string): HTMLButtonEle
     button.style.display = 'flex';
     button.style.alignItems = 'center';
     button.style.justifyContent = 'center';
-    button.style.fill = '#5f6368';
     return button;
 }
 
@@ -783,9 +782,13 @@ export function getSavePngButton(): HTMLButtonElement {
     return b;
 }
 
-export function getScreenshotButton(): HTMLButtonElement {
+export function getScreenshotButton(enabled: boolean): HTMLButtonElement {
     const b = getButton(ScreenshotSvg, 'Screenshot', '30px');
     // button at the right: rounded right corners and no margin
     b.style.borderRadius = '0 5px 5px 0';
+    if (!enabled) {
+        b.disabled = true;
+        b.style.cursor = 'not-allowed';
+    }
     return b;
 }
