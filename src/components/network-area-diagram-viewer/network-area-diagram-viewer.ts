@@ -118,7 +118,7 @@ export class NetworkAreaDiagramViewer {
      * @param onSelectNodeCallback - Callback function triggered when a node is selected.
      * @param enableNodeInteraction - Whether node interaction (dragging, selecting) is enabled.
      * @param enableLevelOfDetail - Whether level-of-detail rendering is enabled based on zoom level.
-     * @param zoomLevels - Array of zoom levels used to determine level-of-detail rendering by applying corresponding 
+     * @param zoomLevels - Array of zoom levels used to determine level-of-detail rendering by applying corresponding
      *                     css class 'nad-zoom-{level}' to 'svg' element. If null, default zoom levels are used.
      * @param onToggleHoverCallback - Callback function triggered when hovering over a node or edge.
      * @param onRightClickCallback - Callback function triggered when right-clicking on a node or edge.
