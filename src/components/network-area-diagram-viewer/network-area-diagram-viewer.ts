@@ -103,6 +103,27 @@ export class NetworkAreaDiagramViewer {
     lastZoomLevel: number = 0;
     zoomLevels: number[] = [0, 1000, 2200, 2500, 3000, 4000, 9000, 12000, 20000];
 
+    static readonly ZOOM_CLASS_PREFIX = 'nad-zoom-';
+
+    /**
+     * @param container - The HTML element that will contain the SVG diagram.
+     * @param svgContent - The SVG content to be rendered in the viewer.
+     * @param diagramMetadata - Metadata associated with the diagram, including nodes, edges, and other properties.
+     * @param minWidth - The minimum width of the viewer.
+     * @param minHeight - The minimum height of the viewer.
+     * @param maxWidth - The maximum width of the viewer.
+     * @param maxHeight - The maximum height of the viewer.
+     * @param onMoveNodeCallback - Callback function triggered when a node is moved.
+     * @param onMoveTextNodeCallback - Callback function triggered when a text node is moved.
+     * @param onSelectNodeCallback - Callback function triggered when a node is selected.
+     * @param enableNodeInteraction - Whether node interaction (dragging, selecting) is enabled.
+     * @param enableLevelOfDetail - Whether level-of-detail rendering is enabled based on zoom level.
+     * @param zoomLevels - Array of zoom levels used to determine level-of-detail rendering by applying corresponding 
+     *                     css class 'nad-zoom-{level}' to 'svg' element. If null, default zoom levels are used.
+     * @param onToggleHoverCallback - Callback function triggered when hovering over a node or edge.
+     * @param onRightClickCallback - Callback function triggered when right-clicking on a node or edge.
+     * @param addButtons - Whether to add zoom control buttons (zoom in, zoom out, zoom to fit) to the viewer.
+     */
     constructor(
         container: HTMLElement,
         svgContent: string,
@@ -1501,7 +1522,7 @@ export class NetworkAreaDiagramViewer {
             }
             const zoomLevel = this.getZoomLevel(maxDisplayedSize);
             if (zoomLevel != this.lastZoomLevel) {
-                innerSvg.setAttribute('class', 'nad-zoom-' + zoomLevel);
+                innerSvg.setAttribute('class', NetworkAreaDiagramViewer.ZOOM_CLASS_PREFIX + zoomLevel);
                 this.lastZoomLevel = zoomLevel;
             }
         }
