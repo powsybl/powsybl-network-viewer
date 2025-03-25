@@ -500,8 +500,13 @@ export class NetworkAreaDiagramViewer {
             .catch((err) => {
                 // Firefox does not support clipboard-write permission
                 console.warn('clipboard-write permission not supported: ' + err);
-                // add button anyway
-                this.addScreenshotButton(buttonsDiv, true);
+                // add button based on clipboard availability
+                if (navigator.clipboard) {
+                    this.addScreenshotButton(buttonsDiv, true);
+                } else {
+                    console.warn('Navigator clipboard not available');
+                    this.addScreenshotButton(buttonsDiv, false);
+                }
             });
 
         return buttonsDiv;
