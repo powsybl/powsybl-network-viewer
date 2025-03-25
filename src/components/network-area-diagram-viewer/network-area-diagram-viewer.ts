@@ -491,23 +491,23 @@ export class NetworkAreaDiagramViewer {
             .query({ name: 'clipboard-write' as PermissionName })
             .then((result) => {
                 if (result.state == 'granted' || result.state == 'prompt') {
-                    this.addScreenshotBUtton(buttonsDiv, true);
+                    this.addScreenshotButton(buttonsDiv, true);
                 } else {
                     console.warn('Write access to clipboard not granted');
-                    this.addScreenshotBUtton(buttonsDiv, false);
+                    this.addScreenshotButton(buttonsDiv, false);
                 }
             })
             .catch((err) => {
                 // Firefox does not support clipboard-write permission
                 console.warn('clipboard-write permission not supported: ' + err);
                 // add button anyway
-                this.addScreenshotBUtton(buttonsDiv, true);
+                this.addScreenshotButton(buttonsDiv, true);
             });
 
         return buttonsDiv;
     }
 
-    private addScreenshotBUtton(buttonsDiv: HTMLDivElement, enabled: boolean) {
+    private addScreenshotButton(buttonsDiv: HTMLDivElement, enabled: boolean) {
         const screenshotButton = DiagramUtils.getScreenshotButton(enabled);
         buttonsDiv.appendChild(screenshotButton);
         screenshotButton.addEventListener('click', () => {
