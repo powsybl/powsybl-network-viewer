@@ -37,6 +37,7 @@
         "test:coverage": "jest --coverage",
         "start": "vite demo/ --open",
         "lint": "eslint . --ext js,mjs,jsx,ts,mts,tsx --max-warnings 0",
+        "lint:format": "cross-env NODE_OPTIONS=\"--experimental-strip-types\" prettier --check --cache .",
         "licenses-check": "license-checker --summary --excludePrivatePackages --production --onlyAllow \"$( jq -r .onlyAllow[] license-checker-config.json | tr '\n' ';')\" --excludePackages \"$( jq -r .excludePackages[] license-checker-config.json | tr '\n' ';')\""
     },
     "overrides": {
@@ -83,6 +84,7 @@
         "@typescript-eslint/eslint-plugin": "^6.21.0",
         "@vitejs/plugin-react": "^4.3.4",
         "babel-jest": "^29.7.0",
+        "cross-env": "^7.0.3",
         "eslint": "^7.32.0",
         "eslint-config-prettier": "^9.1.0",
         "eslint-plugin-prettier": "^4.2.1",
@@ -92,7 +94,9 @@
         "jest": "^29.7.0",
         "jest-environment-jsdom": "^29.7.0",
         "license-checker": "^25.0.1",
-        "prettier": "^2.8.8",
+        "prettier": "^3.5.3",
+        "prettier-plugin-glsl": "^0.2.1",
+        "prettier-plugin-properties": "^0.3.0",
         "rimraf": "^6.0.1",
         "ts-jest": "^29.2.5",
         "ts-node": "^10.9.2",
