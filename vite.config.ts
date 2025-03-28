@@ -8,6 +8,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import svgr from 'vite-plugin-svgr';
+// @ts-expect-error See https://github.com/gxmari007/vite-plugin-eslint/issues/79
 import eslint from 'vite-plugin-eslint';
 import dts from 'vite-plugin-dts';
 import * as path from 'node:path';
