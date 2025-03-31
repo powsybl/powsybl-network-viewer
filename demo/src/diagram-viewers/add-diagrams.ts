@@ -59,13 +59,9 @@ export const addNadToDemo = () => {
                 false,
                 null,
                 handleToggleNadHover,
-                handleRightClick
+                handleRightClick,
+                true
             );
-
-            document
-                .getElementById('svg-container-nad')
-                ?.getElementsByTagName('svg')[0]
-                .setAttribute('style', 'border:2px; border-style:solid;');
 
             // add range slider to update branch labels
             const branchLabelsSlider = document.createElement('input');
@@ -125,13 +121,9 @@ export const addNadToDemo = () => {
                 false,
                 null,
                 handleToggleNadHover,
-                handleRightClick
+                handleRightClick,
+                false
             );
-
-            document
-                .getElementById('svg-container-nad-no-moving')
-                ?.getElementsByTagName('svg')[0]
-                .setAttribute('style', 'border:2px; border-style:solid;');
         });
 
     fetch(NadSvgMultibusVLNodesExample)
@@ -152,13 +144,9 @@ export const addNadToDemo = () => {
                 false,
                 null,
                 handleToggleNadHover,
-                handleRightClick
+                handleRightClick,
+                true
             );
-
-            document
-                .getElementById('svg-container-nad-multibus-vlnodes')
-                ?.getElementsByTagName('svg')[0]
-                .setAttribute('style', 'border:2px; border-style:solid;');
 
             // add button to update branch labels
             const branchLabels =
@@ -199,13 +187,9 @@ export const addNadToDemo = () => {
                 false,
                 null,
                 handleToggleNadHover,
-                handleRightClick
+                handleRightClick,
+                true
             );
-
-            document
-                .getElementById('svg-container-nad-multibus-vlnodes14')
-                ?.getElementsByTagName('svg')[0]
-                .setAttribute('style', 'border:2px; border-style:solid;');
         });
 
     fetch(NadSvgPstHvdcExample)
@@ -226,13 +210,9 @@ export const addNadToDemo = () => {
                 false,
                 null,
                 handleToggleNadHover,
-                handleRightClick
+                handleRightClick,
+                true
             );
-
-            document
-                .getElementById('svg-container-nad-pst-hvdc')
-                ?.getElementsByTagName('svg')[0]
-                .setAttribute('style', 'border:2px; border-style:solid;');
         });
 
     fetch(NadSvgThreeWTDanglingLineUnknownBusExample)
@@ -253,13 +233,9 @@ export const addNadToDemo = () => {
                 false,
                 null,
                 handleToggleNadHover,
-                handleRightClick
+                handleRightClick,
+                true
             );
-
-            document
-                .getElementById('svg-container-nad-threewt-dl-ub')
-                ?.getElementsByTagName('svg')[0]
-                .setAttribute('style', 'border:2px; border-style:solid;');
         });
 
     fetch(NadSvgPartialNetworkExample)
@@ -280,13 +256,9 @@ export const addNadToDemo = () => {
                 false,
                 null,
                 handleToggleNadHover,
-                handleRightClick
+                handleRightClick,
+                true
             );
-
-            document
-                .getElementById('svg-container-nad-partial-network')
-                ?.getElementsByTagName('svg')[0]
-                .setAttribute('style', 'border:2px; border-style:solid;');
         });
 
     const enableLevelOfDetail: boolean =
@@ -311,12 +283,9 @@ export const addNadToDemo = () => {
                 enableLevelOfDetail,
                 null,
                 handleToggleNadHover,
-                handleRightClick
+                handleRightClick,
+                true
             );
-
-            svgContainerNadPegase
-                ?.getElementsByTagName('svg')[0]
-                .setAttribute('style', 'border:2px; border-style:solid;');
 
             svgContainerNadPegase?.insertAdjacentHTML(
                 'afterbegin',
@@ -346,11 +315,6 @@ export const addSldToDemo = () => {
                 null, //arrows color
                 null //hovers on equipments callback
             );
-
-            document
-                .getElementById('svg-container-sld')
-                ?.getElementsByTagName('svg')[0]
-                .setAttribute('style', 'border:2px; border-style:solid;');
         });
 
     fetch(SldSvgExample)
@@ -373,11 +337,6 @@ export const addSldToDemo = () => {
                 'lightblue', //arrows color
                 handleToggleSldHover //hovers on equipments callback
             );
-
-            document
-                .getElementById('svg-container-sld-with-callbacks')
-                ?.getElementsByTagName('svg')[0]
-                .setAttribute('style', 'border:2px; border-style:solid;');
         });
 
     fetch(SldSvgSubExample)
@@ -400,11 +359,6 @@ export const addSldToDemo = () => {
                 'lightblue', //arrows color
                 handleToggleSldHover //hovers on equipments callback
             );
-
-            document
-                .getElementById('svg-container-sldsub-with-callbacks')
-                ?.getElementsByTagName('svg')[0]
-                .setAttribute('style', 'border:2px; border-style:solid;');
         });
 };
 

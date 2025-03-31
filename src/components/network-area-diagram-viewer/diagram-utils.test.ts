@@ -9,6 +9,7 @@
 import * as DiagramUtils from './diagram-utils';
 import { EdgeMetadata, BusNodeMetadata, NodeMetadata, TextNodeMetadata } from './diagram-metadata';
 import { SVG, Point } from '@svgdotjs/svg.js';
+import { SvgParameters } from './svg-parameters';
 
 test('getFormattedValue', () => {
     expect(DiagramUtils.getFormattedValue(12)).toBe('12.00');
@@ -474,6 +475,89 @@ test('getRightClickableElementData', () => {
     expect(elementData?.svgId).toBe('16');
     expect(elementData?.equipmentId).toBe('T4-1-0');
     expect(elementData?.type).toBe(DiagramUtils.EdgeType[DiagramUtils.EdgeType.TWO_WINDINGS_TRANSFORMER]);
+});
+
+test('getViewBox', () => {
+    const nodes: NodeMetadata[] = [
+        {
+            svgId: '0',
+            equipmentId: 'VL1',
+            x: -500.0,
+            y: 0.0,
+        },
+        {
+            svgId: '1',
+            equipmentId: 'VL2',
+            x: 0,
+            y: -500.0,
+        },
+        {
+            svgId: '2',
+            equipmentId: 'VL3',
+            x: 500.0,
+            y: 0.0,
+        },
+        {
+            svgId: '3',
+            equipmentId: 'VL4',
+            x: 0,
+            y: 500.0,
+        },
+    ];
+    const textNodes: TextNodeMetadata[] = [
+        {
+            svgId: '0-textnode',
+            equipmentId: 'VL1',
+            vlNode: '0',
+            shiftX: 100.0,
+            shiftY: -40.0,
+            connectionShiftX: 100.0,
+            connectionShiftY: -15.0,
+        },
+        {
+            svgId: '1-textnode',
+            equipmentId: 'VL2',
+            vlNode: '1',
+            shiftX: 100.0,
+            shiftY: -40.0,
+            connectionShiftX: 100.0,
+            connectionShiftY: -15.0,
+        },
+        {
+            svgId: '2-textnode',
+            equipmentId: 'VL3',
+            vlNode: '2',
+            shiftX: 100.0,
+            shiftY: -40.0,
+            connectionShiftX: 100.0,
+            connectionShiftY: -15.0,
+        },
+        {
+            svgId: '3-textnode',
+            equipmentId: 'VL4',
+            vlNode: '3',
+            shiftX: 100.0,
+            shiftY: -40.0,
+            connectionShiftX: 100.0,
+            connectionShiftY: -15.0,
+        },
+    ];
+    const viewBox = DiagramUtils.getViewBox(nodes, textNodes, new SvgParameters(undefined));
+    expect(viewBox.x).toBe(-700);
+    expect(viewBox.y).toBe(-740);
+    expect(viewBox.width).toBe(1700);
+    expect(viewBox.height).toBe(1500);
+});
+
+test('getStyle', () => {
+    const expectedStyle =
+        '.nad-branch-edges .nad-edge-path, .nad-3wt-edges .nad-edge-path {stroke: var(--nad-vl-color, lightgrey); stroke-width: 5; fill: none;}\n' +
+        '.nad-branch-edges .nad-winding, .nad-3wt-nodes .nad-winding {stroke: var(--nad-vl-color, lightgrey); stroke-width: 5; fill: none;}';
+    const styleEl = document.createElement('style');
+    styleEl.innerHTML = expectedStyle + '\n.nad-text-edges {stroke: black; stroke-width: 3; stroke-dasharray: 6,7}';
+    document.head.appendChild(styleEl);
+    const style = DiagramUtils.getStyle(document.styleSheets, getSvgLoopEdge());
+    expect(style.textContent).toBe(expectedStyle);
 });
 
 function getSvgNode(): SVGGraphicsElement {

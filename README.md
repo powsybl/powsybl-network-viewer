@@ -7,7 +7,7 @@ This library contains three viewers:
 - network-map-viewer, to display the substations / voltage levels on a map
 
 The library is built with the Vite bundler.
-Node from v18+ is required to build with Vite.
+Node from v22+ is required to build with Vite.
 
 Installation using npm:  
 'npm install @powsybl/network-viewer'

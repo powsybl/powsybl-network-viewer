@@ -22,6 +22,7 @@ export default defineConfig((config) => ({
         }),
         dts({
             include: ['src'],
+            exclude: ['**/*.{spec,test}.{ts,tsx}'],
         }),
     ],
     build: {
@@ -55,7 +56,7 @@ export default defineConfig((config) => ({
                     react: 'React',
                     'react/jsx-runtime': 'ReactJsxRuntime',
                     'react-intl': 'ReactIntl',
-                    'react-map-gl': 'ReactMapGl',
+                    'react-map-gl/mapbox-legacy': 'ReactMapGl',
                     '@deck.gl/core': 'DeckGlCore',
                     '@deck.gl/extensions': 'DeckGlExtensions',
                     '@deck.gl/mapbox': 'DeckGlMapbox',

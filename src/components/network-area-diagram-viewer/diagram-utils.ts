@@ -7,6 +7,16 @@
 
 import { Point } from '@svgdotjs/svg.js';
 import { EdgeMetadata, BusNodeMetadata, NodeMetadata, TextNodeMetadata } from './diagram-metadata';
+import { SvgParameters } from './svg-parameters';
+import ZoomToFitSvg from '../../resources/material-icons/zoom-to-fit.svg';
+import ZoomInSvg from '../../resources/material-icons/zoom-in.svg';
+import ZoomOutSvg from '../../resources/material-icons/zoom-out.svg';
+import SaveSvg from '../../resources/material-icons/save_svg.svg';
+import SavePng from '../../resources/material-icons/save_png.svg';
+import ScreenshotSvg from '../../resources/material-icons/screenshot.svg';
+
+export type Dimensions = { width: number; height: number; viewbox: ViewBox };
+export type ViewBox = { x: number; y: number; width: number; height: number };
 
 // node move: original and new position
 export type NODEMOVE = {
@@ -50,6 +60,9 @@ const EdgeTypeMapping: { [key: string]: EdgeType } = {
     TieLineEdge: EdgeType.TIE_LINE,
     ThreeWtEdge: EdgeType.THREE_WINDINGS_TRANSFORMER,
 };
+
+const TEXT_BOX_WIDTH_DEFAULT = 200.0;
+const TEXT_BOX_HEIGHT_DEFAULT = 100.0;
 
 // format number to string
 export function getFormattedValue(value: number): string {
@@ -621,4 +634,161 @@ function getElementType(element: SVGElement | null): ElementType {
         return ElementType.BRANCH;
     }
     return ElementType.UNKNOWN;
+}
+
+// get view box computed starting from node and text positions
+// defined in diagram metadata
+export function getViewBox(
+    nodes: NodeMetadata[] | undefined,
+    textNodes: TextNodeMetadata[] | undefined,
+    svgParameters: SvgParameters
+): ViewBox {
+    const size = { minX: Number.MAX_VALUE, maxX: -Number.MAX_VALUE, minY: Number.MAX_VALUE, maxY: -Number.MAX_VALUE };
+    const nodesMap: Map<string, NodeMetadata> = new Map<string, NodeMetadata>();
+    nodes?.forEach((node) => {
+        nodesMap.set(node.equipmentId, node);
+        size.minX = Math.min(size.minX, node.x);
+        size.maxX = Math.max(size.maxX, node.x);
+        size.minY = Math.min(size.minY, node.y);
+        size.maxY = Math.max(size.maxY, node.y);
+    });
+    textNodes?.forEach((textNode) => {
+        const node = nodesMap.get(textNode.equipmentId);
+        if (node !== undefined) {
+            size.minX = Math.min(size.minX, node.x + textNode.shiftX);
+            size.maxX = Math.max(size.maxX, node.x + textNode.shiftX + TEXT_BOX_WIDTH_DEFAULT);
+            size.minY = Math.min(size.minY, node.y + textNode.shiftY);
+            size.maxY = Math.max(size.maxY, node.y + textNode.shiftY + TEXT_BOX_HEIGHT_DEFAULT);
+        }
+    });
+    return {
+        x: round(size.minX - svgParameters.getDiagramPadding().left),
+        y: round(size.minY - svgParameters.getDiagramPadding().top),
+        width: round(
+            size.maxX - size.minX + svgParameters.getDiagramPadding().left + svgParameters.getDiagramPadding().right
+        ),
+        height: round(
+            size.maxY - size.minY + svgParameters.getDiagramPadding().top + svgParameters.getDiagramPadding().bottom
+        ),
+    };
+}
+
+function getStyleCData(css: string): SVGStyleElement {
+    const styleElement = document.createElementNS('http://www.w3.org/2000/svg', 'style');
+    const xmlDocument = document.implementation.createDocument(null, null); // used to create CDATA
+    const styleCData = xmlDocument.createCDATASection(css);
+    styleElement.appendChild(styleCData);
+    return styleElement;
+}
+
+// get SVG style element starting from CSSs and the SVG element
+export function getStyle(styleSheets: StyleSheetList, svgElement: SVGElement | undefined): SVGStyleElement {
+    const nadCssRules: string[] = [];
+    Array.from(styleSheets).forEach((sheet) => {
+        Array.from(sheet.cssRules).forEach((rule) => {
+            const cssRule = <CSSStyleRule>rule;
+            const ruleElement = svgElement?.querySelector(cssRule.selectorText);
+            if (ruleElement) {
+                nadCssRules.push(rule.cssText.replace('foreignobject', 'foreignObject'));
+            }
+        });
+    });
+    return getStyleCData(nadCssRules.join('\n'));
+}
+
+export function getSvgXml(svg: string | null): string {
+    const doctype =
+        '<?xml version="1.0" standalone="no"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd" [<!ENTITY nbsp "&#160;">]>';
+    const bytes = new TextEncoder().encode(doctype + svg);
+    const encodedSvg = Array.from(bytes, (byte) => String.fromCodePoint(byte)).join('');
+    return `data:image/svg+xml;base64,${window.btoa(encodedSvg)}`;
+}
+
+export function getPngFromImage(image: HTMLImageElement): string {
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    const pixelRatio = window.devicePixelRatio || 1;
+    canvas.width = image.width * pixelRatio;
+    canvas.height = image.height * pixelRatio;
+    canvas.style.width = `${canvas.width}px`;
+    canvas.style.height = `${canvas.height}px`;
+    context?.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+    context?.drawImage(image, 0, 0);
+    return canvas.toDataURL('image/png', 0.8);
+}
+
+export function getBlobFromPng(png: string): Blob {
+    const byteString = window.atob(png.split(',')[1]);
+    const mimeString = png.split(',')[0].split(':')[1].split(';')[0];
+    const buffer = new ArrayBuffer(byteString.length);
+    const intArray = new Uint8Array(buffer);
+    for (let i = 0; i < byteString.length; i++) {
+        intArray[i] = byteString.charCodeAt(i);
+    }
+    return new Blob([buffer], { type: mimeString });
+}
+
+function getButton(inputImg: string, title: string, size: string): HTMLButtonElement {
+    const button = document.createElement('button');
+    button.style.backgroundImage = `url("${inputImg}")`;
+    button.style.backgroundRepeat = 'no-repeat';
+    button.style.backgroundPosition = 'center center';
+    button.title = title;
+    button.style.height = size;
+    button.style.width = size;
+    button.style.padding = '0px';
+    button.style.border = 'none';
+    button.style.display = 'flex';
+    button.style.alignItems = 'center';
+    button.style.justifyContent = 'center';
+    return button;
+}
+
+export function getZoomToFitButton(): HTMLButtonElement {
+    const b = getButton(ZoomToFitSvg, 'Zoom to fit', '25px');
+    // button at the bottom: rounded bottom corners and top margin
+    b.style.borderRadius = '0 0 5px 5px';
+    b.style.marginTop = '1px';
+    return b;
+}
+
+export function getZoomInButton(): HTMLButtonElement {
+    const b = getButton(ZoomInSvg, 'Zoom in', '25px');
+    // button at the top: rounded top corners (and no margin)
+    b.style.borderRadius = '5px 5px 0 0';
+    return b;
+}
+
+export function getZoomOutButton(): HTMLButtonElement {
+    const b = getButton(ZoomOutSvg, 'Zoom out', '25px');
+    // button in the middle: top margin (and no rounded corners)
+    b.style.marginTop = '1px';
+    return b;
+}
+
+export function getSaveSvgButton(): HTMLButtonElement {
+    const b = getButton(SaveSvg, 'Save SVG', '30px');
+    // button at the left: rounded left corners and right margin
+    b.style.borderRadius = '5px 0 0 5px';
+    b.style.marginRight = '1px';
+    return b;
+}
+
+export function getSavePngButton(): HTMLButtonElement {
+    const b = getButton(SavePng, 'Save PNG', '30px');
+    // button in the middle: no rounded corners and right margin
+    b.style.borderRadius = '0 0 0 0';
+    b.style.marginRight = '1px';
+    return b;
+}
+
+export function getScreenshotButton(enabled: boolean): HTMLButtonElement {
+    const b = getButton(ScreenshotSvg, 'Screenshot', '30px');
+    // button at the right: rounded right corners and no margin
+    b.style.borderRadius = '0 5px 5px 0';
+    if (!enabled) {
+        b.disabled = true;
+        b.style.cursor = 'not-allowed';
+    }
+    return b;
 }

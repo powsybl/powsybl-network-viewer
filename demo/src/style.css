@@ -8,9 +8,17 @@
     background-color: white;
 }
 
+button:hover:not(:disabled) {
+    background-color: lightgray;
+}
+
 .break {
     flex-basis: 100%;
     height: 0;
+}
+
+#nad-viewer, [id^=svg-container-sld] {
+    border: 2px solid;
 }
 
 .mapbox-gl-draw_ctrl-draw-btn.active,
