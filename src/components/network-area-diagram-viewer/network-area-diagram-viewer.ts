@@ -8,7 +8,7 @@
 import { Point, SVG, ViewBoxLike, Svg } from '@svgdotjs/svg.js';
 import '@svgdotjs/svg.panzoom.js';
 import * as DiagramUtils from './diagram-utils';
-import { SvgParameters, EdgeInfoEnum } from './svg-parameters';
+import { SvgParameters, EdgeInfoEnum, CssLocationEnum } from './svg-parameters';
 import { LayoutParameters } from './layout-parameters';
 import { DiagramMetadata, EdgeMetadata, BusNodeMetadata, NodeMetadata, TextNodeMetadata } from './diagram-metadata';
 import { debounce } from '@mui/material';
@@ -73,6 +73,8 @@ export type OnRightClickCallbackType = (
 const dynamicCssRulesUpdateThreshold = 0.01;
 
 export class NetworkAreaDiagramViewer {
+    static readonly DEFAULT_PNG_BACKGROUND_COLOR = 'white';
+
     container: HTMLElement;
     svgDiv: HTMLElement;
     svgContent: string;
@@ -328,7 +330,8 @@ export class NetworkAreaDiagramViewer {
 
         // add buttons bar div
         if (addButtons) {
-            nadViewerDiv.appendChild(this.getButtonsBar());
+            nadViewerDiv.appendChild(this.getZoomButtonsBar());
+            nadViewerDiv.appendChild(this.getActionButtonsBar());
         }
 
         // add svg div
@@ -446,9 +449,9 @@ export class NetworkAreaDiagramViewer {
         }
     }
 
-    private getButtonsBar(): HTMLDivElement {
+    private getZoomButtonsBar(): HTMLDivElement {
         const buttonsDiv = document.createElement('div');
-        buttonsDiv.id = 'buttons-bars';
+        buttonsDiv.id = 'zoom-buttons-bars';
         buttonsDiv.style.display = 'inline-grid';
         buttonsDiv.style.alignItems = 'center';
         buttonsDiv.style.position = 'absolute';
@@ -472,6 +475,58 @@ export class NetworkAreaDiagramViewer {
         });
 
         return buttonsDiv;
+    }
+
+    private getActionButtonsBar(): HTMLDivElement {
+        const buttonsDiv = document.createElement('div');
+        buttonsDiv.id = 'action-buttons-bars';
+        buttonsDiv.style.display = 'flex';
+        buttonsDiv.style.alignItems = 'center';
+        buttonsDiv.style.position = 'absolute';
+        buttonsDiv.style.left = '6px';
+        buttonsDiv.style.top = '6px';
+
+        const saveSvgButton = DiagramUtils.getSaveSvgButton();
+        buttonsDiv.appendChild(saveSvgButton);
+        saveSvgButton.addEventListener('click', () => {
+            this.saveSvg();
+        });
+        const savePngButton = DiagramUtils.getSavePngButton();
+        buttonsDiv.appendChild(savePngButton);
+        savePngButton.addEventListener('click', () => {
+            this.savePng(NetworkAreaDiagramViewer.DEFAULT_PNG_BACKGROUND_COLOR);
+        });
+        navigator.permissions
+            .query({ name: 'clipboard-write' as PermissionName })
+            .then((result) => {
+                if (result.state == 'granted' || result.state == 'prompt') {
+                    this.addScreenshotButton(buttonsDiv, true);
+                } else {
+                    console.warn('Write access to clipboard not granted');
+                    this.addScreenshotButton(buttonsDiv, false);
+                }
+            })
+            .catch((err) => {
+                // Firefox does not support clipboard-write permission
+                console.warn('clipboard-write permission not supported: ' + err);
+                // add button based on clipboard availability
+                if (navigator.clipboard) {
+                    this.addScreenshotButton(buttonsDiv, true);
+                } else {
+                    console.warn('Navigator clipboard not available');
+                    this.addScreenshotButton(buttonsDiv, false);
+                }
+            });
+
+        return buttonsDiv;
+    }
+
+    private addScreenshotButton(buttonsDiv: HTMLDivElement, enabled: boolean) {
+        const screenshotButton = DiagramUtils.getScreenshotButton(enabled);
+        buttonsDiv.appendChild(screenshotButton);
+        screenshotButton.addEventListener('click', () => {
+            this.screenshot(NetworkAreaDiagramViewer.DEFAULT_PNG_BACKGROUND_COLOR);
+        });
     }
 
     public getSvg(): string | null {
@@ -1641,5 +1696,102 @@ export class NetworkAreaDiagramViewer {
     public zoomOut() {
         const zoom = this.svgDraw?.zoom() ?? 1;
         this.svgDraw?.zoom(0.9 * zoom);
+    }
+
+    public saveSvg() {
+        this.addStyle();
+        const userViewBox: DiagramUtils.ViewBox = {
+            x: this.svgDraw?.viewbox().x ?? 0,
+            y: this.svgDraw?.viewbox().y ?? 0,
+            width: this.svgDraw?.viewbox().width ?? 0,
+            height: this.svgDraw?.viewbox().height ?? 0,
+        };
+        this.zoomToFit();
+        const blobData = [this.getSvg() ?? ''];
+        const blob = new Blob(blobData, { type: 'image/svg+xml' });
+        this.downloadFile(blob, 'nad.svg');
+        this.svgDraw?.viewbox(userViewBox.x, userViewBox.y, userViewBox.width, userViewBox.height);
+        this.removeStyle();
+    }
+
+    private downloadFile(blob: Blob, filename: string) {
+        const a = document.createElement('a');
+        a.download = filename;
+        a.href = URL.createObjectURL(blob);
+        a.click();
+        a.remove();
+    }
+
+    private addStyle() {
+        // add style, if not present
+        if (this.svgParameters.getCssLocation() == CssLocationEnum.EXTERNAL_NO_IMPORT) {
+            const styleElement = DiagramUtils.getStyle(document.styleSheets, this.svgDraw?.node);
+            const gElement = this.svgDraw?.node.querySelector('g');
+            gElement?.before(styleElement);
+        }
+    }
+
+    private removeStyle() {
+        // remove style, if added
+        if (this.svgParameters.getCssLocation() == CssLocationEnum.EXTERNAL_NO_IMPORT) {
+            const styleElement: HTMLElement | null = this.svgDiv.querySelector('style');
+            styleElement?.remove();
+        }
+    }
+
+    public savePng(backgroundColor?: string) {
+        this.copyPng(true, backgroundColor);
+    }
+
+    public screenshot(backgroundColor?: string) {
+        this.copyPng(false, backgroundColor);
+    }
+
+    private copyPng(copyToFile: boolean, backgroundColor?: string) {
+        this.addStyle();
+        this.addBackgroundColor(backgroundColor);
+        const svgXml = DiagramUtils.getSvgXml(this.getSvg());
+        const image = new Image();
+        image.src = svgXml;
+        image.onload = () => {
+            const png = DiagramUtils.getPngFromImage(image);
+            const blob = DiagramUtils.getBlobFromPng(png);
+            if (copyToFile) {
+                this.downloadFile(blob, 'nad.png');
+            } else {
+                this.copyToClipboard(blob);
+            }
+        };
+        this.removeBackgroundColor(backgroundColor);
+        this.removeStyle();
+    }
+
+    private addBackgroundColor(backgroundColor?: string) {
+        if (backgroundColor) {
+            this.svgDraw?.node.style.setProperty('background-color', backgroundColor);
+        }
+    }
+
+    private removeBackgroundColor(backgroundColor?: string) {
+        if (backgroundColor) {
+            this.svgDraw?.node.style.removeProperty('background-color');
+        }
+    }
+
+    private copyToClipboard(blob: Blob) {
+        navigator.clipboard
+            .write([
+                new ClipboardItem({
+                    [blob.type]: blob,
+                }),
+            ])
+            .then(() => {
+                const keyframes = [
+                    { backgroundColor: 'gray', offset: 0 },
+                    { backgroundColor: 'white', offset: 0.5 },
+                ];
+                const timing = { duration: 500, iterations: 1 };
+                this.svgDiv.animate(keyframes, timing);
+            });
     }
 }

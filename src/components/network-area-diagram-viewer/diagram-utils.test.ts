@@ -549,6 +549,17 @@ test('getViewBox', () => {
     expect(viewBox.height).toBe(1500);
 });
 
+test('getStyle', () => {
+    const expectedStyle =
+        '.nad-branch-edges .nad-edge-path, .nad-3wt-edges .nad-edge-path {stroke: var(--nad-vl-color, lightgrey); stroke-width: 5; fill: none;}\n' +
+        '.nad-branch-edges .nad-winding, .nad-3wt-nodes .nad-winding {stroke: var(--nad-vl-color, lightgrey); stroke-width: 5; fill: none;}';
+    const styleEl = document.createElement('style');
+    styleEl.innerHTML = expectedStyle + '\n.nad-text-edges {stroke: black; stroke-width: 3; stroke-dasharray: 6,7}';
+    document.head.appendChild(styleEl);
+    const style = DiagramUtils.getStyle(document.styleSheets, getSvgLoopEdge());
+    expect(style.textContent).toBe(expectedStyle);
+});
+
 function getSvgNode(): SVGGraphicsElement {
     const nodeSvg =
         '<g class="nad-vl-nodes"><g transform="translate(-452.59,-274.01)" id="0">' +
