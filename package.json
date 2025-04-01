@@ -10,7 +10,7 @@
         "url": "git+https://github.com/powsybl/powsybl-network-viewer.git"
     },
     "engines": {
-        "node": ">=22",
+        "node": ">=22.6.0",
         "npm": "^10.9.2"
     },
     "type": "module",
@@ -85,7 +85,7 @@
         "@typescript-eslint/eslint-plugin": "^6.21.0",
         "@vitejs/plugin-react": "^4.3.4",
         "babel-jest": "^29.7.0",
-        "eslint": "^8.0.0",
+        "eslint": "^8.57.1",
         "eslint-config-prettier": "^10.1.1",
         "eslint-plugin-prettier": "^5.2.5",
         "eslint-plugin-react": "^7.37.4",
