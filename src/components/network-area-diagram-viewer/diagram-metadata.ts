@@ -37,6 +37,7 @@ export interface SvgParametersMetadata {
     powerValuePrecision: number;
     currentValuePrecision: number;
     insertNameDesc: boolean;
+    cssLocation: string;
 }
 
 export interface DiagramPaddingMetadata {
