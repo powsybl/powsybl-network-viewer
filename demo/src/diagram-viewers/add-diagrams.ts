@@ -150,7 +150,7 @@ export const addNadToDemo = () => {
 
             // add button to update branch labels
             const branchLabels =
-                '[{"branchId": "L7-5-0", "value1": 609, "value2": -611,"connectedBus1":"4","connectedBus2":"11"}]';
+                '[{"branchId": "L7-5-0", "value1": 609, "value2": -611,"connectedBus1":"VL2_0","connectedBus2":"VL5_0"}]';
             const updateFlowsTextArea = document.createElement('textarea');
             updateFlowsTextArea.rows = 2;
             updateFlowsTextArea.cols = 65;
