@@ -112,6 +112,9 @@ export class NetworkAreaDiagramViewer {
     previousMaxDisplayedSize: number;
     edgesMap: Map<string, EdgeMetadata> = new Map<string, EdgeMetadata>();
     onRightClickCallback: OnRightClickCallbackType | null;
+    originalNodePosition: Point = new Point(0, 0);
+    originalTextNodeShift: Point = new Point(0, 0);
+    originalTextNodeConnectionShift: Point = new Point(0, 0);
 
     constructor(
         container: HTMLElement,
@@ -250,7 +253,6 @@ export class NetworkAreaDiagramViewer {
             const elemToMove: SVGGraphicsElement | null = this.svgDiv.querySelector('[id="' + nodeId + '"]');
             if (elemToMove) {
                 // update metadata only
-                //this.updateNodeMetadataCallback(elemToMove, new Point(x, y), false);
                 this.updateNodeMetadata(elemToMove, new Point(x, y));
                 // update and redraw element
                 this.updateElement(elemToMove);
@@ -292,7 +294,6 @@ export class NetworkAreaDiagramViewer {
         );
 
         // update metadata only
-        //this.updateTextNodeMetadataCallback(elemToMove, textNodeCenterPosition, false);
         this.updateTextNodeMetadata(elemToMove, textNodeCenterPosition);
 
         //update and redraw element
@@ -603,10 +604,24 @@ export class NetworkAreaDiagramViewer {
         this.initialPosition = DiagramUtils.getPosition(this.draggedElement); // used for the offset
         this.edgeAngles = new Map<string, number>(); // used for node redrawing
 
-        // check if I'm moving a text node
+        // get original position of dragged element
         this.textNodeSelected = DiagramUtils.isTextNode(this.draggedElement);
         if (this.textNodeSelected) {
             this.endTextEdge = new Point(0, 0);
+            const textNode: TextNodeMetadata | undefined = this.diagramMetadata?.textNodes.find(
+                (textNode) => textNode.svgId == this.draggedElement?.id
+            );
+            if (textNode) {
+                this.originalTextNodeShift = new Point(textNode.shiftX, textNode.shiftY);
+                this.originalTextNodeConnectionShift = new Point(textNode.connectionShiftX, textNode.connectionShiftY);
+            }
+        } else {
+            const node: NodeMetadata | undefined = this.diagramMetadata?.nodes.find(
+                (node) => node.svgId == this.draggedElement?.id
+            );
+            if (node) {
+                this.originalNodePosition = new Point(node.x, node.y);
+            }
         }
     }
 
@@ -734,10 +749,10 @@ export class NetworkAreaDiagramViewer {
                 this.onMoveNodeCallback(
                     node.equipmentId,
                     node.svgId,
-                    node.x, // the original position is lost
-                    node.y, // the original position is lost
                     node.x,
-                    node.y
+                    node.y,
+                    this.originalNodePosition.x,
+                    this.originalNodePosition.y
                 );
             }
         }
@@ -757,14 +772,14 @@ export class NetworkAreaDiagramViewer {
                     node.equipmentId,
                     node.svgId,
                     textNode.svgId,
-                    textNode.shiftX, //the original position is lost
-                    textNode.shiftY, //the original position is lost
                     textNode.shiftX,
                     textNode.shiftY,
-                    textNode.connectionShiftX, //the original position is lost
-                    textNode.connectionShiftY, //the original position is lost
+                    this.originalTextNodeShift.x,
+                    this.originalTextNodeShift.y,
                     textNode.connectionShiftX,
-                    textNode.connectionShiftY
+                    textNode.connectionShiftY,
+                    this.originalTextNodeConnectionShift.x,
+                    this.originalTextNodeConnectionShift.y
                 );
             }
         }
