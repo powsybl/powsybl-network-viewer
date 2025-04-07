@@ -14,6 +14,7 @@ import ZoomOutSvg from '../../resources/material-icons/zoom-out.svg';
 import SaveSvg from '../../resources/material-icons/save_svg.svg';
 import SavePng from '../../resources/material-icons/save_png.svg';
 import ScreenshotSvg from '../../resources/material-icons/screenshot.svg';
+import BendLinesSvg from '../../resources/material-icons/bend-lines.svg';
 
 export type Dimensions = { width: number; height: number; viewbox: ViewBox };
 export type ViewBox = { x: number; y: number; width: number; height: number };
@@ -641,6 +642,7 @@ function getElementType(element: SVGElement | null): ElementType {
 export function getViewBox(
     nodes: NodeMetadata[] | undefined,
     textNodes: TextNodeMetadata[] | undefined,
+    edges: EdgeMetadata[] | undefined,
     svgParameters: SvgParameters
 ): ViewBox {
     const size = { minX: Number.MAX_VALUE, maxX: -Number.MAX_VALUE, minY: Number.MAX_VALUE, maxY: -Number.MAX_VALUE };
@@ -659,6 +661,14 @@ export function getViewBox(
             size.maxX = Math.max(size.maxX, node.x + textNode.shiftX + TEXT_BOX_WIDTH_DEFAULT);
             size.minY = Math.min(size.minY, node.y + textNode.shiftY);
             size.maxY = Math.max(size.maxY, node.y + textNode.shiftY + TEXT_BOX_HEIGHT_DEFAULT);
+        }
+    });
+    edges?.forEach((edge) => {
+        if (edge.middle !== undefined) {
+            size.minX = Math.min(size.minX, edge.middle.x);
+            size.maxX = Math.max(size.maxX, edge.middle.x);
+            size.minY = Math.min(size.minY, edge.middle.y);
+            size.maxY = Math.max(size.maxY, edge.middle.y);
         }
     });
     return {
@@ -728,6 +738,83 @@ export function getBlobFromPng(png: string): Blob {
     return new Blob([buffer], { type: mimeString });
 }
 
+// get the bendable line middle element, if present,
+// from the element selected using the mouse
+export function getBendableFrom(element: SVGElement): SVGElement | undefined {
+    if (isBendable(element)) {
+        return element;
+    } else if (element.parentElement) {
+        return getBendableFrom(element.parentNode as SVGElement);
+    }
+}
+
+function isBendable(element: SVGElement): boolean {
+    return hasId(element) && element.parentNode != null && idIs(element.parentNode as SVGElement);
+}
+
+function idIs(element: SVGElement): boolean {
+    return element.id == 'lines-middle-points';
+}
+
+// get line middle element id from edge id
+export function getLineMiddleId(edgeId: string | undefined): string {
+    return edgeId + '-middle';
+}
+
+// get edge id from line middle element id
+export function getEdgeId(lineMiddleId: string | undefined): string {
+    return lineMiddleId !== undefined ? lineMiddleId.replace('-middle', '') : '-1';
+}
+
+// get bendable lines
+export function getBendableLines(edges: EdgeMetadata[] | undefined): EdgeMetadata[] {
+    // group edges by edge ends
+    const groupedEdges: Map<string, EdgeMetadata[]> = new Map<string, EdgeMetadata[]>();
+    edges?.forEach((edge) => {
+        let edgeGroup: EdgeMetadata[] = [];
+        // filter out loop edges
+        if (edge.node1 != edge.node2) {
+            const edgeGroupId = edge.node1.concat('_', edge.node2);
+            if (groupedEdges.has(edgeGroupId)) {
+                edgeGroup = groupedEdges.get(edgeGroupId) ?? [];
+            }
+            edgeGroup.push(edge);
+            groupedEdges.set(edgeGroupId, edgeGroup);
+        }
+    });
+    const lines: EdgeMetadata[] = [];
+    // filter edges
+    for (const edgeGroup of groupedEdges.values()) {
+        // only non parallel edges
+        if (edgeGroup.length == 1) {
+            const edge = edgeGroup[0];
+            // only lines
+            if (getEdgeType(edge) == EdgeType.LINE) {
+                lines.push(edge);
+            }
+        }
+    }
+    return lines;
+}
+
+// get middle point of an edge from a half edge
+export function getEdgeMidPoint(halfEdge: SVGGraphicsElement): Point | null {
+    const polyline = <Element>halfEdge.querySelector('polyline');
+    const points = getPolylinePoints(<HTMLElement>polyline);
+    return points == null ? null : points[1];
+}
+
+// create line middle elements, used for bending lines
+export function createLineMiddleElement(edgeId: string, middlePoint: Point): SVGElement {
+    const middlePointElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    middlePointElement.id = getLineMiddleId(edgeId);
+    middlePointElement.setAttribute('transform', 'translate(' + getFormattedPoint(middlePoint) + ')');
+    const circleElement = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    circleElement.setAttribute('r', '10');
+    middlePointElement.appendChild(circleElement);
+    return middlePointElement;
+}
+
 function getButton(inputImg: string, title: string, size: string): HTMLButtonElement {
     const button = document.createElement('button');
     button.style.backgroundImage = `url("${inputImg}")`;
@@ -790,5 +877,11 @@ export function getScreenshotButton(enabled: boolean): HTMLButtonElement {
         b.disabled = true;
         b.style.cursor = 'not-allowed';
     }
+    return b;
+}
+
+export function getBendLinesButton(): HTMLButtonElement {
+    const b = getButton(BendLinesSvg, 'Enable line bending', '25px');
+    b.style.borderRadius = '5px 5px 5px 5px';
     return b;
 }

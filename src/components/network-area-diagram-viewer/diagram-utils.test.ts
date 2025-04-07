@@ -542,11 +542,51 @@ test('getViewBox', () => {
             connectionShiftY: -15.0,
         },
     ];
-    const viewBox = DiagramUtils.getViewBox(nodes, textNodes, new SvgParameters(undefined));
+    const edges: EdgeMetadata[] = [
+        {
+            svgId: '60',
+            equipmentId: 'T9001-9012-1',
+            node1: '0',
+            node2: '1',
+            busNode1: '7',
+            busNode2: '8',
+            type: 'LineEdge',
+        },
+        {
+            svgId: '70',
+            equipmentId: 'T9002-9013-1',
+            node1: '1',
+            node2: '2',
+            busNode1: '9',
+            busNode2: '10',
+            type: 'LineEdge',
+            middle: { x: 0, y: 0 },
+        },
+        {
+            svgId: '80',
+            equipmentId: 'T9003-9013-1',
+            node1: '2',
+            node2: '3',
+            busNode1: '11',
+            busNode2: '12',
+            type: 'LineEdge',
+            middle: { x: 0, y: 1000 },
+        },
+        {
+            svgId: '90',
+            equipmentId: 'T9004-9014-1',
+            node1: '3',
+            node2: '0',
+            busNode1: '13',
+            busNode2: '14',
+            type: 'LineEdge',
+        },
+    ];
+    const viewBox = DiagramUtils.getViewBox(nodes, textNodes, edges, new SvgParameters(undefined));
     expect(viewBox.x).toBe(-700);
     expect(viewBox.y).toBe(-740);
     expect(viewBox.width).toBe(1700);
-    expect(viewBox.height).toBe(1500);
+    expect(viewBox.height).toBe(1940);
 });
 
 test('getStyle', () => {
@@ -558,6 +598,90 @@ test('getStyle', () => {
     document.head.appendChild(styleEl);
     const style = DiagramUtils.getStyle(document.styleSheets, getSvgLoopEdge());
     expect(style.textContent).toBe(expectedStyle);
+});
+
+test('getBendableFrom', () => {
+    let bendableElement = DiagramUtils.getBendableFrom(getSvgNode());
+    expect(bendableElement).toBeUndefined();
+    bendableElement = DiagramUtils.getBendableFrom(getSvgMiddleLineElement());
+    expect(bendableElement).not.toBeUndefined();
+    bendableElement = DiagramUtils.getBendableFrom(getSvgLoopEdge());
+    expect(bendableElement).toBeUndefined();
+});
+
+test('getLineMiddleId', () => {
+    expect(DiagramUtils.getLineMiddleId('1')).toBe('1-middle');
+});
+
+test('getEdgeId', () => {
+    expect(DiagramUtils.getEdgeId('1-middle')).toBe('1');
+});
+
+test('getBendableLines', () => {
+    const edges: EdgeMetadata[] = [
+        {
+            svgId: '60',
+            equipmentId: 'T9001-9012-1',
+            node1: '0',
+            node2: '7',
+            busNode1: '2',
+            busNode2: '9',
+            type: 'TwoWtEdge',
+        },
+        {
+            svgId: '61',
+            equipmentId: 'L9012-9002-1',
+            node1: '7',
+            node2: '3',
+            busNode1: '9',
+            busNode2: '4',
+            type: 'LineEdge',
+        },
+        {
+            svgId: '62',
+            equipmentId: 'L9012-9002-2',
+            node1: '7',
+            node2: '3',
+            busNode1: '9',
+            busNode2: '4',
+            type: 'LineEdge',
+        },
+        {
+            svgId: '77',
+            equipmentId: 'L9006-9007-1',
+            node1: '7',
+            node2: '10',
+            busNode1: '8',
+            busNode2: '11',
+            type: 'LineEdge',
+        },
+        {
+            svgId: '58',
+            equipmentId: 'T37-9001-1',
+            node1: '0',
+            node2: '0',
+            busNode1: '1',
+            busNode2: '2',
+            type: 'TwoWtEdge',
+        },
+    ];
+    const lines = DiagramUtils.getBendableLines(edges);
+    expect(lines.length).toBe(1);
+    expect(lines[0].svgId).toBe('77');
+});
+
+test('getEdgeMidPoint', () => {
+    const midPoint = DiagramUtils.getEdgeMidPoint(getSvgHalfEdge());
+    expect(midPoint).not.toBeNull();
+    expect(midPoint?.x).toBe(-423.41);
+    expect(midPoint?.y).toBe(184.65);
+});
+
+test('createLineMiddleElement', () => {
+    const lineMiddle = DiagramUtils.createLineMiddleElement('1', new Point(-5.15, 4.23));
+    expect(lineMiddle).not.toBeUndefined();
+    expect(lineMiddle.id).toBe('1-middle');
+    expect(lineMiddle.getAttribute('transform')).toBe('translate(-5.15,4.23)');
 });
 
 function getSvgNode(): SVGGraphicsElement {
@@ -617,4 +741,23 @@ function getSvgPath(): HTMLElement {
         '<path class="nad-arrow-out" transform="scale(10.00)" d="M-1 1 H1 L0 -1z"/></g>' +
         '<text transform="rotate(-50.54)" x="19.00"></text></g></g></g>';
     return <HTMLElement>SVG().svg(edgeSvg).node.firstElementChild?.firstElementChild;
+}
+
+function getSvgMiddleLineElement(): SVGGraphicsElement {
+    const middleLineSvg =
+        '<g id="lines-middle-points">' +
+        '<g id="67-middle" transform="translate(-679.99,-11.42)"><circle r="10"></circle></g></g>';
+    return <SVGGraphicsElement>SVG().svg(middleLineSvg).node.firstElementChild?.firstElementChild;
+}
+
+function getSvgHalfEdge(): SVGGraphicsElement {
+    const halfEdgeSvg =
+        '<g id="77"><g id="77.1" class="nad-vl0to30-line">' +
+        '<polyline class="nad-edge-path nad-stretchable nad-glued-1" points="-208.75,170.93 -423.41,184.65"></polyline>' +
+        '<g class="nad-glued-1 nad-edge-infos" transform="translate(-271.12,174.92)">' +
+        '<g class="nad-active"><g transform="rotate(-93.66)">' +
+        '<path class="nad-arrow-in" transform="scale(10.00)" d="M-1 -1 H1 L0 1z"></path>' +
+        '<path class="nad-arrow-out" transform="scale(10.00)" d="M-1 1 H1 L0 -1z"></path></g>' +
+        '<text transform="rotate(-3.66)" x="-19.00" style="text-anchor:end"></text></g></g></g></g>';
+    return <SVGGraphicsElement>SVG().svg(halfEdgeSvg).node.firstElementChild?.firstElementChild;
 }
