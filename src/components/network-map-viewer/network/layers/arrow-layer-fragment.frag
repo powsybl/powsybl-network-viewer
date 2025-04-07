@@ -5,14 +5,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#define SHADER_NAME arrow-layer-fragment-shader
+#define SHADER_NAME "arrow-layer-fragment-shader"
 
 precision highp float;
 
 varying vec4 vFillColor;
 varying float shouldDiscard;
 
-void main(void) {
+void main(void ) {
     if (shouldDiscard > 0.0) {
         discard;
     }

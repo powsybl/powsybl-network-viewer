@@ -6,7 +6,7 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 
-module.exports = {
+export default {
     process() {
         return { code: 'module.exports = {};' };
     },
