@@ -736,6 +736,9 @@ export class NetworkAreaDiagramViewer {
         this.initialPosition = new Point(0, 0);
         this.ctm = null;
         this.enablePanzoom();
+        this.originalNodePosition = new Point(0, 0);
+        this.originalTextNodeShift = new Point(0, 0);
+        this.originalTextNodeConnectionShift = new Point(0, 0);
 
         // change cursor style back to normal
         const svg: HTMLElement = <HTMLElement>this.svgDraw?.node.firstElementChild?.parentElement;
