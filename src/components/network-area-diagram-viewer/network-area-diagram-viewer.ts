@@ -633,11 +633,10 @@ export class NetworkAreaDiagramViewer {
 
             // Update metadata first
             if (this.textNodeSelected) {
-                const topLeftCornerPosition =
-                  DiagramUtils.getTextNodeTopLeftCornerFromCenter(
+                const topLeftCornerPosition = DiagramUtils.getTextNodeTopLeftCornerFromCenter(
                     this.draggedElement,
                     mousePosition
-                  );
+                );
                 this.updateTextNodeMetadata(this.draggedElement, topLeftCornerPosition);
             } else {
                 this.updateNodeMetadata(this.draggedElement, mousePosition);
