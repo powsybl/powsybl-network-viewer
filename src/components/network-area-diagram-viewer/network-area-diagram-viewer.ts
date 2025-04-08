@@ -288,13 +288,9 @@ export class NetworkAreaDiagramViewer {
         this.endTextEdge = new Point(nodePosition.x + connectionShiftX, nodePosition.y + connectionShiftY);
 
         const textNodeTopLeftCornerPosition = new Point(nodePosition.x + shiftX, nodePosition.y + shiftY);
-        const textNodeCenterPosition = DiagramUtils.getTextNodeCenterFromTopLeftCorner(
-            elemToMove,
-            textNodeTopLeftCornerPosition
-        );
 
         // update metadata only
-        this.updateTextNodeMetadata(elemToMove, textNodeCenterPosition);
+        this.updateTextNodeMetadata(elemToMove, textNodeTopLeftCornerPosition);
 
         //update and redraw element
         this.updateElement(elemToMove);
