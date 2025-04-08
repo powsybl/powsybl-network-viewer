@@ -184,25 +184,24 @@ export const addNadToDemo = () => {
             voltageLevelSlider.addEventListener('input', (e) => {
                 const target = e.target as HTMLInputElement;
                 const factor = parseFloat(target.value) / 100;
-
-                // Angle adjustment factor - when voltage increases, angle tends to decrease slightly
                 const angleFactor = 2 - factor;
+                const angleValuePrecision = NadSvgMultibusVLNodesExampleMeta.svgParameters.angleValuePrecision;
+                const voltageValuePrecision = NadSvgMultibusVLNodesExampleMeta.svgParameters.voltageValuePrecision;
 
-                // Create voltage level states as a JSON string with coherent voltage/angle relationship
                 const voltageLevelStates = `[
                 {
                     "voltageLevelId": "VL1",
                     "busValue": [
-                        { "busId": "VL1_0", "voltage": ${(104 * factor).toFixed(1)}, "angle": ${(0).toFixed(1)} },
-                        { "busId": "VL1_1", "voltage": ${(102.5 * factor).toFixed(1)}, "angle": ${(-2.2 * angleFactor).toFixed(1)} }
+                        { "busId": "VL1_0", "voltage": ${(104 * factor).toFixed(voltageValuePrecision)}, "angle": ${0} },
+                        { "busId": "VL1_1", "voltage": ${(102.5 * factor).toFixed(voltageValuePrecision)}, "angle": ${(-2.2 * angleFactor).toFixed(angleValuePrecision)} }
                     ]
                 },
                 {
                     "voltageLevelId": "VL2",
                     "busValue": [
-                        { "busId": "VL2_0", "voltage": ${(102.5 * factor).toFixed(1)}, "angle": ${(9.3 * angleFactor).toFixed(1)} },
-                        { "busId": "VL2_1", "voltage": ${(101.5 * factor).toFixed(1)}, "angle": ${(0.7 * angleFactor).toFixed(1)} },
-                        { "busId": "VL2_2", "voltage": ${(102.5 * factor).toFixed(1)}, "angle": ${(3.7 * angleFactor).toFixed(1)} }
+                        { "busId": "VL2_0", "voltage": ${(102.5 * factor).toFixed(voltageValuePrecision)}, "angle": ${(9.3 * angleFactor).toFixed(angleValuePrecision)} },
+                        { "busId": "VL2_1", "voltage": ${(101.5 * factor).toFixed(voltageValuePrecision)}, "angle": ${(0.7 * angleFactor).toFixed(angleValuePrecision)} },
+                        { "busId": "VL2_2", "voltage": ${(102.5 * factor).toFixed(voltageValuePrecision)}, "angle": ${(3.7 * angleFactor).toFixed(angleValuePrecision)} }
                     ]
                 }
             ]`;
