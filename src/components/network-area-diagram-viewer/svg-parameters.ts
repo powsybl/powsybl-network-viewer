@@ -55,6 +55,8 @@ export class SvgParameters {
     static readonly EDGE_INFO_DISPLAYED_DEFAULT = EdgeInfoEnum.ACTIVE_POWER;
     static readonly POWER_VALUE_PRECISION_RADIUS_DEFAULT = 0;
     static readonly CURRENT_VALUE_PRECISION_DEFAULT = 0;
+    static readonly ANGLE_VALUE_PRECISION_DEFAULT = 1;
+    static readonly VOLTAGE_VALUE_PRECISION_DEFAULT = 1;
     static readonly DIAGRAM_PADDING_LEFT_DEFAULT = 200.0;
     static readonly DIAGRAM_PADDING_TOP_DEFAULT = 200.0;
     static readonly DIAGRAM_PADDING_RIGHT_DEFAULT = 200.0;
@@ -134,6 +136,14 @@ export class SvgParameters {
 
     public getCurrentValuePrecision(): number {
         return this.svgParametersMetadata?.currentValuePrecision ?? SvgParameters.CURRENT_VALUE_PRECISION_DEFAULT;
+    }
+
+    public getAngleValuePrecision(): number {
+        return this.svgParametersMetadata?.angleValuePrecision ?? SvgParameters.ANGLE_VALUE_PRECISION_DEFAULT;
+    }
+
+    public getVoltageValuePrecision(): number {
+        return this.svgParametersMetadata?.voltageValuePrecision ?? SvgParameters.VOLTAGE_VALUE_PRECISION_DEFAULT;
     }
 
     public getDiagramPadding(): DiagramPadding {

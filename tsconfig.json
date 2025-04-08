@@ -15,5 +15,14 @@
         "noEmit": true,
         "jsx": "react-jsx"
     },
-    "include": ["src", "demo"] // we can let demo because the file generation is managed my vite and we have noEmit anyway
+    "include": [
+        "src",
+        "demo", // we can let demo because the file generation is managed by vite and we have noEmit anyway
+        "setupTests.ts",
+        "svgTransform.ts",
+        // We must list config files in typescript because needed by prettier when called by eslint as plugin
+        "jest.config.ts",
+        "prettier.config.js",
+        "vite.config.ts"
+    ]
 }
