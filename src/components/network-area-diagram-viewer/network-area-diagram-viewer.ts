@@ -5,18 +5,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import { Point, SVG, ViewBoxLike, Svg } from '@svgdotjs/svg.js';
+import { Point, SVG, Svg, ViewBoxLike } from '@svgdotjs/svg.js';
 import '@svgdotjs/svg.panzoom.js';
 import * as DiagramUtils from './diagram-utils';
-import { SvgParameters, EdgeInfoEnum, CssLocationEnum } from './svg-parameters';
+import { CssLocationEnum, EdgeInfoEnum, SvgParameters } from './svg-parameters';
 import { LayoutParameters } from './layout-parameters';
-import { DiagramMetadata, EdgeMetadata, BusNodeMetadata, NodeMetadata, TextNodeMetadata } from './diagram-metadata';
+import { BusNodeMetadata, DiagramMetadata, EdgeMetadata, NodeMetadata, TextNodeMetadata } from './diagram-metadata';
 import {
+    cloneRules,
     CSS_DECLARATION,
     CSS_RULE,
-    THRESHOLD_STATUS,
     DEFAULT_DYNAMIC_CSS_RULES,
-    cloneRules,
+    THRESHOLD_STATUS
 } from './dynamic-css-utils';
 import { debounce } from '@mui/material';
 
@@ -1781,10 +1781,9 @@ export class NetworkAreaDiagramViewer {
                     const valueCell = row.querySelector('td:nth-child(2)');
 
                     if (valueCell) {
-                        const newVoltageAngleText = `${busValue.voltage.toFixed(1)} kV / ${busValue.angle.toFixed(1)}°`;
-                        if (valueCell.textContent !== newVoltageAngleText) {
-                            valueCell.textContent = newVoltageAngleText;
-                        }
+                        const voltage = busValue.voltage.toFixed(this.svgParameters.getVoltageValuePrecision());
+                        const angle = busValue.angle.toFixed(this.svgParameters.getAngleValuePrecision());
+                        valueCell.textContent = `${voltage} kV / ${angle}°`;
                     }
                 }
             });
@@ -1803,7 +1802,7 @@ export class NetworkAreaDiagramViewer {
             const branchLabelElement = arrowGElement.querySelector('text');
             if (branchLabelElement !== null) {
                 branchLabelElement.innerHTML =
-                    typeof value === 'number' ? value.toFixed(this.getValuePrecision()) : value;
+                    typeof value === 'number' ? value.toFixed(this.getEdgeInfoValuePrecision()) : value;
             } else {
                 console.warn('Skipping updating branch ' + branchId + ' side ' + side + ' label: text not found');
             }
@@ -1812,7 +1811,7 @@ export class NetworkAreaDiagramViewer {
         }
     }
 
-    private getValuePrecision() {
+    private getEdgeInfoValuePrecision() {
         const edgeInfoDisplayed = this.svgParameters.getEdgeInfoDisplayed();
         switch (edgeInfoDisplayed) {
             case EdgeInfoEnum.ACTIVE_POWER:
