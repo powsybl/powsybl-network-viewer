@@ -36,6 +36,8 @@ export interface SvgParametersMetadata {
     edgeInfoDisplayed: string;
     powerValuePrecision: number;
     currentValuePrecision: number;
+    angleValuePrecision: number;
+    voltageValuePrecision: number;
     insertNameDesc: boolean;
     cssLocation: string;
 }

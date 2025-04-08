@@ -29,7 +29,14 @@ export type BranchState = {
     connectedBus1: string;
     connectedBus2: string;
 };
-
+export type VoltageLevelState = {
+    voltageLevelId: string;
+    busValue: {
+        busId: string;
+        voltage: number;
+        angle: number;
+    }[];
+};
 export type OnMoveNodeCallbackType = (
     equipmentId: string,
     nodeId: string,
@@ -1725,6 +1732,64 @@ export class NetworkAreaDiagramViewer {
         });
     }
 
+    public setJsonVoltageLevelStates(voltageLevelStates: string) {
+        const voltageLevelStatesArray: VoltageLevelState[] = JSON.parse(voltageLevelStates);
+        this.setVoltageLevelStates(voltageLevelStatesArray);
+    }
+
+    public setVoltageLevelStates(voltageLevelStates: VoltageLevelState[]) {
+        voltageLevelStates.forEach((vlState) => {
+            const textNodeId = this.getTextNodeIdFromEquipmentId(vlState.voltageLevelId);
+            if (!textNodeId) {
+                console.warn(`Text node for ${vlState.voltageLevelId} not found`);
+                return;
+            }
+
+            const textNodeElement = this.container.querySelector(`[id='${textNodeId}']`);
+            if (!textNodeElement) {
+                console.warn(`Text node element ${textNodeId} not found in DOM`);
+                return;
+            }
+
+            const labelBox = textNodeElement.querySelector('div.nad-label-box');
+            if (!labelBox) {
+                console.warn(`Label box not found in text node ${textNodeId}`);
+                return;
+            }
+
+            const vlNodeId = DiagramUtils.getVoltageLevelNodeId(textNodeId);
+
+            // Get all buses for this voltage level
+            const vlBusNodes = this.diagramMetadata?.busNodes.filter((bus) => bus.vlNode === vlNodeId);
+            if (!vlBusNodes || vlBusNodes.length === 0) {
+                console.warn(`No bus nodes found for voltage level ${vlState.voltageLevelId}`);
+                return;
+            }
+
+            // Get table rows (skip first row which is the header/title)
+            const tableRows = labelBox.querySelectorAll('table tr');
+
+            vlState.busValue.forEach((busValue) => {
+                // Find the bus node metadata by id
+                const busNode = vlBusNodes.find((bus) => bus.equipmentId === busValue.busId);
+                if (!busNode) return;
+
+                const rowIndex = busNode.index;
+
+                if (rowIndex < tableRows.length) {
+                    const row = tableRows[rowIndex];
+                    const valueCell = row.querySelector('td:nth-child(2)');
+
+                    if (valueCell) {
+                        const voltage = busValue.voltage.toFixed(this.svgParameters.getVoltageValuePrecision());
+                        const angle = busValue.angle.toFixed(this.svgParameters.getAngleValuePrecision());
+                        valueCell.textContent = `${voltage} kV / ${angle}°`;
+                    }
+                }
+            });
+        });
+    }
+
     private setBranchSideLabel(branchId: string, side: string, edgeId: string, value: number | string) {
         const arrowGElement: SVGGraphicsElement | null = this.svgDiv.querySelector(
             "[id='" + edgeId + '.' + side + "'] .nad-edge-infos g"
@@ -1737,7 +1802,7 @@ export class NetworkAreaDiagramViewer {
             const branchLabelElement = arrowGElement.querySelector('text');
             if (branchLabelElement !== null) {
                 branchLabelElement.innerHTML =
-                    typeof value === 'number' ? value.toFixed(this.getValuePrecision()) : value;
+                    typeof value === 'number' ? value.toFixed(this.getEdgeInfoValuePrecision()) : value;
             } else {
                 console.warn('Skipping updating branch ' + branchId + ' side ' + side + ' label: text not found');
             }
@@ -1746,7 +1811,7 @@ export class NetworkAreaDiagramViewer {
         }
     }
 
-    private getValuePrecision() {
+    private getEdgeInfoValuePrecision() {
         const edgeInfoDisplayed = this.svgParameters.getEdgeInfoDisplayed();
         switch (edgeInfoDisplayed) {
             case EdgeInfoEnum.ACTIVE_POWER:
