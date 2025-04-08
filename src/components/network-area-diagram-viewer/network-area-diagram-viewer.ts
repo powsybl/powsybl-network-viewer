@@ -1736,7 +1736,12 @@ export class NetworkAreaDiagramViewer {
         });
     }
 
-    public setVoltageLevelState(voltageLevelStates: VoltageLevelState[]) {
+    public setJsonVoltageLevelStates(voltageLevelStates: string) {
+        const voltageLevelStatesArray: VoltageLevelState[] = JSON.parse(voltageLevelStates);
+        this.setVoltageLevelStates(voltageLevelStatesArray);
+    }
+
+    public setVoltageLevelStates(voltageLevelStates: VoltageLevelState[]) {
         voltageLevelStates.forEach((vlState) => {
             const textNodeId = this.getTextNodeIdFromEquipmentId(vlState.voltageLevelId);
             if (!textNodeId) {
@@ -1758,67 +1763,35 @@ export class NetworkAreaDiagramViewer {
 
             const vlNodeId = DiagramUtils.getVoltageLevelNodeId(textNodeId);
 
-            // get all voltage level
+            // Get all buses for this voltage level
             const vlBusNodes = this.diagramMetadata?.busNodes.filter((bus) => bus.vlNode === vlNodeId);
             if (!vlBusNodes || vlBusNodes.length === 0) {
                 console.warn(`No bus nodes found for voltage level ${vlState.voltageLevelId}`);
                 return;
             }
 
-            const titleDiv = labelBox.querySelector('div');
-            const title = titleDiv ? titleDiv.textContent : vlState.voltageLevelId;
+            // Get table rows (skip first row which is the header/title)
+            const tableRows = labelBox.querySelectorAll('table tr');
 
-            let tableHtml = '<table>';
+            vlState.busValue.forEach((busValue) => {
+                // Find the bus node metadata by id
+                const busNode = vlBusNodes.find((bus) => bus.svgId === busValue.busId);
+                if (!busNode) return;
 
-            vlBusNodes.forEach((busNode) => {
-                const busElement = this.container.querySelector(`[id='${busNode.svgId}']`);
-                if (!busElement) return;
+                const rowIndex = busNode.index;
 
-                let busClass = '';
-                for (let i = 0; i < busElement.classList.length; i++) {
-                    const cls = busElement.classList[i];
-                    if (cls.match(/nad-vl\d+to\d+-\d+/)) {
-                        busClass = cls;
-                        break;
-                    }
-                }
+                if (rowIndex < tableRows.length) {
+                    const row = tableRows[rowIndex];
+                    const valueCell = row.querySelector('td:nth-child(2)');
 
-                if (!busClass) return;
-
-                const updatedBusValue = vlState.busValue.find((bv) => bv.busId === busNode.svgId);
-
-                let voltageAngleText = '';
-
-                if (updatedBusValue) {
-                    voltageAngleText = `${updatedBusValue.voltage.toFixed(1)} kV / ${updatedBusValue.angle.toFixed(
-                        1
-                    )}°`;
-                } else {
-                    const busRows = labelBox.querySelectorAll('table tr');
-                    for (let i = 0; i < busRows.length; i++) {
-                        const row = busRows[i];
-                        const squareDiv = row.querySelector(`div.${busClass}`);
-                        if (squareDiv) {
-                            const valueCell = row.querySelector('td:nth-child(2)');
-                            if (valueCell) {
-                                voltageAngleText = valueCell.textContent || '';
-                                break;
-                            }
+                    if (valueCell) {
+                        const newVoltageAngleText = `${busValue.voltage.toFixed(1)} kV / ${busValue.angle.toFixed(1)}°`;
+                        if (valueCell.textContent !== newVoltageAngleText) {
+                            valueCell.textContent = newVoltageAngleText;
                         }
                     }
                 }
-
-                tableHtml += `
-                <tr>
-                    <td><div class="${busClass} nad-legend-square"></div></td>
-                    <td>${voltageAngleText}</td>
-                </tr>
-            `;
             });
-
-            tableHtml += '</table>';
-
-            labelBox.innerHTML = `<div>${title}</div>${tableHtml}`;
         });
     }
 
