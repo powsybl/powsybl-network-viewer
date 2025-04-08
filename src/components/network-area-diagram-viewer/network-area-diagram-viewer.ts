@@ -640,7 +640,11 @@ export class NetworkAreaDiagramViewer {
 
             // Update metadata first
             if (this.textNodeSelected) {
-                this.updateTextNodeMetadata(this.draggedElement, mousePosition);
+                const topLeftCornerPosition = DiagramUtils.getTextNodeTopLeftCornerFromCenter(
+                    this.draggedElement,
+                    mousePosition
+                );
+                this.updateTextNodeMetadata(this.draggedElement, topLeftCornerPosition);
             } else {
                 this.updateNodeMetadata(this.draggedElement, mousePosition);
             }
@@ -667,8 +671,7 @@ export class NetworkAreaDiagramViewer {
             (textNode) => textNode.svgId == textNodeElement.id
         );
         if (node != null && textNode != null) {
-            const textPosition = DiagramUtils.getTextNodeTopLeftCornerFromCenter(textNodeElement, position);
-            const textNodeMoves = DiagramUtils.getTextNodeMoves(textNode, node, textPosition, this.endTextEdge);
+            const textNodeMoves = DiagramUtils.getTextNodeMoves(textNode, node, position, this.endTextEdge);
             textNode.shiftX = textNodeMoves[0].xNew;
             textNode.shiftY = textNodeMoves[0].yNew;
             textNode.connectionShiftX = textNodeMoves[1].xNew;
@@ -743,6 +746,9 @@ export class NetworkAreaDiagramViewer {
         this.initialPosition = new Point(0, 0);
         this.ctm = null;
         this.enablePanzoom();
+        this.originalNodePosition = new Point(0, 0);
+        this.originalTextNodeShift = new Point(0, 0);
+        this.originalTextNodeConnectionShift = new Point(0, 0);
 
         // change cursor style back to normal
         const svg: HTMLElement = <HTMLElement>this.svgDraw?.node.firstElementChild?.parentElement;
@@ -849,8 +855,7 @@ export class NetworkAreaDiagramViewer {
         if (!textNode) {
             return;
         }
-        // compute text node new position
-        //const textNodeNewPosition = getPosition(textNode, position);
+
         // update text node position
         this.updateTextNodePosition(textNode, position);
         if (vlNode != null) {
