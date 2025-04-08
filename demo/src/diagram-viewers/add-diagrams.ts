@@ -98,54 +98,6 @@ export const addNadToDemo = () => {
                     (621 - +branchLabelsSlider.value * 20) +
                     '}]';
                 nadViewer.setJsonBranchStates(branchStates);
-
-                const powerValue = branchLabelsSlider.valueAsNumber * 6;
-                const loadPercent = powerValue / 600; // 0 à 1
-
-                const voltageLevelStates = [
-                    {
-                        voltageLevelId: 'VLGEN',
-                        busValue: [
-                            {
-                                busId: '1',
-                                voltage: 24.5 * (1 + 0.02 * (1 - loadPercent)),
-                                angle: 2.3 + 3 * loadPercent,
-                            },
-                        ],
-                    },
-                    {
-                        voltageLevelId: 'VLHV1',
-                        busValue: [
-                            {
-                                busId: '3',
-                                voltage: 402.1 * (1 - 0.01 * loadPercent),
-                                angle: 0,
-                            },
-                        ],
-                    },
-                    {
-                        voltageLevelId: 'VLHV2',
-                        busValue: [
-                            {
-                                busId: '5',
-                                voltage: 389.9 * (1 - 0.03 * loadPercent),
-                                angle: -3.5 - 5 * loadPercent,
-                            },
-                        ],
-                    },
-                    {
-                        voltageLevelId: 'VLLOAD',
-                        busValue: [
-                            {
-                                busId: '7',
-                                voltage: 147.6 * (1 - 0.05 * loadPercent),
-                                angle: -9.6 - 10 * loadPercent,
-                            },
-                        ],
-                    },
-                ];
-
-                nadViewer.setVoltageLevelState(voltageLevelStates);
             });
 
             document.getElementById('svg-container-nad')?.appendChild(branchLabelsSlider);
@@ -215,6 +167,49 @@ export const addNadToDemo = () => {
             updateFlowsDiv.appendChild(br);
             updateFlowsDiv.appendChild(updateFlowsButton);
             document.getElementById('svg-container-nad-multibus-vlnodes')?.appendChild(updateFlowsDiv);
+
+            // add range slider to update voltageLevel states
+            const voltageLevelSlider = document.createElement('input');
+            voltageLevelSlider.type = 'range';
+            voltageLevelSlider.min = '1';
+            voltageLevelSlider.max = '20';
+            voltageLevelSlider.value = '1';
+            voltageLevelSlider.step = 'any';
+            voltageLevelSlider.style.width = '97%';
+            voltageLevelSlider.style.display = 'flex';
+            voltageLevelSlider.style.justifyContent = 'space-between';
+            voltageLevelSlider.style.padding = '0 5px';
+
+            // Create slider event listener
+            voltageLevelSlider.addEventListener('input', (e) => {
+                const target = e.target as HTMLInputElement;
+                const factor = parseFloat(target.value) / 100;
+
+                // Angle adjustment factor - when voltage increases, angle tends to decrease slightly
+                const angleFactor = 2 - factor;
+
+                // Create voltage level states as a JSON string with coherent voltage/angle relationship
+                const voltageLevelStates = `[
+                {
+                    "voltageLevelId": "VL1",
+                    "busValue": [
+                        { "busId": "VL1_0", "voltage": ${(104 * factor).toFixed(1)}, "angle": ${(0).toFixed(1)} },
+                        { "busId": "VL1_1", "voltage": ${(102.5 * factor).toFixed(1)}, "angle": ${(-2.2 * angleFactor).toFixed(1)} }
+                    ]
+                },
+                {
+                    "voltageLevelId": "VL2",
+                    "busValue": [
+                        { "busId": "VL2_0", "voltage": ${(102.5 * factor).toFixed(1)}, "angle": ${(9.3 * angleFactor).toFixed(1)} },
+                        { "busId": "VL2_1", "voltage": ${(101.5 * factor).toFixed(1)}, "angle": ${(0.7 * angleFactor).toFixed(1)} },
+                        { "busId": "VL2_2", "voltage": ${(102.5 * factor).toFixed(1)}, "angle": ${(3.7 * angleFactor).toFixed(1)} }
+                    ]
+                }
+            ]`;
+
+                nadViewer.setJsonVoltageLevelStates(voltageLevelStates);
+            });
+            document.getElementById('svg-container-nad-multibus-vlnodes')?.appendChild(voltageLevelSlider);
         });
 
     fetch(NadSvgMultibusVLNodes14Example)

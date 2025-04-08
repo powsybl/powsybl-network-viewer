@@ -1775,7 +1775,7 @@ export class NetworkAreaDiagramViewer {
 
             vlState.busValue.forEach((busValue) => {
                 // Find the bus node metadata by id
-                const busNode = vlBusNodes.find((bus) => bus.svgId === busValue.busId);
+                const busNode = vlBusNodes.find((bus) => bus.equipmentId === busValue.busId);
                 if (!busNode) return;
 
                 const rowIndex = busNode.index;
