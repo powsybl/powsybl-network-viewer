@@ -5,18 +5,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import { Point, SVG, Svg, ViewBoxLike } from '@svgdotjs/svg.js';
+import { Point, SVG, ViewBoxLike, Svg } from '@svgdotjs/svg.js';
 import '@svgdotjs/svg.panzoom.js';
 import * as DiagramUtils from './diagram-utils';
-import { CssLocationEnum, EdgeInfoEnum, SvgParameters } from './svg-parameters';
+import { SvgParameters, EdgeInfoEnum, CssLocationEnum } from './svg-parameters';
 import { LayoutParameters } from './layout-parameters';
-import { BusNodeMetadata, DiagramMetadata, EdgeMetadata, NodeMetadata, TextNodeMetadata } from './diagram-metadata';
+import { DiagramMetadata, EdgeMetadata, BusNodeMetadata, NodeMetadata, TextNodeMetadata } from './diagram-metadata';
 import {
-    cloneRules,
     CSS_DECLARATION,
     CSS_RULE,
+    THRESHOLD_STATUS,
     DEFAULT_DYNAMIC_CSS_RULES,
-    THRESHOLD_STATUS
+    cloneRules,
 } from './dynamic-css-utils';
 import { debounce } from '@mui/material';
 
