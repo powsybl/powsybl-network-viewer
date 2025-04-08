@@ -189,15 +189,15 @@ export const addNadToDemo = () => {
                 const voltageLevelStates = `[{
                     "voltageLevelId": "VL1",
                     "busValue": [
-                        { "busId": "VL1_0", "voltage": ${(104 * factor)}, "angle": ${0} },
-                        { "busId": "VL1_1", "voltage": ${(102.5 * factor)}, "angle": ${(-2.2 * angleFactor)} }
+                        { "busId": "VL1_0", "voltage": ${104 * factor}, "angle": ${0} },
+                        { "busId": "VL1_1", "voltage": ${102.5 * factor}, "angle": ${-2.2 * angleFactor} }
                     ]
                 }, {
                     "voltageLevelId": "VL2",
                     "busValue": [
-                        { "busId": "VL2_0", "voltage": ${(102.5 * factor)}, "angle": ${(9.3 * angleFactor)} },
-                        { "busId": "VL2_1", "voltage": ${(101.5 * factor)}, "angle": ${(0.7 * angleFactor)} },
-                        { "busId": "VL2_2", "voltage": ${(102.5 * factor)}, "angle": ${(3.7 * angleFactor)} }
+                        { "busId": "VL2_0", "voltage": ${102.5 * factor}, "angle": ${9.3 * angleFactor} },
+                        { "busId": "VL2_1", "voltage": ${101.5 * factor}, "angle": ${0.7 * angleFactor} },
+                        { "busId": "VL2_2", "voltage": ${102.5 * factor}, "angle": ${3.7 * angleFactor} }
                     ]
                 }]`;
 
