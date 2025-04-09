@@ -153,7 +153,8 @@ export const addNadToDemo = () => {
             );
 
             // add button to update branch labels
-            const branchLabels = '[{"branchId": "L7-5-0", "value1": 609, "value2": -611}]';
+            const branchLabels =
+                '[{"branchId": "L7-5-0", "value1": 609, "value2": -611,"connectedBus1":"VL2_0","connectedBus2":"VL5_0"}]';
             const updateFlowsTextArea = document.createElement('textarea');
             updateFlowsTextArea.rows = 2;
             updateFlowsTextArea.cols = 65;
@@ -170,6 +171,43 @@ export const addNadToDemo = () => {
             updateFlowsDiv.appendChild(br);
             updateFlowsDiv.appendChild(updateFlowsButton);
             document.getElementById('svg-container-nad-multibus-vlnodes')?.appendChild(updateFlowsDiv);
+
+            // add range slider to update voltageLevel states
+            const voltageLevelSlider = document.createElement('input');
+            voltageLevelSlider.type = 'range';
+            voltageLevelSlider.min = '1';
+            voltageLevelSlider.max = '20';
+            voltageLevelSlider.value = '1';
+            voltageLevelSlider.step = 'any';
+            voltageLevelSlider.style.width = '97%';
+            voltageLevelSlider.style.display = 'flex';
+            voltageLevelSlider.style.justifyContent = 'space-between';
+            voltageLevelSlider.style.padding = '0 5px';
+
+            // Create slider event listener
+            voltageLevelSlider.addEventListener('input', (e) => {
+                const target = e.target as HTMLInputElement;
+                const factor = parseFloat(target.value) / 100;
+                const angleFactor = 2 - factor;
+
+                const voltageLevelStates = `[{
+                    "voltageLevelId": "VL1",
+                    "busValue": [
+                        { "busId": "VL1_0", "voltage": ${104 * factor}, "angle": ${0} },
+                        { "busId": "VL1_1", "voltage": ${102.5 * factor}, "angle": ${-2.2 * angleFactor} }
+                    ]
+                }, {
+                    "voltageLevelId": "VL2",
+                    "busValue": [
+                        { "busId": "VL2_0", "voltage": ${102.5 * factor}, "angle": ${9.3 * angleFactor} },
+                        { "busId": "VL2_1", "voltage": ${101.5 * factor}, "angle": ${0.7 * angleFactor} },
+                        { "busId": "VL2_2", "voltage": ${102.5 * factor}, "angle": ${3.7 * angleFactor} }
+                    ]
+                }]`;
+
+                nadViewer.setJsonVoltageLevelStates(voltageLevelStates);
+            });
+            document.getElementById('svg-container-nad-multibus-vlnodes')?.appendChild(voltageLevelSlider);
         });
 
     fetch(NadSvgMultibusVLNodes14Example)
