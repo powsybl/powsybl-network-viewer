@@ -9,7 +9,6 @@
 import * as DiagramUtils from './diagram-utils';
 import { EdgeMetadata, BusNodeMetadata, NodeMetadata, TextNodeMetadata } from './diagram-metadata';
 import { SVG, Point } from '@svgdotjs/svg.js';
-import { SvgParameters } from './svg-parameters';
 
 test('getFormattedValue', () => {
     expect(DiagramUtils.getFormattedValue(12)).toBe('12.00');
@@ -582,7 +581,8 @@ test('getViewBox', () => {
             type: 'LineEdge',
         },
     ];
-    const viewBox = DiagramUtils.getViewBox(nodes, textNodes, edges, new SvgParameters(undefined));
+    const diagramPadding = { left: 200.0, top: 200.0, right: 200.0, bottom: 200.0 };
+    const viewBox = DiagramUtils.getViewBox(nodes, textNodes, edges, diagramPadding);
     expect(viewBox.x).toBe(-700);
     expect(viewBox.y).toBe(-740);
     expect(viewBox.width).toBe(1700);

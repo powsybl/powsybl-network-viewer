@@ -7,7 +7,6 @@
 
 import { Point } from '@svgdotjs/svg.js';
 import { EdgeMetadata, BusNodeMetadata, NodeMetadata, TextNodeMetadata } from './diagram-metadata';
-import { SvgParameters } from './svg-parameters';
 import ZoomToFitSvg from '../../resources/material-icons/zoom-to-fit.svg';
 import ZoomInSvg from '../../resources/material-icons/zoom-in.svg';
 import ZoomOutSvg from '../../resources/material-icons/zoom-out.svg';
@@ -643,7 +642,7 @@ export function getViewBox(
     nodes: NodeMetadata[] | undefined,
     textNodes: TextNodeMetadata[] | undefined,
     edges: EdgeMetadata[] | undefined,
-    svgParameters: SvgParameters
+    diagramPadding: { left: number; top: number; right: number; bottom: number }
 ): ViewBox {
     const size = { minX: Number.MAX_VALUE, maxX: -Number.MAX_VALUE, minY: Number.MAX_VALUE, maxY: -Number.MAX_VALUE };
     const nodesMap: Map<string, NodeMetadata> = new Map<string, NodeMetadata>();
@@ -672,14 +671,10 @@ export function getViewBox(
         }
     });
     return {
-        x: round(size.minX - svgParameters.getDiagramPadding().left),
-        y: round(size.minY - svgParameters.getDiagramPadding().top),
-        width: round(
-            size.maxX - size.minX + svgParameters.getDiagramPadding().left + svgParameters.getDiagramPadding().right
-        ),
-        height: round(
-            size.maxY - size.minY + svgParameters.getDiagramPadding().top + svgParameters.getDiagramPadding().bottom
-        ),
+        x: round(size.minX - diagramPadding.left),
+        y: round(size.minY - diagramPadding.top),
+        width: round(size.maxX - size.minX + diagramPadding.left + diagramPadding.right),
+        height: round(size.maxY - size.minY + diagramPadding.top + diagramPadding.bottom),
     };
 }
 

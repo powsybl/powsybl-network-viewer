@@ -773,7 +773,7 @@ export class NetworkAreaDiagramViewer {
         // get edge data
         const edgeId = lineMiddle.id !== undefined ? DiagramUtils.getEdgeId(lineMiddle.id) : '-1';
         const edge: EdgeMetadata | undefined = this.diagramMetadata?.edges.find((edge) => edge.svgId == edgeId);
-        if (!edge || !edge.middle) {
+        if (!edge?.middle) {
             return;
         }
         const edgeNode: SVGGraphicsElement | null = this.svgDiv.querySelector("[id='" + edgeId + "']");
@@ -2049,7 +2049,7 @@ export class NetworkAreaDiagramViewer {
             this.diagramMetadata?.nodes,
             this.diagramMetadata?.textNodes,
             this.diagramMetadata?.edges,
-            this.svgParameters
+            this.svgParameters.getDiagramPadding()
         );
         this.svgDraw?.viewbox(viewBox.x, viewBox.y, viewBox.width, viewBox.height);
     }
@@ -2206,7 +2206,7 @@ export class NetworkAreaDiagramViewer {
             const edge: EdgeMetadata | undefined = this.diagramMetadata?.edges.find(
                 (edge) => edge.svgId == DiagramUtils.getEdgeId(middleElement.id)
             );
-            if (edge && edge.middle) {
+            if (edge?.middle) {
                 this.onBendLineCallback(
                     edge.svgId,
                     edge.equipmentId,
