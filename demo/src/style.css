@@ -338,6 +338,9 @@ path.nad-arrow-in:not(.nad-state-in .nad-arrow-in) {
 .nad-vl-nodes .nad-undervoltage {
     animation: node-under-blink 3s infinite;
 }
+.nad-line-middles {
+    fill: black;
+}
 
 @keyframes line-blink {
     0%,
