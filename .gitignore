@@ -11,5 +11,8 @@
 # vscode
 /.vscode
 
+# vite
+/vite.config.ts-timestamp-*
+
 # jest
 /coverage
