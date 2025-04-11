@@ -1,12 +1,9 @@
 # dependencies
 /node_modules
 
-# distribution
+# production
 /dist
 /powsybl-network-viewer-*.tgz
-
-# distrib for demo
-/output
 
 # webstorm
 /.idea
@@ -14,14 +11,5 @@
 # vscode
 /.vscode
 
-# parcel
-/.parcel-cache
-
-# demo
-/demo/node_modules
-/demo/build
-/demo/dist
-
-# lcov reporst
+# jest
 /coverage
-
