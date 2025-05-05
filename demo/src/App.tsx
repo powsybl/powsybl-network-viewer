@@ -35,20 +35,6 @@ export default function App() {
         palette: {
             mode: 'dark',
         },
-        // @ts-expect-error: TODO not present in ThemeOptions
-        link: {
-            color: 'green',
-        },
-        node: {
-            background: '#1976d2',
-            hover: '#90caf9',
-            border: '#cce3f9',
-        },
-        selectedRow: {
-            background: '#545C5B',
-        },
-        mapboxStyle: 'mapbox://styles/mapbox/dark-v9',
-        aggrid: 'ag-theme-alpine-dark',
     });
 
     //declare data to be displayed: coordinates and network data
