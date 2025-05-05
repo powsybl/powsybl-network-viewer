@@ -873,9 +873,16 @@ export function addPointToList(
 function getDistanceFromSegment(p: Point, a: Point, b: Point): number {
     const param =
         ((p.x - a.x) * (b.x - a.x) + (p.y - a.y) * (b.y - a.y)) / (Math.pow(b.x - a.x, 2) + Math.pow(b.y - a.y, 2));
-    const xx = param < 0 ? a.x : param > 1 ? b.x : a.x + param * (b.x - a.x);
-    const yy = param < 0 ? a.y : param > 1 ? b.y : a.y + param * (b.y - a.y);
+    const xx = getValue(param, a.x, b.x);
+    const yy = getValue(param, a.y, b.y);
     return Math.sqrt(Math.pow(p.x - xx, 2) + Math.pow(p.y - yy, 2));
+}
+
+function getValue(param: number, firstValue: number, secondValue: number): number {
+    if (param < 0) {
+        return firstValue;
+    }
+    return param > 1 ? secondValue : firstValue + param * (secondValue - firstValue);
 }
 
 export function getEdgePoints(
@@ -897,19 +904,19 @@ export function getEdgePoints(
     let partialDistance = 0;
     let middleAdded: boolean = false;
     for (let i = 0; i < pointsMetadata.length - 1; i++) {
-        const point1 = new Point(pointsMetadata[i].x, pointsMetadata[i].y);
-        const point2 = new Point(pointsMetadata[i + 1].x, pointsMetadata[i + 1].y);
-        partialDistance += getDistance(point1, point2);
+        const point = new Point(pointsMetadata[i].x, pointsMetadata[i].y);
+        const nextPoint = new Point(pointsMetadata[i + 1].x, pointsMetadata[i + 1].y);
+        partialDistance += getDistance(point, nextPoint);
         if (partialDistance < distance / 2) {
-            halfEdgePoints1.push(point2);
+            halfEdgePoints1.push(nextPoint);
         } else {
             if (!middleAdded) {
-                const edgeMiddle = getPointAtDistance(point2, point1, partialDistance - distance / 2);
+                const edgeMiddle = getPointAtDistance(nextPoint, point, partialDistance - distance / 2);
                 halfEdgePoints1.push(edgeMiddle);
                 halfEdgePoints2.push(edgeMiddle);
                 middleAdded = true;
             }
-            halfEdgePoints2.push(point2);
+            halfEdgePoints2.push(nextPoint);
         }
     }
     return [halfEdgePoints1, halfEdgePoints2.reverse()];

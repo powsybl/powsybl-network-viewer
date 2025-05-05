@@ -659,7 +659,7 @@ export class NetworkAreaDiagramViewer {
         }
         const edgeId = bendableElem.id !== undefined ? DiagramUtils.getEdgeId(bendableElem.id) : '-1';
         const edge: EdgeMetadata | undefined = this.diagramMetadata?.edges.find((edge) => edge.svgId == edgeId);
-        if (!edge || edge.points == undefined) {
+        if (edge?.points == undefined) {
             return;
         }
         this.disablePanzoom(); // to avoid panning the whole SVG when straightening a line
@@ -814,61 +814,69 @@ export class NetworkAreaDiagramViewer {
         );
         if (edge) {
             if (position && lineOperation == LineOperation.BEND) {
-                const index = +(linePointElement.getAttribute('index') ?? '-1');
-                if (index == -1) {
-                    // first time this point is added to metadata
-                    // get nodes for computing where to put the point in the list
-                    const node1 = this.diagramMetadata?.nodes.find((node) => node.svgId == edge.node1);
-                    const node2 = this.diagramMetadata?.nodes.find((node) => node.svgId == edge.node2);
-                    if (node1 && node2) {
-                        // insert the point in the list of points
-                        const linePoints = DiagramUtils.addPointToList(
-                            edge.points?.slice(),
-                            new Point(node1.x, node1.y),
-                            new Point(node2.x, node2.y),
-                            position
-                        );
-                        edge.points = linePoints.linePoints;
-                        // update line point elements with shifted index
-                        for (let i = edge.points.length - 1; i > linePoints.index; i--) {
-                            const linePoint: SVGGraphicsElement | null = this.svgDiv.querySelector(
-                                "[id='" + DiagramUtils.getLinePointId(edge.svgId, i) + "']"
-                            );
-                            if (linePoint) {
-                                linePoint.setAttribute('index', i + '');
-                                linePoint.id = DiagramUtils.getLinePointId(edge.svgId, i + 1);
-                            }
-                        }
-                        // update line point element
-                        linePointElement.setAttribute('index', linePoints.index + '');
-                        linePointElement.id = DiagramUtils.getLinePointId(edge.svgId, linePoints.index + 1);
-                    }
-                } else if (edge.points) {
-                    // update line point
-                    edge.points[index] = { x: DiagramUtils.round(position.x), y: DiagramUtils.round(position.y) };
-                } else {
-                    // it should not come here, anyway, add the new point
-                    edge.points = [{ x: DiagramUtils.round(position.x), y: DiagramUtils.round(position.y) }];
-                }
+                this.updateEdgeMetadataWhenBending(edge, linePointElement, position);
             } else {
-                const index = +(linePointElement.getAttribute('index') ?? '-1');
-                if (index > -1 && edge.points) {
-                    // update line point elements with shifted index
-                    for (let i = index + 1; i < edge.points.length; i++) {
-                        const linePoint: SVGGraphicsElement | null = this.svgDiv.querySelector(
-                            "[id='" + DiagramUtils.getLinePointId(edge.svgId, i + 1) + "']"
-                        );
-                        if (linePoint) {
-                            linePoint.setAttribute('index', i - 1 + '');
-                            linePoint.id = DiagramUtils.getLinePointId(edge.svgId, i);
-                        }
-                    }
-                    // delete point
-                    edge.points.splice(index, 1);
-                    if (edge.points.length == 0) {
-                        delete edge.points;
+                this.updateEdgeMetadataWhenStraightening(edge, linePointElement);
+            }
+        }
+    }
+
+    private updateEdgeMetadataWhenBending(edge: EdgeMetadata, linePointElement: SVGGraphicsElement, position: Point) {
+        const index = +(linePointElement.getAttribute('index') ?? '-1');
+        if (index == -1) {
+            // first time this point is added to metadata
+            // get nodes for computing where to put the point in the list
+            const node1 = this.diagramMetadata?.nodes.find((node) => node.svgId == edge.node1);
+            const node2 = this.diagramMetadata?.nodes.find((node) => node.svgId == edge.node2);
+            if (node1 && node2) {
+                // insert the point in the list of points
+                const linePoints = DiagramUtils.addPointToList(
+                    edge.points?.slice(),
+                    new Point(node1.x, node1.y),
+                    new Point(node2.x, node2.y),
+                    position
+                );
+                edge.points = linePoints.linePoints;
+                // update line point elements with shifted index
+                for (let i = edge.points.length - 1; i > linePoints.index; i--) {
+                    const linePoint: SVGGraphicsElement | null = this.svgDiv.querySelector(
+                        "[id='" + DiagramUtils.getLinePointId(edge.svgId, i) + "']"
+                    );
+                    if (linePoint) {
+                        linePoint.setAttribute('index', i + '');
+                        linePoint.id = DiagramUtils.getLinePointId(edge.svgId, i + 1);
                     }
                 }
+                // update line point element
+                linePointElement.setAttribute('index', linePoints.index + '');
+                linePointElement.id = DiagramUtils.getLinePointId(edge.svgId, linePoints.index + 1);
+            }
+        } else if (edge.points) {
+            // update line point
+            edge.points[index] = { x: DiagramUtils.round(position.x), y: DiagramUtils.round(position.y) };
+        } else {
+            // it should not come here, anyway, add the new point
+            edge.points = [{ x: DiagramUtils.round(position.x), y: DiagramUtils.round(position.y) }];
+        }
+    }
+
+    private updateEdgeMetadataWhenStraightening(edge: EdgeMetadata, linePointElement: SVGGraphicsElement) {
+        const index = +(linePointElement.getAttribute('index') ?? '-1');
+        if (index > -1 && edge.points) {
+            // update line point elements with shifted index
+            for (let i = index + 1; i < edge.points.length; i++) {
+                const linePoint: SVGGraphicsElement | null = this.svgDiv.querySelector(
+                    "[id='" + DiagramUtils.getLinePointId(edge.svgId, i + 1) + "']"
+                );
+                if (linePoint) {
+                    linePoint.setAttribute('index', i - 1 + '');
+                    linePoint.id = DiagramUtils.getLinePointId(edge.svgId, i);
+                }
+            }
+            // delete point
+            edge.points.splice(index, 1);
+            if (edge.points.length == 0) {
+                delete edge.points;
             }
         }
     }
@@ -916,8 +924,8 @@ export class NetworkAreaDiagramViewer {
         // bend line
         this.redrawEdge(
             edgeNode,
-            edgePoints && edgePoints[0].length > 0 ? edgePoints[0] : [edgeStart1, edgeMiddle],
-            edgePoints && edgePoints[1].length > 0 ? edgePoints[1] : [edgeStart2, edgeMiddle],
+            edgePoints ? edgePoints[0] : [edgeStart1, edgeMiddle],
+            edgePoints ? edgePoints[1] : [edgeStart2, edgeMiddle],
             nodeRadius1,
             nodeRadius2,
             edgeType,
@@ -2381,9 +2389,7 @@ export class NetworkAreaDiagramViewer {
         point: Point,
         linePointsElement?: SVGElement | null
     ): SVGElement {
-        if (linePointsElement == undefined || linePointsElement == null) {
-            linePointsElement = this.svgDraw?.node.querySelector('#lines-points');
-        }
+        linePointsElement ??= this.svgDraw?.node.querySelector('#lines-points');
         const pointElement = DiagramUtils.createLinePointElement(lineId, point, index);
         linePointsElement?.appendChild(pointElement);
         return pointElement;
