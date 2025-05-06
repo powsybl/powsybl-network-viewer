@@ -73,6 +73,12 @@ export interface EdgeMetadata {
     busNode1: string;
     busNode2: string;
     type: string;
+    points?: EdgePointMetadata[];
+}
+
+export interface EdgePointMetadata {
+    x: number;
+    y: number;
 }
 
 export interface TextNodeMetadata {

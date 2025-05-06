@@ -13,6 +13,7 @@ export type {
     OnToggleNadHoverCallbackType,
     BranchState,
     OnRightClickCallbackType,
+    OnBendLineCallbackType,
 } from './components/network-area-diagram-viewer/network-area-diagram-viewer';
 export type {
     BusNodeMetadata,

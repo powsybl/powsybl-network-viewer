@@ -38,6 +38,7 @@ import {
     OnToggleNadHoverCallbackType,
     BranchState,
     OnRightClickCallbackType,
+    OnBendLineCallbackType,
 } from '../../../src';
 
 export const addNadToDemo = () => {
@@ -60,7 +61,8 @@ export const addNadToDemo = () => {
                 null,
                 handleToggleNadHover,
                 handleRightClick,
-                true
+                true,
+                null
             );
 
             // add range slider to update branch labels
@@ -122,7 +124,8 @@ export const addNadToDemo = () => {
                 null,
                 handleToggleNadHover,
                 handleRightClick,
-                false
+                false,
+                null
             );
         });
 
@@ -145,7 +148,8 @@ export const addNadToDemo = () => {
                 null,
                 handleToggleNadHover,
                 handleRightClick,
-                true
+                true,
+                handleLineBending
             );
 
             // add button to update branch labels
@@ -225,7 +229,8 @@ export const addNadToDemo = () => {
                 null,
                 handleToggleNadHover,
                 handleRightClick,
-                true
+                true,
+                handleLineBending
             );
         });
 
@@ -248,7 +253,8 @@ export const addNadToDemo = () => {
                 null,
                 handleToggleNadHover,
                 handleRightClick,
-                true
+                true,
+                handleLineBending
             );
         });
 
@@ -271,7 +277,8 @@ export const addNadToDemo = () => {
                 null,
                 handleToggleNadHover,
                 handleRightClick,
-                true
+                true,
+                handleLineBending
             );
         });
 
@@ -294,7 +301,8 @@ export const addNadToDemo = () => {
                 null,
                 handleToggleNadHover,
                 handleRightClick,
-                true
+                true,
+                handleLineBending
             );
         });
 
@@ -321,7 +329,8 @@ export const addNadToDemo = () => {
                 null,
                 handleToggleNadHover,
                 handleRightClick,
-                true
+                true,
+                handleLineBending
             );
 
             svgContainerNadPegase?.insertAdjacentHTML(
@@ -520,8 +529,23 @@ const handleRightClick: OnRightClickCallbackType = (svgId, equipmentId, equipmen
         ', equipmentType: ' +
         equipmentType +
         ', mousePosition : x =' +
-        mousePosition?.x +
+        mousePosition.x +
         ', y=' +
-        mousePosition?.y;
+        mousePosition.y;
+    console.log(msg);
+};
+
+const handleLineBending: OnBendLineCallbackType = (svgId, equipmentId, equipmentType, linePoints, lineOperation) => {
+    const msg =
+        'Bent line: ' +
+        svgId +
+        ', equipment: ' +
+        equipmentId +
+        ', equipmentType: ' +
+        equipmentType +
+        ', linePoints: [' +
+        linePoints?.map((point) => point.x + ',' + point.y).join(' ') +
+        '], operation: ' +
+        lineOperation;
     console.log(msg);
 };
