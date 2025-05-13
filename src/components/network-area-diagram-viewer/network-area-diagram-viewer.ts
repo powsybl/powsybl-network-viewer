@@ -160,7 +160,7 @@ export class NetworkAreaDiagramViewer {
         this.container = container;
         this.svgDiv = document.createElement('div');
         this.svgDiv.id = 'svg-container';
-        this.svgContent = svgContent;
+        this.svgContent = this.fixSvgContent(svgContent);
         this.diagramMetadata = diagramMetadata;
         this.width = 0;
         this.height = 0;
@@ -188,6 +188,11 @@ export class NetworkAreaDiagramViewer {
         this.previousMaxDisplayedSize = 0;
     }
 
+    private fixSvgContent(svgContent: string): string {
+        // fix span in text boxes, for avoiding to include the following text
+        return svgContent.replace(/(<span class=".*")(\/>)/g, '$1></span>');
+    }
+
     public setWidth(width: number): void {
         this.width = width;
     }
@@ -209,7 +214,7 @@ export class NetworkAreaDiagramViewer {
     }
 
     public setSvgContent(svgContent: string): void {
-        this.svgContent = svgContent;
+        this.svgContent = this.fixSvgContent(svgContent);
     }
 
     public getWidth(): number {
@@ -624,12 +629,12 @@ export class NetworkAreaDiagramViewer {
         svg.style.cursor = 'grabbing';
 
         this.ctm = this.svgDraw?.node.getScreenCTM(); // used to compute mouse movement
-        this.initialPosition = DiagramUtils.getPosition(this.draggedElement); // used for the offset
         this.edgeAngles = new Map<string, number>(); // used for node redrawing
 
         // get original position of dragged element
         this.textNodeSelected = DiagramUtils.isTextNode(this.draggedElement);
         if (this.textNodeSelected) {
+            this.initialPosition = DiagramUtils.getTextNodePosition(this.draggedElement); // used for the offset
             this.endTextEdge = new Point(0, 0);
             const textNode: TextNodeMetadata | undefined = this.diagramMetadata?.textNodes.find(
                 (textNode) => textNode.svgId == this.draggedElement?.id
@@ -639,6 +644,7 @@ export class NetworkAreaDiagramViewer {
                 this.originalTextNodeConnectionShift = new Point(textNode.connectionShiftX, textNode.connectionShiftY);
             }
         } else {
+            this.initialPosition = DiagramUtils.getPosition(this.draggedElement); // used for the offset
             const node: NodeMetadata | undefined = this.diagramMetadata?.nodes.find(
                 (node) => node.svgId == this.draggedElement?.id
             );
@@ -702,8 +708,8 @@ export class NetworkAreaDiagramViewer {
     }
 
     private updateElement(element: SVGGraphicsElement) {
-        this.initialPosition = DiagramUtils.getPosition(element);
         if (DiagramUtils.isTextNode(element)) {
+            this.initialPosition = DiagramUtils.getTextNodePosition(element);
             const vlNode: SVGGraphicsElement | null = this.svgDiv.querySelector(
                 "[id='" + DiagramUtils.getVoltageLevelNodeId(element.id) + "']"
             );
@@ -711,6 +717,7 @@ export class NetworkAreaDiagramViewer {
                 this.updateVoltageLevelText(element, vlNode);
             }
         } else {
+            this.initialPosition = DiagramUtils.getPosition(element);
             this.updateVoltageLevelNode(element);
         }
     }
@@ -887,20 +894,21 @@ export class NetworkAreaDiagramViewer {
         this.updateTextNodePosition(textNode, position);
         if (vlNode != null) {
             // redraw text edge
+            const textNodeSize = DiagramUtils.getTextNodeSize(textNode);
             this.redrawTextEdge(
-                DiagramUtils.getTextEdgeId(vlNode?.id),
+                DiagramUtils.getTextEdgeId(vlNode.id),
                 position,
                 vlNode,
-                textNode?.firstElementChild?.scrollHeight ?? 0,
-                textNode?.firstElementChild?.scrollWidth ?? 0
+                textNodeSize.height,
+                textNodeSize.width
             );
         }
     }
 
     private updateTextNodePosition(textElement: SVGGraphicsElement | null, point: Point) {
         if (textElement != null) {
-            textElement.setAttribute('x', DiagramUtils.getFormattedValue(point.x));
-            textElement.setAttribute('y', DiagramUtils.getFormattedValue(point.y));
+            textElement.style.left = point.x.toFixed(0) + 'px';
+            textElement.style.top = point.y.toFixed(0) + 'px';
         }
     }
 
@@ -1707,12 +1715,6 @@ export class NetworkAreaDiagramViewer {
                 return;
             }
 
-            const labelBox = textNodeElement.querySelector('div.nad-label-box');
-            if (!labelBox) {
-                console.warn(`Label box not found in text node ${textNodeId}`);
-                return;
-            }
-
             const vlNodeId = DiagramUtils.getVoltageLevelNodeId(textNodeId);
 
             // Get all buses for this voltage level
@@ -1722,8 +1724,8 @@ export class NetworkAreaDiagramViewer {
                 return;
             }
 
-            // Get table rows (skip first row which is the header/title)
-            const tableRows = labelBox.querySelectorAll('table tr');
+            // Get span elements
+            const spans = textNodeElement.querySelectorAll('div span');
 
             vlState.busValue.forEach((busValue) => {
                 // Find the bus node metadata by id
@@ -1732,14 +1734,16 @@ export class NetworkAreaDiagramViewer {
 
                 const rowIndex = busNode.index;
 
-                if (rowIndex < tableRows.length) {
-                    const row = tableRows[rowIndex];
-                    const valueCell = row.querySelector('td:nth-child(2)');
-
-                    if (valueCell) {
+                if (rowIndex < spans.length) {
+                    const div = spans[rowIndex].parentElement;
+                    if (
+                        div &&
+                        div.childNodes.length > 1 &&
+                        div.childNodes[div.childNodes.length - 1].nodeType === Node.TEXT_NODE
+                    ) {
                         const voltage = busValue.voltage.toFixed(this.svgParameters.getVoltageValuePrecision());
                         const angle = busValue.angle.toFixed(this.svgParameters.getAngleValuePrecision());
-                        valueCell.textContent = `${voltage} kV / ${angle}°`;
+                        div.childNodes[div.childNodes.length - 1].textContent = `${voltage} kV / ${angle}°`;
                     }
                 }
             });

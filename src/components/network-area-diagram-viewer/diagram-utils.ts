@@ -253,7 +253,10 @@ export function getSelectableFrom(element: SVGElement): SVGElement | undefined {
 
 function isDraggable(element: SVGElement): boolean {
     return (
-        hasId(element) && element.parentNode != null && classIsContainerOfDraggables(element.parentNode as SVGElement)
+        (hasId(element) &&
+            element.parentNode != null &&
+            classIsContainerOfDraggables(element.parentNode as SVGElement)) ||
+        isTextNode(element)
     );
 }
 
@@ -273,8 +276,7 @@ function classIsContainerOfDraggables(element: SVGElement): boolean {
     return (
         element.classList.contains('nad-vl-nodes') ||
         element.classList.contains('nad-boundary-nodes') ||
-        element.classList.contains('nad-3wt-nodes') ||
-        element.classList.contains('nad-text-nodes')
+        element.classList.contains('nad-3wt-nodes')
     );
 }
 
@@ -443,9 +445,14 @@ export function getEdgeNameAngle(point1: Point, point2: Point): number {
 }
 
 // check if a DOM element is a text node
-export function isTextNode(element: SVGGraphicsElement | null): boolean {
+export function isTextNode(element: SVGElement | null): boolean {
     return (
-        element != null && element.parentElement != null && element.parentElement.classList.contains('nad-text-nodes')
+        element != null &&
+        hasId(element) &&
+        element?.tagName == 'DIV' &&
+        element.parentElement?.tagName == 'DIV' &&
+        element.parentElement.parentElement?.tagName == 'foreignObject' &&
+        element.parentElement.parentElement.classList.contains('nad-text-nodes')
     );
 }
 
@@ -485,11 +492,15 @@ export function getTextEdgeEnd(
     return new Point(textNodePosition.x, textNodePosition.y + detailedTextNodeYShift);
 }
 
+// Get text node size
+export function getTextNodeSize(textNode: SVGGraphicsElement | null): { width: number; height: number } {
+    return { width: textNode?.scrollWidth ?? 0, height: textNode?.scrollHeight ?? 0 };
+}
+
 // Get the top left corner position of a text box using the box's center position
 export function getTextNodeTopLeftCornerFromCenter(textNode: SVGGraphicsElement | null, centrePosition: Point): Point {
-    const textNodeWidth = textNode?.firstElementChild?.scrollWidth ?? 0;
-    const textNodeHeight = textNode?.firstElementChild?.scrollHeight ?? 0;
-    return new Point(centrePosition.x - textNodeWidth / 2, centrePosition.y - textNodeHeight / 2);
+    const textNodeSize = getTextNodeSize(textNode);
+    return new Point(centrePosition.x - textNodeSize.width / 2, centrePosition.y - textNodeSize.height / 2);
 }
 
 // Get the center position of a text box using the box's top left corner position
@@ -497,22 +508,23 @@ export function getTextNodeCenterFromTopLeftCorner(
     textNode: SVGGraphicsElement | null,
     topLeftCornerPosition: Point
 ): Point {
-    const textNodeWidth = textNode?.firstElementChild?.scrollWidth ?? 0;
-    const textNodeHeight = textNode?.firstElementChild?.scrollHeight ?? 0;
-    return new Point(topLeftCornerPosition.x + textNodeWidth / 2, topLeftCornerPosition.y + textNodeHeight / 2);
+    const textNodeSize = getTextNodeSize(textNode);
+    return new Point(
+        topLeftCornerPosition.x + textNodeSize.width / 2,
+        topLeftCornerPosition.y + textNodeSize.height / 2
+    );
 }
 
 // get the position of a translated text box
 export function getTextNodeTranslatedPosition(textNode: SVGGraphicsElement | null, translation: Point): Point {
-    const textNodeX = textNode?.getAttribute('x') ?? '0';
-    const textNodeY = textNode?.getAttribute('y') ?? '0';
-    return new Point(+textNodeX + translation.x, +textNodeY + translation.y);
+    const textNodePosition = getTextNodePosition(textNode);
+    return new Point(textNodePosition.x + translation.x, textNodePosition.y + translation.y);
 }
 
 // get text node position
 export function getTextNodePosition(textNode: SVGGraphicsElement | null): Point {
-    const textNodeX = textNode?.getAttribute('x') ?? '0';
-    const textNodeY = textNode?.getAttribute('y') ?? '0';
+    const textNodeX = textNode?.style.left.replace('px', '') ?? '0';
+    const textNodeY = textNode?.style.top.replace('px', '') ?? '0';
     return new Point(+textNodeX, +textNodeY);
 }
 
@@ -615,7 +627,7 @@ function getRightClickableFrom(element: SVGElement): SVGElement | undefined {
 }
 
 function getElementType(element: SVGElement | null): ElementType {
-    if (element?.parentElement?.classList.contains('nad-text-nodes')) {
+    if (isTextNode(element)) {
         return ElementType.TEXT_NODE;
     }
     if (element?.parentElement?.classList.contains('nad-3wt-nodes')) {
