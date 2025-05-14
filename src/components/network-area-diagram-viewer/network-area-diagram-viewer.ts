@@ -1121,7 +1121,10 @@ export class NetworkAreaDiagramViewer {
         if (!edgeNode) {
             return;
         }
-        if (edgeType == DiagramUtils.EdgeType.THREE_WINDINGS_TRANSFORMER) {
+        if (
+            edgeType == DiagramUtils.EdgeType.THREE_WINDINGS_TRANSFORMER ||
+            edgeNode.parentElement?.classList.contains('nad-3wt-edges')
+        ) {
             this.redrawThreeWtEdge(edge, edgeNode, vlNode);
             return;
         }
