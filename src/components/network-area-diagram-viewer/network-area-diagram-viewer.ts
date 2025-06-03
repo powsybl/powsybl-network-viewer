@@ -76,6 +76,8 @@ export type OnRightClickCallbackType = (
     mousePosition: Point
 ) => void;
 
+export type OnLeftClickCallbackType = (equipmentId: string, mousePosition: Point) => void;
+
 // update css rules when zoom changes by this amount. This allows to not
 // update when only translating (when translating, round errors lead to
 // epsilon changes in the float values), or not too often a bit when smooth
@@ -90,6 +92,8 @@ const dynamicCssRulesUpdateThreshold = 0.01;
 
 export class NetworkAreaDiagramViewer {
     static readonly DEFAULT_PNG_BACKGROUND_COLOR = 'white';
+    // Minimum distance in pixels the mouse must move to be considered a drag
+    static readonly dragThreshold = 1;
 
     container: HTMLElement;
     svgDiv: HTMLElement;
@@ -103,9 +107,11 @@ export class NetworkAreaDiagramViewer {
     ratio = 1;
     selectedElement: SVGGraphicsElement | null = null;
     draggedElement: SVGGraphicsElement | null = null;
+    isDragging: boolean = false;
     transform: SVGTransform | undefined;
     ctm: DOMMatrix | null | undefined = null;
     initialPosition: Point = new Point(0, 0);
+    mouseDownPosition: Point = new Point(0, 0);
     svgParameters: SvgParameters;
     layoutParameters: LayoutParameters;
     edgeAngles: Map<string, number> = new Map<string, number>();
@@ -119,6 +125,7 @@ export class NetworkAreaDiagramViewer {
     previousMaxDisplayedSize: number;
     edgesMap: Map<string, EdgeMetadata> = new Map<string, EdgeMetadata>();
     onRightClickCallback: OnRightClickCallbackType | null;
+    onLeftClickCallback: OnLeftClickCallbackType | null;
     originalNodePosition: Point = new Point(0, 0);
     originalTextNodeShift: Point = new Point(0, 0);
     originalTextNodeConnectionShift: Point = new Point(0, 0);
@@ -139,6 +146,7 @@ export class NetworkAreaDiagramViewer {
         customDynamicCssRules: CSS_RULE[] | null,
         onToggleHoverCallback: OnToggleNadHoverCallbackType | null,
         onRightClickCallback: OnRightClickCallbackType | null,
+        onLeftClickCallback: OnLeftClickCallbackType | null,
         addButtons: boolean
     ) {
         this.container = container;
@@ -153,6 +161,7 @@ export class NetworkAreaDiagramViewer {
         // rules need to be cloned because we store the threshold inside them
         this.dynamicCssRules = cloneRules(customDynamicCssRules ?? DEFAULT_DYNAMIC_CSS_RULES);
         this.onRightClickCallback = onRightClickCallback;
+        this.onLeftClickCallback = onLeftClickCallback;
         this.init(
             minWidth,
             minHeight,
@@ -574,6 +583,10 @@ export class NetworkAreaDiagramViewer {
     }
 
     private onMouseLeftDown(event: MouseEvent) {
+        // Save the current mouse position when the left mouse button is pressed
+        this.mouseDownPosition = this.getMousePosition(event);
+        this.isDragging = false;
+
         // check dragging vs. selection
         if (event.shiftKey) {
             // selecting node
@@ -629,20 +642,28 @@ export class NetworkAreaDiagramViewer {
     }
 
     private onMouseMove(event: MouseEvent) {
-        if (this.draggedElement) {
-            event.preventDefault();
-            this.ctm = this.svgDraw?.node.getScreenCTM();
-            const mousePosition = this.getMousePosition(event);
+        if (!this.draggedElement) return;
 
+        event.preventDefault();
+        this.ctm = this.svgDraw?.node.getScreenCTM();
+        const movedMousePosition = this.getMousePosition(event);
+        const dx = movedMousePosition.x - (this.mouseDownPosition?.x ?? 0);
+        const dy = movedMousePosition.y - (this.mouseDownPosition?.y ?? 0);
+
+        if (!this.isDragging && Math.sqrt(dx * dx + dy * dy) > NetworkAreaDiagramViewer.dragThreshold) {
+            this.isDragging = true;
+        }
+
+        if (this.isDragging) {
             // Update metadata first
             if (this.textNodeSelected) {
                 const topLeftCornerPosition = DiagramUtils.getTextNodeTopLeftCornerFromCenter(
                     this.draggedElement,
-                    mousePosition
+                    movedMousePosition
                 );
                 this.updateTextNodeMetadata(this.draggedElement, topLeftCornerPosition);
             } else {
-                this.updateNodeMetadata(this.draggedElement, mousePosition);
+                this.updateNodeMetadata(this.draggedElement, movedMousePosition);
             }
 
             // Then update elements visually using updated metadata
@@ -730,11 +751,14 @@ export class NetworkAreaDiagramViewer {
         if (!this.draggedElement) {
             return;
         }
-
-        if (this.textNodeSelected) {
-            this.callMoveTextNodeCallback(this.draggedElement);
+        if (this.isDragging) {
+            if (this.textNodeSelected) {
+                this.callMoveTextNodeCallback(this.draggedElement);
+            } else {
+                this.callMoveNodeCallback(this.draggedElement);
+            }
         } else {
-            this.callMoveNodeCallback(this.draggedElement);
+            this.callLeftClickCallback(this.draggedElement);
         }
 
         // reset data
@@ -763,6 +787,15 @@ export class NetworkAreaDiagramViewer {
                     this.originalNodePosition.x,
                     this.originalNodePosition.y
                 );
+            }
+        }
+    }
+
+    private callLeftClickCallback(vlNode: SVGGraphicsElement) {
+        if (this.onLeftClickCallback) {
+            const node: NodeMetadata | undefined = this.diagramMetadata?.nodes.find((node) => node.svgId == vlNode.id);
+            if (node != null) {
+                this.onLeftClickCallback(node.equipmentId, this.mouseDownPosition);
             }
         }
     }

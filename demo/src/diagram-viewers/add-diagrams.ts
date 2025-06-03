@@ -38,6 +38,7 @@ import {
     OnToggleNadHoverCallbackType,
     BranchState,
     OnRightClickCallbackType,
+    OnLeftClickCallbackType,
 } from '../../../src';
 
 export const addNadToDemo = () => {
@@ -60,6 +61,7 @@ export const addNadToDemo = () => {
                 null,
                 handleToggleNadHover,
                 handleRightClick,
+                handleLeftClick,
                 true
             );
 
@@ -122,6 +124,7 @@ export const addNadToDemo = () => {
                 null,
                 handleToggleNadHover,
                 handleRightClick,
+                handleLeftClick,
                 false
             );
         });
@@ -145,6 +148,7 @@ export const addNadToDemo = () => {
                 null,
                 handleToggleNadHover,
                 handleRightClick,
+                handleLeftClick,
                 true
             );
 
@@ -225,6 +229,7 @@ export const addNadToDemo = () => {
                 null,
                 handleToggleNadHover,
                 handleRightClick,
+                handleLeftClick,
                 true
             );
         });
@@ -248,6 +253,7 @@ export const addNadToDemo = () => {
                 null,
                 handleToggleNadHover,
                 handleRightClick,
+                handleLeftClick,
                 true
             );
         });
@@ -271,6 +277,7 @@ export const addNadToDemo = () => {
                 null,
                 handleToggleNadHover,
                 handleRightClick,
+                handleLeftClick,
                 true
             );
         });
@@ -294,6 +301,7 @@ export const addNadToDemo = () => {
                 null,
                 handleToggleNadHover,
                 handleRightClick,
+                handleLeftClick,
                 true
             );
         });
@@ -321,6 +329,7 @@ export const addNadToDemo = () => {
                 null,
                 handleToggleNadHover,
                 handleRightClick,
+                handleLeftClick,
                 true
             );
 
@@ -523,5 +532,11 @@ const handleRightClick: OnRightClickCallbackType = (svgId, equipmentId, equipmen
         mousePosition?.x +
         ', y=' +
         mousePosition?.y;
+    console.log(msg);
+};
+
+const handleLeftClick: OnLeftClickCallbackType = (equipmentId, mousePosition) => {
+    const msg =
+        'Left click on equiment' + equipmentId + ', mousePosition : x =' + mousePosition?.x + ', y=' + mousePosition?.y;
     console.log(msg);
 };
