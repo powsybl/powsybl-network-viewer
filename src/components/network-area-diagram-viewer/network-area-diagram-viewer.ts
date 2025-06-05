@@ -1828,7 +1828,6 @@ export class NetworkAreaDiagramViewer {
         if (!elementData) {
             return;
         }
-        this.ctm = this.svgDraw?.node.getScreenCTM();
         const mousePosition: Point = this.getMousePosition(event);
         this.onRightClickCallback?.(elementData.svgId, elementData.equipmentId, elementData.type, mousePosition);
     }

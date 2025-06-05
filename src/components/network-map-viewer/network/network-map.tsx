@@ -89,8 +89,9 @@ const PICKING_RADIUS = 5;
 
 const CARTO = 'carto';
 const CARTO_NOLABEL = 'cartonolabel';
+const ETALAB = 'etalab';
 const MAPBOX = 'mapbox';
-type MapLibrary = typeof CARTO | typeof CARTO_NOLABEL | typeof MAPBOX;
+type MapLibrary = typeof CARTO | typeof CARTO_NOLABEL | typeof ETALAB | typeof MAPBOX;
 
 const LIGHT = 'light';
 const DARK = 'dark';
@@ -663,6 +664,12 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
                     return 'https://basemaps.cartocdn.com/gl/positron-nolabels-gl-style/style.json';
                 } else {
                     return 'https://basemaps.cartocdn.com/gl/dark-matter-nolabels-gl-style/style.json';
+                }
+            case ETALAB:
+                if (mapTheme === LIGHT) {
+                    return 'https://openmaptiles.geo.data.gouv.fr/styles/positron/style.json';
+                } else {
+                    return 'https://openmaptiles.geo.data.gouv.fr/styles/dark-matter/style.json';
                 }
             default:
                 return 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json';
