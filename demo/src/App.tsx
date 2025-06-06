@@ -8,6 +8,7 @@
 import { useEffect, useRef } from 'react';
 import { createTheme, StyledEngineProvider, ThemeProvider } from '@mui/material/styles';
 import { IntlProvider } from 'react-intl';
+import { DEFAULT_INTL_CONFIG } from 'react-intl/src/utils';
 import { GeoData, type MapEquipment, MapEquipments, NetworkMap, type NetworkMapRef } from '../../src';
 
 import { addNadToDemo, addSldToDemo } from './diagram-viewers/add-diagrams';
@@ -79,7 +80,9 @@ export default function App() {
             <header className="App-header"></header>
             <StyledEngineProvider injectFirst>
                 <ThemeProvider theme={darkTheme}>
-                    <IntlProvider>
+                    {/* repeat locale here just to avoid typescript errors and the following error logs in the console
+                     Error: [@formatjs/intl Error INVALID_CONFIG] "locale" was not configured, using "en" as fallback */}
+                    <IntlProvider locale={DEFAULT_INTL_CONFIG.defaultLocale}>
                         <div
                             style={{
                                 position: 'relative',
