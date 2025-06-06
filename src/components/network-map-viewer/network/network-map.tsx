@@ -424,7 +424,7 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
                     style={{
                         position: 'absolute',
                         color: theme.palette.text.primary,
-                        zIndex: 1,
+                        zIndex: 90,
                         pointerEvents: 'none',
                         left: tooltip.pointerX,
                         top: tooltip.pointerY,
