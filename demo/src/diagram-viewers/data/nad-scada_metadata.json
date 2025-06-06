@@ -163,7 +163,7 @@
             "node2": "7",
             "busNode1": "3",
             "busNode2": "7",
-            "type": "ThreeWtEdge"
+            "type": "PstEdge"
         },
         {
             "svgId": "10",
