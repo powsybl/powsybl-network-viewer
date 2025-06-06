@@ -5,7 +5,37 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import type { LiteralUnion } from 'type-fest';
+import { MapboxOverlay, type MapboxOverlayProps } from '@deck.gl/mapbox';
+import type MapboxDraw from '@mapbox/mapbox-gl-draw';
+import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
+import { Replay } from '@mui/icons-material';
+import { Box, Button, type ButtonProps, decomposeColor, useTheme } from '@mui/material';
+import {
+    EQUIPMENT_TYPES,
+    GeoData,
+    getNominalVoltageColor,
+    LineFlowColorMode,
+    LineFlowMode,
+    LineLayer,
+    type LineLayerProps,
+    type MapAnyLine,
+    type MapAnyLineWithType,
+    type MapEquipment,
+    MapEquipments,
+    type MapHvdcLine,
+    type MapLine,
+    type MapSubstation,
+    type MapTieLine,
+    type MapVoltageLevel,
+    SubstationLayer,
+} from '@powsybl/network-map-layers';
+import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
+import { type Layer, type PickingInfo } from 'deck.gl';
+import type { Feature, Polygon } from 'geojson';
+import mapboxgl, { type MapLayerMouseEvent as MapBoxLayerMouseEvent } from 'mapbox-gl';
+import 'mapbox-gl/dist/mapbox-gl.css';
+import maplibregl, { type MapLayerMouseEvent as MapLibreLayerMouseEvent } from 'maplibre-gl';
+import 'maplibre-gl/dist/maplibre-gl.css';
 import PropTypes from 'prop-types';
 import {
     forwardRef,
@@ -19,9 +49,6 @@ import {
     useRef,
     useState,
 } from 'react';
-import { Box, Button, type ButtonProps, decomposeColor, useTheme } from '@mui/material';
-import { MapboxOverlay, type MapboxOverlayProps } from '@deck.gl/mapbox';
-import { Replay } from '@mui/icons-material';
 import { FormattedMessage } from 'react-intl';
 import {
     Map,
@@ -31,34 +58,10 @@ import {
     useControl,
     type ViewState,
 } from 'react-map-gl/mapbox-legacy';
-import type { Feature, Polygon } from 'geojson';
-import { type Layer, type PickingInfo } from 'deck.gl';
-import type MapboxDraw from '@mapbox/mapbox-gl-draw';
-import { getNominalVoltageColor } from '../../../utils/colors';
+import type { LiteralUnion } from 'type-fest';
 import { useNameOrId } from '../utils/equipmentInfosHandler';
-import { GeoData } from './geo-data';
-import DrawControl, { type DrawControlProps, getMapDrawer } from './draw-control';
-import LineLayer, { LineFlowColorMode, LineFlowMode, type LineLayerProps } from './line-layer';
-import { MapEquipments } from './map-equipments';
-import SubstationLayer from './substation-layer';
-import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
 import LoaderWithOverlay from '../utils/loader-with-overlay';
-import mapboxgl, { type MapLayerMouseEvent as MapBoxLayerMouseEvent } from 'mapbox-gl';
-import 'mapbox-gl/dist/mapbox-gl.css';
-import maplibregl, { type MapLayerMouseEvent as MapLibreLayerMouseEvent } from 'maplibre-gl';
-import 'maplibre-gl/dist/maplibre-gl.css';
-import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
-import {
-    EQUIPMENT_TYPES,
-    type MapAnyLine,
-    type MapAnyLineWithType,
-    type MapEquipment,
-    type MapHvdcLine,
-    type MapLine,
-    type MapSubstation,
-    type MapTieLine,
-    type MapVoltageLevel,
-} from '../../../equipment-types';
+import DrawControl, { type DrawControlProps, getMapDrawer } from './draw-control';
 
 // MouseEvent.button https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/button
 const MOUSE_EVENT_BUTTON_LEFT = 0;
