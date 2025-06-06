@@ -576,11 +576,7 @@ export class SingleLineDiagramViewer {
         this.svgMetadata?.nodes?.forEach((equipment) => {
             const svgEquipment = this.container?.querySelector('#' + equipment.id);
             svgEquipment?.addEventListener('mouseover', (event) => {
-                const equipmentType =
-                    equipment.componentType === 'PHASE_SHIFT_TRANSFORMER'
-                        ? 'TWO_WINDINGS_TRANSFORMER'
-                        : equipment.componentType;
-                this.onToggleHoverCallback?.(true, event.currentTarget, equipment.equipmentId, equipmentType);
+                this.onToggleHoverCallback?.(true, event.currentTarget, equipment.equipmentId, equipment.componentType);
             });
             svgEquipment?.addEventListener('mouseout', () => {
                 this.onToggleHoverCallback?.(false, null, '', '');
