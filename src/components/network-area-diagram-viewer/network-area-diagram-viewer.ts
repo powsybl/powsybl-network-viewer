@@ -53,7 +53,7 @@ export type OnMoveTextNodeCallbackType = (
     connectionShiftYOrig: number
 ) => void;
 
-export type OnSelectNodeCallbackType = (equipmentId: string, nodeId: string) => void;
+export type OnSelectNodeCallbackType = (equipmentId: string, nodeId: string, mousePosition: Point | null) => void;
 
 export type OnToggleNadHoverCallbackType = (
     hovered: boolean,
@@ -378,6 +378,11 @@ export class NetworkAreaDiagramViewer {
             this.svgDraw.on('mouseup mouseleave', (e: Event) => {
                 if ((e as MouseEvent).button == 0) {
                     this.onMouseLeftUpOrLeave();
+                }
+            });
+            this.svgDraw.on('click', (e: Event) => {
+                if ((e as MouseEvent).button == 0 && !(e as MouseEvent).shiftKey) {
+                    this.onLeftClick(e as MouseEvent);
                 }
             });
         }
@@ -802,9 +807,8 @@ export class NetworkAreaDiagramViewer {
             }
         }
     }
-
-    private onSelectEnd() {
-        this.callSelectNodeCallback();
+    private onSelectEnd(mousePosition: Point | null = null) {
+        this.callSelectNodeCallback(mousePosition);
         this.selectedElement = null;
         this.enablePanzoom();
     }
@@ -1548,17 +1552,22 @@ export class NetworkAreaDiagramViewer {
         }
     }
 
-    private callSelectNodeCallback() {
-        // call the select node callback, if defined
+    private callSelectNodeCallback(mousePosition: Point | null) {
         if (this.onSelectNodeCallback != null) {
             // get selected node from metadata
             const node: NodeMetadata | undefined = this.diagramMetadata?.nodes.find(
                 (node) => node.svgId == this.selectedElement?.id
             );
             if (node != null) {
-                this.onSelectNodeCallback(node.equipmentId, node.svgId);
+                this.onSelectNodeCallback(node.equipmentId, node.svgId, mousePosition);
             }
         }
+    }
+
+    private onLeftClick(event: MouseEvent) {
+        const mousePosition = this.getMousePosition(event);
+        this.onSelectStart(DiagramUtils.getSelectableFrom(event.target as SVGElement));
+        this.onSelectEnd(mousePosition);
     }
 
     public getCurrentlyMaxDisplayedSize(): number {
