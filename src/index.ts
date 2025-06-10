@@ -23,11 +23,6 @@ export type {
     SvgParametersMetadata,
     TextNodeMetadata,
 } from './components/network-area-diagram-viewer/diagram-metadata';
-export {
-    type CSS_DECLARATION,
-    type CSS_RULE,
-    THRESHOLD_STATUS,
-} from './components/network-area-diagram-viewer/dynamic-css-utils';
 export { LayoutParameters } from './components/network-area-diagram-viewer/layout-parameters';
 export { SvgParameters } from './components/network-area-diagram-viewer/svg-parameters';
 
