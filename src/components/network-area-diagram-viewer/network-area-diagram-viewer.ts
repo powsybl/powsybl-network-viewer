@@ -1151,9 +1151,10 @@ export class NetworkAreaDiagramViewer {
         if (edgeType == DiagramUtils.EdgeType.THREE_WINDINGS_TRANSFORMER) {
             return true;
         }
-        const pst3wtEdge = edgeType == DiagramUtils.EdgeType.PHASE_SHIFT_TRANSFORMER
-            && edgeNode.parentElement?.classList.contains('nad-3wt-edges');
-        return pst3wtEdge?? false;
+        const pst3wtEdge =
+            edgeType == DiagramUtils.EdgeType.PHASE_SHIFT_TRANSFORMER &&
+            edgeNode.parentElement?.classList.contains('nad-3wt-edges');
+        return pst3wtEdge ?? false;
     }
 
     private getEdgeStart(
