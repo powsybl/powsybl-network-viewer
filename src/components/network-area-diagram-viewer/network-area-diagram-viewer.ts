@@ -1121,10 +1121,7 @@ export class NetworkAreaDiagramViewer {
         if (!edgeNode) {
             return;
         }
-        if (
-            edgeType == DiagramUtils.EdgeType.THREE_WINDINGS_TRANSFORMER ||
-            edgeNode.parentElement?.classList.contains('nad-3wt-edges')
-        ) {
+        if (this.isThreeWtEdge(edgeType, edgeNode)) {
             this.redrawThreeWtEdge(edge, edgeNode, vlNode);
             return;
         }
@@ -1148,6 +1145,15 @@ export class NetworkAreaDiagramViewer {
             const otherNode: SVGGraphicsElement | null = this.getOtherNode(edgeNodes, vlNode);
             this.redrawOtherVoltageLevelNode(otherNode);
         }
+    }
+
+    private isThreeWtEdge(edgeType: DiagramUtils.EdgeType, edgeNode: SVGGraphicsElement) {
+        if (edgeType == DiagramUtils.EdgeType.THREE_WINDINGS_TRANSFORMER) {
+            return true;
+        }
+        const pst3wtEdge = edgeType == DiagramUtils.EdgeType.PHASE_SHIFT_TRANSFORMER
+            && edgeNode.parentElement?.classList.contains('nad-3wt-edges');
+        return pst3wtEdge?? false;
     }
 
     private getEdgeStart(
