@@ -485,7 +485,7 @@ const handleTextNodeMove: OnMoveTextNodeCallbackType = (
 
 const handleNodeSelect: OnSelectNodeCallbackType = (equipmentId, nodeId, mousePosition) => {
     let msg = 'Node ' + nodeId + ' equipment ' + equipmentId + ' selected';
-    if (mousePosition ) {
+    if (mousePosition) {
         msg += ' on mousePosition: x = ' + mousePosition.x + ', y = ' + mousePosition.y;
     }
     console.log(msg);
