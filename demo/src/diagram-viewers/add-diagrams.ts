@@ -483,8 +483,11 @@ const handleTextNodeMove: OnMoveTextNodeCallbackType = (
     console.log(msg);
 };
 
-const handleNodeSelect: OnSelectNodeCallbackType = (equipmentId, nodeId) => {
-    const msg = 'Node ' + nodeId + ' equipment ' + equipmentId + ' selected';
+const handleNodeSelect: OnSelectNodeCallbackType = (equipmentId, nodeId, mousePosition) => {
+    let msg = 'Node ' + nodeId + ' equipment ' + equipmentId + ' selected';
+    if (mousePosition ) {
+        msg += ' on mousePosition: x = ' + mousePosition.x + ', y = ' + mousePosition.y;
+    }
     console.log(msg);
 };
 
