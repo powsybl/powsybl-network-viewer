@@ -40,6 +40,8 @@ import {
     OnRightClickCallbackType,
 } from '../../../src';
 
+/* eslint-disable @typescript-eslint/no-floating-promises */
+
 export const addNadToDemo = () => {
     fetch(NadSvgExample)
         .then((response) => response.text())

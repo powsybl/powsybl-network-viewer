@@ -5,8 +5,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-/* eslint-disable */
-
 /* Override for v8 following
  * https://deck.gl/docs/get-started/using-with-typescript#deckgl-v8
  * TODO: remove this file when migrating to deck.gl v9

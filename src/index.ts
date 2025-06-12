@@ -51,7 +51,6 @@ export {
     default as NetworkMap,
     type NetworkMapProps,
     type NetworkMapRef,
-    DRAW_EVENT,
     type MenuClickFunction,
 } from './components/network-map-viewer/network/network-map';
 export { DRAW_MODES } from './components/network-map-viewer/network/draw-control';
@@ -72,3 +71,4 @@ export {
     type MapVoltageLevel,
 } from './equipment-types';
 export { type Coordinate, Country } from './powsybl';
+export { DRAW_EVENT } from './components/network-map-viewer/network/draw_event';
