@@ -172,6 +172,7 @@
         <g id="7" transform="translate(-39.15,-202.32)">
             <circle class="nad-vl300to500-line nad-winding" cx="11.60" cy="-3.07" r="20.00"/>
             <circle class="nad-vl180to300-line nad-winding" cx="-3.14" cy="11.58" r="20.00"/>
+			<path d="M60.00,0 0,60.00 M52.00,0 60.00,0 60.00,8.00" transform="matrix(0.39,0.92,-0.92,0.39,12.98,-27.66)" class="nad-vl180to300-line nad-winding"/>
             <circle class="nad-disconnected nad-vl300to500-line nad-winding" cx="-8.46" cy="-8.51" r="20.00"/>
         </g>
     </g>
