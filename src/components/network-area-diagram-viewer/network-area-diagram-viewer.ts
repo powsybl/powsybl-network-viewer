@@ -650,6 +650,7 @@ export class NetworkAreaDiagramViewer {
     }
 
     private onMouseMove(event: MouseEvent) {
+        // first mouse move will start drag & drop and set `isDragging` to true
         if (!this.draggedElement) {
             return;
         }
