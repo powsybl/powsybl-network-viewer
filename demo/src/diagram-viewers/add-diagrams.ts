@@ -298,9 +298,6 @@ export const addNadToDemo = () => {
             );
         });
 
-    const enableLevelOfDetail: boolean =
-        new URLSearchParams(window.location.search).get('enableLevelOfDetail') === 'true';
-
     fetch(NadSvgPegaseNetworkExample)
         .then((response) => response.text())
         .then((svgContent) => {
@@ -317,16 +314,11 @@ export const addNadToDemo = () => {
                 handleTextNodeMove,
                 handleNodeSelect,
                 true,
-                enableLevelOfDetail,
-                null,
+                true,
+                [0, 1000, 2200, 2500, 3000, 4000, 9000, 12000, 20000],
                 handleToggleNadHover,
                 handleRightClick,
                 true
-            );
-
-            svgContainerNadPegase?.insertAdjacentHTML(
-                'afterbegin',
-                `<p>enableLevelOfDetail=${enableLevelOfDetail}, <a href=".?enableLevelOfDetail=${!enableLevelOfDetail}">reload toggle enableLevelOfDetail</a></p>`
             );
         });
 };
@@ -491,8 +483,11 @@ const handleTextNodeMove: OnMoveTextNodeCallbackType = (
     console.log(msg);
 };
 
-const handleNodeSelect: OnSelectNodeCallbackType = (equipmentId, nodeId) => {
-    const msg = 'Node ' + nodeId + ' equipment ' + equipmentId + ' selected';
+const handleNodeSelect: OnSelectNodeCallbackType = (equipmentId, nodeId, mousePosition) => {
+    let msg = 'Node ' + nodeId + ' equipment ' + equipmentId + ' selected';
+    if (mousePosition) {
+        msg += ' on mousePosition: x = ' + mousePosition.x + ', y = ' + mousePosition.y;
+    }
     console.log(msg);
 };
 
