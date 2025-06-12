@@ -116,6 +116,21 @@ export default function App() {
                                     );
                                     console.log('Selected Lines: ', networkMapRef.current?.getSelectedLines().length);
                                 }}
+                                renderPopover={(lineId) => {
+                                    return (
+                                        <div
+                                            style={{
+                                                display: 'block',
+                                                color: 'black',
+                                                backgroundColor: 'white',
+                                                padding: '15px',
+                                                fontSize: '16px',
+                                            }}
+                                        >
+                                            <div>LINE id: {lineId}</div>
+                                        </div>
+                                    );
+                                }}
                             />
                             <button onClick={() => networkMapRef.current?.resetZoomAndPosition()}>
                                 Reset zoom and position
