@@ -843,7 +843,7 @@ NetworkMap.propTypes = {
     geoData: PropTypes.instanceOf(GeoData),
     mapBoxToken: PropTypes.string,
     mapEquipments: PropTypes.instanceOf(MapEquipments),
-    mapLibrary: PropTypes.oneOf([CARTO, CARTO_NOLABEL, MAPBOX]),
+    mapLibrary: PropTypes.oneOf([CARTO, CARTO_NOLABEL, MAPBOX, ETALAB]),
     mapTheme: PropTypes.oneOf([LIGHT, DARK]),
 
     areFlowsValid: PropTypes.bool,
