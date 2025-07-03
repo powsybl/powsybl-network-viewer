@@ -380,7 +380,6 @@ export class NetworkAreaDiagramViewer {
                 if ((e as MouseEvent).button == 0) {
                     this.onMouseLeftUpOrLeave(e as MouseEvent);
                 }
-                this.resetMouseEventParams();
             });
         }
         if (hasMetadata) {
@@ -747,10 +746,12 @@ export class NetworkAreaDiagramViewer {
         if (this.isDragging) {
             // moving element
             this.onDragEnd();
+            this.resetMouseEventParams();
         } else if (this.selectedElement) {
             // selecting element
             const mousePosition = this.getMousePosition(mouseEvent);
             this.onSelectEnd(mousePosition);
+            this.resetMouseEventParams();
         }
     }
 

@@ -37,7 +37,7 @@ import type MapboxDraw from '@mapbox/mapbox-gl-draw';
 import { getNominalVoltageColor } from '../../../utils/colors';
 import { useNameOrId } from '../utils/equipmentInfosHandler';
 import { GeoData } from './geo-data';
-import DrawControl, { type DrawControlProps, getMapDrawer } from './draw-control';
+import DrawControl, { type DrawControlProps } from './draw-control';
 import LineLayer, { LineFlowColorMode, LineFlowMode, type LineLayerProps } from './line-layer';
 import { MapEquipments } from './map-equipments';
 import SubstationLayer from './substation-layer';
@@ -138,11 +138,6 @@ const INITIAL_CENTERED: Centered = {
 };
 
 const DEFAULT_LOCATE_SUBSTATION_ZOOM_LEVEL = 12;
-
-/** get polygon coordinates (features) or an empty object */
-function getPolygonFeatures() {
-    return getMapDrawer()?.getAll()?.features[0] ?? ({} as Record<string, never>);
-}
 
 type TooltipType = {
     equipmentId: string;
@@ -307,6 +302,12 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
     }, [props.mapEquipments?.hvdcLines, props.mapEquipments?.tieLines, props.mapEquipments?.lines]);
 
     const divRef = useRef<HTMLDivElement>(null);
+    const drawControlRef = useRef<MapboxDraw | undefined>(undefined);
+
+    /** get polygon coordinates (features) or an empty object */
+    const getPolygonFeatures = () => {
+        return drawControlRef.current?.getAll()?.features[0] ?? ({} as Record<string, never>);
+    };
 
     const mToken = !props.mapBoxToken ? FALLBACK_MAPBOX_TOKEN : props.mapBoxToken;
 
@@ -752,11 +753,13 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
             getSelectedLines,
             cleanDraw() {
                 //because deleteAll does not trigger a update of the polygonFeature callback
-                getMapDrawer()?.deleteAll();
+                drawControlRef.current?.deleteAll();
                 onPolygonChanged(getPolygonFeatures());
                 onDrawEvent(DRAW_EVENT.DELETE);
             },
-            getMapDrawer,
+            getMapDrawer() {
+                return drawControlRef.current;
+            },
             resetZoomAndPosition,
         }),
         [onPolygonChanged, resetZoomAndPosition, getSelectedSubstations, getSelectedLines, onDrawEvent]
@@ -776,6 +779,7 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
                 doubleClickZoom={false}
                 mapStyle={mapStyle}
                 styleDiffing={false}
+                key={mapLib.key} // to reset the map when the mapLib changes
                 // @ts-expect-error TODO TS2322: Type typeof mapboxgl is not assignable to type MapLib<Map>|Promise<MapLib<Map>>|undefined
                 mapLib={mapLib.mapLib}
                 mapboxAccessToken={mapLib.mapboxAccessToken}
@@ -816,6 +820,7 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
                 {/* visualizePitch true makes the compass reset the pitch when clicked in addition to visualizing it */}
                 <NavigationControl visualizePitch={true} />
                 <DrawControl
+                    ref={drawControlRef}
                     position="bottom-left"
                     displayControlsDefault={false}
                     controls={{
