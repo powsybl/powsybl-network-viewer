@@ -779,6 +779,7 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
                 doubleClickZoom={false}
                 mapStyle={mapStyle}
                 styleDiffing={false}
+                key={mapLib.key} // to reset the map when the mapLib changes
                 // @ts-expect-error TODO TS2322: Type typeof mapboxgl is not assignable to type MapLib<Map>|Promise<MapLib<Map>>|undefined
                 mapLib={mapLib.mapLib}
                 mapboxAccessToken={mapLib.mapboxAccessToken}
