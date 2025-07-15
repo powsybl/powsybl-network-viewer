@@ -17,7 +17,7 @@ import {
     type UpdateParameters,
 } from 'deck.gl';
 import { type UniformValues } from 'maplibre-gl';
-import { type MapAnyLineWithType } from '../../../../equipment-types';
+import { type MapAnyLineWithType } from '../../equipment-types';
 import vs from './arrow-layer-vertex.vert?raw';
 import fs from './arrow-layer-fragment.frag?raw';
 
