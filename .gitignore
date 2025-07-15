@@ -1,9 +1,11 @@
 # dependencies
 /node_modules
+/packages/network-map-layers/node_modules
 
 # production
 /dist
 /powsybl-network-viewer-*.tgz
+/packages/network-map-layers/dist
 
 # webstorm
 /.idea

@@ -5,11 +5,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import { computeDestinationPoint, getGreatCircleBearing, getRhumbLineBearing } from 'geolib';
 import CheapRuler from 'cheap-ruler';
+import { computeDestinationPoint, getGreatCircleBearing, getRhumbLineBearing } from 'geolib';
+import { type LonLat, type MapAnyLine } from '../equipment-types';
+import { type Coordinate, Country } from '../powsybl';
 import { ArrowDirection } from './layers/arrow-layer';
-import { type Coordinate, Country } from '../../../powsybl';
-import { type LonLat, type MapAnyLine } from '../../../equipment-types';
 import { type MapEquipments } from './map-equipments';
 
 export type GeoDataEquipment = { id: string };
