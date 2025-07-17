@@ -1861,6 +1861,7 @@ export class NetworkAreaDiagramViewer {
             return;
         }
         const mousePosition: Point = this.getMousePosition(event);
+        this.hideVoltageLevel(elementData.equipmentId);
         this.onRightClickCallback?.(elementData.svgId, elementData.equipmentId, elementData.type, mousePosition);
     }
 
@@ -1978,5 +1979,82 @@ export class NetworkAreaDiagramViewer {
                 const timing = { duration: 500, iterations: 1 };
                 this.svgDiv.animate(keyframes, timing);
             });
+    }
+
+
+
+    public hideVoltageLevel(equipmentId: string): void {
+        this.applyHideToVoltageLevel(equipmentId);
+    }
+
+    private applyHideToVoltageLevel(equipmentId: string): void {
+        const connectedElements = this.getConnectedElements(equipmentId);
+
+        // Hide VL and textEdge
+        this.hideElement(connectedElements.vlNodeId);
+        this.hideElement(connectedElements.textEdgeId);
+
+        // Hide bus
+        connectedElements.busNodeIds.forEach(busNodeId => {
+            this.hideElement(busNodeId);
+        });
+
+        // Hide textNode
+        if (connectedElements.textNodeId) {
+            this.hideElement(connectedElements.textNodeId);
+        }
+
+        // Hide all connected edges
+        connectedElements.edgeIds.forEach(edgeId => {
+            this.hideElement(edgeId);
+        });
+
+    }
+
+    private getConnectedElements(equipmentId: string): {
+        vlNodeId: string;
+        busNodeIds: string[];
+        edgeIds: string[];
+        textNodeId: string;
+        textEdgeId: string;
+    } {
+        // find node metadata
+        const vlNode = this.diagramMetadata?.nodes.find(node => node.equipmentId === equipmentId);
+        if (!vlNode) {
+            console.warn(`VoltageLevel ${equipmentId} not found in metadata`);
+            return { vlNodeId: '', busNodeIds: [], edgeIds: [], textNodeId: '' };
+        }
+
+        // find all VL bus
+        const busNodes = this.diagramMetadata?.busNodes.filter(bus => bus.vlNode === vlNode.svgId) || [];
+
+        // find VL textNode
+        const textNode = this.diagramMetadata?.textNodes.find(text => text.equipmentId === equipmentId);
+
+        // find all connected edges
+        const edges = this.diagramMetadata?.edges.filter(edge =>
+            edge.node1 === vlNode.svgId || edge.node2 === vlNode.svgId
+        ) || [];
+
+        //find texteEdge
+        const textEdge = DiagramUtils.getTextEdgeId(vlNode.svgId);
+
+        return {
+            vlNodeId: vlNode.svgId,
+            busNodeIds: busNodes.map(bus => bus.svgId),
+            edgeIds: edges.map(edge => edge.svgId),
+            textNodeId: textNode?.svgId || '',
+            textEdgeId: textEdge
+
+        };
+    }
+
+    private hideElement(elementId: string): void {
+        if (!elementId) return;
+
+        const element = this.svgDiv.querySelector(`[id="${elementId}"]`) as HTMLElement;
+        if (element) {
+            element.style.display = 'none';
+        }
     }
 }
