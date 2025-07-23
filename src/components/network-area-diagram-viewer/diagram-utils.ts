@@ -446,14 +446,7 @@ export function getEdgeNameAngle(point1: Point, point2: Point): number {
 
 // check if a DOM element is a text node
 export function isTextNode(element: SVGElement | null): boolean {
-    return (
-        element != null &&
-        hasId(element) &&
-        element?.tagName == 'DIV' &&
-        element.parentElement?.tagName == 'DIV' &&
-        element.parentElement.parentElement?.tagName == 'foreignObject' &&
-        element.parentElement.parentElement.classList.contains('nad-text-nodes')
-    );
+    return element != null && hasId(element) && element.classList.contains('nad-label-box');
 }
 
 // get text node id of a vl node
