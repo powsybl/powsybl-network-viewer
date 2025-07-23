@@ -170,15 +170,7 @@ export class NetworkAreaDiagramViewer {
         this.onRightClickCallback = onRightClickCallback;
         if (zoomLevels != null) this.zoomLevels = zoomLevels;
         this.zoomLevels.sort((a, b) => b - a);
-        this.init(
-            minWidth,
-            minHeight,
-            maxWidth,
-            maxHeight,
-            enableLevelOfDetail,
-            diagramMetadata !== null,
-            addButtons
-        );
+        this.init(minWidth, minHeight, maxWidth, maxHeight, enableLevelOfDetail, diagramMetadata !== null, addButtons);
         this.svgParameters = new SvgParameters(diagramMetadata?.svgParameters);
         this.layoutParameters = new LayoutParameters(diagramMetadata?.layoutParameters);
         this.onMoveNodeCallback = onMoveNodeCallback;
