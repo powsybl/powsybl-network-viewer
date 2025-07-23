@@ -103,6 +103,7 @@ export class NetworkAreaDiagramViewer {
     layoutParameters: LayoutParameters;
     edgeAngles: Map<string, number> = new Map<string, number>();
     textNodeSelected: boolean = false;
+    enableDragInteraction: boolean = false;
     isDragging: boolean = false;
     endTextEdge: Point = new Point(0, 0);
     onMoveNodeCallback: OnMoveNodeCallbackType | null;
@@ -131,7 +132,7 @@ export class NetworkAreaDiagramViewer {
      * @param onMoveNodeCallback - Callback function triggered when a node is moved.
      * @param onMoveTextNodeCallback - Callback function triggered when a text node is moved.
      * @param onSelectNodeCallback - Callback function triggered when a node is selected.
-     * @param enableNodeInteraction - Whether node interaction (dragging, selecting) is enabled.
+     * @param enableDragInteraction - Whether dragging interaction on node or label is enabled.
      * @param enableLevelOfDetail - Whether level-of-detail rendering is enabled based on zoom level.
      * @param zoomLevels - Array of zoom levels used to determine level-of-detail rendering by applying corresponding
      *                     css class 'nad-zoom-{level}' to 'svg' element. If null, default zoom levels are used.
@@ -150,7 +151,7 @@ export class NetworkAreaDiagramViewer {
         onMoveNodeCallback: OnMoveNodeCallbackType | null,
         onMoveTextNodeCallback: OnMoveTextNodeCallbackType | null,
         onSelectNodeCallback: OnSelectNodeCallbackType | null,
-        enableNodeInteraction: boolean,
+        enableDragInteraction: boolean,
         enableLevelOfDetail: boolean,
         zoomLevels: number[] | null,
         onToggleHoverCallback: OnToggleNadHoverCallbackType | null,
@@ -174,7 +175,6 @@ export class NetworkAreaDiagramViewer {
             minHeight,
             maxWidth,
             maxHeight,
-            enableNodeInteraction,
             enableLevelOfDetail,
             diagramMetadata !== null,
             addButtons
@@ -186,6 +186,7 @@ export class NetworkAreaDiagramViewer {
         this.onSelectNodeCallback = onSelectNodeCallback;
         this.onToggleHoverCallback = onToggleHoverCallback;
         this.previousMaxDisplayedSize = 0;
+        this.enableDragInteraction = enableDragInteraction;
     }
 
     public setWidth(width: number): void {
@@ -315,12 +316,15 @@ export class NetworkAreaDiagramViewer {
         this.updateElement(elemToMove);
     }
 
+    private hasNodeInteraction(): boolean {
+        return this.enableDragInteraction || this.onRightClickCallback != null || this.onSelectNodeCallback != null;
+    }
+
     public init(
         minWidth: number,
         minHeight: number,
         maxWidth: number,
         maxHeight: number,
-        enableNodeInteraction: boolean,
         enableLevelOfDetail: boolean,
         hasMetadata: boolean,
         addButtons: boolean
@@ -367,7 +371,7 @@ export class NetworkAreaDiagramViewer {
         drawnSvg.style.overflow = 'visible';
 
         // add events
-        if (enableNodeInteraction && hasMetadata) {
+        if (this.hasNodeInteraction() && hasMetadata) {
             this.svgDraw.on('mousedown', (e: Event) => {
                 if ((e as MouseEvent).button == 0) {
                     this.onMouseLeftDown(e as MouseEvent);
@@ -444,7 +448,7 @@ export class NetworkAreaDiagramViewer {
             observer.observe(targetNode, { attributeFilter: ['viewBox'] });
         }
 
-        if (enableNodeInteraction && hasMetadata) {
+        if (this.hasNodeInteraction() && hasMetadata) {
             // fill empty elements: unknown buses and three windings transformers
             const emptyElements: NodeListOf<SVGGraphicsElement> = this.svgDiv.querySelectorAll(
                 '.nad-unknown-busnode, .nad-3wt-nodes .nad-winding'
@@ -596,7 +600,9 @@ export class NetworkAreaDiagramViewer {
             // Interaction mode (could be drag or select)
             // next 'mousemove' event will determine it
             this.initSelection(selectableElem);
-            this.initDrag(draggableElem);
+            if (this.enableDragInteraction) {
+                this.initDrag(draggableElem);
+            }
         }
     }
 
@@ -604,7 +610,9 @@ export class NetworkAreaDiagramViewer {
         if (!selectableElem) {
             return;
         }
-        this.disablePanzoom();
+        if (this.onSelectNodeCallback != null) {
+            this.disablePanzoom(); // keep pan zoom functionality if mouse over a node
+        }
         this.selectedElement = selectableElem as SVGGraphicsElement;
     }
 
