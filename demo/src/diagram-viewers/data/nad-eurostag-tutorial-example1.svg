@@ -17,8 +17,8 @@
     <g class="nad-branch-edges">
         <g id="8">
             <g id="8.1" class="nad-vl0to30-line">
-                <polyline class="nad-edge-path nad-stretchable nad-glued-1" points="-437.24,-251.19 -365.67,-144.75"/>
-                <g class="nad-glued-1 nad-edge-infos" transform="translate(-419.11,-224.22)">
+                <polyline class="nad-edge-path" points="-437.24,-251.19 -365.67,-144.75"/>
+                <g class="nad-edge-infos" transform="translate(-419.11,-224.22)">
                     <g class="nad-active nad-state-out">
                         <g transform="rotate(146.08)">
                             <path class="nad-arrow-in" transform="scale(10.00)" d="M-1 -1 H1 L0 1z"/>
@@ -29,8 +29,8 @@
                 </g>
             </g>
             <g id="8.2" class="nad-vl300to500-line">
-                <polyline class="nad-edge-path nad-stretchable nad-glued-2" points="-260.61,11.48 -332.19,-94.96"/>
-                <g class="nad-glued-2 nad-edge-infos" transform="translate(-278.75,-15.49)">
+                <polyline class="nad-edge-path" points="-260.61,11.48 -332.19,-94.96"/>
+                <g class="nad-edge-infos" transform="translate(-278.75,-15.49)">
                     <g class="nad-active nad-state-in">
                         <g transform="rotate(-33.92)">
                             <path class="nad-arrow-in" transform="scale(10.00)" d="M-1 -1 H1 L0 1z"/>
@@ -40,7 +40,7 @@
                     </g>
                 </g>
             </g>
-            <g class="nad-glued-center">
+            <g>
                 <circle class="nad-vl0to30-line nad-winding" cx="-354.51" cy="-128.15" r="20.00"/>
                 <circle class="nad-vl300to500-line nad-winding" cx="-343.35" cy="-111.56" r="20.00"/>
                 <g class="nad-edge-label" transform="translate(-348.93,-119.86)">
@@ -50,8 +50,8 @@
         </g>
         <g id="9">
             <g id="9.1" class="nad-vl300to500-line">
-                <polyline class="nad-edge-path nad-stretchable nad-glued-1" points="-222.36,49.52 -178.64,78.58 -54.98,86.38"/>
-                <g class="nad-glued-1 nad-edge-infos" transform="translate(-148.70,80.47)">
+                <polyline class="nad-edge-path" points="-222.36,49.52 -178.64,78.58 -54.98,86.38"/>
+                <g class="nad-edge-infos" transform="translate(-148.70,80.47)">
                     <g class="nad-active nad-state-out">
                         <g transform="rotate(93.61)">
                             <path class="nad-arrow-in" transform="scale(10.00)" d="M-1 -1 H1 L0 1z"/>
@@ -62,8 +62,8 @@
                 </g>
             </g>
             <g id="9.2" class="nad-vl300to500-line">
-                <polyline class="nad-edge-path nad-stretchable nad-glued-2" points="115.70,70.84 68.67,94.17 -54.98,86.38"/>
-                <g class="nad-glued-2 nad-edge-infos" transform="translate(38.73,92.28)">
+                <polyline class="nad-edge-path" points="115.70,70.84 68.67,94.17 -54.98,86.38"/>
+                <g class="nad-edge-infos" transform="translate(38.73,92.28)">
                     <g class="nad-active nad-state-in">
                         <g transform="rotate(-86.39)">
                             <path class="nad-arrow-in" transform="scale(10.00)" d="M-1 -1 H1 L0 1z"/>
@@ -73,7 +73,7 @@
                     </g>
                 </g>
             </g>
-            <g class="nad-glued-center">
+            <g>
                 <g class="nad-edge-label" transform="translate(-54.98,86.38)">
                     <text transform="rotate(3.61)" x="0.00" style="text-anchor:middle">NHV1_NHV2_1</text>
                 </g>
@@ -81,8 +81,8 @@
         </g>
         <g id="10">
             <g id="10.1" class="nad-vl300to500-line">
-                <polyline class="nad-edge-path nad-stretchable nad-glued-1" points="-220.63,22.07 -173.60,-1.26 -49.95,6.53"/>
-                <g class="nad-glued-1 nad-edge-infos" transform="translate(-143.66,0.62)">
+                <polyline class="nad-edge-path" points="-220.63,22.07 -173.60,-1.26 -49.95,6.53"/>
+                <g class="nad-edge-infos" transform="translate(-143.66,0.62)">
                     <g class="nad-active nad-state-out">
                         <g transform="rotate(93.61)">
                             <path class="nad-arrow-in" transform="scale(10.00)" d="M-1 -1 H1 L0 1z"/>
@@ -93,8 +93,8 @@
                 </g>
             </g>
             <g id="10.2" class="nad-vl300to500-line">
-                <polyline class="nad-edge-path nad-stretchable nad-glued-2" points="117.43,43.39 73.71,14.33 -49.95,6.53"/>
-                <g class="nad-glued-2 nad-edge-infos" transform="translate(43.77,12.44)">
+                <polyline class="nad-edge-path" points="117.43,43.39 73.71,14.33 -49.95,6.53"/>
+                <g class="nad-edge-infos" transform="translate(43.77,12.44)">
                     <g class="nad-active nad-state-in">
                         <g transform="rotate(-86.39)">
                             <path class="nad-arrow-in" transform="scale(10.00)" d="M-1 -1 H1 L0 1z"/>
@@ -104,7 +104,7 @@
                     </g>
                 </g>
             </g>
-            <g class="nad-glued-center">
+            <g>
                 <g class="nad-edge-label" transform="translate(-49.95,6.53)">
                     <text transform="rotate(3.61)" x="0.00" style="text-anchor:middle">NHV1_NHV2_2</text>
                 </g>
@@ -112,8 +112,8 @@
         </g>
         <g id="11">
             <g id="11.1" class="nad-vl300to500-line">
-                <polyline class="nad-edge-path nad-stretchable nad-glued-1" points="161.80,41.42 262.20,-38.97"/>
-                <g class="nad-glued-1 nad-edge-infos" transform="translate(187.17,21.11)">
+                <polyline class="nad-edge-path" points="161.80,41.42 262.20,-38.97"/>
+                <g class="nad-edge-infos" transform="translate(187.17,21.11)">
                     <g class="nad-active nad-state-out">
                         <g transform="rotate(51.32)">
                             <path class="nad-arrow-in" transform="scale(10.00)" d="M-1 -1 H1 L0 1z"/>
@@ -124,8 +124,8 @@
                 </g>
             </g>
             <g id="11.2" class="nad-vl120to180-line">
-                <polyline class="nad-edge-path nad-stretchable nad-glued-2" points="409.44,-156.86 309.04,-76.47"/>
-                <g class="nad-glued-2 nad-edge-infos" transform="translate(384.07,-136.55)">
+                <polyline class="nad-edge-path" points="409.44,-156.86 309.04,-76.47"/>
+                <g class="nad-edge-infos" transform="translate(384.07,-136.55)">
                     <g class="nad-active nad-state-in">
                         <g transform="rotate(-128.68)">
                             <path class="nad-arrow-in" transform="scale(10.00)" d="M-1 -1 H1 L0 1z"/>
@@ -135,7 +135,7 @@
                     </g>
                 </g>
             </g>
-            <g class="nad-glued-center">
+            <g>
                 <circle class="nad-vl300to500-line nad-winding" cx="277.81" cy="-51.47" r="20.00"/>
                 <circle class="nad-vl120to180-line nad-winding" cx="293.43" cy="-63.97" r="20.00"/>
                 <g class="nad-edge-label" transform="translate(285.62,-57.72)">
@@ -150,58 +150,28 @@
         <polyline id="4-textedge" points="170.00,54.16 240.33,43.61"/>
         <polyline id="6-textedge" points="460.57,-178.50 530.90,-189.05"/>
     </g>
-    <g class="nad-text-nodes">
-        <foreignObject id="0-textnode" y="-314.01" x="-352.59" height="1" width="1">
-            <div xmlns="http://www.w3.org/1999/xhtml" class="nad-label-box">
+    <foreignObject height="1" width="1" class="nad-text-nodes">
+        <div xmlns="http://www.w3.org/1999/xhtml">
+            <div class="nad-label-box" style="position: absolute; top: -314px; left: -353px" id="0-textnode">
                 <div>VLGEN</div>
-                <table>
-                    <tr>
-                        <td>
-                            <div class="nad-vl0to30-0 nad-legend-square"/>
-                        </td>
-                        <td>24.5 kV / 2.3°</td>
-                    </tr>
-                </table>
+                <div>
+                    <span class="nad-vl0to30-0 nad-legend-square"/>24.5 kV / 2.3°</div>
             </div>
-        </foreignObject>
-        <foreignObject id="2-textnode" y="-5.70" x="-145.26" height="1" width="1">
-            <div xmlns="http://www.w3.org/1999/xhtml" class="nad-label-box">
+            <div class="nad-label-box" style="position: absolute; top: -6px; left: -145px" id="2-textnode">
                 <div>VLHV1</div>
-                <table>
-                    <tr>
-                        <td>
-                            <div class="nad-vl300to500-0 nad-legend-square"/>
-                        </td>
-                        <td>402.1 kV / 0.0°</td>
-                    </tr>
-                </table>
+                <div>
+                    <span class="nad-vl300to500-0 nad-legend-square"/>402.1 kV / 0.0°</div>
             </div>
-        </foreignObject>
-        <foreignObject id="4-textnode" y="18.61" x="240.33" height="1" width="1">
-            <div xmlns="http://www.w3.org/1999/xhtml" class="nad-label-box">
+            <div class="nad-label-box" style="position: absolute; top: 19px; left: 240px" id="4-textnode">
                 <div>VLHV2</div>
-                <table>
-                    <tr>
-                        <td>
-                            <div class="nad-vl300to500-0 nad-legend-square"/>
-                        </td>
-                        <td>389.9 kV / -3.5°</td>
-                    </tr>
-                </table>
+                <div>
+                    <span class="nad-vl300to500-0 nad-legend-square"/>389.9 kV / -3.5°</div>
             </div>
-        </foreignObject>
-        <foreignObject id="6-textnode" y="-214.05" x="530.90" height="1" width="1">
-            <div xmlns="http://www.w3.org/1999/xhtml" class="nad-label-box">
+            <div class="nad-label-box" style="position: absolute; top: -214px; left: 531px" id="6-textnode">
                 <div>VLLOAD</div>
-                <table>
-                    <tr>
-                        <td>
-                            <div class="nad-vl120to180-0 nad-legend-square"/>
-                        </td>
-                        <td>147.6 kV / -9.6°</td>
-                    </tr>
-                </table>
+                <div>
+                    <span class="nad-vl120to180-0 nad-legend-square"/>147.6 kV / -9.6°</div>
             </div>
-        </foreignObject>
-    </g>
+        </div>
+    </foreignObject>
 </svg>
