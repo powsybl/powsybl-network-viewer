@@ -10,7 +10,14 @@ import '@svgdotjs/svg.panzoom.js';
 import * as DiagramUtils from './diagram-utils';
 import { SvgParameters, EdgeInfoEnum, CssLocationEnum } from './svg-parameters';
 import { LayoutParameters } from './layout-parameters';
-import { DiagramMetadata, EdgeMetadata, BusNodeMetadata, NodeMetadata, TextNodeMetadata } from './diagram-metadata';
+import {
+    DiagramMetadata,
+    EdgeMetadata,
+    BusNodeMetadata,
+    NodeMetadata,
+    TextNodeMetadata,
+    InjectionMetadata,
+} from './diagram-metadata';
 import { debounce } from '@mui/material';
 
 export type BranchState = {
@@ -878,6 +885,7 @@ export class NetworkAreaDiagramViewer {
                 this.updateVoltageLevelText(textNode, vlNode);
             }
             this.updateEdges(vlNode, position);
+            this.updateInjections(vlNode, position);
         }
     }
 
@@ -971,6 +979,16 @@ export class NetworkAreaDiagramViewer {
                 'translate(' + DiagramUtils.getFormattedPoint(totalTranslation) + ')'
             );
         }
+    }
+
+    private updateInjections(vlNode: SVGGraphicsElement, position: Point) {
+        // get edges connected to the the node we are moving
+        const injections: InjectionMetadata[] | undefined = this.diagramMetadata?.injections?.filter(
+            (inj) => inj.vlNodeId == vlNode.id
+        );
+        injections?.forEach((inj) => {
+            this.updateSvgElementPosition(inj.svgId, this.getTranslation(position));
+        });
     }
 
     private updateEdges(vlNode: SVGGraphicsElement, position: Point) {
