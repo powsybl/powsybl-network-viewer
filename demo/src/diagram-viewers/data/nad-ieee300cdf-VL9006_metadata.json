@@ -6,7 +6,8 @@
       "y" : -40.0
     },
     "maxSteps" : 1000,
-    "textNodeEdgeConnectionYShift" : 25.0
+    "textNodeEdgeConnectionYShift" : 25.0,
+    "injectionsAdded" : false
   },
   "svgParameters" : {
     "diagramPadding" : {
@@ -15,7 +16,7 @@
       "right" : 200.0,
       "bottom" : 200.0
     },
-    "insertNameDesc" : true,
+    "insertNameDesc" : false,
     "svgWidthAndHeightAdded" : false,
     "cssLocation" : "EXTERNAL_NO_IMPORT",
     "sizeConstraint" : "FIXED_SCALE",
@@ -53,7 +54,10 @@
     "edgeInfoDisplayed" : "ACTIVE_POWER",
     "pstArrowHeadSize" : 8.0,
     "undefinedValueSymbol" : "",
-    "highlightGraph" : false
+    "highlightGraph" : false,
+    "injectionAperture" : 10.0,
+    "injectionEdgeLength" : 145.0,
+    "injectionCircleRadius" : 25.0
   },
   "busNodes" : [ {
     "svgId" : "2",
