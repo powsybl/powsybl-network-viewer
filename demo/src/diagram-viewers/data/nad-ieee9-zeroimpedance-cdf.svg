@@ -47,6 +47,11 @@
                     </g>
                 </g>
             </g>
+            <g>
+                <g class="nad-edge-label" transform="translate(150.61,-256.79)">
+                    <text transform="rotate(39.33)" x="0.00" style="text-anchor:middle">L5-4-0</text>
+                </g>
+            </g>
         </g>
         <g id="15">
             <g id="15.1" class="nad-vl70to120">
@@ -71,6 +76,11 @@
                         </g>
                         <text transform="rotate(-80.40)" x="-19.00" style="text-anchor:end"></text>
                     </g>
+                </g>
+            </g>
+            <g>
+                <g class="nad-edge-label" transform="translate(278.15,87.73)">
+                    <text transform="rotate(-80.40)" x="0.00" style="text-anchor:middle">L6-4-0</text>
                 </g>
             </g>
         </g>
@@ -102,6 +112,9 @@
             <g>
                 <circle class="nad-vl70to120 nad-winding" cx="422.65" cy="-174.55" r="20.00"/>
                 <circle class="nad-vl70to120 nad-winding" cx="429.67" cy="-155.82" r="20.00"/>
+                <g class="nad-edge-label" transform="translate(426.16,-165.19)">
+                    <text transform="rotate(69.46)" x="0.00" style="text-anchor:middle">T4-1-0</text>
+                </g>
             </g>
         </g>
         <g id="17">
@@ -127,6 +140,11 @@
                         </g>
                         <text transform="rotate(-9.82)" x="-19.00" style="text-anchor:end"></text>
                     </g>
+                </g>
+            </g>
+            <g>
+                <g class="nad-edge-label" transform="translate(-375.23,-13.20)">
+                    <text transform="rotate(-309.82)" x="0.00" style="text-anchor:middle">L7-8-0</text>
                 </g>
             </g>
         </g>
@@ -155,6 +173,11 @@
                     </g>
                 </g>
             </g>
+            <g>
+                <g class="nad-edge-label" transform="translate(-125.38,-241.13)">
+                    <text transform="rotate(-43.78)" x="0.00" style="text-anchor:middle">L7-5-0</text>
+                </g>
+            </g>
         </g>
         <g id="19">
             <g id="19.1" class="nad-vl70to120">
@@ -179,6 +202,11 @@
                         </g>
                         <text transform="rotate(70.16)" x="19.00"></text>
                     </g>
+                </g>
+            </g>
+            <g>
+                <g class="nad-edge-label" transform="translate(-217.83,90.77)">
+                    <text transform="rotate(-289.84)" x="0.00" style="text-anchor:middle">L9-8-0</text>
                 </g>
             </g>
         </g>
@@ -210,6 +238,9 @@
             <g>
                 <circle class="nad-vl70to120 nad-winding" cx="-340.63" cy="-195.80" r="20.00"/>
                 <circle class="nad-vl70to120 nad-winding" cx="-322.33" cy="-203.87" r="20.00"/>
+                <g class="nad-edge-label" transform="translate(-331.48,-199.83)">
+                    <text transform="rotate(-23.80)" x="0.00" style="text-anchor:middle">T7-2-0</text>
+                </g>
             </g>
         </g>
         <g id="21">
@@ -235,6 +266,11 @@
                         </g>
                         <text transform="rotate(-3.12)" x="-19.00" style="text-anchor:end"></text>
                     </g>
+                </g>
+            </g>
+            <g>
+                <g class="nad-edge-label" transform="translate(65.83,278.86)">
+                    <text transform="rotate(-3.12)" x="0.00" style="text-anchor:middle">L9-6-0</text>
                 </g>
             </g>
         </g>
@@ -266,6 +302,9 @@
             <g>
                 <circle class="nad-vl70to120 nad-winding" cx="-203.74" cy="395.96" r="20.00"/>
                 <circle class="nad-vl70to120 nad-winding" cx="-220.42" cy="384.91" r="20.00"/>
+                <g class="nad-edge-label" transform="translate(-212.08,390.44)">
+                    <text transform="rotate(-326.48)" x="0.00" style="text-anchor:middle">T9-3-0</text>
+                </g>
             </g>
         </g>
     </g>

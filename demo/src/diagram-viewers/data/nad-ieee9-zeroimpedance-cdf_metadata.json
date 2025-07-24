@@ -38,7 +38,7 @@
     "loopEdgesAperture" : 60.0,
     "loopControlDistance" : 40.0,
     "edgeInfoAlongEdge" : true,
-    "edgeNameDisplayed" : false,
+    "edgeNameDisplayed" : true,
     "interAnnulusSpace" : 5.0,
     "svgPrefix" : "",
     "idDisplayed" : false,
