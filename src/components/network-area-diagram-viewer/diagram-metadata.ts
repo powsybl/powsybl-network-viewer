@@ -11,6 +11,7 @@ export interface DiagramMetadata {
     svgParameters: SvgParametersMetadata;
     busNodes: BusNodeMetadata[];
     nodes: NodeMetadata[];
+    injections?: InjectionMetadata[];
     edges: EdgeMetadata[];
     textNodes: TextNodeMetadata[];
 }
@@ -83,4 +84,12 @@ export interface TextNodeMetadata {
     shiftY: number;
     connectionShiftX: number;
     connectionShiftY: number;
+}
+
+export interface InjectionMetadata {
+    svgId: string;
+    equipmentId: string;
+    componentType: string;
+    busNodeId: string;
+    vlNodeId: string;
 }
