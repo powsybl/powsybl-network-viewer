@@ -11,44 +11,24 @@
     display: none
 }
 
-.nad-zoom-4000 :is(
-    .nad-edge-infos, .nad-label-box, .nad-text-edges,
-    .nad-vl0to30-0, .nad-vl0to30-1, .nad-vl0to30-2, .nad-vl0to30-3, .nad-vl0to30-4, .nad-vl0to30-5, .nad-vl0to30-6, .nad-vl0to30-7, .nad-vl0to30-8, .nad-vl0to30-line,
-    .nad-vl30to50-0, .nad-vl30to50-1, .nad-vl30to50-2, .nad-vl30to50-3, .nad-vl30to50-4, .nad-vl30to50-5, .nad-vl30to50-6, .nad-vl30to50-7, .nad-vl30to50-8, .nad-vl30to50-line
-    ) {
+.nad-zoom-4000 :is(.nad-edge-infos, .nad-label-box, .nad-text-edges, .nad-vl0to30, .nad-vl30to50) {
     display: none
 }
 
 .nad-zoom-9000 :is(
-    .nad-edge-infos, .nad-label-box, .nad-text-edges,
-    .nad-vl0to30-0, .nad-vl0to30-1, .nad-vl0to30-2, .nad-vl0to30-3, .nad-vl0to30-4, .nad-vl0to30-5, .nad-vl0to30-6, .nad-vl0to30-7, .nad-vl0to30-8, .nad-vl0to30-line,
-    .nad-vl30to50-0, .nad-vl30to50-1, .nad-vl30to50-2, .nad-vl30to50-3, .nad-vl30to50-4, .nad-vl30to50-5, .nad-vl30to50-6, .nad-vl30to50-7, .nad-vl30to50-8, .nad-vl30to50-line,
-    .nad-vl50to70-0, .nad-vl50to70-1, .nad-vl50to70-2, .nad-vl50to70-3, .nad-vl50to70-4, .nad-vl50to70-5, .nad-vl50to70-6, .nad-vl50to70-7, .nad-vl50to70-8, .nad-vl50to70-line,
-    .nad-vl70to120-0, .nad-vl70to120-1, .nad-vl70to120-2, .nad-vl70to120-3, .nad-vl70to120-4, .nad-vl70to120-5, .nad-vl70to120-6, .nad-vl70to120-7, .nad-vl70to120-8, .nad-vl70to120-line
+    .nad-edge-infos, .nad-label-box, .nad-text-edges, .nad-vl0to30, .nad-vl30to50, .nad-vl50to70,.nad-vl70to120
     ) {
     display: none
 }
 
-
 .nad-zoom-12000 :is(
-    .nad-edge-infos, .nad-label-box, .nad-text-edges,
-    .nad-vl0to30-0, .nad-vl0to30-1, .nad-vl0to30-2, .nad-vl0to30-3, .nad-vl0to30-4, .nad-vl0to30-5, .nad-vl0to30-6, .nad-vl0to30-7, .nad-vl0to30-8, .nad-vl0to30-line,
-    .nad-vl30to50-0, .nad-vl30to50-1, .nad-vl30to50-2, .nad-vl30to50-3, .nad-vl30to50-4, .nad-vl30to50-5, .nad-vl30to50-6, .nad-vl30to50-7, .nad-vl30to50-8, .nad-vl30to50-line,
-    .nad-vl50to70-0, .nad-vl50to70-1, .nad-vl50to70-2, .nad-vl50to70-3, .nad-vl50to70-4, .nad-vl50to70-5, .nad-vl50to70-6, .nad-vl50to70-7, .nad-vl50to70-8, .nad-vl50to70-line,
-    .nad-vl70to120-0, .nad-vl70to120-1, .nad-vl70to120-2, .nad-vl70to120-3, .nad-vl70to120-4, .nad-vl70to120-5, .nad-vl70to120-6, .nad-vl70to120-7, .nad-vl70to120-8, .nad-vl70to120-line,
-    .nad-vl120to180-0, .nad-vl120to180-1, .nad-vl120to180-2, .nad-vl120to180-3, .nad-vl120to180-4, .nad-vl120to180-5, .nad-vl120to180-6, .nad-vl120to180-7, .nad-vl120to180-8, .nad-vl120to180-line
+    .nad-edge-infos, .nad-label-box, .nad-text-edges, .nad-vl0to30, .nad-vl30to50, .nad-vl50to70,.nad-vl70to120, .nad-vl120to180
     ) {
     display: none
 }
 
 .nad-zoom-20000 :is(
-    .nad-edge-infos, .nad-label-box, .nad-text-edges,
-    .nad-vl0to30-0, .nad-vl0to30-1, .nad-vl0to30-2, .nad-vl0to30-3, .nad-vl0to30-4, .nad-vl0to30-5, .nad-vl0to30-6, .nad-vl0to30-7, .nad-vl0to30-8, .nad-vl0to30-line,
-    .nad-vl30to50-0, .nad-vl30to50-1, .nad-vl30to50-2, .nad-vl30to50-3, .nad-vl30to50-4, .nad-vl30to50-5, .nad-vl30to50-6, .nad-vl30to50-7, .nad-vl30to50-8, .nad-vl30to50-line,
-    .nad-vl50to70-0, .nad-vl50to70-1, .nad-vl50to70-2, .nad-vl50to70-3, .nad-vl50to70-4, .nad-vl50to70-5, .nad-vl50to70-6, .nad-vl50to70-7, .nad-vl50to70-8, .nad-vl50to70-line,
-    .nad-vl70to120-0, .nad-vl70to120-1, .nad-vl70to120-2, .nad-vl70to120-3, .nad-vl70to120-4, .nad-vl70to120-5, .nad-vl70to120-6, .nad-vl70to120-7, .nad-vl70to120-8, .nad-vl70to120-line,
-    .nad-vl120to180-0, .nad-vl120to180-1, .nad-vl120to180-2, .nad-vl120to180-3, .nad-vl120to180-4, .nad-vl120to180-5, .nad-vl120to180-6, .nad-vl120to180-7, .nad-vl120to180-8, .nad-vl120to180-line,
-    .nad-vl180to300-0, .nad-vl180to300-1, .nad-vl180to300-2, .nad-vl180to300-3, .nad-vl180to300-4, .nad-vl180to300-5, .nad-vl180to300-6, .nad-vl180to300-7, .nad-vl180to300-8, .nad-vl180to300-line
+    .nad-edge-infos, .nad-label-box, .nad-text-edges, .nad-vl0to30, .nad-vl30to50, .nad-vl50to70,.nad-vl70to120, .nad-vl120to180, .nad-vl180to300
     ) {
     display: none
 }

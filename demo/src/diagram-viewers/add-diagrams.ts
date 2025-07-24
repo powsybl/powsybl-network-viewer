@@ -18,11 +18,11 @@ import NadSvgThreeWTDanglingLineUnknownBusExampleMeta from './data/nad-scada_met
 import NadSvgPartialNetworkExample from './data/nad-ieee300cdf-VL9006.svg';
 import NadSvgPartialNetworkExampleMeta from './data/nad-ieee300cdf-VL9006_metadata.json';
 import NadSvgPegaseNetworkExample from './data/case1354pegase.svg';
-import NadSvgPegaseNetworkExampleMeta from './data/case1354pegase.json';
+import NadSvgPegaseNetworkExampleMeta from './data/case1354pegase_metadata.json';
 import SldSvgExample from './data/sld-example.svg';
-import SldSvgExampleMeta from './data/sld-example-meta.json';
+import SldSvgExampleMeta from './data/sld-example_metadata.json';
 import SldSvgSubExample from './data/sld-sub-example.svg';
-import SldSvgSubExampleMeta from './data/sld-sub-example-meta.json';
+import SldSvgSubExampleMeta from './data/sld-sub-example_metadata.json';
 
 import {
     NetworkAreaDiagramViewer,
