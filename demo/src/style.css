@@ -2,25 +2,31 @@
     display: flex;
     flex-wrap: wrap;
 }
+
 .flex-container > div {
     margin: 10px;
     background-color: white;
 }
+
 button:hover:not(:disabled) {
     background-color: lightgray;
 }
+
 .break {
     flex-basis: 100%;
     height: 0;
 }
+
 #nad-viewer,
 [id^='svg-container-sld'] {
     border: 2px solid;
 }
+
 .mapbox-gl-draw_ctrl-draw-btn.active,
 .mapbox-gl-draw_ctrl-draw-btn.active:hover {
     background-color: lightblue !important;
 }
+
 .nad-branch-edges .nad-edge-path,
 .nad-3wt-edges .nad-edge-path {
     stroke: var(--nad-vl-color, lightgrey);
@@ -334,6 +340,7 @@ foreignObject.nad-text-nodes {
 .nad-vl-nodes .nad-undervoltage {
     animation: node-under-blink 3s infinite;
 }
+
 @keyframes line-blink {
     0%,
     80%,
