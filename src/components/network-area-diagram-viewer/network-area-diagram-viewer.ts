@@ -10,14 +10,14 @@ import '@svgdotjs/svg.panzoom.js';
 import * as DiagramUtils from './diagram-utils';
 import { SvgParameters, EdgeInfoEnum, CssLocationEnum } from './svg-parameters';
 import { LayoutParameters } from './layout-parameters';
-import { DiagramMetadata, EdgeMetadata, BusNodeMetadata, NodeMetadata, TextNodeMetadata } from './diagram-metadata';
 import {
-    CSS_DECLARATION,
-    CSS_RULE,
-    THRESHOLD_STATUS,
-    DEFAULT_DYNAMIC_CSS_RULES,
-    cloneRules,
-} from './dynamic-css-utils';
+    DiagramMetadata,
+    EdgeMetadata,
+    BusNodeMetadata,
+    NodeMetadata,
+    TextNodeMetadata,
+    InjectionMetadata,
+} from './diagram-metadata';
 import { debounce } from '@mui/material';
 
 export type BranchState = {
@@ -60,7 +60,7 @@ export type OnMoveTextNodeCallbackType = (
     connectionShiftYOrig: number
 ) => void;
 
-export type OnSelectNodeCallbackType = (equipmentId: string, nodeId: string) => void;
+export type OnSelectNodeCallbackType = (equipmentId: string, nodeId: string, mousePosition: Point) => void;
 
 export type OnToggleNadHoverCallbackType = (
     hovered: boolean,
@@ -123,11 +123,11 @@ export class NetworkAreaDiagramViewer {
     layoutParameters: LayoutParameters;
     edgeAngles: Map<string, number> = new Map<string, number>();
     textNodeSelected: boolean = false;
+    isDragging: boolean = false;
     endTextEdge: Point = new Point(0, 0);
     onMoveNodeCallback: OnMoveNodeCallbackType | null;
     onMoveTextNodeCallback: OnMoveTextNodeCallbackType | null;
     onSelectNodeCallback: OnSelectNodeCallbackType | null;
-    dynamicCssRules: CSS_RULE[];
     onToggleHoverCallback: OnToggleNadHoverCallbackType | null;
     previousMaxDisplayedSize: number;
     edgesMap: Map<string, EdgeMetadata> = new Map<string, EdgeMetadata>();
@@ -135,12 +135,35 @@ export class NetworkAreaDiagramViewer {
     originalNodePosition: Point = new Point(0, 0);
     originalTextNodeShift: Point = new Point(0, 0);
     originalTextNodeConnectionShift: Point = new Point(0, 0);
+    lastZoomLevel: number = 0;
+    zoomLevels: number[] = [0, 1000, 2200, 2500, 3000, 4000, 9000, 12000, 20000];
     bendLines: boolean = false;
     bentElement: SVGGraphicsElement | null = null;
     onBendLineCallback: OnBendLineCallbackType | null;
     straightenedElement: SVGGraphicsElement | null = null;
     bendableLines: string[] = [];
 
+    static readonly ZOOM_CLASS_PREFIX = 'nad-zoom-';
+
+    /**
+     * @param container - The HTML element that will contain the SVG diagram.
+     * @param svgContent - The SVG content to be rendered in the viewer.
+     * @param diagramMetadata - Metadata associated with the diagram, including nodes, edges, and other properties.
+     * @param minWidth - The minimum width of the viewer.
+     * @param minHeight - The minimum height of the viewer.
+     * @param maxWidth - The maximum width of the viewer.
+     * @param maxHeight - The maximum height of the viewer.
+     * @param onMoveNodeCallback - Callback function triggered when a node is moved.
+     * @param onMoveTextNodeCallback - Callback function triggered when a text node is moved.
+     * @param onSelectNodeCallback - Callback function triggered when a node is selected.
+     * @param enableNodeInteraction - Whether node interaction (dragging, selecting) is enabled.
+     * @param enableLevelOfDetail - Whether level-of-detail rendering is enabled based on zoom level.
+     * @param zoomLevels - Array of zoom levels used to determine level-of-detail rendering by applying corresponding
+     *                     css class 'nad-zoom-{level}' to 'svg' element. If null, default zoom levels are used.
+     * @param onToggleHoverCallback - Callback function triggered when hovering over a node or edge.
+     * @param onRightClickCallback - Callback function triggered when right-clicking on a node or edge.
+     * @param addButtons - Whether to add zoom control buttons (zoom in, zoom out, zoom to fit) to the viewer.
+     */
     constructor(
         container: HTMLElement,
         svgContent: string,
@@ -154,7 +177,7 @@ export class NetworkAreaDiagramViewer {
         onSelectNodeCallback: OnSelectNodeCallbackType | null,
         enableNodeInteraction: boolean,
         enableLevelOfDetail: boolean,
-        customDynamicCssRules: CSS_RULE[] | null,
+        zoomLevels: number[] | null,
         onToggleHoverCallback: OnToggleNadHoverCallbackType | null,
         onRightClickCallback: OnRightClickCallbackType | null,
         addButtons: boolean,
@@ -163,15 +186,15 @@ export class NetworkAreaDiagramViewer {
         this.container = container;
         this.svgDiv = document.createElement('div');
         this.svgDiv.id = 'svg-container';
-        this.svgContent = svgContent;
+        this.svgContent = this.fixSvgContent(svgContent);
         this.diagramMetadata = diagramMetadata;
         this.width = 0;
         this.height = 0;
         this.originalWidth = 0;
         this.originalHeight = 0;
-        // rules need to be cloned because we store the threshold inside them
-        this.dynamicCssRules = cloneRules(customDynamicCssRules ?? DEFAULT_DYNAMIC_CSS_RULES);
         this.onRightClickCallback = onRightClickCallback;
+        if (zoomLevels != null) this.zoomLevels = zoomLevels;
+        this.zoomLevels.sort((a, b) => b - a);
         this.init(
             minWidth,
             minHeight,
@@ -190,6 +213,11 @@ export class NetworkAreaDiagramViewer {
         this.onToggleHoverCallback = onToggleHoverCallback;
         this.previousMaxDisplayedSize = 0;
         this.onBendLineCallback = onBendLineCallback;
+    }
+
+    private fixSvgContent(svgContent: string): string {
+        // fix span in text boxes, for avoiding to include the following text
+        return svgContent.replace(/(<span class=".*")(\/>)/g, '$1></span>');
     }
 
     public setWidth(width: number): void {
@@ -213,7 +241,7 @@ export class NetworkAreaDiagramViewer {
     }
 
     public setSvgContent(svgContent: string): void {
-        this.svgContent = svgContent;
+        this.svgContent = this.fixSvgContent(svgContent);
     }
 
     public getWidth(): number {
@@ -254,10 +282,6 @@ export class NetworkAreaDiagramViewer {
 
     public getPreviousMaxDisplayedSize(): number {
         return this.previousMaxDisplayedSize;
-    }
-
-    public getDynamicCssRules() {
-        return this.dynamicCssRules;
     }
 
     private getNodeIdFromEquipmentId(equipmentId: string) {
@@ -387,7 +411,7 @@ export class NetworkAreaDiagramViewer {
             });
             this.svgDraw.on('mouseup mouseleave', (e: Event) => {
                 if ((e as MouseEvent).button == 0) {
-                    this.onMouseLeftUpOrLeave();
+                    this.onMouseLeftUpOrLeave(e as MouseEvent);
                 }
             });
         }
@@ -431,14 +455,12 @@ export class NetworkAreaDiagramViewer {
         firstChild.removeAttribute('height');
 
         if (enableLevelOfDetail) {
-            // We insert custom CSS to hide details before first load, in order to improve performances
-            this.initializeDynamicCssRules(Math.max(dimensions.viewbox.width, dimensions.viewbox.height));
-            this.injectDynamicCssRules(firstChild);
             this.svgDraw.fire('zoom'); // Forces a new dynamic zoom check to correctly update the dynamic CSS
 
             // We add an observer to track when the SVG's viewBox is updated by panzoom
             // (we have to do this instead of using panzoom's 'zoom' event to have accurate viewBox updates)
             const targetNode: SVGSVGElement = this.svgDraw.node;
+            this.checkAndUpdateLevelOfDetail(targetNode);
             // Callback function to execute when mutations are observed
             const observerCallback = (mutationList: MutationRecord[]) => {
                 for (const mutation of mutationList) {
@@ -620,19 +642,25 @@ export class NetworkAreaDiagramViewer {
             panning: false,
         });
     }
-
     private onMouseLeftDown(event: MouseEvent) {
-        // check dragging vs. selection
+        // Nodes are selectable and draggable
+        // TextNodes are only draggable
+        const targetElement = event.target as SVGElement;
+        const selectableElem = DiagramUtils.getSelectableFrom(targetElement);
+        const draggableElem = DiagramUtils.getDraggableFrom(targetElement);
+
         if (event.shiftKey) {
             // selecting node
-            this.onSelectStart(DiagramUtils.getSelectableFrom(event.target as SVGElement));
+            this.initSelection(selectableElem);
             if (this.bendLines) {
                 // straightening line
                 this.onStraightenStart(DiagramUtils.getBendableFrom(event.target as SVGElement));
             }
         } else {
-            // moving node
-            this.onDragStart(DiagramUtils.getDraggableFrom(event.target as SVGElement));
+            // Interaction mode (could be drag or select)
+            // next 'mousemove' event will determine it
+            this.initSelection(selectableElem);
+            this.initDrag(draggableElem);
             if (this.bendLines) {
                 // bend line moving already defined line point
                 this.onBendStart(DiagramUtils.getBendableFrom(event.target as SVGElement));
@@ -645,12 +673,12 @@ export class NetworkAreaDiagramViewer {
         }
     }
 
-    private onSelectStart(selectableElem: SVGElement | undefined) {
+    private initSelection(selectableElem?: SVGElement) {
         if (!selectableElem) {
             return;
         }
-        this.disablePanzoom(); // to avoid panning the whole SVG when moving or selecting a node
-        this.selectedElement = selectableElem as SVGGraphicsElement; // element to be selected
+        this.disablePanzoom();
+        this.selectedElement = selectableElem as SVGGraphicsElement;
     }
 
     private onStraightenStart(bendableElem: SVGElement | undefined) {
@@ -666,24 +694,28 @@ export class NetworkAreaDiagramViewer {
         this.straightenedElement = bendableElem as SVGGraphicsElement; // element to be straightened
     }
 
-    private onDragStart(draggableElem: SVGElement | undefined) {
+    private initDrag(draggableElem?: SVGElement) {
         if (!draggableElem) {
             return;
         }
+        this.disablePanzoom();
+        this.draggedElement = draggableElem as SVGGraphicsElement;
+    }
+
+    private onDragStart() {
+        this.isDragging = true;
 
         // change cursor style
         const svg: HTMLElement = <HTMLElement>this.svgDraw?.node.firstElementChild?.parentElement;
         svg.style.cursor = 'grabbing';
 
-        this.disablePanzoom(); // to avoid panning the whole SVG when moving or selecting a node
-        this.draggedElement = draggableElem as SVGGraphicsElement; // element to be moved
         this.ctm = this.svgDraw?.node.getScreenCTM(); // used to compute mouse movement
-        this.initialPosition = DiagramUtils.getPosition(this.draggedElement); // used for the offset
         this.edgeAngles = new Map<string, number>(); // used for node redrawing
 
         // get original position of dragged element
         this.textNodeSelected = DiagramUtils.isTextNode(this.draggedElement);
         if (this.textNodeSelected) {
+            this.initialPosition = DiagramUtils.getTextNodePosition(this.draggedElement); // used for the offset
             this.endTextEdge = new Point(0, 0);
             const textNode: TextNodeMetadata | undefined = this.diagramMetadata?.textNodes.find(
                 (textNode) => textNode.svgId == this.draggedElement?.id
@@ -693,6 +725,7 @@ export class NetworkAreaDiagramViewer {
                 this.originalTextNodeConnectionShift = new Point(textNode.connectionShiftX, textNode.connectionShiftY);
             }
         } else {
+            this.initialPosition = DiagramUtils.getPosition(this.draggedElement); // used for the offset
             const node: NodeMetadata | undefined = this.diagramMetadata?.nodes.find(
                 (node) => node.svgId == this.draggedElement?.id
             );
@@ -736,7 +769,12 @@ export class NetworkAreaDiagramViewer {
     }
 
     private onMouseMove(event: MouseEvent) {
+        // first mouse move will start drag & drop and set `isDragging` to true
         if (this.draggedElement) {
+            if (!this.isDragging) {
+                this.onDragStart();
+            }
+
             event.preventDefault();
             this.ctm = this.svgDraw?.node.getScreenCTM();
             const mousePosition = this.getMousePosition(event);
@@ -791,8 +829,8 @@ export class NetworkAreaDiagramViewer {
     }
 
     private updateElement(element: SVGGraphicsElement) {
-        this.initialPosition = DiagramUtils.getPosition(element);
         if (DiagramUtils.isTextNode(element)) {
+            this.initialPosition = DiagramUtils.getTextNodePosition(element);
             const vlNode: SVGGraphicsElement | null = this.svgDiv.querySelector(
                 "[id='" + DiagramUtils.getVoltageLevelNodeId(element.id) + "']"
             );
@@ -800,6 +838,7 @@ export class NetworkAreaDiagramViewer {
                 this.updateVoltageLevelText(element, vlNode);
             }
         } else {
+            this.initialPosition = DiagramUtils.getPosition(element);
             this.updateVoltageLevelNode(element);
         }
     }
@@ -973,14 +1012,17 @@ export class NetworkAreaDiagramViewer {
         }
     }
 
-    private onMouseLeftUpOrLeave() {
+    private onMouseLeftUpOrLeave(mouseEvent: MouseEvent) {
         // check if I moved or selected an element
-        if (this.draggedElement) {
-            // moving node
+        if (this.isDragging) {
+            // moving element
             this.onDragEnd();
+            this.resetMouseEventParams();
         } else if (this.selectedElement) {
-            // selecting node
-            this.onSelectEnd();
+            // selecting element
+            const mousePosition = this.getMousePosition(mouseEvent);
+            this.onSelectEnd(mousePosition);
+            this.resetMouseEventParams();
         } else if (this.bentElement) {
             // bending line
             this.onBendEnd();
@@ -988,6 +1030,20 @@ export class NetworkAreaDiagramViewer {
             // straightening line
             this.onStraightenEnd();
         }
+    }
+
+    private resetMouseEventParams() {
+        this.selectedElement = null;
+
+        this.isDragging = false;
+        this.draggedElement = null;
+        this.initialPosition = new Point(0, 0);
+        this.ctm = null;
+        this.originalNodePosition = new Point(0, 0);
+        this.originalTextNodeShift = new Point(0, 0);
+        this.originalTextNodeConnectionShift = new Point(0, 0);
+
+        this.enablePanzoom();
     }
 
     private onDragEnd() {
@@ -1000,16 +1056,6 @@ export class NetworkAreaDiagramViewer {
         } else {
             this.callMoveNodeCallback(this.draggedElement);
         }
-
-        // reset data
-        this.draggedElement = null;
-        this.initialPosition = new Point(0, 0);
-        this.ctm = null;
-        this.enablePanzoom();
-        this.originalNodePosition = new Point(0, 0);
-        this.originalTextNodeShift = new Point(0, 0);
-        this.originalTextNodeConnectionShift = new Point(0, 0);
-
         // change cursor style back to normal
         const svg: HTMLElement = <HTMLElement>this.svgDraw?.node.firstElementChild?.parentElement;
         svg.style.removeProperty('cursor');
@@ -1075,10 +1121,8 @@ export class NetworkAreaDiagramViewer {
         }
     }
 
-    private onSelectEnd() {
-        this.callSelectNodeCallback();
-        this.selectedElement = null;
-        this.enablePanzoom();
+    private onSelectEnd(mousePosition: Point) {
+        this.callSelectNodeCallback(mousePosition);
     }
 
     private onStraightenEnd() {
@@ -1136,6 +1180,7 @@ export class NetworkAreaDiagramViewer {
                 this.updateVoltageLevelText(textNode, vlNode);
             }
             this.updateEdges(vlNode, position);
+            this.updateInjections(vlNode, position);
         }
     }
 
@@ -1152,20 +1197,21 @@ export class NetworkAreaDiagramViewer {
         this.updateTextNodePosition(textNode, position);
         if (vlNode != null) {
             // redraw text edge
+            const textNodeSize = DiagramUtils.getTextNodeSize(textNode);
             this.redrawTextEdge(
-                DiagramUtils.getTextEdgeId(vlNode?.id),
+                DiagramUtils.getTextEdgeId(vlNode.id),
                 position,
                 vlNode,
-                textNode?.firstElementChild?.scrollHeight ?? 0,
-                textNode?.firstElementChild?.scrollWidth ?? 0
+                textNodeSize.height,
+                textNodeSize.width
             );
         }
     }
 
     private updateTextNodePosition(textElement: SVGGraphicsElement | null, point: Point) {
         if (textElement != null) {
-            textElement.setAttribute('x', DiagramUtils.getFormattedValue(point.x));
-            textElement.setAttribute('y', DiagramUtils.getFormattedValue(point.y));
+            textElement.style.left = point.x.toFixed(0) + 'px';
+            textElement.style.top = point.y.toFixed(0) + 'px';
         }
     }
 
@@ -1228,6 +1274,16 @@ export class NetworkAreaDiagramViewer {
                 'translate(' + DiagramUtils.getFormattedPoint(totalTranslation) + ')'
             );
         }
+    }
+
+    private updateInjections(vlNode: SVGGraphicsElement, position: Point) {
+        // get edges connected to the the node we are moving
+        const injections: InjectionMetadata[] | undefined = this.diagramMetadata?.injections?.filter(
+            (inj) => inj.vlNodeId == vlNode.id
+        );
+        injections?.forEach((inj) => {
+            this.updateSvgElementPosition(inj.svgId, this.getTranslation(position));
+        });
     }
 
     private updateEdges(vlNode: SVGGraphicsElement, position: Point) {
@@ -1415,7 +1471,7 @@ export class NetworkAreaDiagramViewer {
         if (!edgeNode) {
             return;
         }
-        if (edgeType == DiagramUtils.EdgeType.THREE_WINDINGS_TRANSFORMER) {
+        if (this.isThreeWtEdge(edgeType, edgeNode)) {
             this.redrawThreeWtEdge(edge, edgeNode, vlNode);
             return;
         }
@@ -1465,6 +1521,16 @@ export class NetworkAreaDiagramViewer {
         if (this.bendLines && edge.points == undefined) {
             this.moveLinePoint(edge.svgId, edgeMiddle);
         }
+    }
+
+    private isThreeWtEdge(edgeType: DiagramUtils.EdgeType, edgeNode: SVGGraphicsElement) {
+        if (edgeType == DiagramUtils.EdgeType.THREE_WINDINGS_TRANSFORMER) {
+            return true;
+        }
+        const pst3wtEdge =
+            edgeType == DiagramUtils.EdgeType.PHASE_SHIFT_TRANSFORMER &&
+            edgeNode.parentElement?.classList.contains('nad-3wt-edges');
+        return pst3wtEdge ?? false;
     }
 
     private getEdgeStart(
@@ -1863,7 +1929,7 @@ export class NetworkAreaDiagramViewer {
         }
     }
 
-    private callSelectNodeCallback() {
+    private callSelectNodeCallback(mousePosition: Point) {
         // call the select node callback, if defined
         if (this.onSelectNodeCallback != null) {
             // get selected node from metadata
@@ -1871,91 +1937,8 @@ export class NetworkAreaDiagramViewer {
                 (node) => node.svgId == this.selectedElement?.id
             );
             if (node != null) {
-                this.onSelectNodeCallback(node.equipmentId, node.svgId);
+                this.onSelectNodeCallback(node.equipmentId, node.svgId, mousePosition);
             }
-        }
-    }
-
-    // Will explore the SVG's <style> tags to find the css rule associated with "cssSelector" and update the
-    // rule using "cssDeclaration".
-    // Will create a style tag or/and new css rule if not found in the SVG.
-    public updateSvgCssDisplayValue(svg: SVGSVGElement, cssSelector: string, cssDeclaration: CSS_DECLARATION) {
-        const innerSvg = svg.querySelector('svg');
-        if (!innerSvg) {
-            console.error('Cannot find the SVG to update!');
-            return;
-        }
-
-        let ruleFound = false;
-
-        let svgStyles = innerSvg.querySelectorAll('style');
-
-        if (svgStyles) {
-            for (const svgStyle of svgStyles) {
-                if (!svgStyle?.sheet?.cssRules) {
-                    continue;
-                }
-                for (const rule of svgStyle.sheet.cssRules) {
-                    const styleRule = rule as CSSStyleRule;
-                    if (styleRule.selectorText === cssSelector) {
-                        const key = Object.keys(cssDeclaration)[0];
-                        const value = cssDeclaration[key];
-                        styleRule.style.setProperty(key, value);
-                        ruleFound = true;
-                        break;
-                    }
-                }
-                if (ruleFound) {
-                    break;
-                }
-            }
-        } else {
-            innerSvg.appendChild(document.createElement('style'));
-            console.debug('[updateSvgCssDisplayValue] Style tag missing from SVG file. It has been created.');
-            svgStyles = innerSvg.querySelectorAll('style');
-            if (!svgStyles) {
-                console.error('Failed to create a style tag in the SVG!');
-                return;
-            }
-        }
-
-        if (!ruleFound) {
-            const key = Object.keys(cssDeclaration)[0];
-            const value = cssDeclaration[key];
-            const styleTag = svgStyles[svgStyles.length - 1]; // Adds the new rule to the last <style> tag in the SVG
-            styleTag.textContent = `${cssSelector} {${key}: ${value};}\n` + styleTag.textContent;
-        }
-    }
-
-    public initializeDynamicCssRules(maxDisplayedSize: number) {
-        this.getDynamicCssRules().forEach((rule) => {
-            rule.thresholdStatus = maxDisplayedSize < rule.threshold ? THRESHOLD_STATUS.BELOW : THRESHOLD_STATUS.ABOVE;
-        });
-    }
-
-    public injectDynamicCssRules(htmlElementSvg: HTMLElement) {
-        const rules = this.getDynamicCssRules()
-            .map((rule) => {
-                const ruleToInject =
-                    rule.thresholdStatus === THRESHOLD_STATUS.BELOW
-                        ? rule.belowThresholdCssDeclaration
-                        : rule.aboveThresholdCssDeclaration;
-                const key = Object.keys(ruleToInject)[0];
-                const value = ruleToInject[key];
-                return `${rule.cssSelector} {${key}: ${value};}`;
-            })
-            .join('\n');
-
-        let styleTag = htmlElementSvg.querySelector('style');
-        if (!styleTag) {
-            htmlElementSvg.appendChild(document.createElement('style'));
-            console.debug('[injectDynamicCssRules] Style tag missing from SVG file. It has been created.');
-            styleTag = htmlElementSvg.querySelector('style');
-        }
-        if (styleTag && 'textContent' in styleTag) {
-            styleTag.textContent = rules + styleTag.textContent;
-        } else {
-            console.error('Failed to create Style tag in SVG file!');
         }
     }
 
@@ -1975,23 +1958,7 @@ export class NetworkAreaDiagramViewer {
             return;
         }
         this.setPreviousMaxDisplayedSize(maxDisplayedSize);
-        // We will check each dynamic css rule to see if we crossed a zoom threshold. If this is the case, we
-        // update the rule's threshold status and trigger the CSS change in the SVG.
-        this.getDynamicCssRules().forEach((rule) => {
-            if (rule.thresholdStatus === THRESHOLD_STATUS.ABOVE && maxDisplayedSize < rule.threshold) {
-                console.debug(
-                    'CSS Rule ' + rule.cssSelector + ' below threshold ' + maxDisplayedSize + ' < ' + rule.threshold
-                );
-                rule.thresholdStatus = THRESHOLD_STATUS.BELOW;
-                this.updateSvgCssDisplayValue(svg, rule.cssSelector, rule.belowThresholdCssDeclaration);
-            } else if (rule.thresholdStatus === THRESHOLD_STATUS.BELOW && maxDisplayedSize >= rule.threshold) {
-                console.debug(
-                    'CSS Rule ' + rule.cssSelector + ' above threshold ' + maxDisplayedSize + ' >= ' + rule.threshold
-                );
-                rule.thresholdStatus = THRESHOLD_STATUS.ABOVE;
-                this.updateSvgCssDisplayValue(svg, rule.cssSelector, rule.aboveThresholdCssDeclaration);
-            }
-        });
+
         //Workaround chromium (tested on edge and google-chrome 131) doesn't
         //redraw things with percentages on viewbox changes but it should, so
         //we force it. This is not strictly related to the enableLevelOfDetail
@@ -2019,7 +1986,21 @@ export class NetworkAreaDiagramViewer {
                     child.innerHTML += '';
                 }
             }
+            const zoomLevel = this.getZoomLevel(maxDisplayedSize);
+            if (zoomLevel != this.lastZoomLevel) {
+                innerSvg.setAttribute('class', NetworkAreaDiagramViewer.ZOOM_CLASS_PREFIX + zoomLevel);
+                this.lastZoomLevel = zoomLevel;
+            }
         }
+    }
+
+    private getZoomLevel(maxDisplayedSize: number): number {
+        for (const zoomLevel of this.zoomLevels) {
+            if (maxDisplayedSize >= zoomLevel) {
+                return zoomLevel;
+            }
+        }
+        return 0;
     }
 
     public setJsonBranchStates(branchStates: string) {
@@ -2075,12 +2056,6 @@ export class NetworkAreaDiagramViewer {
                 return;
             }
 
-            const labelBox = textNodeElement.querySelector('div.nad-label-box');
-            if (!labelBox) {
-                console.warn(`Label box not found in text node ${textNodeId}`);
-                return;
-            }
-
             const vlNodeId = DiagramUtils.getVoltageLevelNodeId(textNodeId);
 
             // Get all buses for this voltage level
@@ -2090,8 +2065,8 @@ export class NetworkAreaDiagramViewer {
                 return;
             }
 
-            // Get table rows (skip first row which is the header/title)
-            const tableRows = labelBox.querySelectorAll('table tr');
+            // Get span elements
+            const spans = textNodeElement.querySelectorAll('div span');
 
             vlState.busValue.forEach((busValue) => {
                 // Find the bus node metadata by id
@@ -2100,14 +2075,16 @@ export class NetworkAreaDiagramViewer {
 
                 const rowIndex = busNode.index;
 
-                if (rowIndex < tableRows.length) {
-                    const row = tableRows[rowIndex];
-                    const valueCell = row.querySelector('td:nth-child(2)');
-
-                    if (valueCell) {
+                if (rowIndex < spans.length) {
+                    const div = spans[rowIndex].parentElement;
+                    if (
+                        div &&
+                        div.childNodes.length > 1 &&
+                        div.childNodes[div.childNodes.length - 1].nodeType === Node.TEXT_NODE
+                    ) {
                         const voltage = busValue.voltage.toFixed(this.svgParameters.getVoltageValuePrecision());
                         const angle = busValue.angle.toFixed(this.svgParameters.getAngleValuePrecision());
-                        valueCell.textContent = `${voltage} kV / ${angle}°`;
+                        div.childNodes[div.childNodes.length - 1].textContent = `${voltage} kV / ${angle}°`;
                     }
                 }
             });
@@ -2228,7 +2205,6 @@ export class NetworkAreaDiagramViewer {
         if (!elementData) {
             return;
         }
-        this.ctm = this.svgDraw?.node.getScreenCTM();
         const mousePosition: Point = this.getMousePosition(event);
         this.onRightClickCallback?.(elementData.svgId, elementData.equipmentId, elementData.type, mousePosition);
     }

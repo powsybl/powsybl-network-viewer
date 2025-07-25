@@ -1,0 +1,34 @@
+
+.nad-zoom-2200 .nad-edge-infos {
+    display: none
+}
+
+.nad-zoom-2500 .nad-edge-infos {
+    display: none
+}
+
+.nad-zoom-3000 :is(.nad-edge-infos, .nad-label-box, .nad-text-edges) {
+    display: none
+}
+
+.nad-zoom-4000 :is(.nad-edge-infos, .nad-label-box, .nad-text-edges, .nad-vl0to30, .nad-vl30to50) {
+    display: none
+}
+
+.nad-zoom-9000 :is(
+    .nad-edge-infos, .nad-label-box, .nad-text-edges, .nad-vl0to30, .nad-vl30to50, .nad-vl50to70,.nad-vl70to120
+    ) {
+    display: none
+}
+
+.nad-zoom-12000 :is(
+    .nad-edge-infos, .nad-label-box, .nad-text-edges, .nad-vl0to30, .nad-vl30to50, .nad-vl50to70,.nad-vl70to120, .nad-vl120to180
+    ) {
+    display: none
+}
+
+.nad-zoom-20000 :is(
+    .nad-edge-infos, .nad-label-box, .nad-text-edges, .nad-vl0to30, .nad-vl30to50, .nad-vl50to70,.nad-vl70to120, .nad-vl120to180, .nad-vl180to300
+    ) {
+    display: none
+}

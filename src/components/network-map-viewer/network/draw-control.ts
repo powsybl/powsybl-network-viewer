@@ -5,17 +5,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
-import { useCallback } from 'react';
+import { forwardRef, useCallback, useImperativeHandle } from 'react';
 import { type ControlPosition, useControl } from 'react-map-gl/mapbox-legacy';
 
 // type has been removed from react-map-gl or mapbox-gl
 type EventedListener = (event?: unknown) => unknown;
-
-let mapDrawerController: MapboxDraw | undefined = undefined;
-
-export function getMapDrawer() {
-    return mapDrawerController;
-}
 
 const emptyFn = () => {};
 
@@ -35,19 +29,16 @@ export type DrawControlProps = ConstructorParameters<typeof MapboxDraw>[0] & {
     onDelete?: EventedListener;
 };
 
-export default function DrawControl(props: DrawControlProps) {
+export const DrawControl = forwardRef((props: DrawControlProps, ref) => {
     const { onDrawPolygonModeActive } = props;
     const onModeChange = useCallback(
         (e: { mode: DRAW_MODES }) => onDrawPolygonModeActive(e.mode),
         [onDrawPolygonModeActive]
     );
 
-    useControl<MapboxDraw>(
+    const mapDrawerController = useControl<MapboxDraw>(
         //onCreate
-        () => {
-            mapDrawerController = new MapboxDraw({ ...props });
-            return mapDrawerController;
-        },
+        () => new MapboxDraw({ ...props }),
         //on add
         ({ map }) => {
             map.on('draw.create', props.onCreate ?? emptyFn);
@@ -65,5 +56,9 @@ export default function DrawControl(props: DrawControlProps) {
         { position: props.position }
     );
 
+    useImperativeHandle(ref, () => mapDrawerController, [mapDrawerController]);
+
     return null;
-}
+});
+
+export default DrawControl;

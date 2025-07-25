@@ -18,11 +18,11 @@ import NadSvgThreeWTDanglingLineUnknownBusExampleMeta from './data/nad-scada_met
 import NadSvgPartialNetworkExample from './data/nad-ieee300cdf-VL9006.svg';
 import NadSvgPartialNetworkExampleMeta from './data/nad-ieee300cdf-VL9006_metadata.json';
 import NadSvgPegaseNetworkExample from './data/case1354pegase.svg';
-import NadSvgPegaseNetworkExampleMeta from './data/case1354pegase.json';
+import NadSvgPegaseNetworkExampleMeta from './data/case1354pegase_metadata.json';
 import SldSvgExample from './data/sld-example.svg';
-import SldSvgExampleMeta from './data/sld-example-meta.json';
+import SldSvgExampleMeta from './data/sld-example_metadata.json';
 import SldSvgSubExample from './data/sld-sub-example.svg';
-import SldSvgSubExampleMeta from './data/sld-sub-example-meta.json';
+import SldSvgSubExampleMeta from './data/sld-sub-example_metadata.json';
 
 import {
     NetworkAreaDiagramViewer,
@@ -306,9 +306,6 @@ export const addNadToDemo = () => {
             );
         });
 
-    const enableLevelOfDetail: boolean =
-        new URLSearchParams(window.location.search).get('enableLevelOfDetail') === 'true';
-
     fetch(NadSvgPegaseNetworkExample)
         .then((response) => response.text())
         .then((svgContent) => {
@@ -325,17 +322,12 @@ export const addNadToDemo = () => {
                 handleTextNodeMove,
                 handleNodeSelect,
                 true,
-                enableLevelOfDetail,
-                null,
+                true,
+                [0, 1000, 2200, 2500, 3000, 4000, 9000, 12000, 20000],
                 handleToggleNadHover,
                 handleRightClick,
                 true,
                 handleLineBending
-            );
-
-            svgContainerNadPegase?.insertAdjacentHTML(
-                'afterbegin',
-                `<p>enableLevelOfDetail=${enableLevelOfDetail}, <a href=".?enableLevelOfDetail=${!enableLevelOfDetail}">reload toggle enableLevelOfDetail</a></p>`
             );
         });
 };
@@ -500,8 +492,11 @@ const handleTextNodeMove: OnMoveTextNodeCallbackType = (
     console.log(msg);
 };
 
-const handleNodeSelect: OnSelectNodeCallbackType = (equipmentId, nodeId) => {
-    const msg = 'Node ' + nodeId + ' equipment ' + equipmentId + ' selected';
+const handleNodeSelect: OnSelectNodeCallbackType = (equipmentId, nodeId, mousePosition) => {
+    let msg = 'Node ' + nodeId + ' equipment ' + equipmentId + ' selected';
+    if (mousePosition) {
+        msg += ' on mousePosition: x = ' + mousePosition.x + ', y = ' + mousePosition.y;
+    }
     console.log(msg);
 };
 
