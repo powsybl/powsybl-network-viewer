@@ -463,12 +463,7 @@ export function isTextNode(element: SVGElement | null): boolean {
 
 // check if a DOM element is a voltage level
 export function isVoltageLevelElement(element: SVGElement | null): boolean {
-    return (
-        element != null &&
-        hasId(element) &&
-        element.parentElement != null &&
-        element.parentElement.classList.contains('nad-vl-nodes')
-    );
+    return element != null && hasId(element) && element.parentElement?.classList.contains('nad-vl-nodes') === true;
 }
 
 // get text node id of a vl node
