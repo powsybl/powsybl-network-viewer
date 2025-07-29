@@ -199,7 +199,7 @@ export type NetworkMapProps = {
 
 export type NetworkMapRef = {
     getSelectedSubstations: () => MapSubstation[];
-    getSelectedLines: () => MapAnyLine[];
+    getSelectedLines: () => MapAnyLineWithType[];
     cleanDraw: () => void;
     getMapDrawer: () => MapboxDraw | undefined;
     resetZoomAndPosition: () => void;
@@ -918,7 +918,7 @@ function getSubstationsInPolygon(
 
 function getSelectedLinesInPolygon(
     network: MapEquipments | undefined,
-    lines: MapAnyLine[],
+    lines: MapAnyLineWithType[],
     geoData: GeoData | undefined,
     polygonCoordinates: Polygon
 ) {
