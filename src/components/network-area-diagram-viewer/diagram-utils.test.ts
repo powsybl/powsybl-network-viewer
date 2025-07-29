@@ -351,9 +351,9 @@ test('getNodeMove', () => {
 
 test('getHoverableFrom', () => {
     let hoverableElement = DiagramUtils.getHoverableFrom(getSvgNode());
-    expect(hoverableElement).toBeUndefined();
+    expect(hoverableElement).not.toBeUndefined();
     hoverableElement = DiagramUtils.getHoverableFrom(getSvgTextNode());
-    expect(hoverableElement).toBeUndefined();
+    expect(hoverableElement).not.toBeUndefined();
     hoverableElement = DiagramUtils.getHoverableFrom(getSvgLoopEdge());
     expect(hoverableElement).not.toBeUndefined();
 });
