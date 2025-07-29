@@ -27,6 +27,11 @@ button:hover:not(:disabled) {
     background-color: lightblue !important;
 }
 
+.nad-highlight {
+    filter:  drop-shadow(0 0 8px rgba(0, 0, 0, 0.8)) drop-shadow(0 0 4px rgba(255, 255, 255, 0.6));
+    transform: scale(1.1);
+}
+
 .nad-branch-edges .nad-edge-path,
 .nad-3wt-edges .nad-edge-path {
     stroke: var(--nad-vl-color, lightgrey);
@@ -405,23 +410,3 @@ foreignObject.nad-text-nodes {
 .nad-disconnected .nad-svc {stroke: lightgrey}
 .nad-unknown {stroke: none; fill: black}
 
-.nad-highlight {
-    stroke-width: 8 !important;
-    filter:  drop-shadow(0 0 8px rgba(0, 0, 0, 0.8)) drop-shadow(0 0 4px rgba(255, 255, 255, 0.6));
-    opacity: 1 !important;
-    transform: scale(1.1);
-}
-
-.nad-highlight text,
-.nad-text-nodes.nad-highlight {
-    font-weight: bold !important;
-    filter: drop-shadow(0 0 4px rgba(0, 0, 0, 0.8)) drop-shadow(0 0 2px rgba(255, 255, 255, 0.8));
-    font-size: 1.1em !important;
-}
-
-.nad-vl-nodes .nad-highlight.nad-busnode {
-    stroke-width: 8 !important;
-    filter: drop-shadow(0 0 12px rgba(0, 0, 0, 0.9)) drop-shadow(0 0 6px rgba(255, 255, 255, 0.7));
-    opacity: 1 !important;
-    transform: scale(1.15);
-}
