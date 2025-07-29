@@ -268,6 +268,13 @@ function isSelectable(element: SVGElement): boolean {
     );
 }
 
+/**
+ * Checks if an SVG element can be highlighted (text node or voltage level element)
+ */
+export function isHighlightableElement(element: SVGElement | null): boolean {
+    return isTextNode(element) || isVoltageLevelElement(element);
+}
+
 function hasId(element: SVGElement): boolean {
     return typeof element.id != 'undefined' && element.id != '';
 }
@@ -281,7 +288,12 @@ function classIsContainerOfDraggables(element: SVGElement): boolean {
 }
 
 function classIsContainerOfHoverables(element: SVGElement): boolean {
-    return element.classList.contains('nad-branch-edges') || element.classList.contains('nad-3wt-edges');
+    return (
+        element.classList.contains('nad-branch-edges') ||
+        element.classList.contains('nad-3wt-edges') ||
+        element.classList.contains('nad-text-nodes') ||
+        element.classList.contains('nad-vl-nodes')
+    );
 }
 // get radius of voltage level
 export function getVoltageLevelCircleRadius(nbNeighbours: number, voltageLevelCircleRadius: number): number {
@@ -449,6 +461,16 @@ export function isTextNode(element: SVGElement | null): boolean {
     return element != null && hasId(element) && element.classList.contains('nad-label-box');
 }
 
+// check if a DOM element is a voltage level
+export function isVoltageLevelElement(element: SVGElement | null): boolean {
+    return (
+        element != null &&
+        hasId(element) &&
+        element.parentElement != null &&
+        element.parentElement.classList.contains('nad-vl-nodes')
+    );
+}
+
 // get text node id of a vl node
 export function getTextNodeId(voltageLevelNodeId: string | undefined): string {
     return voltageLevelNodeId + '-textnode';
@@ -531,6 +553,9 @@ export function getNodeMove(node: NodeMetadata, nodePosition: Point): NODEMOVE {
 // Checks if the element is hoverable
 // Function to check if the element is hoverable
 function isHoverable(element: SVGElement): boolean {
+    if (isTextNode(element)) {
+        return true;
+    }
     return (
         hasId(element) && element.parentNode != null && classIsContainerOfHoverables(element.parentNode as SVGElement)
     );
@@ -619,7 +644,7 @@ function getRightClickableFrom(element: SVGElement): SVGElement | undefined {
     }
 }
 
-function getElementType(element: SVGElement | null): ElementType {
+export function getElementType(element: SVGElement | null): ElementType {
     if (isTextNode(element)) {
         return ElementType.TEXT_NODE;
     }
