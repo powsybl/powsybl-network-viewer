@@ -8,7 +8,7 @@
 import { Point, SVG, ViewBoxLike, Svg } from '@svgdotjs/svg.js';
 import '@svgdotjs/svg.panzoom.js';
 import * as DiagramUtils from './diagram-utils';
-import { ElementType } from './diagram-utils';
+import { ElementType, isTextNode, isVoltageLevelElement } from './diagram-utils';
 import { SvgParameters, EdgeInfoEnum, CssLocationEnum } from './svg-parameters';
 import { LayoutParameters } from './layout-parameters';
 import {
@@ -1999,8 +1999,7 @@ export class NetworkAreaDiagramViewer {
     }
 
     private handleHighlightableElementHover(element: SVGElement, mousePosition: Point): void {
-        const elementType = DiagramUtils.getElementType(element);
-        if (elementType === ElementType.TEXT_NODE) {
+        if (isTextNode(element)) {
             const textNode = this.diagramMetadata?.textNodes.find((node) => node.svgId === element.id);
             if (textNode) {
                 this.highlightRelatedElements(textNode);
@@ -2011,7 +2010,7 @@ export class NetworkAreaDiagramViewer {
                     ElementType[ElementType.TEXT_NODE]
                 );
             }
-        } else if (elementType === ElementType.VOLTAGE_LEVEL) {
+        } else if (isVoltageLevelElement(element)) {
             const vlNode = this.diagramMetadata?.nodes.find((node) => node.svgId === element.id);
             if (vlNode) {
                 this.highlightRelatedElements(vlNode);
@@ -2041,23 +2040,33 @@ export class NetworkAreaDiagramViewer {
         const relatedBusNodes = this.diagramMetadata.busNodes.filter((busNode) => busNode.vlNode === vlNodeId);
         const relatedTextNode = this.diagramMetadata.textNodes.find((textNode) => textNode.vlNode === vlNodeId);
 
-        relatedBusNodes.forEach((busNode) => this.addHighlightClass(busNode.svgId));
+        relatedBusNodes.forEach((busNode) => this.addHighlightBusClass(busNode.svgId));
         if (relatedTextNode) {
-            this.addHighlightClass(relatedTextNode.svgId);
+            this.addHighlightTextClass(relatedTextNode.svgId);
         }
     }
 
-    private addHighlightClass(svgId: string) {
+    private addHighlightBusClass(svgId: string) {
         const element = this.svgDiv.querySelector(`[id='${svgId}']`);
         if (element) {
-            element.classList.add('nad-highlight');
+            element.classList.add('nad-busnode-highlight');
+        }
+    }
+    private addHighlightTextClass(svgId: string) {
+        const element = this.svgDiv.querySelector(`[id='${svgId}']`);
+        if (element) {
+            element.classList.add('nad-textnode-highlight');
         }
     }
 
     private clearHighlights() {
-        const highlightedElements = this.svgDiv.querySelectorAll('.nad-highlight');
-        highlightedElements.forEach((element) => {
-            element.classList.remove('nad-highlight');
+        const highlightedBusElements = this.svgDiv.querySelectorAll('.nad-busnode-highlight');
+        const highlightedTextElements = this.svgDiv.querySelectorAll('.nad-textnode-highlight');
+        highlightedBusElements.forEach((element) => {
+            element.classList.remove('nad-busnode-highlight');
+        });
+        highlightedTextElements.forEach((element) => {
+            element.classList.remove('nad-textnode-highlight');
         });
     }
 

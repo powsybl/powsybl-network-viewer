@@ -27,10 +27,26 @@ button:hover:not(:disabled) {
     background-color: lightblue !important;
 }
 
-.nad-highlight {
-    filter:  drop-shadow(0 0 8px rgba(0, 0, 0, 0.8)) drop-shadow(0 0 4px rgba(255, 255, 255, 0.6));
+
+
+.nad-busnode-highlight{
+    filter:  drop-shadow(0 0 8px rgba(0, 0, 0, 0.5)) drop-shadow(0 0 4px rgba(255, 255, 255, 0.3));
+    transform: scale(1.3);
+}
+.nad-textnode-highlight {
+    filter:  drop-shadow(0 0 8px rgba(0, 0, 0, 0.5)) drop-shadow(0 0 4px rgba(255, 255, 255, 0.3));
     transform: scale(1.1);
 }
+
+.nad-zoom-2000 .nad-busnode-highlight {
+    filter:  drop-shadow(0 0 8px rgba(0, 0, 0, 0.5)) drop-shadow(0 0 4px rgba(255, 255, 255, 0.3));
+    transform: scale(1.6);
+}
+.nad-zoom-2000 .nad-textnode-highlight  {
+    filter:  drop-shadow(0 0 8px rgba(0, 0, 0, 0.5)) drop-shadow(0 0 4px rgba(255, 255, 255, 0.3));
+    transform: scale(1.4);
+}
+
 
 .nad-branch-edges .nad-edge-path,
 .nad-3wt-edges .nad-edge-path {
