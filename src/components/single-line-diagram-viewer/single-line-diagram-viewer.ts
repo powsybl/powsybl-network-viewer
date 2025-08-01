@@ -595,7 +595,99 @@ export class SingleLineDiagramViewer {
                     event.stopPropagation();
                     this.onBusCallback?.(bus.equipmentId, bus.id, event.x, event.y);
                 });
+                svgBus.addEventListener('mouseover', () => {
+                    this.handleBusbarHover(bus);
+                });
+                svgBus.addEventListener('mouseout', () => {
+                    this.handleBusbarHoverExit();
+                });
             }
+        });
+    }
+
+    private handleBusbarHover(bus: SLDMetadataNode) {
+        this.clearHighlights();
+        this.highlightElectricalNode(bus);
+    }
+
+    private handleBusbarHoverExit() {
+        this.clearHighlights();
+    }
+
+    private highlightElectricalNode(busbar: SLDMetadataNode) {
+        if (!this.svgMetadata) return;
+
+        const vid = busbar.vid;
+        if (!vid) return;
+
+        const relatedElements = this.svgMetadata.nodes.filter((node) => node.vid === vid);
+
+        relatedElements.forEach((element) => {
+            if (BUSBAR_SECTION_TYPES.has(element.componentType)) {
+                this.addHighlightBusClass(element.id);
+            } else if (SWITCH_COMPONENT_TYPES.has(element.componentType)) {
+                this.addHighlightSwitchClass(element.id);
+            } else if (FEEDER_COMPONENT_TYPES.has(element.componentType)) {
+                this.addHighlightFeederClass(element.id);
+            }
+        });
+
+        this.addHighlightWiresForVoltageLevel(vid);
+    }
+
+    private addHighlightBusClass(svgId: string) {
+        const element = this.container.querySelector(`[id='${svgId}']`);
+        if (element) {
+            element.classList.add('sld-busbar-highlight');
+        }
+    }
+
+    private addHighlightSwitchClass(svgId: string) {
+        const element = this.container.querySelector(`[id='${svgId}']`);
+        if (element) {
+            element.classList.add('sld-switch-highlight');
+        }
+    }
+
+    private addHighlightFeederClass(svgId: string) {
+        const element = this.container.querySelector(`[id='${svgId}']`);
+        if (element) {
+            element.classList.add('sld-feeder-highlight');
+        }
+    }
+
+    private addHighlightWiresForVoltageLevel(vid: string) {
+        // Find elements with the same vid to get their voltage level classes
+        const relatedElements = this.svgMetadata?.nodes.filter((node) => node.vid === vid);
+        if (!relatedElements || relatedElements.length === 0) return;
+
+        // Get the voltage level classes from one of the related elements
+        const firstElement = this.container.querySelector(`[id='${relatedElements[0].id}']`);
+        if (!firstElement) return;
+
+        // Extract voltage level classes like 'sld-vl300to500' and bus classes like 'sld-bus-0'
+        const vlClasses = Array.from(firstElement.classList).filter((cls) => cls.startsWith('sld-vl'));
+
+        // Apply highlight to all wires that have matching voltage level classes
+        vlClasses.forEach((vlClass) => {
+            const wireElements = this.container.querySelectorAll(`.sld-wire.${vlClass}`);
+            wireElements.forEach((wire) => {
+                wire.classList.add('sld-wire-highlight');
+            });
+        });
+    }
+
+    private clearHighlights() {
+        const highlightedElements = this.container.querySelectorAll(
+            '.sld-busbar-highlight, .sld-switch-highlight, .sld-feeder-highlight, .sld-wire-highlight'
+        );
+        highlightedElements.forEach((element) => {
+            element.classList.remove(
+                'sld-busbar-highlight',
+                'sld-switch-highlight',
+                'sld-feeder-highlight',
+                'sld-wire-highlight'
+            );
         });
     }
 }
