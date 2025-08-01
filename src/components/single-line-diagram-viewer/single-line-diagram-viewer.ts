@@ -37,6 +37,14 @@ const FEEDER_COMPONENT_TYPES = new Set([
 
 const BUSBAR_SECTION_TYPES = new Set(['BUSBAR_SECTION']);
 
+const HIGHLIGHT_CLASSES = {
+    BUSBAR: 'sld-busbar-highlight',
+    SWITCH: 'sld-switch-highlight',
+    FEEDER: 'sld-feeder-highlight',
+    WIRE: 'sld-wire-highlight',
+    LEGEND: 'sld-legend-highlight',
+} as const;
+
 const MAX_ZOOM_LEVEL = 10;
 const MIN_ZOOM_LEVEL_SUB = 0.1;
 const MIN_ZOOM_LEVEL_VL = 0.5;
@@ -315,6 +323,7 @@ export class SingleLineDiagramViewer {
         this.addFeedersHandler();
         this.addEquipmentsPopover();
         this.addBusHandler();
+        this.addLegendHandler();
         this.svgDraw = draw;
     }
 
@@ -584,6 +593,26 @@ export class SingleLineDiagramViewer {
         });
     }
 
+    private addLegendHandler() {
+        const legendElements: NodeListOf<SVGElement> = this.container.querySelectorAll('.sld-node-infos');
+        legendElements.forEach((legendElement: SVGElement) => {
+            legendElement.style.cursor = 'pointer';
+            legendElement.addEventListener('mouseenter', () => this.handleLegendHover(legendElement));
+            legendElement.addEventListener('mouseleave', () => this.handleHoverExit());
+        });
+    }
+
+    private handleLegendHover(legendElement: SVGElement) {
+        const { vlClass, busClass } = this.extractBusClasses(legendElement.classList);
+        if (!vlClass || !busClass) return;
+
+        const matchingBusbar = this.findMatchingBusbar(vlClass, busClass);
+        if (matchingBusbar) {
+            this.clearHighlights();
+            this.highlightElectricalNode(matchingBusbar);
+        }
+    }
+
     private addBusHandler() {
         const buses = this.svgMetadata?.nodes.filter((element) => BUSBAR_SECTION_TYPES.has(element.componentType));
         buses?.forEach((bus) => {
@@ -595,12 +624,8 @@ export class SingleLineDiagramViewer {
                     event.stopPropagation();
                     this.onBusCallback?.(bus.equipmentId, bus.id, event.x, event.y);
                 });
-                svgBus.addEventListener('mouseover', () => {
-                    this.handleBusbarHover(bus);
-                });
-                svgBus.addEventListener('mouseout', () => {
-                    this.handleBusbarHoverExit();
-                });
+                svgBus.addEventListener('mouseover', () => this.handleBusbarHover(bus));
+                svgBus.addEventListener('mouseout', () => this.handleHoverExit());
             }
         });
     }
@@ -610,7 +635,7 @@ export class SingleLineDiagramViewer {
         this.highlightElectricalNode(bus);
     }
 
-    private handleBusbarHoverExit() {
+    private handleHoverExit() {
         this.clearHighlights();
     }
 
@@ -624,70 +649,73 @@ export class SingleLineDiagramViewer {
 
         relatedElements.forEach((element) => {
             if (BUSBAR_SECTION_TYPES.has(element.componentType)) {
-                this.addHighlightBusClass(element.id);
+                this.addHighlightClass(element.id, HIGHLIGHT_CLASSES.BUSBAR);
             } else if (SWITCH_COMPONENT_TYPES.has(element.componentType)) {
-                this.addHighlightSwitchClass(element.id);
+                this.addHighlightClass(element.id, HIGHLIGHT_CLASSES.SWITCH);
             } else if (FEEDER_COMPONENT_TYPES.has(element.componentType)) {
-                this.addHighlightFeederClass(element.id);
+                this.addHighlightClass(element.id, HIGHLIGHT_CLASSES.FEEDER);
             }
         });
 
         this.addHighlightWiresForVoltageLevel(vid);
+        this.addHighlightLegendForBusbar(busbar);
     }
 
-    private addHighlightBusClass(svgId: string) {
+    private addHighlightClass(svgId: string, highlightClass: string) {
         const element = this.container.querySelector(`[id='${svgId}']`);
-        if (element) {
-            element.classList.add('sld-busbar-highlight');
-        }
-    }
-
-    private addHighlightSwitchClass(svgId: string) {
-        const element = this.container.querySelector(`[id='${svgId}']`);
-        if (element) {
-            element.classList.add('sld-switch-highlight');
-        }
-    }
-
-    private addHighlightFeederClass(svgId: string) {
-        const element = this.container.querySelector(`[id='${svgId}']`);
-        if (element) {
-            element.classList.add('sld-feeder-highlight');
-        }
+        element?.classList.add(highlightClass);
     }
 
     private addHighlightWiresForVoltageLevel(vid: string) {
-        // Find elements with the same vid to get their voltage level classes
         const relatedElements = this.svgMetadata?.nodes.filter((node) => node.vid === vid);
         if (!relatedElements || relatedElements.length === 0) return;
 
-        // Get the voltage level classes from one of the related elements
         const firstElement = this.container.querySelector(`[id='${relatedElements[0].id}']`);
         if (!firstElement) return;
 
-        // Extract voltage level classes like 'sld-vl300to500' and bus classes like 'sld-bus-0'
         const vlClasses = Array.from(firstElement.classList).filter((cls) => cls.startsWith('sld-vl'));
 
-        // Apply highlight to all wires that have matching voltage level classes
         vlClasses.forEach((vlClass) => {
             const wireElements = this.container.querySelectorAll(`.sld-wire.${vlClass}`);
             wireElements.forEach((wire) => {
-                wire.classList.add('sld-wire-highlight');
+                wire.classList.add(HIGHLIGHT_CLASSES.WIRE);
             });
         });
     }
 
-    private clearHighlights() {
-        const highlightedElements = this.container.querySelectorAll(
-            '.sld-busbar-highlight, .sld-switch-highlight, .sld-feeder-highlight, .sld-wire-highlight'
+    private addHighlightLegendForBusbar(busbar: SLDMetadataNode) {
+        const busbarElement = this.container.querySelector(`[id='${busbar.id}']`);
+        if (!busbarElement) return;
+
+        const { vlClass, busClass } = this.extractBusClasses(busbarElement.classList);
+        if (!vlClass || !busClass) return;
+
+        const legendElement = this.container.querySelector(`.sld-node-infos.${vlClass}.${busClass}`);
+        legendElement?.classList.add(HIGHLIGHT_CLASSES.LEGEND);
+    }
+
+    private extractBusClasses(classList: DOMTokenList) {
+        const vlClass = Array.from(classList).find((cls) => cls.startsWith('sld-vl'));
+        const busClass = Array.from(classList).find(
+            (cls) => cls.startsWith('sld-bus-') && cls !== 'sld-bus-legend-info'
         );
+        return { vlClass, busClass };
+    }
+
+    private findMatchingBusbar(vlClass: string, busClass: string) {
+        return this.svgMetadata?.nodes.find((node) => {
+            if (!BUSBAR_SECTION_TYPES.has(node.componentType)) return false;
+            const element = this.container.querySelector(`#${node.id}`);
+            return element?.classList.contains(vlClass) && element?.classList.contains(busClass);
+        });
+    }
+
+    private clearHighlights() {
+        const highlightClasses = Object.values(HIGHLIGHT_CLASSES);
+        const selector = highlightClasses.map((cls) => `.${cls}`).join(', ');
+        const highlightedElements = this.container.querySelectorAll(selector);
         highlightedElements.forEach((element) => {
-            element.classList.remove(
-                'sld-busbar-highlight',
-                'sld-switch-highlight',
-                'sld-feeder-highlight',
-                'sld-wire-highlight'
-            );
+            element.classList.remove(...highlightClasses);
         });
     }
 }
