@@ -37,6 +37,14 @@ const FEEDER_COMPONENT_TYPES = new Set([
 
 const BUSBAR_SECTION_TYPES = new Set(['BUSBAR_SECTION']);
 
+const HIGHLIGHT_CLASSES = {
+    BUSBAR: 'sld-busbar-highlight',
+    SWITCH: 'sld-switch-highlight',
+    FEEDER: 'sld-feeder-highlight',
+    WIRE: 'sld-wire-highlight',
+    LEGEND: 'sld-legend-highlight',
+} as const;
+
 const MAX_ZOOM_LEVEL = 10;
 const MIN_ZOOM_LEVEL_SUB = 0.1;
 const MIN_ZOOM_LEVEL_VL = 0.5;
@@ -315,6 +323,7 @@ export class SingleLineDiagramViewer {
         this.addFeedersHandler();
         this.addEquipmentsPopover();
         this.addBusHandler();
+        this.addLegendHandler();
         this.svgDraw = draw;
     }
 
@@ -584,6 +593,26 @@ export class SingleLineDiagramViewer {
         });
     }
 
+    private addLegendHandler() {
+        const legendElements: NodeListOf<SVGElement> = this.container.querySelectorAll('.sld-node-infos');
+        legendElements.forEach((legendElement: SVGElement) => {
+            legendElement.style.cursor = 'pointer';
+            legendElement.addEventListener('mouseenter', () => this.handleLegendHover(legendElement));
+            legendElement.addEventListener('mouseleave', () => this.handleHoverExit());
+        });
+    }
+
+    private handleLegendHover(legendElement: SVGElement) {
+        const { vlClass, busClass } = this.extractBusClasses(legendElement.classList);
+        if (!vlClass || !busClass) return;
+
+        const matchingBusbar = this.findMatchingBusbar(vlClass, busClass);
+        if (matchingBusbar) {
+            this.clearHighlights();
+            this.highlightElectricalNode(matchingBusbar);
+        }
+    }
+
     private addBusHandler() {
         const buses = this.svgMetadata?.nodes.filter((element) => BUSBAR_SECTION_TYPES.has(element.componentType));
         buses?.forEach((bus) => {
@@ -595,7 +624,98 @@ export class SingleLineDiagramViewer {
                     event.stopPropagation();
                     this.onBusCallback?.(bus.equipmentId, bus.id, event.x, event.y);
                 });
+                svgBus.addEventListener('mouseover', () => this.handleBusbarHover(bus));
+                svgBus.addEventListener('mouseout', () => this.handleHoverExit());
             }
+        });
+    }
+
+    private handleBusbarHover(bus: SLDMetadataNode) {
+        this.clearHighlights();
+        this.highlightElectricalNode(bus);
+    }
+
+    private handleHoverExit() {
+        this.clearHighlights();
+    }
+
+    private highlightElectricalNode(busbar: SLDMetadataNode) {
+        if (!this.svgMetadata) return;
+
+        const vid = busbar.vid;
+        if (!vid) return;
+
+        const relatedElements = this.svgMetadata.nodes.filter((node) => node.vid === vid);
+
+        relatedElements.forEach((element) => {
+            if (BUSBAR_SECTION_TYPES.has(element.componentType)) {
+                this.addHighlightClass(element.id, HIGHLIGHT_CLASSES.BUSBAR);
+            } else if (SWITCH_COMPONENT_TYPES.has(element.componentType)) {
+                this.addHighlightClass(element.id, HIGHLIGHT_CLASSES.SWITCH);
+            } else if (FEEDER_COMPONENT_TYPES.has(element.componentType)) {
+                this.addHighlightClass(element.id, HIGHLIGHT_CLASSES.FEEDER);
+            }
+        });
+
+        this.addHighlightWiresForVoltageLevel(vid);
+        this.addHighlightLegendForBusbar(busbar);
+    }
+
+    private addHighlightClass(svgId: string, highlightClass: string) {
+        const element = this.container.querySelector(`[id='${svgId}']`);
+        element?.classList.add(highlightClass);
+    }
+
+    private addHighlightWiresForVoltageLevel(vid: string) {
+        const relatedElements = this.svgMetadata?.nodes.filter((node) => node.vid === vid);
+        if (!relatedElements || relatedElements.length === 0) return;
+
+        const firstElement = this.container.querySelector(`[id='${relatedElements[0].id}']`);
+        if (!firstElement) return;
+
+        const vlClasses = Array.from(firstElement.classList).filter((cls) => cls.startsWith('sld-vl'));
+
+        vlClasses.forEach((vlClass) => {
+            const wireElements = this.container.querySelectorAll(`.sld-wire.${vlClass}`);
+            wireElements.forEach((wire) => {
+                wire.classList.add(HIGHLIGHT_CLASSES.WIRE);
+            });
+        });
+    }
+
+    private addHighlightLegendForBusbar(busbar: SLDMetadataNode) {
+        const busbarElement = this.container.querySelector(`[id='${busbar.id}']`);
+        if (!busbarElement) return;
+
+        const { vlClass, busClass } = this.extractBusClasses(busbarElement.classList);
+        if (!vlClass || !busClass) return;
+
+        const legendElement = this.container.querySelector(`.sld-node-infos.${vlClass}.${busClass}`);
+        legendElement?.classList.add(HIGHLIGHT_CLASSES.LEGEND);
+    }
+
+    private extractBusClasses(classList: DOMTokenList) {
+        const vlClass = Array.from(classList).find((cls) => cls.startsWith('sld-vl'));
+        const busClass = Array.from(classList).find(
+            (cls) => cls.startsWith('sld-bus-') && cls !== 'sld-bus-legend-info'
+        );
+        return { vlClass, busClass };
+    }
+
+    private findMatchingBusbar(vlClass: string, busClass: string) {
+        return this.svgMetadata?.nodes.find((node) => {
+            if (!BUSBAR_SECTION_TYPES.has(node.componentType)) return false;
+            const element = this.container.querySelector(`#${node.id}`);
+            return element?.classList.contains(vlClass) && element?.classList.contains(busClass);
+        });
+    }
+
+    private clearHighlights() {
+        const highlightClasses = Object.values(HIGHLIGHT_CLASSES);
+        const selector = highlightClasses.map((cls) => `.${cls}`).join(', ');
+        const highlightedElements = this.container.querySelectorAll(selector);
+        highlightedElements.forEach((element) => {
+            element.classList.remove(...highlightClasses);
         });
     }
 }
