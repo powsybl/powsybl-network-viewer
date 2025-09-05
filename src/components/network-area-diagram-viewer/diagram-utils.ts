@@ -291,7 +291,6 @@ function classIsContainerOfHoverables(element: SVGElement): boolean {
     return (
         element.classList.contains('nad-branch-edges') ||
         element.classList.contains('nad-3wt-edges') ||
-        element.classList.contains('nad-text-nodes') ||
         element.classList.contains('nad-vl-nodes')
     );
 }
