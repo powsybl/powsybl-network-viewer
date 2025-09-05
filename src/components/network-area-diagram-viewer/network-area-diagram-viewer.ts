@@ -175,18 +175,18 @@ export class NetworkAreaDiagramViewer {
         this.height = 0;
         this.originalWidth = 0;
         this.originalHeight = 0;
+        this.enableDragInteraction = enableDragInteraction;
+        this.onMoveNodeCallback = onMoveNodeCallback;
+        this.onMoveTextNodeCallback = onMoveTextNodeCallback;
         this.onRightClickCallback = onRightClickCallback;
+        this.onSelectNodeCallback = onSelectNodeCallback;
+        this.onToggleHoverCallback = onToggleHoverCallback;
         if (zoomLevels != null) this.zoomLevels = zoomLevels;
         this.zoomLevels.sort((a, b) => b - a);
         this.init(minWidth, minHeight, maxWidth, maxHeight, enableLevelOfDetail, diagramMetadata !== null, addButtons);
         this.svgParameters = new SvgParameters(diagramMetadata?.svgParameters);
         this.layoutParameters = new LayoutParameters(diagramMetadata?.layoutParameters);
-        this.onMoveNodeCallback = onMoveNodeCallback;
-        this.onMoveTextNodeCallback = onMoveTextNodeCallback;
-        this.onSelectNodeCallback = onSelectNodeCallback;
-        this.onToggleHoverCallback = onToggleHoverCallback;
         this.previousMaxDisplayedSize = 0;
-        this.enableDragInteraction = enableDragInteraction;
     }
 
     private fixSvgContent(svgContent: string): string {
