@@ -1601,6 +1601,21 @@ export class NetworkAreaDiagramViewer {
         }
     }
 
+    public redrawVoltageLevelNodes(dismissInjections: boolean) {
+        this.diagramMetadata?.nodes?.forEach((node) => {
+            const injectionsEdges: Map<string, InjectionMetadata[]> = new Map<string, InjectionMetadata[]>();
+            if (!dismissInjections) {
+                this.addInjectionEdges(node.svgId, injectionsEdges);
+            }
+            const nodeElt = this.container.querySelector(`[id='${node.svgId}']`) as SVGGraphicsElement;
+            if (nodeElt) {
+                const busNodeEdges: Map<string, EdgeMetadata[]> = new Map<string, EdgeMetadata[]>();
+                this.addBusNodeEdges(node.svgId, busNodeEdges);
+                this.redrawVoltageLevelNode(nodeElt, busNodeEdges, injectionsEdges);
+            }
+        });
+    }
+
     private addBusNodeEdges(nodeId: string, busNodeEdges: Map<string, EdgeMetadata[]>) {
         // get other voltage level node edges
         const edges: EdgeMetadata[] | undefined = this.diagramMetadata?.edges.filter(
