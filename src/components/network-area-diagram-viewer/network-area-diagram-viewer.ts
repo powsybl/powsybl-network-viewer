@@ -746,6 +746,8 @@ export class NetworkAreaDiagramViewer {
 
         if (DiagramUtils.isHighlightableElement(hoverableElem)) {
             this.handleHighlightableElementHover(hoverableElem, mousePosition);
+        } else if (DiagramUtils.isInjection(hoverableElem)) {
+            this.handleInjectionHover(hoverableElem, mousePosition);
         } else {
             this.handleEdgeHover(hoverableElem, mousePosition);
         }
@@ -2021,6 +2023,15 @@ export class NetworkAreaDiagramViewer {
                     ElementType[ElementType.VOLTAGE_LEVEL]
                 );
             }
+        }
+    }
+
+    private handleInjectionHover(element: SVGElement, mousePosition: Point) {
+        const injection = this.diagramMetadata?.injections?.find((inj) => inj.svgId === element.id);
+        if (injection) {
+            const equipmentId = injection.equipmentId ?? '';
+            const equipmentType = injection.componentType ?? '';
+            this.onToggleHoverCallback?.(true, mousePosition, equipmentId, equipmentType);
         }
     }
 
