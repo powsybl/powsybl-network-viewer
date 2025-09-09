@@ -456,7 +456,7 @@ export class NetworkAreaDiagramViewer {
         if (this.hasNodeInteraction() && hasMetadata) {
             // fill empty elements: unknown buses and three windings transformers
             const emptyElements: NodeListOf<SVGGraphicsElement> = this.svgDiv.querySelectorAll(
-                '.nad-unknown-busnode, .nad-3wt-nodes .nad-winding'
+                '.nad-unknown-busnode, .nad-3wt-nodes .nad-winding, g.nad-injections>g>g>g>g>circle'
             );
             emptyElements.forEach((emptyElement) => {
                 emptyElement.style.fill = '#0000';
@@ -746,6 +746,8 @@ export class NetworkAreaDiagramViewer {
 
         if (DiagramUtils.isHighlightableElement(hoverableElem)) {
             this.handleHighlightableElementHover(hoverableElem, mousePosition);
+        } else if (DiagramUtils.isInjection(hoverableElem)) {
+            this.handleInjectionHover(hoverableElem, mousePosition);
         } else {
             this.handleEdgeHover(hoverableElem, mousePosition);
         }
@@ -2021,6 +2023,15 @@ export class NetworkAreaDiagramViewer {
                     ElementType[ElementType.VOLTAGE_LEVEL]
                 );
             }
+        }
+    }
+
+    private handleInjectionHover(element: SVGElement, mousePosition: Point) {
+        const injection = this.diagramMetadata?.injections?.find((inj) => inj.svgId === element.id);
+        if (injection) {
+            const equipmentId = injection.equipmentId ?? '';
+            const equipmentType = injection.componentType ?? '';
+            this.onToggleHoverCallback?.(true, mousePosition, equipmentId, equipmentType);
         }
     }
 
