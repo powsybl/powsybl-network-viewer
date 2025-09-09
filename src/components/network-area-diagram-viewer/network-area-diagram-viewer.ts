@@ -456,7 +456,7 @@ export class NetworkAreaDiagramViewer {
         if (this.hasNodeInteraction() && hasMetadata) {
             // fill empty elements: unknown buses and three windings transformers
             const emptyElements: NodeListOf<SVGGraphicsElement> = this.svgDiv.querySelectorAll(
-                '.nad-unknown-busnode, .nad-3wt-nodes .nad-winding'
+                '.nad-unknown-busnode, .nad-3wt-nodes .nad-winding, g.nad-injections>g>g>g>g>circle'
             );
             emptyElements.forEach((emptyElement) => {
                 emptyElement.style.fill = '#0000';
