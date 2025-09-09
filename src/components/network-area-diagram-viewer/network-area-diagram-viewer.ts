@@ -8,6 +8,7 @@
 import { Point, SVG, ViewBoxLike, Svg } from '@svgdotjs/svg.js';
 import '@svgdotjs/svg.panzoom.js';
 import * as DiagramUtils from './diagram-utils';
+import { ElementType, isTextNode, isVoltageLevelElement } from './diagram-utils';
 import { SvgParameters, EdgeInfoEnum, CssLocationEnum } from './svg-parameters';
 import { LayoutParameters } from './layout-parameters';
 import {
@@ -396,7 +397,7 @@ export class NetworkAreaDiagramViewer {
             });
 
             this.svgDraw.on('mouseout', () => {
-                this.onToggleHoverCallback?.(false, null, '', '');
+                this.handleHoverExit();
             });
         }
         if (this.onRightClickCallback != null && hasMetadata) {
@@ -736,22 +737,17 @@ export class NetworkAreaDiagramViewer {
 
         const hoverableElem = DiagramUtils.getHoverableFrom(mouseEvent.target as SVGElement);
         if (!hoverableElem) {
-            this.onToggleHoverCallback(false, null, '', '');
+            this.handleHoverExit();
             return;
         }
 
-        //get edge by svgId
-        const edge: EdgeMetadata | undefined = this.diagramMetadata?.edges.find(
-            (edge) => edge.svgId == hoverableElem?.id
-        );
+        this.clearHighlights();
+        const mousePosition = this.getMousePosition(mouseEvent);
 
-        if (edge) {
-            const mousePosition = this.getMousePosition(mouseEvent);
-            const equipmentId = edge?.equipmentId ?? '';
-            const edgeType = DiagramUtils.getStringEdgeType(edge) ?? '';
-            this.onToggleHoverCallback(true, mousePosition, equipmentId, edgeType);
+        if (DiagramUtils.isHighlightableElement(hoverableElem)) {
+            this.handleHighlightableElementHover(hoverableElem, mousePosition);
         } else {
-            this.onToggleHoverCallback(false, null, '', '');
+            this.handleEdgeHover(hoverableElem, mousePosition);
         }
     }
 
@@ -2000,5 +1996,82 @@ export class NetworkAreaDiagramViewer {
                 const timing = { duration: 500, iterations: 1 };
                 this.svgDiv.animate(keyframes, timing);
             });
+    }
+
+    private handleHighlightableElementHover(element: SVGElement, mousePosition: Point): void {
+        if (isTextNode(element)) {
+            const textNode = this.diagramMetadata?.textNodes.find((node) => node.svgId === element.id);
+            if (textNode) {
+                this.highlightRelatedElements(textNode);
+                this.onToggleHoverCallback?.(
+                    true,
+                    mousePosition,
+                    textNode.equipmentId,
+                    ElementType[ElementType.TEXT_NODE]
+                );
+            }
+        } else if (isVoltageLevelElement(element)) {
+            const vlNode = this.diagramMetadata?.nodes.find((node) => node.svgId === element.id);
+            if (vlNode) {
+                this.highlightRelatedElements(vlNode);
+                this.onToggleHoverCallback?.(
+                    true,
+                    mousePosition,
+                    vlNode.equipmentId,
+                    ElementType[ElementType.VOLTAGE_LEVEL]
+                );
+            }
+        }
+    }
+
+    private handleEdgeHover(element: SVGElement, mousePosition: Point): void {
+        const edge = this.diagramMetadata?.edges.find((edge) => edge.svgId === element.id);
+        if (edge) {
+            const equipmentId = edge.equipmentId ?? '';
+            const edgeType = DiagramUtils.getStringEdgeType(edge) ?? '';
+            this.onToggleHoverCallback?.(true, mousePosition, equipmentId, edgeType);
+        }
+    }
+
+    private highlightRelatedElements(element: NodeMetadata | TextNodeMetadata): void {
+        if (!this.diagramMetadata) return;
+
+        const vlNodeId = 'vlNode' in element ? element.vlNode : element.svgId;
+        const relatedBusNodes = this.diagramMetadata.busNodes.filter((busNode) => busNode.vlNode === vlNodeId);
+        const relatedTextNode = this.diagramMetadata.textNodes.find((textNode) => textNode.vlNode === vlNodeId);
+
+        relatedBusNodes.forEach((busNode) => this.addHighlightBusClass(busNode.svgId));
+        if (relatedTextNode) {
+            this.addHighlightTextClass(relatedTextNode.svgId);
+        }
+    }
+
+    private addHighlightBusClass(svgId: string) {
+        const element = this.svgDiv.querySelector(`[id='${svgId}']`);
+        if (element) {
+            element.classList.add('nad-busnode-highlight');
+        }
+    }
+    private addHighlightTextClass(svgId: string) {
+        const element = this.svgDiv.querySelector(`[id='${svgId}']`);
+        if (element) {
+            element.classList.add('nad-textnode-highlight');
+        }
+    }
+
+    private clearHighlights() {
+        const highlightedBusElements = this.svgDiv.querySelectorAll('.nad-busnode-highlight');
+        const highlightedTextElements = this.svgDiv.querySelectorAll('.nad-textnode-highlight');
+        highlightedBusElements.forEach((element) => {
+            element.classList.remove('nad-busnode-highlight');
+        });
+        highlightedTextElements.forEach((element) => {
+            element.classList.remove('nad-textnode-highlight');
+        });
+    }
+
+    private handleHoverExit() {
+        this.onToggleHoverCallback?.(false, null, '', '');
+        this.clearHighlights();
     }
 }
