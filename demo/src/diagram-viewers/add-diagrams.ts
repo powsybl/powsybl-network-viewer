@@ -276,6 +276,32 @@ export const addNadToDemo = () => {
             );
         });
 
+    fetch(NadSvgPartialNetworkExample)
+        .then((response) => response.text())
+        .then((svgContent) => {
+            const nadViewerParametersOptions: NadViewerParametersOptions = {
+                enableDragInteraction: true,
+                addButtons: true,
+                onMoveNodeCallback: handleNodeMove,
+                onMoveTextNodeCallback: handleTextNodeMove,
+                onSelectNodeCallback: handleNodeSelect,
+                onToggleHoverCallback: handleToggleNadHover,
+                onRightClickCallback: handleRightClick,
+                initialViewBox: {
+                    x: -250.0,
+                    y: -450.0,
+                    width: 1100,
+                    height: 1100,
+                },
+            };
+            new NetworkAreaDiagramViewer(
+                document.getElementById('svg-container-nad-partial-network-custom-view-box')!,
+                svgContent,
+                NadSvgPartialNetworkExampleMeta,
+                nadViewerParametersOptions
+            );
+        });
+
     fetch(NadSvgPegaseNetworkExample)
         .then((response) => response.text())
         .then((svgContent) => {
