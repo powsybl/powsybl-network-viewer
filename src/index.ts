@@ -23,7 +23,10 @@ export type {
     SvgParametersMetadata,
     TextNodeMetadata,
 } from './components/network-area-diagram-viewer/diagram-metadata';
-export { DiagramParametersMetadata } from './components/network-area-diagram-viewer/diagram-parameters';
+export type {
+    DiagramParametersMetadata,
+    DiagramParameters,
+} from './components/network-area-diagram-viewer/diagram-parameters';
 export { LayoutParameters } from './components/network-area-diagram-viewer/layout-parameters';
 export { SvgParameters } from './components/network-area-diagram-viewer/svg-parameters';
 
