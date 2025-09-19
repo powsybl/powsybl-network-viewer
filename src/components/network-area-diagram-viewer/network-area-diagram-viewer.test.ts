@@ -22,17 +22,17 @@ describe('Test network-area-diagram-viewer', () => {
             enableDragInteraction: false,
             enableLevelOfDetail: false,
             addButtons: false,
+            onMoveNodeCallback: null,
+            onMoveTextNodeCallback: null,
+            onSelectNodeCallback: null,
+            onToggleHoverCallback: null,
+            onRightClickCallback: null,
         };
         const nad: NetworkAreaDiagramViewer = new NetworkAreaDiagramViewer(
             container,
             '',
             null,
-            diagramParametersMetadata,
-            null,
-            null,
-            null,
-            null,
-            null
+            diagramParametersMetadata
         );
 
         nad.moveNodeToCoordinates('', 0, 0);

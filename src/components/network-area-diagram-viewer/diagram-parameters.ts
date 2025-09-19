@@ -4,6 +4,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+import {
+    OnMoveNodeCallbackType,
+    OnMoveTextNodeCallbackType,
+    OnRightClickCallbackType,
+    OnSelectNodeCallbackType,
+    OnToggleNadHoverCallbackType,
+} from './network-area-diagram-viewer';
 
 export interface DiagramParametersMetadata {
     // The minimum width of the viewer.
@@ -30,6 +37,21 @@ export interface DiagramParametersMetadata {
 
     // Whether to add zoom control buttons (zoom in, zoom out, zoom to fit) to the viewer.
     addButtons?: boolean;
+
+    // Callback function triggered when a node is moved.
+    onMoveNodeCallback?: OnMoveNodeCallbackType | null;
+
+    // Callback function triggered when a text node is moved.
+    onMoveTextNodeCallback?: OnMoveTextNodeCallbackType | null;
+
+    // Callback function triggered when a node is selected.
+    onSelectNodeCallback?: OnSelectNodeCallbackType | null;
+
+    // Callback function triggered when hovering over a node or edge.
+    onToggleHoverCallback?: OnToggleNadHoverCallbackType | null;
+
+    // Callback function triggered when right-clicking on a node or edge.
+    onRightClickCallback?: OnRightClickCallbackType | null;
 }
 
 export class DiagramParameters {
@@ -73,5 +95,20 @@ export class DiagramParameters {
     }
     public getAddButtons(): boolean {
         return this.diagramParametersMetadata?.addButtons ?? DiagramParameters.ADD_BUTTONS_DEFAULT;
+    }
+    public getOnMoveNodeCallback(): OnMoveNodeCallbackType | null {
+        return this.diagramParametersMetadata?.onMoveNodeCallback ?? null;
+    }
+    public getOnMoveTextNodeCallback(): OnMoveTextNodeCallbackType | null {
+        return this.diagramParametersMetadata?.onMoveTextNodeCallback ?? null;
+    }
+    public getOnSelectNodeCallback(): OnSelectNodeCallbackType | null {
+        return this.diagramParametersMetadata?.onSelectNodeCallback ?? null;
+    }
+    public getOnToggleHoverCallback(): OnToggleNadHoverCallbackType | null {
+        return this.diagramParametersMetadata?.onToggleHoverCallback ?? null;
+    }
+    public getOnRightClickCallback(): OnRightClickCallbackType | null {
+        return this.diagramParametersMetadata?.onRightClickCallback ?? null;
     }
 }

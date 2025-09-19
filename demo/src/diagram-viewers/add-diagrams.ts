@@ -48,17 +48,17 @@ export const addNadToDemo = () => {
             const diagramParametersMetadata: DiagramParametersMetadata = {
                 enableDragInteraction: true,
                 addButtons: true,
+                onMoveNodeCallback: handleNodeMove,
+                onMoveTextNodeCallback: handleTextNodeMove,
+                onSelectNodeCallback: handleNodeSelect,
+                onToggleHoverCallback: handleToggleNadHover,
+                onRightClickCallback: handleRightClick,
             };
             const nadViewer = new NetworkAreaDiagramViewer(
                 document.getElementById('svg-container-nad')!,
                 svgContent,
                 NadSvgExampleMeta,
-                diagramParametersMetadata,
-                handleNodeMove,
-                handleTextNodeMove,
-                handleNodeSelect,
-                handleToggleNadHover,
-                handleRightClick
+                diagramParametersMetadata
             );
 
             // add range slider to update branch labels
@@ -104,16 +104,18 @@ export const addNadToDemo = () => {
     fetch(NadSvgExample)
         .then((response) => response.text())
         .then((svgContent) => {
+            const diagramParametersMetadata: DiagramParametersMetadata = {
+                onMoveNodeCallback: handleNodeMove,
+                onMoveTextNodeCallback: handleTextNodeMove,
+                onSelectNodeCallback: handleNodeSelect,
+                onToggleHoverCallback: handleToggleNadHover,
+                onRightClickCallback: handleRightClick,
+            };
             new NetworkAreaDiagramViewer(
                 document.getElementById('svg-container-nad-no-moving')!,
                 svgContent,
                 NadSvgExampleMeta,
-                null,
-                handleNodeMove,
-                handleTextNodeMove,
-                handleNodeSelect,
-                handleToggleNadHover,
-                handleRightClick
+                diagramParametersMetadata
             );
         });
 
@@ -123,17 +125,17 @@ export const addNadToDemo = () => {
             const diagramParametersMetadata: DiagramParametersMetadata = {
                 enableDragInteraction: true,
                 addButtons: true,
+                onMoveNodeCallback: handleNodeMove,
+                onMoveTextNodeCallback: handleTextNodeMove,
+                onSelectNodeCallback: handleNodeSelect,
+                onToggleHoverCallback: handleToggleNadHover,
+                onRightClickCallback: handleRightClick,
             };
             const nadViewer = new NetworkAreaDiagramViewer(
                 document.getElementById('svg-container-nad-multibus-vlnodes')!,
                 svgContent,
                 NadSvgMultibusVLNodesExampleMeta,
-                diagramParametersMetadata,
-                handleNodeMove,
-                handleTextNodeMove,
-                handleNodeSelect,
-                handleToggleNadHover,
-                handleRightClick
+                diagramParametersMetadata
             );
 
             // add button to update branch labels
@@ -200,17 +202,17 @@ export const addNadToDemo = () => {
             const diagramParametersMetadata: DiagramParametersMetadata = {
                 enableDragInteraction: true,
                 addButtons: true,
+                onMoveNodeCallback: handleNodeMove,
+                onMoveTextNodeCallback: handleTextNodeMove,
+                onSelectNodeCallback: handleNodeSelect,
+                onToggleHoverCallback: handleToggleNadHover,
+                onRightClickCallback: handleRightClick,
             };
             new NetworkAreaDiagramViewer(
                 document.getElementById('svg-container-nad-multibus-vlnodes14')!,
                 svgContent,
                 NadSvgMultibusVLNodes14ExampleMeta,
-                diagramParametersMetadata,
-                handleNodeMove,
-                handleTextNodeMove,
-                handleNodeSelect,
-                handleToggleNadHover,
-                handleRightClick
+                diagramParametersMetadata
             );
         });
 
@@ -220,17 +222,17 @@ export const addNadToDemo = () => {
             const diagramParametersMetadata: DiagramParametersMetadata = {
                 enableDragInteraction: true,
                 addButtons: true,
+                onMoveNodeCallback: handleNodeMove,
+                onMoveTextNodeCallback: handleTextNodeMove,
+                onSelectNodeCallback: handleNodeSelect,
+                onToggleHoverCallback: handleToggleNadHover,
+                onRightClickCallback: handleRightClick,
             };
             new NetworkAreaDiagramViewer(
                 document.getElementById('svg-container-nad-pst-hvdc')!,
                 svgContent,
                 NadSvgPstHvdcExampleMeta,
-                diagramParametersMetadata,
-                handleNodeMove,
-                handleTextNodeMove,
-                handleNodeSelect,
-                handleToggleNadHover,
-                handleRightClick
+                diagramParametersMetadata
             );
         });
 
@@ -240,17 +242,17 @@ export const addNadToDemo = () => {
             const diagramParametersMetadata: DiagramParametersMetadata = {
                 enableDragInteraction: true,
                 addButtons: true,
+                onMoveNodeCallback: handleNodeMove,
+                onMoveTextNodeCallback: handleTextNodeMove,
+                onSelectNodeCallback: handleNodeSelect,
+                onToggleHoverCallback: handleToggleNadHover,
+                onRightClickCallback: handleRightClick,
             };
             new NetworkAreaDiagramViewer(
                 document.getElementById('svg-container-nad-threewt-dl-ub')!,
                 svgContent,
                 NadSvgThreeWTDanglingLineUnknownBusExampleMeta,
-                diagramParametersMetadata,
-                handleNodeMove,
-                handleTextNodeMove,
-                handleNodeSelect,
-                handleToggleNadHover,
-                handleRightClick
+                diagramParametersMetadata
             );
         });
 
@@ -260,17 +262,17 @@ export const addNadToDemo = () => {
             const diagramParametersMetadata: DiagramParametersMetadata = {
                 enableDragInteraction: true,
                 addButtons: true,
+                onMoveNodeCallback: handleNodeMove,
+                onMoveTextNodeCallback: handleTextNodeMove,
+                onSelectNodeCallback: handleNodeSelect,
+                onToggleHoverCallback: handleToggleNadHover,
+                onRightClickCallback: handleRightClick,
             };
             new NetworkAreaDiagramViewer(
                 document.getElementById('svg-container-nad-partial-network')!,
                 svgContent,
                 NadSvgPartialNetworkExampleMeta,
-                diagramParametersMetadata,
-                handleNodeMove,
-                handleTextNodeMove,
-                handleNodeSelect,
-                handleToggleNadHover,
-                handleRightClick
+                diagramParametersMetadata
             );
         });
 
@@ -282,18 +284,18 @@ export const addNadToDemo = () => {
                 enableLevelOfDetail: true,
                 zoomLevels: [0, 1000, 2200, 2500, 3000, 4000, 9000, 12000, 20000],
                 addButtons: true,
+                onMoveNodeCallback: handleNodeMove,
+                onMoveTextNodeCallback: handleTextNodeMove,
+                onSelectNodeCallback: handleNodeSelect,
+                onToggleHoverCallback: handleToggleNadHover,
+                onRightClickCallback: handleRightClick,
             };
             const svgContainerNadPegase = document.getElementById('svg-container-nad-pegase-network');
             new NetworkAreaDiagramViewer(
                 svgContainerNadPegase!,
                 svgContent,
                 NadSvgPegaseNetworkExampleMeta,
-                diagramParametersMetadata,
-                handleNodeMove,
-                handleTextNodeMove,
-                handleNodeSelect,
-                handleToggleNadHover,
-                handleRightClick
+                diagramParametersMetadata
             );
         });
 };

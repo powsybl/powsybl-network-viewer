@@ -136,22 +136,12 @@ export class NetworkAreaDiagramViewer {
      * @param svgContent - The SVG content to be rendered in the viewer.
      * @param diagramMetadata - Metadata associated with the diagram, including nodes, edges, and other properties.
      * @param diagramParametersMetadata - Parameters for the network area diagram viewer.
-     * @param onMoveNodeCallback - Callback function triggered when a node is moved.
-     * @param onMoveTextNodeCallback - Callback function triggered when a text node is moved.
-     * @param onSelectNodeCallback - Callback function triggered when a node is selected.
-     * @param onToggleHoverCallback - Callback function triggered when hovering over a node or edge.
-     * @param onRightClickCallback - Callback function triggered when right-clicking on a node or edge.
      */
     constructor(
         container: HTMLElement,
         svgContent: string,
         diagramMetadata: DiagramMetadata | null,
-        diagramParametersMetadata: DiagramParametersMetadata | null,
-        onMoveNodeCallback: OnMoveNodeCallbackType | null,
-        onMoveTextNodeCallback: OnMoveTextNodeCallbackType | null,
-        onSelectNodeCallback: OnSelectNodeCallbackType | null,
-        onToggleHoverCallback: OnToggleNadHoverCallbackType | null,
-        onRightClickCallback: OnRightClickCallbackType | null
+        diagramParametersMetadata: DiagramParametersMetadata | null
     ) {
         this.container = container;
         this.svgDiv = document.createElement('div');
@@ -164,11 +154,11 @@ export class NetworkAreaDiagramViewer {
         this.originalWidth = 0;
         this.originalHeight = 0;
         this.enableDragInteraction = this.diagramParameters.getEnableDragInteraction();
-        this.onMoveNodeCallback = onMoveNodeCallback;
-        this.onMoveTextNodeCallback = onMoveTextNodeCallback;
-        this.onRightClickCallback = onRightClickCallback;
-        this.onSelectNodeCallback = onSelectNodeCallback;
-        this.onToggleHoverCallback = onToggleHoverCallback;
+        this.onMoveNodeCallback = this.diagramParameters.getOnMoveNodeCallback();
+        this.onMoveTextNodeCallback = this.diagramParameters.getOnMoveTextNodeCallback();
+        this.onRightClickCallback = this.diagramParameters.getOnRightClickCallback();
+        this.onSelectNodeCallback = this.diagramParameters.getOnSelectNodeCallback();
+        this.onToggleHoverCallback = this.diagramParameters.getOnToggleHoverCallback();
         this.zoomLevels = this.diagramParameters.getZoomLevels();
         this.zoomLevels.sort((a, b) => b - a);
         this.init(diagramMetadata !== null);
