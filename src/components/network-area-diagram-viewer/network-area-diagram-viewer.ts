@@ -375,6 +375,14 @@ export class NetworkAreaDiagramViewer {
         const drawnSvg: HTMLElement = <HTMLElement>this.svgDraw.svg(this.svgContent).node.firstElementChild;
         drawnSvg.style.overflow = 'visible';
 
+        // Create a mask that is used to help the user hover over a line :
+        // The trick is to enlarge the line when hovering, and use this mask as a way to visually hide the
+        // enlargement. We only see the original line's shape through the mask, but the "real" line is thicker,
+        // making it easier to keep under the user's mouse.
+        const defs = this.svgDraw.defs();
+        const mask = defs.mask().id('highlight');
+        mask.polyline().fill('black').stroke({ color: 'white', width: 1 }).attr('id', 'highlight-line');
+
         // add events
         if (this.hasNodeInteraction() && hasMetadata) {
             this.svgDraw.on('mousedown', (e: Event) => {
@@ -2029,6 +2037,17 @@ export class NetworkAreaDiagramViewer {
         if (edge) {
             const equipmentId = edge.equipmentId ?? '';
             const edgeType = DiagramUtils.getStringEdgeType(edge) ?? '';
+
+            // When hovering over a polyline, we update the mask with the hovered polyline's shape. This way,
+            // when the polyline's width is updated, the mask is used to hide the change of width and keep it
+            // visually the same.
+            const polyline = element.querySelector<SVGPolylineElement>('polyline:hover');
+            if (polyline) {
+                const maskLine = document.getElementById("highlight-line") as SVGPolylineElement;
+                maskLine.setAttribute("points", polyline.getAttribute("points") || '');
+                maskLine.setAttribute("stroke-width", polyline.getAttribute("stroke-width") || '1');
+            }
+
             this.onToggleHoverCallback?.(true, mousePosition, equipmentId, edgeType);
         }
     }

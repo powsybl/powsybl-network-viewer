@@ -417,3 +417,13 @@ foreignObject.nad-text-nodes {
 .nad-disconnected .nad-svc {stroke: lightgrey}
 .nad-unknown {stroke: none; fill: black}
 
+
+#highlight-line {
+    stroke-width: 5;
+}
+.nad-edge-path:hover {
+    stroke: gold;
+    stroke-width: 35px;
+    stroke-linecap: round;
+    mask: url(#highlight);
+}
