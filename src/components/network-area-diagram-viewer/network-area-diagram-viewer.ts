@@ -2043,8 +2043,11 @@ export class NetworkAreaDiagramViewer {
             // visually the same.
             const polyline = element.querySelector<SVGPolylineElement>('polyline:hover');
             if (polyline) {
-                const maskLine = document.getElementById('edgeHoverHelperLine') as SVGPolylineElement;
-                maskLine.setAttribute('points', polyline.getAttribute('points') ?? '');
+                const maskLineEl = document.getElementById('edgeHoverHelperLine');
+                const maskLine = maskLineEl instanceof SVGPolylineElement ? maskLineEl : null;
+                if (maskLine) {
+                    maskLine.setAttribute('points', polyline.getAttribute('points') ?? '');
+                }
             }
 
             this.onToggleHoverCallback?.(true, mousePosition, equipmentId, edgeType);
