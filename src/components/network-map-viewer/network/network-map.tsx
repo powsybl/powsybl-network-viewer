@@ -50,7 +50,6 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
 import {
     EQUIPMENT_TYPES,
-    type MapAnyLine,
     type MapAnyLineWithType,
     type MapEquipment,
     type MapHvdcLine,
@@ -199,7 +198,7 @@ export type NetworkMapProps = {
 
 export type NetworkMapRef = {
     getSelectedSubstations: () => MapSubstation[];
-    getSelectedLines: () => MapAnyLine[];
+    getSelectedLines: () => MapAnyLineWithType[];
     cleanDraw: () => void;
     getMapDrawer: () => MapboxDraw | undefined;
     resetZoomAndPosition: () => void;
@@ -918,7 +917,7 @@ function getSubstationsInPolygon(
 
 function getSelectedLinesInPolygon(
     network: MapEquipments | undefined,
-    lines: MapAnyLine[],
+    lines: MapAnyLineWithType[],
     geoData: GeoData | undefined,
     polygonCoordinates: Polygon
 ) {

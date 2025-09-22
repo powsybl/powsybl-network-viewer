@@ -8,6 +8,7 @@
 import { Point, SVG, ViewBoxLike, Svg } from '@svgdotjs/svg.js';
 import '@svgdotjs/svg.panzoom.js';
 import * as DiagramUtils from './diagram-utils';
+import { ElementType, isTextNode, isVoltageLevelElement } from './diagram-utils';
 import { SvgParameters, EdgeInfoEnum, CssLocationEnum } from './svg-parameters';
 import { LayoutParameters } from './layout-parameters';
 import {
@@ -123,6 +124,7 @@ export class NetworkAreaDiagramViewer {
     layoutParameters: LayoutParameters;
     edgeAngles: Map<string, number> = new Map<string, number>();
     textNodeSelected: boolean = false;
+    enableDragInteraction: boolean = false;
     isDragging: boolean = false;
     endTextEdge: Point = new Point(0, 0);
     onMoveNodeCallback: OnMoveNodeCallbackType | null;
@@ -156,7 +158,7 @@ export class NetworkAreaDiagramViewer {
      * @param onMoveNodeCallback - Callback function triggered when a node is moved.
      * @param onMoveTextNodeCallback - Callback function triggered when a text node is moved.
      * @param onSelectNodeCallback - Callback function triggered when a node is selected.
-     * @param enableNodeInteraction - Whether node interaction (dragging, selecting) is enabled.
+     * @param enableDragInteraction - Whether dragging interaction on node or label is enabled.
      * @param enableLevelOfDetail - Whether level-of-detail rendering is enabled based on zoom level.
      * @param zoomLevels - Array of zoom levels used to determine level-of-detail rendering by applying corresponding
      *                     css class 'nad-zoom-{level}' to 'svg' element. If null, default zoom levels are used.
@@ -175,7 +177,7 @@ export class NetworkAreaDiagramViewer {
         onMoveNodeCallback: OnMoveNodeCallbackType | null,
         onMoveTextNodeCallback: OnMoveTextNodeCallbackType | null,
         onSelectNodeCallback: OnSelectNodeCallbackType | null,
-        enableNodeInteraction: boolean,
+        enableDragInteraction: boolean,
         enableLevelOfDetail: boolean,
         zoomLevels: number[] | null,
         onToggleHoverCallback: OnToggleNadHoverCallbackType | null,
@@ -192,25 +194,17 @@ export class NetworkAreaDiagramViewer {
         this.height = 0;
         this.originalWidth = 0;
         this.originalHeight = 0;
-        this.onRightClickCallback = onRightClickCallback;
-        if (zoomLevels != null) this.zoomLevels = zoomLevels;
-        this.zoomLevels.sort((a, b) => b - a);
-        this.init(
-            minWidth,
-            minHeight,
-            maxWidth,
-            maxHeight,
-            enableNodeInteraction,
-            enableLevelOfDetail,
-            diagramMetadata !== null,
-            addButtons
-        );
-        this.svgParameters = new SvgParameters(diagramMetadata?.svgParameters);
-        this.layoutParameters = new LayoutParameters(diagramMetadata?.layoutParameters);
+        this.enableDragInteraction = enableDragInteraction;
         this.onMoveNodeCallback = onMoveNodeCallback;
         this.onMoveTextNodeCallback = onMoveTextNodeCallback;
+        this.onRightClickCallback = onRightClickCallback;
         this.onSelectNodeCallback = onSelectNodeCallback;
         this.onToggleHoverCallback = onToggleHoverCallback;
+        if (zoomLevels != null) this.zoomLevels = zoomLevels;
+        this.zoomLevels.sort((a, b) => b - a);
+        this.init(minWidth, minHeight, maxWidth, maxHeight, enableLevelOfDetail, diagramMetadata !== null, addButtons);
+        this.svgParameters = new SvgParameters(diagramMetadata?.svgParameters);
+        this.layoutParameters = new LayoutParameters(diagramMetadata?.layoutParameters);
         this.previousMaxDisplayedSize = 0;
         this.onBendLineCallback = onBendLineCallback;
     }
@@ -347,12 +341,15 @@ export class NetworkAreaDiagramViewer {
         this.updateElement(elemToMove);
     }
 
+    private hasNodeInteraction(): boolean {
+        return this.enableDragInteraction || this.onRightClickCallback != null || this.onSelectNodeCallback != null;
+    }
+
     public init(
         minWidth: number,
         minHeight: number,
         maxWidth: number,
         maxHeight: number,
-        enableNodeInteraction: boolean,
         enableLevelOfDetail: boolean,
         hasMetadata: boolean,
         addButtons: boolean
@@ -400,7 +397,7 @@ export class NetworkAreaDiagramViewer {
         drawnSvg.style.overflow = 'visible';
 
         // add events
-        if (enableNodeInteraction && hasMetadata) {
+        if (this.hasNodeInteraction() && hasMetadata) {
             this.svgDraw.on('mousedown', (e: Event) => {
                 if ((e as MouseEvent).button == 0) {
                     this.onMouseLeftDown(e as MouseEvent);
@@ -421,7 +418,7 @@ export class NetworkAreaDiagramViewer {
             });
 
             this.svgDraw.on('mouseout', () => {
-                this.onToggleHoverCallback?.(false, null, '', '');
+                this.handleHoverExit();
             });
         }
         if (this.onRightClickCallback != null && hasMetadata) {
@@ -477,7 +474,7 @@ export class NetworkAreaDiagramViewer {
             observer.observe(targetNode, { attributeFilter: ['viewBox'] });
         }
 
-        if (enableNodeInteraction && hasMetadata) {
+        if (this.hasNodeInteraction() && hasMetadata) {
             // fill empty elements: unknown buses and three windings transformers
             const emptyElements: NodeListOf<SVGGraphicsElement> = this.svgDiv.querySelectorAll(
                 '.nad-unknown-busnode, .nad-3wt-nodes .nad-winding'
@@ -660,7 +657,9 @@ export class NetworkAreaDiagramViewer {
             // Interaction mode (could be drag or select)
             // next 'mousemove' event will determine it
             this.initSelection(selectableElem);
-            this.initDrag(draggableElem);
+            if (this.enableDragInteraction) {
+                this.initDrag(draggableElem);
+            }
             if (this.bendLines) {
                 // bend line moving already defined line point
                 this.onBendStart(DiagramUtils.getBendableFrom(event.target as SVGElement));
@@ -677,7 +676,9 @@ export class NetworkAreaDiagramViewer {
         if (!selectableElem) {
             return;
         }
-        this.disablePanzoom();
+        if (this.onSelectNodeCallback != null) {
+            this.disablePanzoom(); // keep pan zoom functionality if mouse over a node
+        }
         this.selectedElement = selectableElem as SVGGraphicsElement;
     }
 
@@ -993,22 +994,17 @@ export class NetworkAreaDiagramViewer {
 
         const hoverableElem = DiagramUtils.getHoverableFrom(mouseEvent.target as SVGElement);
         if (!hoverableElem) {
-            this.onToggleHoverCallback(false, null, '', '');
+            this.handleHoverExit();
             return;
         }
 
-        //get edge by svgId
-        const edge: EdgeMetadata | undefined = this.diagramMetadata?.edges.find(
-            (edge) => edge.svgId == hoverableElem?.id
-        );
+        this.clearHighlights();
+        const mousePosition = this.getMousePosition(mouseEvent);
 
-        if (edge) {
-            const mousePosition = this.getMousePosition(mouseEvent);
-            const equipmentId = edge?.equipmentId ?? '';
-            const edgeType = DiagramUtils.getStringEdgeType(edge) ?? '';
-            this.onToggleHoverCallback(true, mousePosition, equipmentId, edgeType);
+        if (DiagramUtils.isHighlightableElement(hoverableElem)) {
+            this.handleHighlightableElementHover(hoverableElem, mousePosition);
         } else {
-            this.onToggleHoverCallback(false, null, '', '');
+            this.handleEdgeHover(hoverableElem, mousePosition);
         }
     }
 
@@ -2412,5 +2408,82 @@ export class NetworkAreaDiagramViewer {
                 );
             }
         }
+    }
+
+    private handleHighlightableElementHover(element: SVGElement, mousePosition: Point): void {
+        if (isTextNode(element)) {
+            const textNode = this.diagramMetadata?.textNodes.find((node) => node.svgId === element.id);
+            if (textNode) {
+                this.highlightRelatedElements(textNode);
+                this.onToggleHoverCallback?.(
+                    true,
+                    mousePosition,
+                    textNode.equipmentId,
+                    ElementType[ElementType.TEXT_NODE]
+                );
+            }
+        } else if (isVoltageLevelElement(element)) {
+            const vlNode = this.diagramMetadata?.nodes.find((node) => node.svgId === element.id);
+            if (vlNode) {
+                this.highlightRelatedElements(vlNode);
+                this.onToggleHoverCallback?.(
+                    true,
+                    mousePosition,
+                    vlNode.equipmentId,
+                    ElementType[ElementType.VOLTAGE_LEVEL]
+                );
+            }
+        }
+    }
+
+    private handleEdgeHover(element: SVGElement, mousePosition: Point): void {
+        const edge = this.diagramMetadata?.edges.find((edge) => edge.svgId === element.id);
+        if (edge) {
+            const equipmentId = edge.equipmentId ?? '';
+            const edgeType = DiagramUtils.getStringEdgeType(edge) ?? '';
+            this.onToggleHoverCallback?.(true, mousePosition, equipmentId, edgeType);
+        }
+    }
+
+    private highlightRelatedElements(element: NodeMetadata | TextNodeMetadata): void {
+        if (!this.diagramMetadata) return;
+
+        const vlNodeId = 'vlNode' in element ? element.vlNode : element.svgId;
+        const relatedBusNodes = this.diagramMetadata.busNodes.filter((busNode) => busNode.vlNode === vlNodeId);
+        const relatedTextNode = this.diagramMetadata.textNodes.find((textNode) => textNode.vlNode === vlNodeId);
+
+        relatedBusNodes.forEach((busNode) => this.addHighlightBusClass(busNode.svgId));
+        if (relatedTextNode) {
+            this.addHighlightTextClass(relatedTextNode.svgId);
+        }
+    }
+
+    private addHighlightBusClass(svgId: string) {
+        const element = this.svgDiv.querySelector(`[id='${svgId}']`);
+        if (element) {
+            element.classList.add('nad-busnode-highlight');
+        }
+    }
+    private addHighlightTextClass(svgId: string) {
+        const element = this.svgDiv.querySelector(`[id='${svgId}']`);
+        if (element) {
+            element.classList.add('nad-textnode-highlight');
+        }
+    }
+
+    private clearHighlights() {
+        const highlightedBusElements = this.svgDiv.querySelectorAll('.nad-busnode-highlight');
+        const highlightedTextElements = this.svgDiv.querySelectorAll('.nad-textnode-highlight');
+        highlightedBusElements.forEach((element) => {
+            element.classList.remove('nad-busnode-highlight');
+        });
+        highlightedTextElements.forEach((element) => {
+            element.classList.remove('nad-textnode-highlight');
+        });
+    }
+
+    private handleHoverExit() {
+        this.onToggleHoverCallback?.(false, null, '', '');
+        this.clearHighlights();
     }
 }
