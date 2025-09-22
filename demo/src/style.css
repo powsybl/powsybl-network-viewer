@@ -366,6 +366,11 @@ foreignObject.nad-text-nodes {
     animation: node-under-blink 3s infinite;
 }
 .nad-line-points {
+    fill: #0000;
+    stroke: black;
+    stroke-width: 2px;
+}
+.nad-line-points .nad-moved {
     fill: black;
 }
 

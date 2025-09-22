@@ -826,18 +826,23 @@ export function getEdgeMidPoint(halfEdge: SVGGraphicsElement | null): Point | nu
     return points == null ? null : points[1];
 }
 
+class IDGenerator {
+    private static counter = 0;
+
+    static nextID(prefix: string): string {
+        return prefix + ++IDGenerator.counter;
+    }
+}
+
 // create line point elements, used for bending lines
 export function createLinePointElement(edgeId: string, linePoint: Point, index: number): SVGElement {
-    const linePointElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    linePointElement.id = getLinePointId(edgeId, index + 1);
-    linePointElement.setAttribute('transform', 'translate(' + getFormattedPoint(linePoint) + ')');
+    const linePointElement = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    linePointElement.id = IDGenerator.nextID('linePoint');
     linePointElement.setAttribute('index', index + '');
-    const squareElement = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-    squareElement.setAttribute('width', '16');
-    squareElement.setAttribute('height', '16');
-    squareElement.setAttribute('x', '-8');
-    squareElement.setAttribute('y', '-8');
-    linePointElement.appendChild(squareElement);
+    linePointElement.setAttribute('width', '16');
+    linePointElement.setAttribute('height', '16');
+    linePointElement.setAttribute('x', getFormattedValue(linePoint.x - 8));
+    linePointElement.setAttribute('y', getFormattedValue(linePoint.y - 8));
     return linePointElement;
 }
 
@@ -1015,4 +1020,16 @@ export function getBendLinesButton(): HTMLButtonElement {
     const b = getButton(BendLinesSvg, 'Enable line bending', '25px');
     b.style.borderRadius = '5px 5px 5px 5px';
     return b;
+}
+
+export function getLinePointIndex(edge: EdgeMetadata, linePointElement: SVGGraphicsElement): number | undefined {
+    const linePointPoint = new Point(
+        Number(linePointElement.getAttribute('x')),
+        Number(linePointElement.getAttribute('y'))
+    );
+    const indexOf = edge.points?.findIndex(
+        (point) => point.x == linePointPoint.x && point.y == linePointPoint.y
+    );
+    console.log('index', indexOf, linePointPoint.x, linePointPoint.y, edge.points);
+    return indexOf;
 }
