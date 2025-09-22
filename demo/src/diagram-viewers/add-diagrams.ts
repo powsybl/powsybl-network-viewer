@@ -39,6 +39,7 @@ import {
     BranchState,
     OnRightClickCallbackType,
 } from '../../../src';
+import {OnBendLineCallbackType} from "../../../src/components/network-area-diagram-viewer/network-area-diagram-viewer";
 
 export const addNadToDemo = () => {
     fetch(NadSvgExample)
@@ -55,6 +56,7 @@ export const addNadToDemo = () => {
                 handleNodeMove,
                 handleTextNodeMove,
                 handleNodeSelect,
+                handleLineBending,
                 true,
                 false,
                 null,
@@ -117,6 +119,7 @@ export const addNadToDemo = () => {
                 handleNodeMove,
                 handleTextNodeMove,
                 handleNodeSelect,
+                handleLineBending,
                 false,
                 false,
                 null,
@@ -140,6 +143,7 @@ export const addNadToDemo = () => {
                 handleNodeMove,
                 handleTextNodeMove,
                 handleNodeSelect,
+                handleLineBending,
                 true,
                 false,
                 null,
@@ -220,6 +224,7 @@ export const addNadToDemo = () => {
                 handleNodeMove,
                 handleTextNodeMove,
                 handleNodeSelect,
+                handleLineBending,
                 true,
                 false,
                 null,
@@ -243,6 +248,7 @@ export const addNadToDemo = () => {
                 handleNodeMove,
                 handleTextNodeMove,
                 handleNodeSelect,
+                handleLineBending,
                 true,
                 false,
                 null,
@@ -266,6 +272,7 @@ export const addNadToDemo = () => {
                 handleNodeMove,
                 handleTextNodeMove,
                 handleNodeSelect,
+                handleLineBending,
                 true,
                 false,
                 null,
@@ -289,6 +296,7 @@ export const addNadToDemo = () => {
                 handleNodeMove,
                 handleTextNodeMove,
                 handleNodeSelect,
+                handleLineBending,
                 true,
                 false,
                 null,
@@ -313,6 +321,7 @@ export const addNadToDemo = () => {
                 handleNodeMove,
                 handleTextNodeMove,
                 handleNodeSelect,
+                handleLineBending,
                 true,
                 true,
                 [0, 1000, 2200, 2500, 3000, 4000, 9000, 12000, 20000],
@@ -518,5 +527,20 @@ const handleRightClick: OnRightClickCallbackType = (svgId, equipmentId, equipmen
         mousePosition?.x +
         ', y=' +
         mousePosition?.y;
+    console.log(msg);
+};
+
+const handleLineBending: OnBendLineCallbackType = (svgId, equipmentId, equipmentType, linePoints, lineOperation) => {
+    const msg =
+        'Bent line: ' +
+        svgId +
+        ', equipment: ' +
+        equipmentId +
+        ', equipmentType: ' +
+        equipmentType +
+        ', linePoints: [' +
+        linePoints?.map((point) => point.x + ',' + point.y).join(' ') +
+        '], operation: ' +
+        lineOperation;
     console.log(msg);
 };
