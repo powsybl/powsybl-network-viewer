@@ -333,7 +333,9 @@ export const addNadToDemo = () => {
             ) => {
                 const hoverDiv = document.getElementById('hoverVisualizer');
                 if (hoverDiv) {
-                    hoverDiv.textContent = hovered ? 'Hovering over ' + equipmentId : 'No hover at the moment';
+                    hoverDiv.textContent = hovered
+                        ? 'Hovering over ' + equipmentId + ' (' + equipmentType + ')'
+                        : 'No hover at the moment';
                 }
             };
 
