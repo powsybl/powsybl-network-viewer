@@ -321,6 +321,48 @@ export const addNadToDemo = () => {
                 true
             );
         });
+
+    fetch(NadSvgExample)
+        .then((response) => response.text())
+        .then((svgContent) => {
+            const showHoveredEquipmentId: OnToggleNadHoverCallbackType = (
+                hovered,
+                mousePosition,
+                equipmentId,
+                equipmentType
+            ) => {
+                const hoverDiv = document.getElementById('hoverVisualizer');
+                if (hoverDiv) {
+                    hoverDiv.textContent = hovered ? 'Hovering over ' + equipmentId : 'No hover at the moment';
+                }
+            };
+
+            new NetworkAreaDiagramViewer(
+                document.getElementById('svg-container-nad-hoverCallback')!,
+                svgContent,
+                NadSvgExampleMeta,
+                500,
+                600,
+                1000,
+                1200,
+                handleNodeMove,
+                handleTextNodeMove,
+                handleNodeSelect,
+                true,
+                false,
+                null,
+                showHoveredEquipmentId,
+                handleRightClick,
+                false
+            );
+
+            // add range slider to update branch labels
+            const hoverVisualizer = document.createElement('div');
+            hoverVisualizer.id = 'hoverVisualizer';
+            hoverVisualizer.textContent = 'No hover at the moment';
+
+            document.getElementById('svg-container-nad-hoverCallback')?.appendChild(hoverVisualizer);
+        });
 };
 
 export const addSldToDemo = () => {

@@ -380,8 +380,8 @@ export class NetworkAreaDiagramViewer {
         // enlargement. We only see the original line's shape through the mask, but the "real" line is thicker,
         // making it easier to keep under the user's mouse.
         const defs = this.svgDraw.defs();
-        const mask = defs.mask().id('highlight');
-        mask.polyline().fill('black').stroke({ color: 'white', width: 1 }).attr('id', 'highlight-line');
+        const mask = defs.mask().id('edgeHoverHelper');
+        mask.polyline().fill('none').stroke({ color: 'white' }).attr('id', 'edgeHoverHelperLine');
 
         // add events
         if (this.hasNodeInteraction() && hasMetadata) {
@@ -2043,9 +2043,8 @@ export class NetworkAreaDiagramViewer {
             // visually the same.
             const polyline = element.querySelector<SVGPolylineElement>('polyline:hover');
             if (polyline) {
-                const maskLine = document.getElementById("highlight-line") as SVGPolylineElement;
-                maskLine.setAttribute("points", polyline.getAttribute("points") || '');
-                maskLine.setAttribute("stroke-width", polyline.getAttribute("stroke-width") || '1');
+                const maskLine = document.getElementById('edgeHoverHelperLine') as SVGPolylineElement;
+                maskLine.setAttribute('points', polyline.getAttribute('points') ?? '');
             }
 
             this.onToggleHoverCallback?.(true, mousePosition, equipmentId, edgeType);
