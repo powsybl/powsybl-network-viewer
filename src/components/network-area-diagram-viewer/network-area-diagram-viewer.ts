@@ -158,6 +158,7 @@ export class NetworkAreaDiagramViewer {
      * @param onMoveNodeCallback - Callback function triggered when a node is moved.
      * @param onMoveTextNodeCallback - Callback function triggered when a text node is moved.
      * @param onSelectNodeCallback - Callback function triggered when a node is selected.
+     * @param onBendLineCallback - Callback function triggered when a bend line is created.
      * @param enableDragInteraction - Whether dragging interaction on node or label is enabled.
      * @param enableLevelOfDetail - Whether level-of-detail rendering is enabled based on zoom level.
      * @param zoomLevels - Array of zoom levels used to determine level-of-detail rendering by applying corresponding
@@ -177,13 +178,13 @@ export class NetworkAreaDiagramViewer {
         onMoveNodeCallback: OnMoveNodeCallbackType | null,
         onMoveTextNodeCallback: OnMoveTextNodeCallbackType | null,
         onSelectNodeCallback: OnSelectNodeCallbackType | null,
+        onBendLineCallback: OnBendLineCallbackType | null,
         enableDragInteraction: boolean,
         enableLevelOfDetail: boolean,
         zoomLevels: number[] | null,
         onToggleHoverCallback: OnToggleNadHoverCallbackType | null,
         onRightClickCallback: OnRightClickCallbackType | null,
         addButtons: boolean,
-        onBendLineCallback: OnBendLineCallbackType | null
     ) {
         this.container = container;
         this.svgDiv = document.createElement('div');
@@ -1232,9 +1233,19 @@ export class NetworkAreaDiagramViewer {
         }
         // compute moved edge data: polyline points
         const nodeRadius1 = this.getNodeRadius(edge.busNode1 ?? '-1', edge.node1 ?? '-1');
-        const edgeStart1 = this.getEdgeStart(edge.busNode1, nodeRadius1[1], edgeNodes[0], edgeNodes[1]);
+        const edgeStart1 = this.getEdgeStart(
+            edge.busNode1,
+            nodeRadius1[1],
+            edgeNodes[0],
+            edge.points ? new Point(edge.points[0].x, edge.points[0].y) : edgeNodes[1]
+        );
         const nodeRadius2 = this.getNodeRadius(edge.busNode2 ?? '-1', edge.node2 ?? '-1');
-        const edgeStart2 = this.getEdgeStart(edge.busNode2, nodeRadius2[1], edgeNodes[1], edgeNodes[0]);
+        const edgeStart2 = this.getEdgeStart(
+            edge.busNode2,
+            nodeRadius2[1],
+            edgeNodes[1],
+            edge.points ? new Point(edge.points[edge.points.length - 1].x, edge.points[edge.points.length - 1].y) : edgeNodes[0]
+        );
         const edgeMiddle = DiagramUtils.getMidPosition(edgeStart1, edgeStart2);
 
         const edgePoints = edge.points
