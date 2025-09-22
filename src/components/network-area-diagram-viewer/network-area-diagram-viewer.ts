@@ -83,7 +83,7 @@ export type OnBendLineCallbackType = (
     equipmentType: string,
     linePoints: Point[] | null,
     lineOperation: string
-) => void
+) => void;
 
 enum LineOperation {
     BEND,
@@ -184,7 +184,7 @@ export class NetworkAreaDiagramViewer {
         zoomLevels: number[] | null,
         onToggleHoverCallback: OnToggleNadHoverCallbackType | null,
         onRightClickCallback: OnRightClickCallbackType | null,
-        addButtons: boolean,
+        addButtons: boolean
     ) {
         this.container = container;
         this.svgDiv = document.createElement('div');
@@ -638,10 +638,7 @@ export class NetworkAreaDiagramViewer {
                 // bend line moving already defined line point
                 this.onBendStart(DiagramUtils.getBendableFrom(targetElement));
                 // bend line moving new line point
-                this.onBendLineStart(
-                    DiagramUtils.getBendableLineFrom(targetElement, this.bendableLines),
-                    event
-                );
+                this.onBendLineStart(DiagramUtils.getBendableLineFrom(targetElement, this.bendableLines), event);
             }
         }
     }
@@ -1244,7 +1241,9 @@ export class NetworkAreaDiagramViewer {
             edge.busNode2,
             nodeRadius2[1],
             edgeNodes[1],
-            edge.points ? new Point(edge.points[edge.points.length - 1].x, edge.points[edge.points.length - 1].y) : edgeNodes[0]
+            edge.points
+                ? new Point(edge.points[edge.points.length - 1].x, edge.points[edge.points.length - 1].y)
+                : edgeNodes[0]
         );
         const edgeMiddle = DiagramUtils.getMidPosition(edgeStart1, edgeStart2);
 
@@ -1374,7 +1373,7 @@ export class NetworkAreaDiagramViewer {
             );
         }
 
-        const polyline: string = polylinePoints.map(p => DiagramUtils.getFormattedPoint(p)).join(' ');
+        const polyline: string = polylinePoints.map((p) => DiagramUtils.getFormattedPoint(p)).join(' ');
         polylineElement?.setAttribute('points', polyline);
 
         // redraw edge arrow and label
@@ -1628,7 +1627,7 @@ export class NetworkAreaDiagramViewer {
                 twtEdge.setAttribute('points', polylinePoints);
                 // redraw edge arrow and label
                 if (edgeNode.children.length > 1) {
-                    this.redrawEdgeArrowAndLabel(edgeNode, edgeStart, null, edgeEnd, nodeRadius1);
+                    this.redrawEdgeArrowAndLabel(edgeNode, edgeStart, null, edgeEnd, nodeRadius1, false);
                 }
                 // store edge angles, to use them for bus node redrawing
                 this.edgeAngles.set(edgeNode.id + '.1', DiagramUtils.getAngle(edgeStart, edgeEnd));
@@ -2336,7 +2335,7 @@ export class NetworkAreaDiagramViewer {
             // delete point
             edge.points.splice(index, 1);
             if (edge.points.length == 0) {
-                delete edge.points;
+                edge.points = undefined;
             }
         }
     }

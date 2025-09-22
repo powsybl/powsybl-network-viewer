@@ -38,8 +38,8 @@ import {
     OnToggleNadHoverCallbackType,
     BranchState,
     OnRightClickCallbackType,
+    OnBendLineCallbackType,
 } from '../../../src';
-import {OnBendLineCallbackType} from "../../../src/components/network-area-diagram-viewer/network-area-diagram-viewer";
 
 export const addNadToDemo = () => {
     fetch(NadSvgExample)

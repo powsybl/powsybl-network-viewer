@@ -6,7 +6,7 @@
  */
 
 import { Point } from '@svgdotjs/svg.js';
-import { EdgeMetadata, BusNodeMetadata, NodeMetadata, TextNodeMetadata, EdgePointMetadata} from './diagram-metadata';
+import { EdgeMetadata, BusNodeMetadata, NodeMetadata, TextNodeMetadata, EdgePointMetadata } from './diagram-metadata';
 import { SvgParameters } from './svg-parameters';
 import ZoomToFitSvg from '../../resources/material-icons/zoom-to-fit.svg';
 import ZoomInSvg from '../../resources/material-icons/zoom-in.svg';
@@ -88,7 +88,6 @@ export function getLinePointId(edgeId: string | undefined, index: number): strin
 export function getEdgeId(linePointId: string | undefined): string {
     return linePointId !== undefined ? linePointId.replace(/-point-\d{1,3}/, '') : '-1';
 }
-
 
 export function getBendableLines(edges: EdgeMetadata[] | undefined): EdgeMetadata[] {
     // group edges by edge ends
@@ -258,7 +257,6 @@ export function getEdgePoints(
     }
     return [halfEdgePoints1, halfEdgePoints2.reverse()];
 }
-
 
 // format number to string
 export function getFormattedValue(value: number): string {
@@ -580,7 +578,7 @@ export function getPolylinePoints(polyline: HTMLElement): Point[] | null {
     if (polylinePoints == null) {
         return null;
     }
-    const coordinates: string[] = polylinePoints.split(/,| /);
+    const coordinates: string[] = polylinePoints.split(/[, ]/);
     if (coordinates.length < 4) {
         return null;
     }
@@ -728,8 +726,8 @@ export function getTextNodeTranslatedPosition(textNode: SVGGraphicsElement | nul
 
 // get text node position
 export function getTextNodePosition(textNode: SVGGraphicsElement | null): Point {
-    const textNodeX = textNode?.style.left.replace('px', '') ?? '0';
-    const textNodeY = textNode?.style.top.replace('px', '') ?? '0';
+    const textNodeX = textNode?.getAttribute('x') ?? '0';
+    const textNodeY = textNode?.getAttribute('y') ?? '0';
     return new Point(+textNodeX, +textNodeY);
 }
 

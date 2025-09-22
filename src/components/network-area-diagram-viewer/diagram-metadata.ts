@@ -74,7 +74,7 @@ export interface EdgeMetadata {
     busNode1: string;
     busNode2: string;
     type: string;
-    points: EdgePointMetadata[];
+    points?: EdgePointMetadata[];
 }
 
 export interface EdgePointMetadata {
