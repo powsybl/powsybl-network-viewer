@@ -184,13 +184,14 @@ export function addPointToList(
     } else {
         pointsMetadata.splice(0, 0, { x: node1.x, y: node1.y });
         pointsMetadata.push({ x: node2.x, y: node2.y });
+        let minDistance = Number.MAX_VALUE;
         for (let i = 0; i < pointsMetadata.length - 1; i++) {
             const point1 = new Point(pointsMetadata[i].x, pointsMetadata[i].y);
             const point2 = new Point(pointsMetadata[i + 1].x, pointsMetadata[i + 1].y);
             const distance = getDistanceFromSegment(bendPoint, point1, point2);
-            if (distance < 5) {
+            if (distance < minDistance) {
+                minDistance = distance;
                 index = i;
-                break;
             }
         }
         pointsMetadata.pop();
