@@ -316,10 +316,13 @@ export class NetworkAreaDiagramViewer {
         );
 
         // set the SVG
-        this.svgDraw = SVG()
-            .addTo(this.svgDiv)
-            .size(this.width, this.height)
-            .viewbox(dimensions.viewbox.x, dimensions.viewbox.y, dimensions.viewbox.width, dimensions.viewbox.height);
+        const viewBox: ViewBoxLike = this.nadViewerParameters.getInitialViewBox() ?? {
+            x: dimensions.viewbox.x,
+            y: dimensions.viewbox.y,
+            width: dimensions.viewbox.width,
+            height: dimensions.viewbox.height,
+        };
+        this.svgDraw = SVG().addTo(this.svgDiv).size(this.width, this.height).viewbox(viewBox);
         const drawnSvg: HTMLElement = <HTMLElement>this.svgDraw.svg(this.svgContent).node.firstElementChild;
         drawnSvg.style.overflow = 'visible';
 
