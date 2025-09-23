@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-import { Point } from '@svgdotjs/svg.js';
+import { ViewBoxLike, Point } from '@svgdotjs/svg.js';
 
 export type OnMoveNodeCallbackType = (
     equipmentId: string,
@@ -85,6 +85,9 @@ export interface NadViewerParametersOptions {
 
     // Callback function triggered when right-clicking on a node or edge.
     onRightClickCallback?: OnRightClickCallbackType | null;
+
+    // View box to use in the network area diagram initialization.
+    initialViewBox?: ViewBoxLike;
 }
 
 export class NadViewerParameters {
@@ -146,5 +149,8 @@ export class NadViewerParameters {
     }
     public getOnRightClickCallback(): OnRightClickCallbackType | null {
         return this.nadViewerParametersOptions?.onRightClickCallback ?? null;
+    }
+    public getInitialViewBox(): ViewBoxLike | undefined {
+        return this.nadViewerParametersOptions?.initialViewBox;
     }
 }
