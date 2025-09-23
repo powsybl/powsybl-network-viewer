@@ -39,13 +39,13 @@ import {
     BranchState,
     OnRightClickCallbackType,
 } from '../../../src';
-import { DiagramParametersMetadata } from '../../../src/components/network-area-diagram-viewer/diagram-parameters';
+import { NadViewerParametersOptions } from '../../../src/components/network-area-diagram-viewer/nad-viewer-parameters';
 
 export const addNadToDemo = () => {
     fetch(NadSvgExample)
         .then((response) => response.text())
         .then((svgContent) => {
-            const diagramParametersMetadata: DiagramParametersMetadata = {
+            const nadViewerParametersOptions: NadViewerParametersOptions = {
                 enableDragInteraction: true,
                 addButtons: true,
                 onMoveNodeCallback: handleNodeMove,
@@ -58,7 +58,7 @@ export const addNadToDemo = () => {
                 document.getElementById('svg-container-nad')!,
                 svgContent,
                 NadSvgExampleMeta,
-                diagramParametersMetadata
+                nadViewerParametersOptions
             );
 
             // add range slider to update branch labels
@@ -104,7 +104,7 @@ export const addNadToDemo = () => {
     fetch(NadSvgExample)
         .then((response) => response.text())
         .then((svgContent) => {
-            const diagramParametersMetadata: DiagramParametersMetadata = {
+            const nadViewerParametersOptions: NadViewerParametersOptions = {
                 onMoveNodeCallback: handleNodeMove,
                 onMoveTextNodeCallback: handleTextNodeMove,
                 onSelectNodeCallback: handleNodeSelect,
@@ -115,14 +115,14 @@ export const addNadToDemo = () => {
                 document.getElementById('svg-container-nad-no-moving')!,
                 svgContent,
                 NadSvgExampleMeta,
-                diagramParametersMetadata
+                nadViewerParametersOptions
             );
         });
 
     fetch(NadSvgMultibusVLNodesExample)
         .then((response) => response.text())
         .then((svgContent) => {
-            const diagramParametersMetadata: DiagramParametersMetadata = {
+            const nadViewerParametersOptions: NadViewerParametersOptions = {
                 enableDragInteraction: true,
                 addButtons: true,
                 onMoveNodeCallback: handleNodeMove,
@@ -135,7 +135,7 @@ export const addNadToDemo = () => {
                 document.getElementById('svg-container-nad-multibus-vlnodes')!,
                 svgContent,
                 NadSvgMultibusVLNodesExampleMeta,
-                diagramParametersMetadata
+                nadViewerParametersOptions
             );
 
             // add button to update branch labels
@@ -199,7 +199,7 @@ export const addNadToDemo = () => {
     fetch(NadSvgMultibusVLNodes14Example)
         .then((response) => response.text())
         .then((svgContent) => {
-            const diagramParametersMetadata: DiagramParametersMetadata = {
+            const nadViewerParametersOptions: NadViewerParametersOptions = {
                 enableDragInteraction: true,
                 addButtons: true,
                 onMoveNodeCallback: handleNodeMove,
@@ -212,14 +212,14 @@ export const addNadToDemo = () => {
                 document.getElementById('svg-container-nad-multibus-vlnodes14')!,
                 svgContent,
                 NadSvgMultibusVLNodes14ExampleMeta,
-                diagramParametersMetadata
+                nadViewerParametersOptions
             );
         });
 
     fetch(NadSvgPstHvdcExample)
         .then((response) => response.text())
         .then((svgContent) => {
-            const diagramParametersMetadata: DiagramParametersMetadata = {
+            const nadViewerParametersOptions: NadViewerParametersOptions = {
                 enableDragInteraction: true,
                 addButtons: true,
                 onMoveNodeCallback: handleNodeMove,
@@ -232,14 +232,14 @@ export const addNadToDemo = () => {
                 document.getElementById('svg-container-nad-pst-hvdc')!,
                 svgContent,
                 NadSvgPstHvdcExampleMeta,
-                diagramParametersMetadata
+                nadViewerParametersOptions
             );
         });
 
     fetch(NadSvgThreeWTDanglingLineUnknownBusExample)
         .then((response) => response.text())
         .then((svgContent) => {
-            const diagramParametersMetadata: DiagramParametersMetadata = {
+            const nadViewerParametersOptions: NadViewerParametersOptions = {
                 enableDragInteraction: true,
                 addButtons: true,
                 onMoveNodeCallback: handleNodeMove,
@@ -252,14 +252,14 @@ export const addNadToDemo = () => {
                 document.getElementById('svg-container-nad-threewt-dl-ub')!,
                 svgContent,
                 NadSvgThreeWTDanglingLineUnknownBusExampleMeta,
-                diagramParametersMetadata
+                nadViewerParametersOptions
             );
         });
 
     fetch(NadSvgPartialNetworkExample)
         .then((response) => response.text())
         .then((svgContent) => {
-            const diagramParametersMetadata: DiagramParametersMetadata = {
+            const nadViewerParametersOptions: NadViewerParametersOptions = {
                 enableDragInteraction: true,
                 addButtons: true,
                 onMoveNodeCallback: handleNodeMove,
@@ -272,14 +272,14 @@ export const addNadToDemo = () => {
                 document.getElementById('svg-container-nad-partial-network')!,
                 svgContent,
                 NadSvgPartialNetworkExampleMeta,
-                diagramParametersMetadata
+                nadViewerParametersOptions
             );
         });
 
     fetch(NadSvgPegaseNetworkExample)
         .then((response) => response.text())
         .then((svgContent) => {
-            const diagramParametersMetadata: DiagramParametersMetadata = {
+            const nadViewerParametersOptions: NadViewerParametersOptions = {
                 enableDragInteraction: true,
                 enableLevelOfDetail: true,
                 zoomLevels: [0, 1000, 2200, 2500, 3000, 4000, 9000, 12000, 20000],
@@ -295,7 +295,7 @@ export const addNadToDemo = () => {
                 svgContainerNadPegase!,
                 svgContent,
                 NadSvgPegaseNetworkExampleMeta,
-                diagramParametersMetadata
+                nadViewerParametersOptions
             );
         });
 };

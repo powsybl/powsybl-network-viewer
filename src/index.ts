@@ -24,9 +24,9 @@ export type {
     TextNodeMetadata,
 } from './components/network-area-diagram-viewer/diagram-metadata';
 export type {
-    DiagramParametersMetadata,
-    DiagramParameters,
-} from './components/network-area-diagram-viewer/diagram-parameters';
+    NadViewerParametersOptions,
+    NadViewerParameters,
+} from './components/network-area-diagram-viewer/nad-viewer-parameters';
 export { LayoutParameters } from './components/network-area-diagram-viewer/layout-parameters';
 export { SvgParameters } from './components/network-area-diagram-viewer/svg-parameters';
 

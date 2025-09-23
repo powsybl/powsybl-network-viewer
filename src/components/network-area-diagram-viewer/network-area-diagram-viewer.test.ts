@@ -7,14 +7,14 @@
  */
 
 import { NetworkAreaDiagramViewer } from './network-area-diagram-viewer';
-import { DiagramParametersMetadata } from './diagram-parameters';
+import { NadViewerParametersOptions } from './nad-viewer-parameters';
 
 describe('Test network-area-diagram-viewer', () => {
     // SVG aren't loaded properly in DOM with Jest. Has to be enriched...
     test('nad creation', () => {
         const container: HTMLDivElement = document.createElement('div');
 
-        const diagramParametersMetadata: DiagramParametersMetadata = {
+        const nadViewerParametersOptions: NadViewerParametersOptions = {
             minWidth: 0,
             minHeight: 0,
             maxWidth: 0,
@@ -32,7 +32,7 @@ describe('Test network-area-diagram-viewer', () => {
             container,
             '',
             null,
-            diagramParametersMetadata
+            nadViewerParametersOptions
         );
 
         nad.moveNodeToCoordinates('', 0, 0);

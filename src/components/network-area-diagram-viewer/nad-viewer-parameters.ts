@@ -12,7 +12,7 @@ import {
     OnToggleNadHoverCallbackType,
 } from './network-area-diagram-viewer';
 
-export interface DiagramParametersMetadata {
+export interface NadViewerParametersOptions {
     // The minimum width of the viewer.
     minWidth?: number;
 
@@ -54,7 +54,7 @@ export interface DiagramParametersMetadata {
     onRightClickCallback?: OnRightClickCallbackType | null;
 }
 
-export class DiagramParameters {
+export class NadViewerParameters {
     static readonly MIN_WIDTH_DEFAULT = 500;
     static readonly MIN_HEIGHT_DEFAULT = 600;
     static readonly MAX_WIDTH_DEFAULT = 1000;
@@ -64,51 +64,54 @@ export class DiagramParameters {
     static readonly ZOOM_LEVELS_DEFAULT = [0, 1000, 2200, 2500, 3000, 4000, 9000, 12000, 20000];
     static readonly ADD_BUTTONS_DEFAULT = false;
 
-    diagramParametersMetadata: DiagramParametersMetadata | undefined;
+    nadViewerParametersOptions: NadViewerParametersOptions | undefined;
 
-    constructor(diagramParametersMetadata: DiagramParametersMetadata | undefined) {
-        this.diagramParametersMetadata = diagramParametersMetadata;
+    constructor(nadViewerParametersOptions: NadViewerParametersOptions | undefined) {
+        this.nadViewerParametersOptions = nadViewerParametersOptions;
     }
 
     public getMinWidth(): number {
-        return this.diagramParametersMetadata?.minWidth ?? DiagramParameters.MIN_WIDTH_DEFAULT;
+        return this.nadViewerParametersOptions?.minWidth ?? NadViewerParameters.MIN_WIDTH_DEFAULT;
     }
     public getMinHeight(): number {
-        return this.diagramParametersMetadata?.minHeight ?? DiagramParameters.MIN_HEIGHT_DEFAULT;
+        return this.nadViewerParametersOptions?.minHeight ?? NadViewerParameters.MIN_HEIGHT_DEFAULT;
     }
     public getMaxWidth(): number {
-        return this.diagramParametersMetadata?.maxWidth ?? DiagramParameters.MAX_WIDTH_DEFAULT;
+        return this.nadViewerParametersOptions?.maxWidth ?? NadViewerParameters.MAX_WIDTH_DEFAULT;
     }
     public getMaxHeight(): number {
-        return this.diagramParametersMetadata?.maxHeight ?? DiagramParameters.MAX_HEIGHT_DEFAULT;
+        return this.nadViewerParametersOptions?.maxHeight ?? NadViewerParameters.MAX_HEIGHT_DEFAULT;
     }
     public getEnableDragInteraction(): boolean {
         return (
-            this.diagramParametersMetadata?.enableDragInteraction ?? DiagramParameters.ENABLE_DRAG_INTERACTION_DEFAULT
+            this.nadViewerParametersOptions?.enableDragInteraction ??
+            NadViewerParameters.ENABLE_DRAG_INTERACTION_DEFAULT
         );
     }
     public getEnableLevelOfDetail(): boolean {
-        return this.diagramParametersMetadata?.enableLevelOfDetail ?? DiagramParameters.ENABLE_LEVEL_OF_DETAIL_DEFAULT;
+        return (
+            this.nadViewerParametersOptions?.enableLevelOfDetail ?? NadViewerParameters.ENABLE_LEVEL_OF_DETAIL_DEFAULT
+        );
     }
     public getZoomLevels(): number[] {
-        return this.diagramParametersMetadata?.zoomLevels ?? DiagramParameters.ZOOM_LEVELS_DEFAULT;
+        return this.nadViewerParametersOptions?.zoomLevels ?? NadViewerParameters.ZOOM_LEVELS_DEFAULT;
     }
     public getAddButtons(): boolean {
-        return this.diagramParametersMetadata?.addButtons ?? DiagramParameters.ADD_BUTTONS_DEFAULT;
+        return this.nadViewerParametersOptions?.addButtons ?? NadViewerParameters.ADD_BUTTONS_DEFAULT;
     }
     public getOnMoveNodeCallback(): OnMoveNodeCallbackType | null {
-        return this.diagramParametersMetadata?.onMoveNodeCallback ?? null;
+        return this.nadViewerParametersOptions?.onMoveNodeCallback ?? null;
     }
     public getOnMoveTextNodeCallback(): OnMoveTextNodeCallbackType | null {
-        return this.diagramParametersMetadata?.onMoveTextNodeCallback ?? null;
+        return this.nadViewerParametersOptions?.onMoveTextNodeCallback ?? null;
     }
     public getOnSelectNodeCallback(): OnSelectNodeCallbackType | null {
-        return this.diagramParametersMetadata?.onSelectNodeCallback ?? null;
+        return this.nadViewerParametersOptions?.onSelectNodeCallback ?? null;
     }
     public getOnToggleHoverCallback(): OnToggleNadHoverCallbackType | null {
-        return this.diagramParametersMetadata?.onToggleHoverCallback ?? null;
+        return this.nadViewerParametersOptions?.onToggleHoverCallback ?? null;
     }
     public getOnRightClickCallback(): OnRightClickCallbackType | null {
-        return this.diagramParametersMetadata?.onRightClickCallback ?? null;
+        return this.nadViewerParametersOptions?.onRightClickCallback ?? null;
     }
 }

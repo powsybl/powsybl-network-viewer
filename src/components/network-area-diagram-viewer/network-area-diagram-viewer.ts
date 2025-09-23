@@ -20,7 +20,7 @@ import {
     InjectionMetadata,
 } from './diagram-metadata';
 import { debounce } from '@mui/material';
-import { DiagramParameters, DiagramParametersMetadata } from './diagram-parameters';
+import { NadViewerParameters, NadViewerParametersOptions } from './nad-viewer-parameters';
 
 export type BranchState = {
     branchId: string;
@@ -110,7 +110,7 @@ export class NetworkAreaDiagramViewer {
     initialPosition: Point = new Point(0, 0);
     svgParameters: SvgParameters;
     layoutParameters: LayoutParameters;
-    diagramParameters: DiagramParameters;
+    nadViewerParameters: NadViewerParameters;
     edgeAngles: Map<string, number> = new Map<string, number>();
     textNodeSelected: boolean = false;
     enableDragInteraction: boolean = false;
@@ -135,31 +135,31 @@ export class NetworkAreaDiagramViewer {
      * @param container - The HTML element that will contain the SVG diagram.
      * @param svgContent - The SVG content to be rendered in the viewer.
      * @param diagramMetadata - Metadata associated with the diagram, including nodes, edges, and other properties.
-     * @param diagramParametersMetadata - Parameters for the network area diagram viewer.
+     * @param nadViewerParametersOptions - Parameters for the network area diagram viewer.
      */
     constructor(
         container: HTMLElement,
         svgContent: string,
         diagramMetadata: DiagramMetadata | null,
-        diagramParametersMetadata: DiagramParametersMetadata | null
+        nadViewerParametersOptions: NadViewerParametersOptions | null
     ) {
         this.container = container;
         this.svgDiv = document.createElement('div');
         this.svgDiv.id = 'svg-container';
         this.svgContent = this.fixSvgContent(svgContent);
         this.diagramMetadata = diagramMetadata;
-        this.diagramParameters = new DiagramParameters(diagramParametersMetadata ?? undefined);
+        this.nadViewerParameters = new NadViewerParameters(nadViewerParametersOptions ?? undefined);
         this.width = 0;
         this.height = 0;
         this.originalWidth = 0;
         this.originalHeight = 0;
-        this.enableDragInteraction = this.diagramParameters.getEnableDragInteraction();
-        this.onMoveNodeCallback = this.diagramParameters.getOnMoveNodeCallback();
-        this.onMoveTextNodeCallback = this.diagramParameters.getOnMoveTextNodeCallback();
-        this.onRightClickCallback = this.diagramParameters.getOnRightClickCallback();
-        this.onSelectNodeCallback = this.diagramParameters.getOnSelectNodeCallback();
-        this.onToggleHoverCallback = this.diagramParameters.getOnToggleHoverCallback();
-        this.zoomLevels = this.diagramParameters.getZoomLevels();
+        this.enableDragInteraction = this.nadViewerParameters.getEnableDragInteraction();
+        this.onMoveNodeCallback = this.nadViewerParameters.getOnMoveNodeCallback();
+        this.onMoveTextNodeCallback = this.nadViewerParameters.getOnMoveTextNodeCallback();
+        this.onRightClickCallback = this.nadViewerParameters.getOnRightClickCallback();
+        this.onSelectNodeCallback = this.nadViewerParameters.getOnSelectNodeCallback();
+        this.onToggleHoverCallback = this.nadViewerParameters.getOnToggleHoverCallback();
+        this.zoomLevels = this.nadViewerParameters.getZoomLevels();
         this.zoomLevels.sort((a, b) => b - a);
         this.init(diagramMetadata !== null);
         this.svgParameters = new SvgParameters(diagramMetadata?.svgParameters);
@@ -323,7 +323,7 @@ export class NetworkAreaDiagramViewer {
         this.container.appendChild(nadViewerDiv);
 
         // add buttons bar div
-        if (this.diagramParameters.getAddButtons()) {
+        if (this.nadViewerParameters.getAddButtons()) {
             nadViewerDiv.appendChild(this.getZoomButtonsBar());
             nadViewerDiv.appendChild(this.getActionButtonsBar());
         }
@@ -335,14 +335,14 @@ export class NetworkAreaDiagramViewer {
         this.setOriginalWidth(dimensions.width);
         this.setOriginalHeight(dimensions.height);
         this.setWidth(
-            dimensions.width < this.diagramParameters.getMinWidth()
-                ? this.diagramParameters.getMinWidth()
-                : Math.min(dimensions.width, this.diagramParameters.getMaxWidth())
+            dimensions.width < this.nadViewerParameters.getMinWidth()
+                ? this.nadViewerParameters.getMinWidth()
+                : Math.min(dimensions.width, this.nadViewerParameters.getMaxWidth())
         );
         this.setHeight(
-            dimensions.height < this.diagramParameters.getMinHeight()
-                ? this.diagramParameters.getMinHeight()
-                : Math.min(dimensions.height, this.diagramParameters.getMaxHeight())
+            dimensions.height < this.nadViewerParameters.getMinHeight()
+                ? this.nadViewerParameters.getMinHeight()
+                : Math.min(dimensions.height, this.nadViewerParameters.getMaxHeight())
         );
 
         // set the SVG
@@ -408,7 +408,7 @@ export class NetworkAreaDiagramViewer {
         firstChild.removeAttribute('width');
         firstChild.removeAttribute('height');
 
-        if (this.diagramParameters.getEnableLevelOfDetail()) {
+        if (this.nadViewerParameters.getEnableLevelOfDetail()) {
             this.svgDraw.fire('zoom'); // Forces a new dynamic zoom check to correctly update the dynamic CSS
 
             // We add an observer to track when the SVG's viewBox is updated by panzoom
