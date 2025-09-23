@@ -161,9 +161,9 @@ export class NetworkAreaDiagramViewer {
         this.onToggleHoverCallback = this.nadViewerParameters.getOnToggleHoverCallback();
         this.zoomLevels = this.nadViewerParameters.getZoomLevels();
         this.zoomLevels.sort((a, b) => b - a);
-        this.init(diagramMetadata !== null);
-        this.svgParameters = new SvgParameters(diagramMetadata?.svgParameters);
-        this.layoutParameters = new LayoutParameters(diagramMetadata?.layoutParameters);
+        this.init();
+        this.svgParameters = new SvgParameters(this.diagramMetadata?.svgParameters);
+        this.layoutParameters = new LayoutParameters(this.diagramMetadata?.layoutParameters);
         this.previousMaxDisplayedSize = 0;
     }
 
@@ -303,7 +303,7 @@ export class NetworkAreaDiagramViewer {
         return this.enableDragInteraction || this.onRightClickCallback != null || this.onSelectNodeCallback != null;
     }
 
-    public init(hasMetadata: boolean): void {
+    public init(): void {
         if (!this.container || !this.svgContent) {
             return;
         }
@@ -354,6 +354,7 @@ export class NetworkAreaDiagramViewer {
         drawnSvg.style.overflow = 'visible';
 
         // add events
+        const hasMetadata = this.diagramMetadata !== null;
         if (this.hasNodeInteraction() && hasMetadata) {
             this.svgDraw.on('mousedown', (e: Event) => {
                 if ((e as MouseEvent).button == 0) {
