@@ -86,7 +86,7 @@ export interface NadViewerParametersOptions {
     // Callback function triggered when right-clicking on a node or edge.
     onRightClickCallback?: OnRightClickCallbackType | null;
 
-    // View box to use in the network area diagram initialization
+    // View box to use in the network area diagram initialization.
     initialViewBox?: ViewBoxLike;
 }
 
