@@ -1668,7 +1668,10 @@ export class NetworkAreaDiagramViewer {
                 }
             }
             const zoomLevel = this.getZoomLevel(maxDisplayedSize);
-            if (zoomLevel != this.lastZoomLevel) {
+            const isZoomLevelClassDefined = [...innerSvg.classList].some((c) =>
+                c.startsWith(NetworkAreaDiagramViewer.ZOOM_CLASS_PREFIX)
+            );
+            if (!isZoomLevelClassDefined || zoomLevel != this.lastZoomLevel) {
                 innerSvg.setAttribute('class', NetworkAreaDiagramViewer.ZOOM_CLASS_PREFIX + zoomLevel);
                 this.lastZoomLevel = zoomLevel;
             }
