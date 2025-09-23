@@ -2282,6 +2282,8 @@ export class NetworkAreaDiagramViewer {
         const pointElement = this.addLinePoint(bendableElem.id, -1, mousePosition); // add line point, to be moved
         this.bentElement = pointElement as SVGGraphicsElement; // line point to be moved
         this.initialPosition = DiagramUtils.getPosition(this.bentElement); // used for the offset
+
+        this.updateEdgeMetadata(this.bentElement, mousePosition, LineOperation.BEND);
     }
 
     private onStraightenStart(bendableElem: SVGElement | undefined) {
