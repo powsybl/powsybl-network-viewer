@@ -4,13 +4,46 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-import {
-    OnMoveNodeCallbackType,
-    OnMoveTextNodeCallbackType,
-    OnRightClickCallbackType,
-    OnSelectNodeCallbackType,
-    OnToggleNadHoverCallbackType,
-} from './network-area-diagram-viewer';
+import { Point } from '@svgdotjs/svg.js';
+
+export type OnMoveNodeCallbackType = (
+    equipmentId: string,
+    nodeId: string,
+    x: number,
+    y: number,
+    XOrig: number,
+    yOrig: number
+) => void;
+
+export type OnMoveTextNodeCallbackType = (
+    equipmentId: string,
+    vlNodeId: string,
+    textNodeId: string,
+    shiftX: number,
+    shiftY: number,
+    shiftXOrig: number,
+    shiftYOrig: number,
+    connectionShiftX: number,
+    connectionShiftY: number,
+    connectionShiftXOrig: number,
+    connectionShiftYOrig: number
+) => void;
+
+export type OnSelectNodeCallbackType = (equipmentId: string, nodeId: string, mousePosition: Point) => void;
+
+export type OnToggleNadHoverCallbackType = (
+    hovered: boolean,
+    mousePosition: Point | null,
+    equipmentId: string,
+    equipmentType: string
+) => void;
+
+export type OnRightClickCallbackType = (
+    svgId: string,
+    equipmentId: string,
+    equipmentType: string,
+    mousePosition: Point
+) => void;
 
 export interface NadViewerParametersOptions {
     // The minimum width of the viewer.

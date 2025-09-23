@@ -6,14 +6,7 @@
  */
 
 export { NetworkAreaDiagramViewer } from './components/network-area-diagram-viewer/network-area-diagram-viewer';
-export type {
-    OnMoveNodeCallbackType,
-    OnMoveTextNodeCallbackType,
-    OnSelectNodeCallbackType,
-    OnToggleNadHoverCallbackType,
-    BranchState,
-    OnRightClickCallbackType,
-} from './components/network-area-diagram-viewer/network-area-diagram-viewer';
+export type { BranchState } from './components/network-area-diagram-viewer/network-area-diagram-viewer';
 export type {
     BusNodeMetadata,
     DiagramMetadata,
@@ -24,6 +17,11 @@ export type {
     TextNodeMetadata,
 } from './components/network-area-diagram-viewer/diagram-metadata';
 export type {
+    OnMoveNodeCallbackType,
+    OnMoveTextNodeCallbackType,
+    OnSelectNodeCallbackType,
+    OnToggleNadHoverCallbackType,
+    OnRightClickCallbackType,
     NadViewerParametersOptions,
     NadViewerParameters,
 } from './components/network-area-diagram-viewer/nad-viewer-parameters';

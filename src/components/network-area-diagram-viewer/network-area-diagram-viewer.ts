@@ -20,7 +20,15 @@ import {
     InjectionMetadata,
 } from './diagram-metadata';
 import { debounce } from '@mui/material';
-import { NadViewerParameters, NadViewerParametersOptions } from './nad-viewer-parameters';
+import {
+    OnMoveNodeCallbackType,
+    OnMoveTextNodeCallbackType,
+    OnRightClickCallbackType,
+    OnSelectNodeCallbackType,
+    OnToggleNadHoverCallbackType,
+    NadViewerParameters,
+    NadViewerParametersOptions,
+} from './nad-viewer-parameters';
 
 export type BranchState = {
     branchId: string;
@@ -39,44 +47,6 @@ export type VoltageLevelState = {
         angle: number;
     }[];
 };
-export type OnMoveNodeCallbackType = (
-    equipmentId: string,
-    nodeId: string,
-    x: number,
-    y: number,
-    XOrig: number,
-    yOrig: number
-) => void;
-
-export type OnMoveTextNodeCallbackType = (
-    equipmentId: string,
-    vlNodeId: string,
-    textNodeId: string,
-    shiftX: number,
-    shiftY: number,
-    shiftXOrig: number,
-    shiftYOrig: number,
-    connectionShiftX: number,
-    connectionShiftY: number,
-    connectionShiftXOrig: number,
-    connectionShiftYOrig: number
-) => void;
-
-export type OnSelectNodeCallbackType = (equipmentId: string, nodeId: string, mousePosition: Point) => void;
-
-export type OnToggleNadHoverCallbackType = (
-    hovered: boolean,
-    mousePosition: Point | null,
-    equipmentId: string,
-    equipmentType: string
-) => void;
-
-export type OnRightClickCallbackType = (
-    svgId: string,
-    equipmentId: string,
-    equipmentType: string,
-    mousePosition: Point
-) => void;
 
 // update css rules when zoom changes by this amount. This allows to not
 // update when only translating (when translating, round errors lead to
