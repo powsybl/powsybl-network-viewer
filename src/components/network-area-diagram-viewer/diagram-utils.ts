@@ -128,16 +128,16 @@ export function getEdgeMidPoint(halfEdge: SVGGraphicsElement | null): Point | nu
     return points == null ? null : points[1];
 }
 
-export function createLinePointElement(edgeId: string, linePoint: Point, index: number, previewPoint?: boolean, linePointIndexMap?: WeakMap<SVGGraphicsElement, number>): SVGElement {
+export function createLinePointElement(
+    edgeId: string,
+    linePoint: Point,
+    index: number,
+    previewPoint?: boolean,
+    linePointIndexMap?: WeakMap<SVGGElement, number>
+): SVGElement {
     const linePointElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    previewPoint ?
-        linePointElement.id = `preview-${edgeId}-${index}`:
-        linePointElement.id = getLinePointId(edgeId, index + 1);
-
     linePointElement.setAttribute('transform', 'translate(' + getFormattedPoint(linePoint) + ')');
-    if (!previewPoint && linePointIndexMap) {
-        linePointIndexMap.set(linePointElement as SVGGraphicsElement, index);
-    }
+
     const squareElement = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
     squareElement.setAttribute('width', '16');
     squareElement.setAttribute('height', '16');
@@ -145,6 +145,7 @@ export function createLinePointElement(edgeId: string, linePoint: Point, index: 
     squareElement.setAttribute('y', '-8');
 
     if (previewPoint) {
+        linePointElement.id = `preview-${edgeId}-${index}`;
         squareElement.setAttribute('fill', 'rgba(255, 165, 0, 0.7)');
         squareElement.setAttribute('stroke', 'orange');
         squareElement.setAttribute('stroke-width', '2');
@@ -152,6 +153,11 @@ export function createLinePointElement(edgeId: string, linePoint: Point, index: 
     }
 
     linePointElement.appendChild(squareElement);
+
+    if (!previewPoint && linePointIndexMap) {
+        linePointElement.id = getLinePointId(edgeId, index + 1);
+        linePointIndexMap.set(linePointElement, index);
+    }
     return linePointElement;
 }
 

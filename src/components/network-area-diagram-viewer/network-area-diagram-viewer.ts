@@ -145,7 +145,7 @@ export class NetworkAreaDiagramViewer {
     straightenedElement: SVGGraphicsElement | null = null;
     bendableLines: string[] = [];
 
-    private linePointIndexMap = new WeakMap<SVGGraphicsElement, number>();
+    private linePointIndexMap = new WeakMap<SVGGElement, number>();
 
     static readonly ZOOM_CLASS_PREFIX = 'nad-zoom-';
 
@@ -1253,7 +1253,11 @@ export class NetworkAreaDiagramViewer {
 
         // if dangling line edge -> redraw boundary node
         if (edgeType == DiagramUtils.EdgeType.DANGLING_LINE) {
-            this.redrawBoundaryNode(edgeNodes[1], DiagramUtils.getAngle(edgeStartPoints.start2, edgeMiddle), nodeRadius2[1]);
+            this.redrawBoundaryNode(
+                edgeNodes[1],
+                DiagramUtils.getAngle(edgeStartPoints.start2, edgeMiddle),
+                nodeRadius2[1]
+            );
             if (vlNode.id == edgeNodes[1]?.id) {
                 // if boundary node moved -> redraw other voltage level node
                 this.redrawOtherVoltageLevelNode(edgeNodes[0]);
@@ -1298,7 +1302,9 @@ export class NetworkAreaDiagramViewer {
             edge.busNode2,
             nodeRadius2[1],
             vlNode2,
-            edge.points ? new Point(edge.points[edge.points.length - 1].x, edge.points[edge.points.length - 1].y) : vlNode1
+            edge.points
+                ? new Point(edge.points[edge.points.length - 1].x, edge.points[edge.points.length - 1].y)
+                : vlNode1
         );
 
         return { start1, start2 };
@@ -2096,7 +2102,7 @@ export class NetworkAreaDiagramViewer {
             // Show preview points for bending if bend lines is enabled and edge is bendable
             if (this.bendLines) {
                 const bendableLines = DiagramUtils.getBendableLines(this.diagramMetadata?.edges);
-                const isBendable = bendableLines.some(bendableLine => bendableLine.svgId === edge.svgId);
+                const isBendable = bendableLines.some((bendableLine) => bendableLine.svgId === edge.svgId);
                 if (isBendable) {
                     this.showEdgePreviewPoints(edge);
                 }
@@ -2191,7 +2197,7 @@ export class NetworkAreaDiagramViewer {
                 }
                 this.bendableLines.push(edge.svgId);
             } else {
-                const edgeNode1: SVGGraphicsElement | null = this.svgDiv.querySelector("[id='" + edge.svgId + ".1']");
+                /*const edgeNode1: SVGGraphicsElement | null = this.svgDiv.querySelector("[id='" + edge.svgId + ".1']");
                 const edgeNode2: SVGGraphicsElement | null = this.svgDiv.querySelector("[id='" + edge.svgId + ".2']");
                 const middle1 = DiagramUtils.getEdgeMidPoint(edgeNode1);
                 const middle2 = DiagramUtils.getEdgeMidPoint(edgeNode2);
@@ -2199,7 +2205,9 @@ export class NetworkAreaDiagramViewer {
                     this.addLinePoint(edge.svgId, -1, new Point(middle1.x, middle1.y), linesPointsElement);
                     this.bendableLines.push(edge.svgId);
                     this.bendLines = true;
-                }
+                }*/
+                this.bendableLines.push(edge.svgId);
+                this.bendLines = true;
             }
         });
         if (this.bendLines) {
@@ -2216,6 +2224,7 @@ export class NetworkAreaDiagramViewer {
         linePointsElement ??= this.svgDraw?.node.querySelector('#lines-points');
         const pointElement = DiagramUtils.createLinePointElement(lineId, point, index, false, this.linePointIndexMap);
         linePointsElement?.appendChild(pointElement);
+
         return pointElement;
     }
 
@@ -2531,7 +2540,7 @@ export class NetworkAreaDiagramViewer {
         previewContainer.innerHTML = '';
 
         previewPoints.forEach((point, index) => {
-            const previewPoint = DiagramUtils.createLinePointElement(edge.svgId, point, index,true);
+            const previewPoint = DiagramUtils.createLinePointElement(edge.svgId, point, index, true);
             previewContainer?.appendChild(previewPoint);
         });
     }
@@ -2545,7 +2554,7 @@ export class NetworkAreaDiagramViewer {
         const midpoints: Point[] = [];
 
         if (edge.points && edge.points.length > 0) {
-            let previousPoint = startPoints.start1;
+            const previousPoint = startPoints.start1;
 
             midpoints.push(DiagramUtils.getMidPosition(previousPoint, new Point(edge.points[0].x, edge.points[0].y)));
 
