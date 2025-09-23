@@ -128,14 +128,16 @@ export function getEdgeMidPoint(halfEdge: SVGGraphicsElement | null): Point | nu
     return points == null ? null : points[1];
 }
 
-export function createLinePointElement(edgeId: string, linePoint: Point, index: number,previewPoint?:boolean): SVGElement {
+export function createLinePointElement(edgeId: string, linePoint: Point, index: number, previewPoint?: boolean, linePointIndexMap?: WeakMap<SVGGraphicsElement, number>): SVGElement {
     const linePointElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     previewPoint ?
         linePointElement.id = `preview-${edgeId}-${index}`:
         linePointElement.id = getLinePointId(edgeId, index + 1);
 
     linePointElement.setAttribute('transform', 'translate(' + getFormattedPoint(linePoint) + ')');
-    !previewPoint && linePointElement.setAttribute('data-index', index + '');
+    if (!previewPoint && linePointIndexMap) {
+        linePointIndexMap.set(linePointElement as SVGGraphicsElement, index);
+    }
     const squareElement = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
     squareElement.setAttribute('width', '16');
     squareElement.setAttribute('height', '16');
