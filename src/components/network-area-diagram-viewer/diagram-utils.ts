@@ -128,16 +128,27 @@ export function getEdgeMidPoint(halfEdge: SVGGraphicsElement | null): Point | nu
     return points == null ? null : points[1];
 }
 
-export function createLinePointElement(edgeId: string, linePoint: Point, index: number): SVGElement {
+export function createLinePointElement(edgeId: string, linePoint: Point, index: number,previewPoint?:boolean): SVGElement {
     const linePointElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    linePointElement.id = getLinePointId(edgeId, index + 1);
+    previewPoint ?
+        linePointElement.id = `preview-${edgeId}-${index}`:
+        linePointElement.id = getLinePointId(edgeId, index + 1);
+
     linePointElement.setAttribute('transform', 'translate(' + getFormattedPoint(linePoint) + ')');
-    linePointElement.setAttribute('index', index + '');
+    !previewPoint && linePointElement.setAttribute('data-index', index + '');
     const squareElement = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
     squareElement.setAttribute('width', '16');
     squareElement.setAttribute('height', '16');
     squareElement.setAttribute('x', '-8');
     squareElement.setAttribute('y', '-8');
+
+    if (previewPoint) {
+        squareElement.setAttribute('fill', 'rgba(255, 165, 0, 0.7)');
+        squareElement.setAttribute('stroke', 'orange');
+        squareElement.setAttribute('stroke-width', '2');
+        linePointElement.style.pointerEvents = 'none';
+    }
+
     linePointElement.appendChild(squareElement);
     return linePointElement;
 }
@@ -150,7 +161,7 @@ export function getBendableLineFrom(element: SVGElement, bendableIds: string[]):
     }
 }
 
-function isBendableLine(element: SVGElement, bendableIds: string[]): boolean {
+export function isBendableLine(element: SVGElement, bendableIds: string[]): boolean {
     return (
         hasId(element) &&
         element.parentNode != null &&
