@@ -2358,7 +2358,7 @@ export class NetworkAreaDiagramViewer {
 
     private updateEdgeMetadataWhenStraightening(edge: EdgeMetadata, linePointElement: SVGGraphicsElement) {
         const index = this.linePointIndexMap.get(linePointElement) ?? -1;
-        if (index > -1 && edge.points) {
+        if (edge.points) {
             // update line point elements with shifted index
             for (let i = index + 1; i < edge.points.length; i++) {
                 const linePoint: SVGGraphicsElement | null = this.svgDiv.querySelector(
@@ -2427,9 +2427,6 @@ export class NetworkAreaDiagramViewer {
         } else {
             // delete line point
             linePoint.remove();
-            if (edge.points == undefined) {
-                this.addLinePoint(edge.svgId, -1, edgeMiddle);
-            }
         }
     }
 
