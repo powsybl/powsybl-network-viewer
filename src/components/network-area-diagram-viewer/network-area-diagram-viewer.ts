@@ -145,7 +145,7 @@ export class NetworkAreaDiagramViewer {
     straightenedElement: SVGGraphicsElement | null = null;
     bendableLines: string[] = [];
 
-    private linePointIndexMap = new WeakMap<SVGGElement, number>();
+    private linePointIndexMap = new Map<SVGGElement, number>();
 
     static readonly ZOOM_CLASS_PREFIX = 'nad-zoom-';
 
@@ -2238,8 +2238,9 @@ export class NetworkAreaDiagramViewer {
     private disableLineBending() {
         const linePointsElement = this.svgDraw?.node.querySelector('#lines-points');
         linePointsElement?.remove();
-        this.bendLines = false;
+        this.linePointIndexMap.clear();
         this.bendableLines = [];
+        this.bendLines = false;
     }
 
     private moveLinePoint(svgId: string, newPosition: Point) {
