@@ -342,23 +342,20 @@ export const addNadToDemo = () => {
                 }
             };
 
+            const nadViewerParametersOptions: NadViewerParametersOptions = {
+                enableDragInteraction: true,
+                addButtons: true,
+                onMoveNodeCallback: handleNodeMove,
+                onMoveTextNodeCallback: handleTextNodeMove,
+                onSelectNodeCallback: handleNodeSelect,
+                onToggleHoverCallback: showHoveredEquipmentId,
+                onRightClickCallback: handleRightClick,
+            };
             new NetworkAreaDiagramViewer(
                 document.getElementById('svg-container-nad-hoverCallback')!,
                 svgContent,
                 NadSvgExampleMeta,
-                500,
-                600,
-                1000,
-                1200,
-                handleNodeMove,
-                handleTextNodeMove,
-                handleNodeSelect,
-                true,
-                false,
-                null,
-                showHoveredEquipmentId,
-                handleRightClick,
-                false
+                nadViewerParametersOptions
             );
 
             // add range slider to update branch labels
