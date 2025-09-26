@@ -418,12 +418,8 @@ foreignObject.nad-text-nodes {
 .nad-unknown {stroke: none; fill: black}
 
 /* Edge hovering helper */
-#edgeHoverHelperLine {
-    stroke-width: 5; /* This should have the same width as the polyline it mimics */
-}
 .nad-edge-path:hover {
     stroke-width: 35px;
     stroke-linecap: round;
-    mask: url(#edgeHoverHelper);
     cursor: pointer;
 }

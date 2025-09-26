@@ -76,6 +76,8 @@ export class NetworkAreaDiagramViewer {
     selectedElement: SVGGraphicsElement | null = null;
     draggedElement: SVGGraphicsElement | null = null;
     edgeMask: SVGPolylineElement | null = null;
+    maskId: string;
+    containerId: string;
     transform: SVGTransform | undefined;
     ctm: DOMMatrix | null | undefined = null;
     initialPosition: Point = new Point(0, 0);
@@ -324,17 +326,31 @@ export class NetworkAreaDiagramViewer {
             height: dimensions.viewbox.height,
         };
         this.svgDraw = SVG().addTo(this.svgDiv).size(this.width, this.height).viewbox(viewBox);
+
+        const idTemp = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER);
+        this.maskId = "mask" + idTemp;
+        this.containerId = "container" + idTemp;
+
         const drawnSvg: HTMLElement = <HTMLElement>this.svgDraw.svg(this.svgContent).node.firstElementChild;
         drawnSvg.style.overflow = 'visible';
+        drawnSvg.id = this.containerId;
+
+        const style = document.createElementNS("http://www.w3.org/2000/svg", "style");
+        style.textContent = `
+            #`+this.containerId+` .nad-edge-path:hover {
+                mask: url(#`+this.maskId+`);
+            }`;
+        drawnSvg.appendChild(style);
+
 
         // Create a mask that is used to help the user hover over a line :
         // The trick is to enlarge the line when hovering, and use this mask as a way to visually hide the
         // enlargement. We only see the original line's shape through the mask, but the "real" line is thicker,
         // making it easier to keep under the user's mouse.
         const defs = this.svgDraw.defs();
-        const mask = defs.mask().id('edgeHoverHelper');
+        const mask = defs.mask().id(this.maskId);
         this.edgeMask = mask.polyline();
-        this.edgeMask.fill('none').stroke({ color: 'white' }).attr('id', 'edgeHoverHelperLine');
+        this.edgeMask.fill('none').stroke({ color: 'white', width: '5px' }); // TODO Should be the original polyline's stroke-width
 
         // add events
         const hasMetadata = this.diagramMetadata !== null;
