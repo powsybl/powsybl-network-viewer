@@ -345,13 +345,13 @@ export class NetworkAreaDiagramViewer {
                     mask:url(#${this.maskId});
                     stroke-width: 35px;
                     stroke-linecap: round;
-                }`;
+                }`; // TODO Should not be a hardcoded value
             drawnSvg.appendChild(style);
             const defs = this.svgDraw.defs();
             const mask = defs.mask().id(this.maskId);
             this.edgeMask = mask.polyline();
             this.edgeMask.fill('none');
-            this.edgeMask.stroke({ color: 'white', width: 5 }); // TODO Should be the original polyline's stroke-width
+            this.edgeMask.stroke({ color: 'white', width: 5 }); // TODO Should be the original polyline's stroke-width instead of a hardcoded value
         }
 
         // add events
@@ -2019,7 +2019,6 @@ export class NetworkAreaDiagramViewer {
             if (this.edgeMask) {
                 const polyline = element.querySelector<SVGPolylineElement>('polyline:hover');
                 if (polyline) {
-                    //this.edgeMask.attr({ points: polyline.getAttribute('points') ?? '' });
                     this.edgeMask.plot(polyline.getAttribute('points') ?? '');
                 }
             }
