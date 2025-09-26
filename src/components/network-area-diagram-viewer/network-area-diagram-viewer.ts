@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import { Point, SVG, ViewBoxLike, Svg } from '@svgdotjs/svg.js';
+import { Point, SVG, ViewBoxLike, Svg, Polyline } from '@svgdotjs/svg.js';
 import '@svgdotjs/svg.panzoom.js';
 import * as DiagramUtils from './diagram-utils';
 import { ElementType, isTextNode, isVoltageLevelElement } from './diagram-utils';
@@ -75,6 +75,9 @@ export class NetworkAreaDiagramViewer {
     ratio = 1;
     selectedElement: SVGGraphicsElement | null = null;
     draggedElement: SVGGraphicsElement | null = null;
+    edgeMask: Polyline | null = null;
+    maskId: string;
+    containerId: string;
     transform: SVGTransform | undefined;
     ctm: DOMMatrix | null | undefined = null;
     initialPosition: Point = new Point(0, 0);
@@ -114,6 +117,9 @@ export class NetworkAreaDiagramViewer {
         nadViewerParametersOptions: NadViewerParametersOptions | null
     ) {
         this.container = container;
+        const idTemp = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER);
+        this.maskId = 'mask' + idTemp;
+        this.containerId = 'container' + idTemp;
         this.svgDiv = document.createElement('div');
         this.svgDiv.id = 'svg-container';
         this.svgContent = this.fixSvgContent(svgContent);
@@ -323,8 +329,30 @@ export class NetworkAreaDiagramViewer {
             height: dimensions.viewbox.height,
         };
         this.svgDraw = SVG().addTo(this.svgDiv).size(this.width, this.height).viewbox(viewBox);
+
         const drawnSvg: HTMLElement = <HTMLElement>this.svgDraw.svg(this.svgContent).node.firstElementChild;
         drawnSvg.style.overflow = 'visible';
+        drawnSvg.id = this.containerId;
+
+        // Create a mask that is used to help the user hover over a line :
+        // The trick is to enlarge the line when hovering, and use this mask as a way to visually hide the
+        // enlargement. We only see the original line's shape through the mask, but the "real" line is thicker,
+        // making it easier to keep under the user's mouse.
+        if (this.nadViewerParameters.getEnableHoverHelper()) {
+            const style = document.createElementNS('http://www.w3.org/2000/svg', 'style');
+            style.textContent = `
+                #${this.containerId} .nad-edge-path:hover{
+                    mask:url(#${this.maskId});
+                    stroke-width: 35px;
+                    stroke-linecap: round;
+                }`; // TODO Should not be a hardcoded value
+            drawnSvg.appendChild(style);
+            const defs = this.svgDraw.defs();
+            const mask = defs.mask().id(this.maskId);
+            this.edgeMask = mask.polyline();
+            this.edgeMask.fill('none');
+            this.edgeMask.stroke({ color: 'white', width: 5 }); // TODO Should be the original polyline's stroke-width instead of a hardcoded value
+        }
 
         // add events
         const hasMetadata = this.diagramMetadata !== null;
@@ -1984,6 +2012,17 @@ export class NetworkAreaDiagramViewer {
         if (edge) {
             const equipmentId = edge.equipmentId ?? '';
             const edgeType = DiagramUtils.getStringEdgeType(edge) ?? '';
+
+            // When hovering over a polyline, we update the mask with the hovered polyline's shape. This way,
+            // when the polyline's width is updated, the mask is used to hide the change of width and keep it
+            // visually the same.
+            if (this.edgeMask) {
+                const polyline = element.querySelector<SVGPolylineElement>('polyline:hover');
+                if (polyline) {
+                    this.edgeMask.plot(polyline.getAttribute('points') ?? '');
+                }
+            }
+
             this.onToggleHoverCallback?.(true, mousePosition, equipmentId, edgeType);
         }
     }

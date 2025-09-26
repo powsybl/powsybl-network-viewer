@@ -417,3 +417,6 @@ foreignObject.nad-text-nodes {
 .nad-disconnected .nad-svc {stroke: lightgrey}
 .nad-unknown {stroke: none; fill: black}
 
+.nad-edge-path:hover {
+    cursor: pointer;
+}
