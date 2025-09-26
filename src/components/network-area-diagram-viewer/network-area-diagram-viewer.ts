@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import { Point, SVG, ViewBoxLike, Svg } from '@svgdotjs/svg.js';
+import { Point, SVG, ViewBoxLike, Svg, Polyline } from '@svgdotjs/svg.js';
 import '@svgdotjs/svg.panzoom.js';
 import * as DiagramUtils from './diagram-utils';
 import { ElementType, isTextNode, isVoltageLevelElement } from './diagram-utils';
@@ -75,7 +75,7 @@ export class NetworkAreaDiagramViewer {
     ratio = 1;
     selectedElement: SVGGraphicsElement | null = null;
     draggedElement: SVGGraphicsElement | null = null;
-    edgeMask: SVGPolylineElement | null = null;
+    edgeMask: Polyline | null = null;
     maskId: string;
     containerId: string;
     transform: SVGTransform | undefined;
@@ -350,7 +350,8 @@ export class NetworkAreaDiagramViewer {
             const defs = this.svgDraw.defs();
             const mask = defs.mask().id(this.maskId);
             this.edgeMask = mask.polyline();
-            this.edgeMask.fill('none').stroke({ color: 'white', width: '5px' }); // TODO Should be the original polyline's stroke-width
+            this.edgeMask.fill('none');
+            this.edgeMask.stroke({ color: 'white', width: 5 }); // TODO Should be the original polyline's stroke-width
         }
 
         // add events
@@ -2018,7 +2019,8 @@ export class NetworkAreaDiagramViewer {
             if (this.edgeMask) {
                 const polyline = element.querySelector<SVGPolylineElement>('polyline:hover');
                 if (polyline) {
-                    this.edgeMask.attr({ points: polyline.getAttribute('points') ?? '' });
+                    //this.edgeMask.attr({ points: polyline.getAttribute('points') ?? '' });
+                    this.edgeMask.plot(polyline.getAttribute('points') ?? '');
                 }
             }
 
