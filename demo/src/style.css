@@ -417,9 +417,6 @@ foreignObject.nad-text-nodes {
 .nad-disconnected .nad-svc {stroke: lightgrey}
 .nad-unknown {stroke: none; fill: black}
 
-/* Edge hovering helper */
 .nad-edge-path:hover {
-    stroke-width: 35px;
-    stroke-linecap: round;
     cursor: pointer;
 }

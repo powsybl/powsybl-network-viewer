@@ -328,20 +328,39 @@ export const addNadToDemo = () => {
     fetch(NadSvgExample)
         .then((response) => response.text())
         .then((svgContent) => {
-            const showHoveredEquipmentId: OnToggleNadHoverCallbackType = (
-                hovered,
-                mousePosition,
-                equipmentId
-            ) => {
+            const showHoveredEquipmentId: OnToggleNadHoverCallbackType = (hovered, mousePosition, equipmentId) => {
                 const hoverDiv = document.getElementById('hoverVisualizer');
                 if (hoverDiv) {
-                    hoverDiv.textContent = hovered
-                        ? 'Hovering over ' + equipmentId
-                        : 'No hover at the moment';
+                    hoverDiv.textContent = hovered ? 'Hovering over ' + equipmentId : 'No hover at the moment';
                 }
             };
+            const addHoverVisualizer = () => {
+                const hoverVisualizer = document.createElement('div');
+                hoverVisualizer.id = 'hoverVisualizer';
+                hoverVisualizer.textContent = 'No hover at the moment';
+                document.getElementById('svg-container-nad-hoverCallback')?.appendChild(hoverVisualizer);
+            };
+            const addToggleButton = () => {
+                const helperToggleButton = document.createElement('button');
+                helperToggleButton.textContent = 'enableHoverHelper: ' + nadViewerParametersOptions.enableHoverHelper;
+                helperToggleButton.onclick = () => {
+                    nadViewerParametersOptions = {
+                        ...nadViewerParametersOptions,
+                        enableHoverHelper: !nadViewerParametersOptions.enableHoverHelper,
+                    };
+                    nadViewer = new NetworkAreaDiagramViewer(
+                        document.getElementById('svg-container-nad-hoverCallback')!,
+                        svgContent,
+                        NadSvgExampleMeta,
+                        nadViewerParametersOptions
+                    );
+                    addToggleButton();
+                    addHoverVisualizer();
+                };
+                document.getElementById('svg-container-nad-hoverCallback')?.appendChild(helperToggleButton);
+            };
 
-            const nadViewerParametersOptions: NadViewerParametersOptions = {
+            let nadViewerParametersOptions: NadViewerParametersOptions = {
                 enableDragInteraction: true,
                 addButtons: true,
                 onMoveNodeCallback: handleNodeMove,
@@ -349,20 +368,17 @@ export const addNadToDemo = () => {
                 onSelectNodeCallback: handleNodeSelect,
                 onToggleHoverCallback: showHoveredEquipmentId,
                 onRightClickCallback: handleRightClick,
+                enableHoverHelper: true,
             };
-            new NetworkAreaDiagramViewer(
+            let nadViewer = new NetworkAreaDiagramViewer(
                 document.getElementById('svg-container-nad-hoverCallback')!,
                 svgContent,
                 NadSvgExampleMeta,
                 nadViewerParametersOptions
             );
 
-            // add range slider to update branch labels
-            const hoverVisualizer = document.createElement('div');
-            hoverVisualizer.id = 'hoverVisualizer';
-            hoverVisualizer.textContent = 'No hover at the moment';
-
-            document.getElementById('svg-container-nad-hoverCallback')?.appendChild(hoverVisualizer);
+            addToggleButton();
+            addHoverVisualizer();
         });
 };
 

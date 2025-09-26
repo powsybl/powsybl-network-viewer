@@ -88,6 +88,9 @@ export interface NadViewerParametersOptions {
 
     // View box to use in the network area diagram initialization.
     initialViewBox?: ViewBoxLike;
+
+    // Use a mask trick on the edges to help the user hover on them.
+    enableHoverHelper?: boolean;
 }
 
 export class NadViewerParameters {
@@ -99,6 +102,7 @@ export class NadViewerParameters {
     static readonly ENABLE_LEVEL_OF_DETAIL_DEFAULT = false;
     static readonly ZOOM_LEVELS_DEFAULT = [0, 1000, 2200, 2500, 3000, 4000, 9000, 12000, 20000];
     static readonly ADD_BUTTONS_DEFAULT = false;
+    static readonly ENABLE_HOVER_HELPER_DEFAULT = false;
 
     nadViewerParametersOptions: NadViewerParametersOptions | undefined;
 
@@ -152,5 +156,8 @@ export class NadViewerParameters {
     }
     public getInitialViewBox(): ViewBoxLike | undefined {
         return this.nadViewerParametersOptions?.initialViewBox;
+    }
+    public getEnableHoverHelper(): boolean {
+        return this.nadViewerParametersOptions?.enableHoverHelper ?? NadViewerParameters.ENABLE_HOVER_HELPER_DEFAULT;
     }
 }
