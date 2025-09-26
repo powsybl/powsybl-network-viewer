@@ -348,7 +348,7 @@ export const addNadToDemo = () => {
                         ...nadViewerParametersOptions,
                         enableHoverHelper: !nadViewerParametersOptions.enableHoverHelper,
                     };
-                    nadViewer = new NetworkAreaDiagramViewer(
+                    new NetworkAreaDiagramViewer(
                         document.getElementById('svg-container-nad-hoverCallback')!,
                         svgContent,
                         NadSvgExampleMeta,
@@ -370,7 +370,7 @@ export const addNadToDemo = () => {
                 onRightClickCallback: handleRightClick,
                 enableHoverHelper: true,
             };
-            let nadViewer = new NetworkAreaDiagramViewer(
+            new NetworkAreaDiagramViewer(
                 document.getElementById('svg-container-nad-hoverCallback')!,
                 svgContent,
                 NadSvgExampleMeta,
