@@ -331,13 +331,12 @@ export const addNadToDemo = () => {
             const showHoveredEquipmentId: OnToggleNadHoverCallbackType = (
                 hovered,
                 mousePosition,
-                equipmentId,
-                equipmentType
+                equipmentId
             ) => {
                 const hoverDiv = document.getElementById('hoverVisualizer');
                 if (hoverDiv) {
                     hoverDiv.textContent = hovered
-                        ? 'Hovering over ' + equipmentId + ' (' + equipmentType + ')'
+                        ? 'Hovering over ' + equipmentId
                         : 'No hover at the moment';
                 }
             };

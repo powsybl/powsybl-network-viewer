@@ -75,6 +75,7 @@ export class NetworkAreaDiagramViewer {
     ratio = 1;
     selectedElement: SVGGraphicsElement | null = null;
     draggedElement: SVGGraphicsElement | null = null;
+    edgeMask: SVGPolylineElement | null = null;
     transform: SVGTransform | undefined;
     ctm: DOMMatrix | null | undefined = null;
     initialPosition: Point = new Point(0, 0);
@@ -332,7 +333,8 @@ export class NetworkAreaDiagramViewer {
         // making it easier to keep under the user's mouse.
         const defs = this.svgDraw.defs();
         const mask = defs.mask().id('edgeHoverHelper');
-        mask.polyline().fill('none').stroke({ color: 'white' }).attr('id', 'edgeHoverHelperLine');
+        this.edgeMask = mask.polyline();
+        this.edgeMask.fill('none').stroke({ color: 'white' }).attr('id', 'edgeHoverHelperLine');
 
         // add events
         const hasMetadata = this.diagramMetadata !== null;
@@ -1996,12 +1998,10 @@ export class NetworkAreaDiagramViewer {
             // When hovering over a polyline, we update the mask with the hovered polyline's shape. This way,
             // when the polyline's width is updated, the mask is used to hide the change of width and keep it
             // visually the same.
-            const polyline = element.querySelector<SVGPolylineElement>('polyline:hover');
-            if (polyline) {
-                const maskLineEl = document.getElementById('edgeHoverHelperLine');
-                const maskLine = maskLineEl instanceof SVGPolylineElement ? maskLineEl : null;
-                if (maskLine) {
-                    maskLine.setAttribute('points', polyline.getAttribute('points') ?? '');
+            if (this.edgeMask) {
+                const polyline = element.querySelector<SVGPolylineElement>('polyline:hover');
+                if (polyline) {
+                    this.edgeMask.attr({ points: polyline.getAttribute('points') ?? '' });
                 }
             }
 
