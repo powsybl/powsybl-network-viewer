@@ -344,7 +344,6 @@ export class NetworkAreaDiagramViewer {
                 #${this.containerId} .nad-edge-path:hover{
                     mask:url(#${this.maskId});
                     stroke-width: 35px;
-                    stroke-linecap: round;
                 }`; // TODO Should not be a hardcoded value
             drawnSvg.appendChild(style);
             const defs = this.svgDraw.defs();
