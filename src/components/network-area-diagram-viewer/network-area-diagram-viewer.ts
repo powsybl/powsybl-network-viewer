@@ -29,6 +29,7 @@ import {
     NadViewerParameters,
     NadViewerParametersOptions,
 } from './nad-viewer-parameters';
+import { randomUUID } from 'crypto';
 
 export type BranchState = {
     branchId: string;
@@ -117,7 +118,7 @@ export class NetworkAreaDiagramViewer {
         nadViewerParametersOptions: NadViewerParametersOptions | null
     ) {
         this.container = container;
-        const idTemp = crypto.randomUUID();
+        const idTemp = randomUUID();
         this.maskId = 'mask' + idTemp;
         this.containerId = 'container' + idTemp;
         this.svgDiv = document.createElement('div');
