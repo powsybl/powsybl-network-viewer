@@ -85,8 +85,11 @@ export function getLinePointId(edgeId: string | undefined, index: number): strin
     return edgeId + '-point-' + index;
 }
 
-export function getEdgeId(linePointId: string | undefined): string {
-    return linePointId != undefined ? linePointId.replace(/-point-\d{1,3}/, '') : '-1';
+export function getEdgeId(
+    linePointIndexMap: Map<SVGGElement, { edgeId: string; index: number }>,
+    linePoint: SVGGElement
+): string | undefined {
+    return linePointIndexMap.get(linePoint)?.edgeId;
 }
 
 export function getBendableLines(edges: EdgeMetadata[] | undefined): EdgeMetadata[] {
@@ -133,7 +136,7 @@ export function createLinePointElement(
     linePoint: Point,
     index: number,
     previewPoint?: boolean,
-    linePointIndexMap?: Map<SVGGElement, number>
+    linePointIndexMap?: Map<SVGGElement, { edgeId: string; index: number }>
 ): SVGElement {
     const linePointElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     linePointElement.setAttribute('transform', 'translate(' + getFormattedPoint(linePoint) + ')');
@@ -156,7 +159,7 @@ export function createLinePointElement(
 
     if (!previewPoint && linePointIndexMap) {
         linePointElement.id = getLinePointId(edgeId, index + 1);
-        linePointIndexMap.set(linePointElement, index);
+        linePointIndexMap.set(linePointElement, { edgeId: edgeId, index: index });
     }
     return linePointElement;
 }
