@@ -2101,8 +2101,7 @@ export class NetworkAreaDiagramViewer {
 
             // Show preview points for bending if bend lines is enabled and edge is bendable
             if (this.bendLines) {
-                const bendableLines = DiagramUtils.getBendableLines(this.diagramMetadata?.edges);
-                const isBendable = bendableLines.some((bendableLine) => bendableLine.svgId === edge.svgId);
+                const isBendable = this.bendableLines.some((bendableLine) => bendableLine === edge.svgId);
                 if (isBendable) {
                     this.showEdgePreviewPoints(edge);
                 }

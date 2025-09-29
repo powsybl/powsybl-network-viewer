@@ -745,8 +745,8 @@ export function getTextNodeTranslatedPosition(textNode: SVGGraphicsElement | nul
 
 // get text node position
 export function getTextNodePosition(textNode: SVGGraphicsElement | null): Point {
-    const textNodeX = textNode?.getAttribute('x') ?? '0';
-    const textNodeY = textNode?.getAttribute('y') ?? '0';
+    const textNodeX = textNode?.style.left.replace('px', '') ?? '0';
+    const textNodeY = textNode?.style.top.replace('px', '') ?? '0';
     return new Point(+textNodeX, +textNodeY);
 }
 
