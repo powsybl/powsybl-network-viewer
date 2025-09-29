@@ -117,7 +117,7 @@ export class NetworkAreaDiagramViewer {
         nadViewerParametersOptions: NadViewerParametersOptions | null
     ) {
         this.container = container;
-        const idTemp = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER);
+        const idTemp = crypto.randomUUID();
         this.maskId = 'mask' + idTemp;
         this.containerId = 'container' + idTemp;
         this.svgDiv = document.createElement('div');
