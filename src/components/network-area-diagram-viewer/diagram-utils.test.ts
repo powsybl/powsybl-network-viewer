@@ -653,8 +653,9 @@ test('createLinePointElement', () => {
     expect(linePoint).not.toBeUndefined();
     expect(linePoint.id).toBe('1-point-0');
     expect(linePoint.getAttribute('transform')).toBe('translate(-5.15,4.23)');
-    expect(linePointMap.get(linePoint as SVGGElement)).toBe(-1);
     expect(linePointMap.has(linePoint as SVGGElement)).toBe(true);
+    expect(linePointMap.get(linePoint as SVGGElement)?.index).toBe(-1);
+    expect(linePointMap.get(linePoint as SVGGElement)?.edgeId).toBe('1');
 });
 
 test('getBendableLineFrom', () => {
