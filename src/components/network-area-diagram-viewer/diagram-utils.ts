@@ -133,7 +133,7 @@ export function createLinePointElement(
     linePoint: Point,
     index: number,
     previewPoint?: boolean,
-    linePointIndexMap?: WeakMap<SVGGElement, number>
+    linePointIndexMap?: Map<SVGGElement, number>
 ): SVGElement {
     const linePointElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     linePointElement.setAttribute('transform', 'translate(' + getFormattedPoint(linePoint) + ')');

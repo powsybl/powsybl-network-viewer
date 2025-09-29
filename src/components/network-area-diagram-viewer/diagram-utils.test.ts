@@ -9,6 +9,7 @@
 import * as DiagramUtils from './diagram-utils';
 import { EdgeMetadata, BusNodeMetadata, NodeMetadata, TextNodeMetadata, EdgePointMetadata } from './diagram-metadata';
 import { SVG, Point } from '@svgdotjs/svg.js';
+import { SvgParameters } from './svg-parameters';
 
 test('getFormattedValue', () => {
     expect(DiagramUtils.getFormattedValue(12)).toBe('12.00');
@@ -21,11 +22,11 @@ test('getFormattedPoint', () => {
 });
 
 test('getFormattedPolyline', () => {
-    expect(DiagramUtils.getFormattedPolyline([new Point(144, 34.836), new Point(213.892, 74)])).toBe(
+    expect(DiagramUtils.getFormattedPolyline(new Point(144, 34.836), null, new Point(213.892, 74))).toBe(
         '144.00,34.84 213.89,74.00'
     );
     expect(
-        DiagramUtils.getFormattedPolyline([new Point(144, 34.836), new Point(192.83, 55.1475), new Point(213.892, 74)])
+        DiagramUtils.getFormattedPolyline(new Point(144, 34.836), new Point(192.83, 55.1475), new Point(213.892, 74))
     ).toBe('144.00,34.84 192.83,55.15 213.89,74.00');
 });
 
@@ -545,52 +546,11 @@ test('getViewBox', () => {
             connectionShiftY: -15.0,
         },
     ];
-    const edges: EdgeMetadata[] = [
-        {
-            svgId: '60',
-            equipmentId: 'T9001-9012-1',
-            node1: '0',
-            node2: '1',
-            busNode1: '7',
-            busNode2: '8',
-            type: 'LineEdge',
-        },
-        {
-            svgId: '70',
-            equipmentId: 'T9002-9013-1',
-            node1: '1',
-            node2: '2',
-            busNode1: '9',
-            busNode2: '10',
-            type: 'LineEdge',
-            points: [{ x: 0, y: 0 }],
-        },
-        {
-            svgId: '80',
-            equipmentId: 'T9003-9013-1',
-            node1: '2',
-            node2: '3',
-            busNode1: '11',
-            busNode2: '12',
-            type: 'LineEdge',
-            points: [{ x: 0, y: 1000 }],
-        },
-        {
-            svgId: '90',
-            equipmentId: 'T9004-9014-1',
-            node1: '3',
-            node2: '0',
-            busNode1: '13',
-            busNode2: '14',
-            type: 'LineEdge',
-        },
-    ];
-    const diagramPadding = { left: 200.0, top: 200.0, right: 200.0, bottom: 200.0 };
-    const viewBox = DiagramUtils.getViewBox(nodes, textNodes, edges, diagramPadding);
+    const viewBox = DiagramUtils.getViewBox(nodes, textNodes, new SvgParameters(undefined));
     expect(viewBox.x).toBe(-700);
     expect(viewBox.y).toBe(-740);
     expect(viewBox.width).toBe(1700);
-    expect(viewBox.height).toBe(1940);
+    expect(viewBox.height).toBe(1500);
 });
 
 test('getStyle', () => {
@@ -686,11 +646,13 @@ test('getEdgeMidPoint', () => {
 });
 
 test('createLinePointElement', () => {
-    const linePoint = DiagramUtils.createLinePointElement('1', new Point(-5.15, 4.23), -1);
+    const linePointMap = new Map<SVGGElement, number>();
+    const linePoint = DiagramUtils.createLinePointElement('1', new Point(-5.15, 4.23), -1, false, linePointMap);
     expect(linePoint).not.toBeUndefined();
     expect(linePoint.id).toBe('1-point-0');
     expect(linePoint.getAttribute('transform')).toBe('translate(-5.15,4.23)');
-    expect(linePoint.getAttribute('index')).toBe('-1');
+    expect(linePointMap.get(linePoint as SVGGElement)).toBe(-1);
+    expect(linePointMap.has(linePoint as SVGGElement)).toBe(true);
 });
 
 test('getBendableLineFrom', () => {
