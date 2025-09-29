@@ -40,7 +40,7 @@ import {
     OnRightClickCallbackType,
     OnBendLineCallbackType,
 } from '../../../src';
-import { NadViewerParametersOptions } from '../../../src/components/network-area-diagram-viewer/nad-viewer-parameters';
+import { NadViewerParametersOptions } from '../../../src';
 
 export const addNadToDemo = () => {
     fetch(NadSvgExample)
@@ -54,6 +54,7 @@ export const addNadToDemo = () => {
                 onSelectNodeCallback: handleNodeSelect,
                 onToggleHoverCallback: handleToggleNadHover,
                 onRightClickCallback: handleRightClick,
+                onBendLineCallback: handleLineBending,
             };
             const nadViewer = new NetworkAreaDiagramViewer(
                 document.getElementById('svg-container-nad')!,
@@ -111,6 +112,7 @@ export const addNadToDemo = () => {
                 onSelectNodeCallback: handleNodeSelect,
                 onToggleHoverCallback: handleToggleNadHover,
                 onRightClickCallback: handleRightClick,
+                onBendLineCallback: handleLineBending,
             };
             new NetworkAreaDiagramViewer(
                 document.getElementById('svg-container-nad-no-moving')!,
@@ -131,6 +133,7 @@ export const addNadToDemo = () => {
                 onSelectNodeCallback: handleNodeSelect,
                 onToggleHoverCallback: handleToggleNadHover,
                 onRightClickCallback: handleRightClick,
+                onBendLineCallback: handleLineBending,
             };
             const nadViewer = new NetworkAreaDiagramViewer(
                 document.getElementById('svg-container-nad-multibus-vlnodes')!,
@@ -208,6 +211,7 @@ export const addNadToDemo = () => {
                 onSelectNodeCallback: handleNodeSelect,
                 onToggleHoverCallback: handleToggleNadHover,
                 onRightClickCallback: handleRightClick,
+                onBendLineCallback: handleLineBending,
             };
             new NetworkAreaDiagramViewer(
                 document.getElementById('svg-container-nad-multibus-vlnodes14')!,
@@ -228,6 +232,7 @@ export const addNadToDemo = () => {
                 onSelectNodeCallback: handleNodeSelect,
                 onToggleHoverCallback: handleToggleNadHover,
                 onRightClickCallback: handleRightClick,
+                onBendLineCallback: handleLineBending,
             };
             new NetworkAreaDiagramViewer(
                 document.getElementById('svg-container-nad-pst-hvdc')!,
@@ -248,6 +253,7 @@ export const addNadToDemo = () => {
                 onSelectNodeCallback: handleNodeSelect,
                 onToggleHoverCallback: handleToggleNadHover,
                 onRightClickCallback: handleRightClick,
+                onBendLineCallback: handleLineBending,
             };
             new NetworkAreaDiagramViewer(
                 document.getElementById('svg-container-nad-threewt-dl-ub')!,
@@ -268,6 +274,7 @@ export const addNadToDemo = () => {
                 onSelectNodeCallback: handleNodeSelect,
                 onToggleHoverCallback: handleToggleNadHover,
                 onRightClickCallback: handleRightClick,
+                onBendLineCallback: handleLineBending,
             };
             new NetworkAreaDiagramViewer(
                 document.getElementById('svg-container-nad-partial-network')!,
@@ -288,6 +295,7 @@ export const addNadToDemo = () => {
                 onSelectNodeCallback: handleNodeSelect,
                 onToggleHoverCallback: handleToggleNadHover,
                 onRightClickCallback: handleRightClick,
+                onBendLineCallback: handleLineBending,
                 initialViewBox: {
                     x: -250.0,
                     y: -450.0,
@@ -316,6 +324,7 @@ export const addNadToDemo = () => {
                 onSelectNodeCallback: handleNodeSelect,
                 onToggleHoverCallback: handleToggleNadHover,
                 onRightClickCallback: handleRightClick,
+                onBendLineCallback: handleLineBending,
             };
             const svgContainerNadPegase = document.getElementById('svg-container-nad-pegase-network');
             new NetworkAreaDiagramViewer(
@@ -534,7 +543,7 @@ const handleLineBending: OnBendLineCallbackType = (svgId, equipmentId, equipment
         ', equipmentType: ' +
         equipmentType +
         ', linePoints: [' +
-        linePoints?.map((point) => point.x + ',' + point.y).join(' ') +
+        linePoints?.map((point: { x: number; y: number }) => point.x + ',' + point.y).join(' ') +
         '], operation: ' +
         lineOperation;
     console.log(msg);

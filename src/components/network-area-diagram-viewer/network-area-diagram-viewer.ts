@@ -26,6 +26,7 @@ import {
     OnRightClickCallbackType,
     OnSelectNodeCallbackType,
     OnToggleNadHoverCallbackType,
+    OnBendLineCallbackType,
     NadViewerParameters,
     NadViewerParametersOptions,
 } from './nad-viewer-parameters';
@@ -48,15 +49,7 @@ export type VoltageLevelState = {
     }[];
 };
 
-export type OnBendLineCallbackType = (
-    svgId: string,
-    equipmentId: string,
-    equipmentType: string,
-    linePoints: Point[] | null,
-    lineOperation: string
-) => void;
-
-enum LineOperation {
+export enum LineOperation {
     BEND,
     STRAIGHTEN,
 }
@@ -149,13 +142,13 @@ export class NetworkAreaDiagramViewer {
         this.onRightClickCallback = this.nadViewerParameters.getOnRightClickCallback();
         this.onSelectNodeCallback = this.nadViewerParameters.getOnSelectNodeCallback();
         this.onToggleHoverCallback = this.nadViewerParameters.getOnToggleHoverCallback();
+        this.onBendLineCallback = this.nadViewerParameters.getOnBendingLineCallback();
         this.zoomLevels = this.nadViewerParameters.getZoomLevels();
         this.zoomLevels.sort((a, b) => b - a);
         this.init();
         this.svgParameters = new SvgParameters(this.diagramMetadata?.svgParameters);
         this.layoutParameters = new LayoutParameters(this.diagramMetadata?.layoutParameters);
         this.previousMaxDisplayedSize = 0;
-        this.onBendLineCallback = onBendLineCallback;
     }
 
     private fixSvgContent(svgContent: string): string {
