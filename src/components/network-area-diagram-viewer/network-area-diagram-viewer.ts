@@ -345,17 +345,13 @@ export class NetworkAreaDiagramViewer {
         // making it easier to keep under the user's mouse.
         if (this.nadViewerParameters.getEnableHoverHelper()) {
             const style = document.createElementNS('http://www.w3.org/2000/svg', 'style');
-            style.textContent = `
-                #${this.containerId} .nad-edge-path:hover{
-                    mask:url(#${this.maskId});
-                    stroke-width: 35px;
-                }`; // TODO Should not be a hardcoded value
+            style.textContent = `#${this.containerId} .nad-edge-path:hover{mask:url(#${this.maskId});}`;
             drawnSvg.appendChild(style);
             const defs = this.svgDraw.defs();
             const mask = defs.mask().id(this.maskId);
             this.edgeMask = mask.polyline();
             this.edgeMask.fill('none');
-            this.edgeMask.stroke({ color: 'white', width: 5 }); // TODO Should be the original polyline's stroke-width instead of a hardcoded value
+            this.edgeMask.stroke({ color: 'white' });
         }
 
         // add events
@@ -1644,11 +1640,11 @@ export class NetworkAreaDiagramViewer {
                 }
             }
             const zoomLevel = this.getZoomLevel(maxDisplayedSize);
-            const isZoomLevelClassDefined = [...innerSvg.classList].some((c) =>
+            const isZoomLevelClassDefined = [...svg.classList].some((c) =>
                 c.startsWith(NetworkAreaDiagramViewer.ZOOM_CLASS_PREFIX)
             );
             if (!isZoomLevelClassDefined || zoomLevel != this.lastZoomLevel) {
-                innerSvg.setAttribute('class', NetworkAreaDiagramViewer.ZOOM_CLASS_PREFIX + zoomLevel);
+                svg.setAttribute('class', NetworkAreaDiagramViewer.ZOOM_CLASS_PREFIX + zoomLevel);
                 this.lastZoomLevel = zoomLevel;
             }
         }
