@@ -1177,10 +1177,10 @@ export class NetworkAreaDiagramViewer {
         const edgeData = this.getEdgeData(edge);
         this.redrawEdge(
             edgeNode,
-            edgeData.edgePoints !== undefined
+            edgeData.edgePoints != undefined
                 ? edgeData.edgePoints[0]
                 : [edgeData.edgeStartPoints[0], edgeData.edgeMiddle],
-            edgeData.edgePoints !== undefined
+            edgeData.edgePoints != undefined
                 ? edgeData.edgePoints[1]
                 : [edgeData.edgeStartPoints[1], edgeData.edgeMiddle],
             edgeData.nodeRadius1,
@@ -2224,7 +2224,7 @@ export class NetworkAreaDiagramViewer {
         if (!bendableElem) {
             return;
         }
-        const edgeId = bendableElem.id != undefined ? DiagramUtils.getEdgeId(bendableElem.id) : '-1';
+        const edgeId = bendableElem.id !== undefined ? DiagramUtils.getEdgeId(bendableElem.id) : '-1';
         const edge: EdgeMetadata | undefined = this.diagramMetadata?.edges.find((edge) => edge.svgId == edgeId);
         if (edge?.points == undefined) {
             return;
@@ -2312,11 +2312,11 @@ export class NetworkAreaDiagramViewer {
     }
 
     private redrawBentLine(linePoint: SVGGraphicsElement, lineOperation: LineOperation) {
-        window.getSelection()?.empty();
+        globalThis.getSelection()?.empty();
         this.initialPosition = DiagramUtils.getPosition(linePoint);
 
         // get edge data
-        const edgeId = linePoint.id != undefined ? DiagramUtils.getEdgeId(linePoint.id) : '-1';
+        const edgeId = linePoint.id !== undefined ? DiagramUtils.getEdgeId(linePoint.id) : '-1';
         const edge: EdgeMetadata | undefined = this.diagramMetadata?.edges.find((edge) => edge.svgId == edgeId);
         if (!edge || (lineOperation == LineOperation.BEND && !edge.points)) {
             return;
@@ -2334,10 +2334,10 @@ export class NetworkAreaDiagramViewer {
         // bend line
         this.redrawEdge(
             edgeNode,
-            edgeData.edgePoints !== undefined
+            edgeData.edgePoints != undefined
                 ? edgeData.edgePoints[0]
                 : [edgeData.edgeStartPoints[0], edgeData.edgeMiddle],
-            edgeData.edgePoints !== undefined
+            edgeData.edgePoints != undefined
                 ? edgeData.edgePoints[1]
                 : [edgeData.edgeStartPoints[1], edgeData.edgeMiddle],
             edgeData.nodeRadius1,

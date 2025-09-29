@@ -86,13 +86,13 @@ export function getLinePointId(edgeId: string | undefined, index: number): strin
 }
 
 export function getEdgeId(linePointId: string | undefined): string {
-    return linePointId !== undefined ? linePointId.replace(/-point-\d{1,3}/, '') : '-1';
+    return linePointId != undefined ? linePointId.replace(/-point-\d{1,3}/, '') : '-1';
 }
 
 export function getBendableLines(edges: EdgeMetadata[] | undefined): EdgeMetadata[] {
     // group edges by edge ends
     const groupedEdges: Map<string, EdgeMetadata[]> = new Map<string, EdgeMetadata[]>();
-    edges?.forEach((edge) => {
+    for (const edge of edges ?? []) {
         let edgeGroup: EdgeMetadata[] = [];
         // filter out loop edges
         if (edge.node1 != edge.node2) {
@@ -103,7 +103,7 @@ export function getBendableLines(edges: EdgeMetadata[] | undefined): EdgeMetadat
             edgeGroup.push(edge);
             groupedEdges.set(edgeGroupId, edgeGroup);
         }
-    });
+    }
     const lines: EdgeMetadata[] = [];
     // filter edges
     for (const edgeGroup of groupedEdges.values()) {
@@ -237,7 +237,7 @@ function getValue(param: number, firstValue: number, secondValue: number): numbe
 function getDistance(point1: Point, point2: Point): number {
     const deltax = point1.x - point2.x;
     const deltay = point1.y - point2.y;
-    return Math.sqrt(deltax * deltax + deltay * deltay);
+    return Math.hypot(deltax, deltay);
 }
 
 export function getEdgePoints(
