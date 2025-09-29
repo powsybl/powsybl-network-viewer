@@ -110,7 +110,7 @@ export class NetworkAreaDiagramViewer {
     straightenedElement: SVGGraphicsElement | null = null;
     bendableLines: string[] = [];
 
-    private linePointIndexMap = new Map<SVGGElement, number>();
+    linePointIndexMap = new Map<SVGGElement, number>();
 
     static readonly ZOOM_CLASS_PREFIX = 'nad-zoom-';
 
@@ -1173,23 +1173,18 @@ export class NetworkAreaDiagramViewer {
             this.redrawThreeWtEdge(edge, edgeNode, vlNode);
             return;
         }
-        const edgeStartPoints = this.getEdgeStartPoints(edge);
-        if (!edgeStartPoints) return [];
-        const edgeMiddle = DiagramUtils.getMidPosition(edgeStartPoints.start1, edgeStartPoints.start2);
 
-        const nodeRadius1 = this.getNodeRadius(edge.busNode1 ?? '-1', edge.node1 ?? '-1');
-        const nodeRadius2 = this.getNodeRadius(edge.busNode2 ?? '-1', edge.node2 ?? '-1');
-
-        const edgePoints = edge.points
-            ? DiagramUtils.getEdgePoints(edgeStartPoints.start1, edgeStartPoints.start2, edge.points.slice())
-            : undefined;
-
+        const edgeData = this.getEdgeData(edge);
         this.redrawEdge(
             edgeNode,
-            edgePoints !== undefined ? edgePoints[0] : [edgeStartPoints.start1, edgeMiddle],
-            edgePoints !== undefined ? edgePoints[1] : [edgeStartPoints.start2, edgeMiddle],
-            nodeRadius1,
-            nodeRadius2,
+            edgeData.edgePoints != undefined
+                ? edgeData.edgePoints[0]
+                : [edgeData.edgeStartPoints[0], edgeData.edgeMiddle],
+            edgeData.edgePoints != undefined
+                ? edgeData.edgePoints[1]
+                : [edgeData.edgeStartPoints[1], edgeData.edgeMiddle],
+            edgeData.nodeRadius1,
+            edgeData.nodeRadius2,
             edgeType,
             edge.points != undefined
         );
@@ -1198,8 +1193,8 @@ export class NetworkAreaDiagramViewer {
         if (edgeType == DiagramUtils.EdgeType.DANGLING_LINE) {
             this.redrawBoundaryNode(
                 edgeNodes[1],
-                DiagramUtils.getAngle(edgeStartPoints.start2, edgeMiddle),
-                nodeRadius2[1]
+                DiagramUtils.getAngle(edgeData.edgeStartPoints[1], edgeData.edgeMiddle),
+                edgeData.nodeRadius2[1]
             );
             if (vlNode.id == edgeNodes[1]?.id) {
                 // if boundary node moved -> redraw other voltage level node
@@ -1212,7 +1207,7 @@ export class NetworkAreaDiagramViewer {
         }
 
         if (this.bendLines && edge.points == undefined) {
-            this.moveLinePoint(edge.svgId, edgeMiddle);
+            this.moveLinePoint(edge.svgId, edgeData.edgeMiddle);
         }
     }
 
@@ -1226,7 +1221,7 @@ export class NetworkAreaDiagramViewer {
         return pst3wtEdge ?? false;
     }
 
-    private getEdgeStartPoints(edge: EdgeMetadata): { start1: Point; start2: Point } | null {
+    private getEdgeStartPoints(edge: EdgeMetadata): Point[] | null {
         const vlNode1: SVGGraphicsElement | null = this.svgDiv.querySelector("[id='" + edge.node1 + "']");
         const vlNode2: SVGGraphicsElement | null = this.svgDiv.querySelector("[id='" + edge.node2 + "']");
         if (!vlNode1 || !vlNode2) return null;
@@ -1234,14 +1229,16 @@ export class NetworkAreaDiagramViewer {
         const nodeRadius1 = this.getNodeRadius(edge.busNode1 ?? '-1', edge.node1 ?? '-1');
         const nodeRadius2 = this.getNodeRadius(edge.busNode2 ?? '-1', edge.node2 ?? '-1');
 
-        const start1 = this.getEdgeStart(
+        const startPoints: Point[] = [];
+
+        startPoints[0] = this.getEdgeStart(
             edge.busNode1,
             nodeRadius1[1],
             vlNode1,
             edge.points ? new Point(edge.points[0].x, edge.points[0].y) : vlNode2
         );
 
-        const start2 = this.getEdgeStart(
+        startPoints[1] = this.getEdgeStart(
             edge.busNode2,
             nodeRadius2[1],
             vlNode2,
@@ -1250,7 +1247,7 @@ export class NetworkAreaDiagramViewer {
                 : vlNode1
         );
 
-        return { start1, start2 };
+        return startPoints;
     }
 
     private getEdgeStart(
@@ -2341,24 +2338,19 @@ export class NetworkAreaDiagramViewer {
         const vlNode2: SVGGraphicsElement | null = this.svgDiv.querySelector("[id='" + edge?.node2 + "']");
         const edgeType = DiagramUtils.getEdgeType(edge);
 
-        const edgeStartPoints = this.getEdgeStartPoints(edge);
-        if (!edgeStartPoints) return [];
-        const edgeMiddle = DiagramUtils.getMidPosition(edgeStartPoints.start1, edgeStartPoints.start2);
-
-        const nodeRadius1 = this.getNodeRadius(edge.busNode1 ?? '-1', edge.node1 ?? '-1');
-        const nodeRadius2 = this.getNodeRadius(edge.busNode2 ?? '-1', edge.node2 ?? '-1');
-
-        const edgePoints = edge.points
-            ? DiagramUtils.getEdgePoints(edgeStartPoints.start1, edgeStartPoints.start2, edge.points.slice())
-            : undefined;
+        const edgeData = this.getEdgeData(edge);
 
         // bend line
         this.redrawEdge(
             edgeNode,
-            edgePoints ? edgePoints[0] : [edgeStartPoints.start1, edgeMiddle],
-            edgePoints ? edgePoints[1] : [edgeStartPoints.start2, edgeMiddle],
-            nodeRadius1,
-            nodeRadius2,
+            edgeData.edgePoints != undefined
+                ? edgeData.edgePoints[0]
+                : [edgeData.edgeStartPoints[0], edgeData.edgeMiddle],
+            edgeData.edgePoints != undefined
+                ? edgeData.edgePoints[1]
+                : [edgeData.edgeStartPoints[1], edgeData.edgeMiddle],
+            edgeData.nodeRadius1,
+            edgeData.nodeRadius2,
             edgeType,
             edge.points != undefined
         );
@@ -2490,6 +2482,40 @@ export class NetworkAreaDiagramViewer {
         });
     }
 
+    private getEdgeData(edge: EdgeMetadata): {
+        edgeStartPoints: Point[];
+        edgeMiddle: Point;
+        nodeRadius1: [number, number, number];
+        nodeRadius2: [number, number, number];
+        edgePoints: Point[][] | undefined;
+    } {
+        const edgeStartPoints = this.getEdgeStartPoints(edge);
+        if (!edgeStartPoints) {
+            return {
+                edgeStartPoints: [],
+                edgeMiddle: new Point(0, 0),
+                nodeRadius1: [0, 0, 0],
+                nodeRadius2: [0, 0, 0],
+                edgePoints: undefined,
+            };
+        }
+
+        const edgeMiddle = DiagramUtils.getMidPosition(edgeStartPoints[0], edgeStartPoints[1]);
+        const nodeRadius1 = this.getNodeRadius(edge.busNode1 ?? '-1', edge.node1 ?? '-1');
+        const nodeRadius2 = this.getNodeRadius(edge.busNode2 ?? '-1', edge.node2 ?? '-1');
+        const edgePoints = edge.points
+            ? DiagramUtils.getEdgePoints(edgeStartPoints[0], edgeStartPoints[1], edge.points.slice())
+            : undefined;
+
+        return {
+            edgeStartPoints,
+            edgeMiddle,
+            nodeRadius1,
+            nodeRadius2,
+            edgePoints,
+        };
+    }
+
     private calculateEdgeSegmentMidpoints(edge: EdgeMetadata): Point[] {
         if (!edge.node1 || !edge.node2) return [];
 
@@ -2499,7 +2525,7 @@ export class NetworkAreaDiagramViewer {
         const midpoints: Point[] = [];
 
         if (edge.points && edge.points.length > 0) {
-            const previousPoint = startPoints.start1;
+            const previousPoint = startPoints[0];
 
             midpoints.push(DiagramUtils.getMidPosition(previousPoint, new Point(edge.points[0].x, edge.points[0].y)));
 
@@ -2510,9 +2536,9 @@ export class NetworkAreaDiagramViewer {
             }
 
             const lastPoint = new Point(edge.points[edge.points.length - 1].x, edge.points[edge.points.length - 1].y);
-            midpoints.push(DiagramUtils.getMidPosition(lastPoint, startPoints.start2));
+            midpoints.push(DiagramUtils.getMidPosition(lastPoint, startPoints[1]));
         } else {
-            midpoints.push(DiagramUtils.getMidPosition(startPoints.start1, startPoints.start2));
+            midpoints.push(DiagramUtils.getMidPosition(startPoints[0], startPoints[1]));
         }
 
         return midpoints;
