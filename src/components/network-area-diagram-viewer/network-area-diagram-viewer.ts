@@ -29,7 +29,6 @@ import {
     NadViewerParameters,
     NadViewerParametersOptions,
 } from './nad-viewer-parameters';
-import { randomUUID } from 'crypto';
 
 export type BranchState = {
     branchId: string;
@@ -105,6 +104,11 @@ export class NetworkAreaDiagramViewer {
 
     static readonly ZOOM_CLASS_PREFIX = 'nad-zoom-';
 
+    private randomId(): string {
+        const uint32 = window.crypto.getRandomValues(new Uint32Array(1))[0];
+        return uint32.toString(16);
+    }
+
     /**
      * @param container - The HTML element that will contain the SVG diagram.
      * @param svgContent - The SVG content to be rendered in the viewer.
@@ -118,7 +122,7 @@ export class NetworkAreaDiagramViewer {
         nadViewerParametersOptions: NadViewerParametersOptions | null
     ) {
         this.container = container;
-        const idTemp = randomUUID();
+        const idTemp = this.randomId();
         this.maskId = 'mask' + idTemp;
         this.containerId = 'container' + idTemp;
         this.svgDiv = document.createElement('div');
