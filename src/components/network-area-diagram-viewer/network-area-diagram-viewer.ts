@@ -1646,9 +1646,11 @@ export class NetworkAreaDiagramViewer {
             );
             if (!isZoomLevelClassDefined || zoomLevel != this.lastZoomLevel) {
                 // Remove the obsolete nad-zoom-X class
-                [...svg.classList]
-                    .filter((c) => c.startsWith(NetworkAreaDiagramViewer.ZOOM_CLASS_PREFIX))
-                    .forEach((c) => svg.classList.remove(c));
+                for (const c of [...svg.classList]) {
+                    if (c.startsWith(NetworkAreaDiagramViewer.ZOOM_CLASS_PREFIX)) {
+                        svg.classList.remove(c);
+                    }
+                }
                 // Add the correct nad-zoom-X class
                 svg.classList.add(NetworkAreaDiagramViewer.ZOOM_CLASS_PREFIX + zoomLevel);
                 this.lastZoomLevel = zoomLevel;
