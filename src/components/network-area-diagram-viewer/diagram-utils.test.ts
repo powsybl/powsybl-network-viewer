@@ -649,13 +649,23 @@ test('getEdgeMidPoint', () => {
 
 test('createLinePointElement', () => {
     const linePointMap = new Map<SVGGElement, { edgeId: string; index: number }>();
-    const linePoint = DiagramUtils.createLinePointElement('1', new Point(-5.15, 4.23), -1, false, linePointMap);
+    const linePointByEdgeMap = new Map<string, SVGElement>();
+    const linePoint = DiagramUtils.createLinePointElement(
+        '1',
+        new Point(-5.15, 4.23),
+        -1,
+        false,
+        linePointMap,
+        linePointByEdgeMap
+    );
     expect(linePoint).not.toBeUndefined();
-    expect(linePoint.id).toBe('1-point-0');
+    expect(linePoint.id).toBe('1-point--1');
     expect(linePoint.getAttribute('transform')).toBe('translate(-5.15,4.23)');
     expect(linePointMap.has(linePoint as SVGGElement)).toBe(true);
     expect(linePointMap.get(linePoint as SVGGElement)?.index).toBe(-1);
     expect(linePointMap.get(linePoint as SVGGElement)?.edgeId).toBe('1');
+
+    expect(linePointByEdgeMap.get(DiagramUtils.getLinePointMapKey('1', -1))).toBe(linePoint);
 });
 
 test('getBendableLineFrom', () => {

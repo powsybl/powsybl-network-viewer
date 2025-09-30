@@ -111,6 +111,7 @@ export class NetworkAreaDiagramViewer {
     bendableLines: string[] = [];
 
     linePointIndexMap = new Map<SVGGElement, { edgeId: string; index: number }>();
+    linePointByEdgeIndexMap = new Map<string, SVGGElement>();
 
     static readonly ZOOM_CLASS_PREFIX = 'nad-zoom-';
 
@@ -2155,30 +2156,30 @@ export class NetworkAreaDiagramViewer {
         linePointsElement?: SVGElement | null
     ): SVGElement {
         linePointsElement ??= this.svgDraw?.node.querySelector('#lines-points');
-        const pointElement = DiagramUtils.createLinePointElement(lineId, point, index, false, this.linePointIndexMap);
-        linePointsElement?.appendChild(pointElement);
-
-        return pointElement;
-    }
-
-    private removeLinePoint(lineId: string) {
-        const linePointElement = this.svgDraw?.node.querySelector(
-            "[id='" + DiagramUtils.getLinePointId(lineId, 0) + "']"
+        const pointElement = DiagramUtils.createLinePointElement(
+            lineId,
+            point,
+            index,
+            false,
+            this.linePointIndexMap,
+            this.linePointByEdgeIndexMap
         );
-        linePointElement?.remove();
+        linePointsElement?.appendChild(pointElement);
+        return pointElement;
     }
 
     private disableLineBending() {
         const linePointsElement = this.svgDraw?.node.querySelector('#lines-points');
         linePointsElement?.remove();
         this.linePointIndexMap.clear();
+        this.linePointByEdgeIndexMap.clear();
         this.bendableLines = [];
         this.bendLines = false;
     }
 
     private moveLinePoint(svgId: string, newPosition: Point) {
-        const linePointElement: SVGGraphicsElement | null = this.svgDiv.querySelector(
-            "[id='" + DiagramUtils.getLinePointId(svgId, 0) + "']"
+        const linePointElement: SVGGraphicsElement | undefined = this.linePointByEdgeIndexMap.get(
+            DiagramUtils.getLinePointMapKey(svgId, 0)
         );
         if (linePointElement) {
             this.updateNodePosition(linePointElement, newPosition);
@@ -2212,7 +2213,6 @@ export class NetworkAreaDiagramViewer {
         this.disablePanzoom(); // to avoid panning the whole SVG when bending a line
         this.ctm = this.svgDraw?.node.getScreenCTM(); // used to compute mouse movement
         const mousePosition = this.getMousePosition(event);
-        this.removeLinePoint(bendableElem.id); // remove previously created line point
         const pointElement = this.addLinePoint(bendableElem.id, -1, mousePosition); // add line point, to be moved
         this.bentElement = pointElement as SVGGraphicsElement; // line point to be moved
         this.initialPosition = DiagramUtils.getPosition(this.bentElement); // used for the offset
@@ -2271,17 +2271,27 @@ export class NetworkAreaDiagramViewer {
                 edge.points = linePoints.linePoints;
                 // update line point elements with shifted index
                 for (let i = edge.points.length - 1; i > linePoints.index; i--) {
-                    const linePoint: SVGGraphicsElement | null = this.svgDiv.querySelector(
-                        "[id='" + DiagramUtils.getLinePointId(edge.svgId, i) + "']"
+                    const linePoint: SVGGraphicsElement | undefined = this.linePointByEdgeIndexMap.get(
+                        DiagramUtils.getLinePointMapKey(edge.svgId, i - 1)
                     );
                     if (linePoint) {
+                        // Delete old map entry
+                        this.linePointByEdgeIndexMap.delete(DiagramUtils.getLinePointMapKey(edge.svgId, i - 1));
+                        // Update maps with new index
                         this.linePointIndexMap.set(linePoint, { edgeId: edge.svgId, index: i });
-                        linePoint.id = DiagramUtils.getLinePointId(edge.svgId, i + 1);
+                        this.linePointByEdgeIndexMap.set(DiagramUtils.getLinePointMapKey(edge.svgId, i), linePoint);
+                        linePoint.id = DiagramUtils.getLinePointId(edge.svgId, i);
                     }
                 }
+                // Clean up the temporary -1
+                this.linePointByEdgeIndexMap.delete(DiagramUtils.getLinePointMapKey(edge.svgId, -1));
                 // update line point element
                 this.linePointIndexMap.set(linePointElement, { edgeId: edge.svgId, index: linePoints.index });
-                linePointElement.id = DiagramUtils.getLinePointId(edge.svgId, linePoints.index + 1);
+                this.linePointByEdgeIndexMap.set(
+                    DiagramUtils.getLinePointMapKey(edge.svgId, linePoints.index),
+                    linePointElement
+                );
+                linePointElement.id = DiagramUtils.getLinePointId(edge.svgId, linePoints.index);
             }
         } else if (edge.points) {
             // update line point
@@ -2296,14 +2306,16 @@ export class NetworkAreaDiagramViewer {
         const index = this.linePointIndexMap.get(linePointElement)?.index ?? -1;
 
         if (edge.points) {
-            // update line point elements with shifted index
+            this.linePointByEdgeIndexMap.delete(DiagramUtils.getLinePointMapKey(edge.svgId, index));
             for (let i = index + 1; i < edge.points.length; i++) {
-                const linePoint: SVGGraphicsElement | null = this.svgDiv.querySelector(
-                    "[id='" + DiagramUtils.getLinePointId(edge.svgId, i + 1) + "']"
+                const linePoint: SVGGraphicsElement | undefined = this.linePointByEdgeIndexMap.get(
+                    DiagramUtils.getLinePointMapKey(edge.svgId, i)
                 );
                 if (linePoint) {
+                    this.linePointByEdgeIndexMap.delete(DiagramUtils.getLinePointMapKey(edge.svgId, i));
                     this.linePointIndexMap.set(linePoint, { edgeId: edge.svgId, index: i - 1 });
-                    linePoint.id = DiagramUtils.getLinePointId(edge.svgId, i);
+                    this.linePointByEdgeIndexMap.set(DiagramUtils.getLinePointMapKey(edge.svgId, i - 1), linePoint);
+                    linePoint.id = DiagramUtils.getLinePointId(edge.svgId, i - 1);
                 }
             }
             // delete point

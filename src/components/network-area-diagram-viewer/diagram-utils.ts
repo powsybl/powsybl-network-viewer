@@ -92,6 +92,10 @@ export function getEdgeId(
     return linePointIndexMap.get(linePoint)?.edgeId;
 }
 
+export function getLinePointMapKey(edgeId: string, index: number): string {
+    return `${edgeId}:${index}`;
+}
+
 export function getBendableLines(edges: EdgeMetadata[] | undefined): EdgeMetadata[] {
     // group edges by edge ends
     const groupedEdges: Map<string, EdgeMetadata[]> = new Map<string, EdgeMetadata[]>();
@@ -136,7 +140,8 @@ export function createLinePointElement(
     linePoint: Point,
     index: number,
     previewPoint?: boolean,
-    linePointIndexMap?: Map<SVGGElement, { edgeId: string; index: number }>
+    linePointIndexMap?: Map<SVGGElement, { edgeId: string; index: number }>,
+    linePointByEdgeIndexMap?: Map<string, SVGElement>
 ): SVGElement {
     const linePointElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     linePointElement.setAttribute('transform', 'translate(' + getFormattedPoint(linePoint) + ')');
@@ -157,9 +162,10 @@ export function createLinePointElement(
 
     linePointElement.appendChild(squareElement);
 
-    if (!previewPoint && linePointIndexMap) {
-        linePointElement.id = getLinePointId(edgeId, index + 1);
+    if (!previewPoint && linePointIndexMap && linePointByEdgeIndexMap) {
+        linePointElement.id = getLinePointId(edgeId, index);
         linePointIndexMap.set(linePointElement, { edgeId: edgeId, index: index });
+        linePointByEdgeIndexMap.set(getLinePointMapKey(edgeId, index), linePointElement);
     }
     return linePointElement;
 }
