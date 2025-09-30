@@ -337,25 +337,22 @@ export class NetworkAreaDiagramViewer {
 
         const drawnSvg: HTMLElement = <HTMLElement>this.svgDraw.svg(this.svgContent).node.firstElementChild;
         drawnSvg.style.overflow = 'visible';
-        drawnSvg.id = this.containerId;
 
         // Create a mask that is used to help the user hover over a line :
         // The trick is to enlarge the line when hovering, and use this mask as a way to visually hide the
         // enlargement. We only see the original line's shape through the mask, but the "real" line is thicker,
         // making it easier to keep under the user's mouse.
         if (this.nadViewerParameters.getEnableHoverHelper()) {
+            drawnSvg.id = this.containerId;
+            this.svgDraw.addClass('hoverHelper');
             const style = document.createElementNS('http://www.w3.org/2000/svg', 'style');
-            style.textContent = `
-                #${this.containerId} .nad-edge-path:hover{
-                    mask:url(#${this.maskId});
-                    stroke-width: 35px;
-                }`; // TODO Should not be a hardcoded value
+            style.textContent = `#${this.containerId} .nad-edge-path:hover{mask:url(#${this.maskId});}`;
             drawnSvg.appendChild(style);
             const defs = this.svgDraw.defs();
             const mask = defs.mask().id(this.maskId);
             this.edgeMask = mask.polyline();
             this.edgeMask.fill('none');
-            this.edgeMask.stroke({ color: 'white', width: 5 }); // TODO Should be the original polyline's stroke-width instead of a hardcoded value
+            this.edgeMask.stroke({ color: 'white' });
         }
 
         // add events

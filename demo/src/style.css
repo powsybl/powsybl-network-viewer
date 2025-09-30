@@ -417,6 +417,12 @@ foreignObject.nad-text-nodes {
 .nad-disconnected .nad-svc {stroke: lightgrey}
 .nad-unknown {stroke: none; fill: black}
 
-.nad-edge-path:hover {
-    cursor: pointer;
+.hoverHelper {
+    .nad-edge-path:hover {
+        stroke-width: 35px; /* Corresponds to the width the mouse can hover over */
+        cursor: pointer; /* For demonstration purpose */
+    }
+    & mask polyline {
+        stroke-width: 5px; /* Should be the same width as the edge */
+    }
 }
