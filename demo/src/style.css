@@ -365,6 +365,9 @@ foreignObject.nad-text-nodes {
 .nad-vl-nodes .nad-undervoltage {
     animation: node-under-blink 3s infinite;
 }
+.nad-line-points {
+    fill: black;
+}
 
 @keyframes line-blink {
     0%,
