@@ -338,22 +338,7 @@ export class NetworkAreaDiagramViewer {
         const drawnSvg: HTMLElement = <HTMLElement>this.svgDraw.svg(this.svgContent).node.firstElementChild;
         drawnSvg.style.overflow = 'visible';
 
-        // Create a mask that is used to help the user hover over a line :
-        // The trick is to enlarge the line when hovering, and use this mask as a way to visually hide the
-        // enlargement. We only see the original line's shape through the mask, but the "real" line is thicker,
-        // making it easier to keep under the user's mouse.
-        if (this.nadViewerParameters.getEnableHoverHelper()) {
-            drawnSvg.id = this.containerId;
-            this.svgDraw.addClass('hoverHelper');
-            const style = document.createElementNS('http://www.w3.org/2000/svg', 'style');
-            style.textContent = `#${this.containerId} .nad-edge-path:hover{mask:url(#${this.maskId});}`;
-            drawnSvg.appendChild(style);
-            const defs = this.svgDraw.defs();
-            const mask = defs.mask().id(this.maskId);
-            this.edgeMask = mask.polyline();
-            this.edgeMask.fill('none');
-            this.edgeMask.stroke({ color: 'white' });
-        }
+        this.prepareHoverHelper();
 
         // add events
         const hasMetadata = this.diagramMetadata !== null;
@@ -411,7 +396,52 @@ export class NetworkAreaDiagramViewer {
         firstChild.removeAttribute('width');
         firstChild.removeAttribute('height');
 
-        if (this.nadViewerParameters.getEnableLevelOfDetail()) {
+        this.prepareLevelOfDetail();
+
+        if (this.hasNodeInteraction() && hasMetadata) {
+            // fill empty elements: unknown buses and three windings transformers
+            const emptyElements: NodeListOf<SVGGraphicsElement> = this.svgDiv.querySelectorAll(
+                '.nad-unknown-busnode, .nad-3wt-nodes .nad-winding'
+            );
+            emptyElements.forEach((emptyElement) => {
+                emptyElement.style.fill = '#0000';
+            });
+        }
+        if (this.onRightClickCallback != null && hasMetadata) {
+            // fill empty branch elements: two windings transformers
+            const emptyElements: NodeListOf<SVGGraphicsElement> = this.svgDiv.querySelectorAll(
+                '.nad-branch-edges .nad-winding'
+            );
+            emptyElements.forEach((emptyElement) => {
+                emptyElement.style.fill = '#0000';
+            });
+        }
+    }
+
+    private prepareHoverHelper() {
+        // Create a mask that is used to help the user hover over a line :
+        // The trick is to enlarge the line when hovering, and use this mask as a way to visually hide the
+        // enlargement. We only see the original line's shape through the mask, but the "real" line is thicker,
+        // making it easier to keep under the user's mouse.
+        if (this.nadViewerParameters.getEnableHoverHelper() && this.svgDraw) {
+            const drawnSvg: HTMLElement = <HTMLElement>this.svgDraw.node?.firstElementChild;
+            if (drawnSvg) {
+                drawnSvg.id = this.containerId;
+                this.svgDraw.addClass('hoverHelper');
+                const style = document.createElementNS('http://www.w3.org/2000/svg', 'style');
+                style.textContent = `#${this.containerId} .nad-edge-path:hover{mask:url(#${this.maskId});}`;
+                drawnSvg.appendChild(style);
+                const defs = this.svgDraw.defs();
+                const mask = defs.mask().id(this.maskId);
+                this.edgeMask = mask.polyline();
+                this.edgeMask.fill('none');
+                this.edgeMask.stroke({ color: 'white' });
+            }
+        }
+    }
+
+    private prepareLevelOfDetail() {
+        if (this.nadViewerParameters.getEnableLevelOfDetail() && this.svgDraw) {
             this.svgDraw.fire('zoom'); // Forces a new dynamic zoom check to correctly update the dynamic CSS
 
             // We add an observer to track when the SVG's viewBox is updated by panzoom
@@ -432,25 +462,6 @@ export class NetworkAreaDiagramViewer {
             const debouncedObserverCallback = debounce(observerCallback, 50);
             const observer = new MutationObserver(debouncedObserverCallback);
             observer.observe(targetNode, { attributeFilter: ['viewBox'] });
-        }
-
-        if (this.hasNodeInteraction() && hasMetadata) {
-            // fill empty elements: unknown buses and three windings transformers
-            const emptyElements: NodeListOf<SVGGraphicsElement> = this.svgDiv.querySelectorAll(
-                '.nad-unknown-busnode, .nad-3wt-nodes .nad-winding'
-            );
-            emptyElements.forEach((emptyElement) => {
-                emptyElement.style.fill = '#0000';
-            });
-        }
-        if (this.onRightClickCallback != null && hasMetadata) {
-            // fill empty branch elements: two windings transformers
-            const emptyElements: NodeListOf<SVGGraphicsElement> = this.svgDiv.querySelectorAll(
-                '.nad-branch-edges .nad-winding'
-            );
-            emptyElements.forEach((emptyElement) => {
-                emptyElement.style.fill = '#0000';
-            });
         }
     }
 
@@ -1601,6 +1612,24 @@ export class NetworkAreaDiagramViewer {
         return Math.max(viewbox?.height || 0, viewbox?.width || 0);
     }
 
+    private setSvgZoomLevel(svg: SVGSVGElement) {
+        const zoomLevel = this.getZoomLevel(this.getPreviousMaxDisplayedSize());
+        const isZoomLevelClassDefined = [...svg.classList].some((c) =>
+            c.startsWith(NetworkAreaDiagramViewer.ZOOM_CLASS_PREFIX)
+        );
+        if (!isZoomLevelClassDefined || zoomLevel != this.lastZoomLevel) {
+            // Remove the obsolete nad-zoom-X class
+            for (const c of svg.classList) {
+                if (c.startsWith(NetworkAreaDiagramViewer.ZOOM_CLASS_PREFIX)) {
+                    svg.classList.remove(c);
+                }
+            }
+            // Add the correct nad-zoom-X class
+            svg.classList.add(NetworkAreaDiagramViewer.ZOOM_CLASS_PREFIX + zoomLevel);
+            this.lastZoomLevel = zoomLevel;
+        }
+    }
+
     public checkAndUpdateLevelOfDetail(svg: SVGSVGElement) {
         const maxDisplayedSize = this.getCurrentlyMaxDisplayedSize();
         const previousMaxDisplayedSize = this.getPreviousMaxDisplayedSize();
@@ -1612,6 +1641,7 @@ export class NetworkAreaDiagramViewer {
             return;
         }
         this.setPreviousMaxDisplayedSize(maxDisplayedSize);
+        this.setSvgZoomLevel(svg);
 
         //Workaround chromium (tested on edge and google-chrome 131) doesn't
         //redraw things with percentages on viewbox changes but it should, so
@@ -1639,21 +1669,6 @@ export class NetworkAreaDiagramViewer {
                 if (child.nodeName.toUpperCase() != 'STYLE') {
                     child.innerHTML += '';
                 }
-            }
-            const zoomLevel = this.getZoomLevel(maxDisplayedSize);
-            const isZoomLevelClassDefined = [...svg.classList].some((c) =>
-                c.startsWith(NetworkAreaDiagramViewer.ZOOM_CLASS_PREFIX)
-            );
-            if (!isZoomLevelClassDefined || zoomLevel != this.lastZoomLevel) {
-                // Remove the obsolete nad-zoom-X class
-                for (const c of [...svg.classList]) {
-                    if (c.startsWith(NetworkAreaDiagramViewer.ZOOM_CLASS_PREFIX)) {
-                        svg.classList.remove(c);
-                    }
-                }
-                // Add the correct nad-zoom-X class
-                svg.classList.add(NetworkAreaDiagramViewer.ZOOM_CLASS_PREFIX + zoomLevel);
-                this.lastZoomLevel = zoomLevel;
             }
         }
     }
