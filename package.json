@@ -36,7 +36,7 @@
         "prepublishOnly": "$npm_execpath run build",
         "test": "jest",
         "test:coverage": "jest --coverage",
-        "start": "vite demo/ --config vite.config.ts --open",
+        "start": "vite demo/ --open",
         "lint": "eslint . --ext js,mjs,jsx,ts,mts,tsx --max-warnings 0",
         "lint:format": "prettier --check --cache .",
         "licenses-check": "license-checker --summary --excludePrivatePackages --production --onlyAllow \"$( jq -r .onlyAllow[] license-checker-config.json | tr '\n' ';')\" --excludePackages \"$( jq -r .excludePackages[] license-checker-config.json | tr '\n' ';')\""
