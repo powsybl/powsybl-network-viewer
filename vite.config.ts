@@ -19,7 +19,6 @@ export default defineConfig((config) => ({
         svgr(), // works on every import with the pattern "**/*.svg?react"
         eslint({
             failOnWarning: config.mode !== 'development',
-            lintOnStart: true,
         }),
         dts({
             include: ['src'],
