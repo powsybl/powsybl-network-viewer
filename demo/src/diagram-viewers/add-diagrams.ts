@@ -384,7 +384,7 @@ export const addSldToDemo = () => {
                 600,
                 1200,
                 1200,
-                handleNextVL, //callback on the next voltage arrows
+                handleNextVLWithEvent, //callback on the next voltage arrows
                 handleSwitch, //callback on the breakers
                 handleFeeder, //callback on the feeders
                 handleBus, //callback on the buses
@@ -396,6 +396,13 @@ export const addSldToDemo = () => {
 
 const handleNextVL: OnNextVoltageCallbackType = (id: string) => {
     const msg = 'Clicked on navigation arrow, dest VL is ' + id;
+    console.log(msg);
+};
+
+const handleNextVLWithEvent: OnNextVoltageCallbackType = (id: string, event: MouseEvent) => {
+    const msg = event.ctrlKey
+        ? 'Clicked on CTRL and navigation arrow, dest VL is ' + id
+        : 'Clicked on navigation arrow, dest VL is ' + id;
     console.log(msg);
 };
 
