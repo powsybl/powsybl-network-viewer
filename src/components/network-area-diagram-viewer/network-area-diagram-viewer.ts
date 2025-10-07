@@ -2300,6 +2300,10 @@ export class NetworkAreaDiagramViewer {
         }
         this.disablePanzoom(); // to avoid panning the whole SVG when straightening a line
         this.straightenedElement = bendableElem as SVGGraphicsElement; // element to be straightened
+
+        if (edgeId && edgeId !== '-1') {
+            this.parallelStraightenedElement = this.getParallelPointElement(this.straightenedElement, edgeId);
+        }
     }
 
     private updateEdgeMetadata(
@@ -2475,12 +2479,23 @@ export class NetworkAreaDiagramViewer {
         }
         // Update metadata
         this.updateEdgeMetadata(this.straightenedElement, null, LineOperation.STRAIGHTEN);
+        if (this.parallelStraightenedElement) {
+            this.updateEdgeMetadata(this.parallelStraightenedElement, null, LineOperation.STRAIGHTEN);
+        }
         // straighten line
         this.redrawBentLine(this.straightenedElement, LineOperation.STRAIGHTEN);
+        if (this.parallelStraightenedElement) {
+            this.redrawBentLine(this.parallelStraightenedElement, LineOperation.STRAIGHTEN);
+        }
         // call callback
         this.callBendLineCallback(this.straightenedElement, LineOperation.STRAIGHTEN);
+        if (this.parallelStraightenedElement) {
+            this.callBendLineCallback(this.parallelStraightenedElement, LineOperation.STRAIGHTEN);
+        }
+
         // reset data
         this.straightenedElement = null;
+        this.parallelStraightenedElement = undefined;
         this.enablePanzoom();
     }
 
