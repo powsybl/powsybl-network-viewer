@@ -114,14 +114,8 @@ export function getBendableLines(edges: EdgeMetadata[] | undefined): EdgeMetadat
     const lines: EdgeMetadata[] = [];
     // filter edges
     for (const edgeGroup of groupedEdges.values()) {
-        // only non parallel edges
-        if (edgeGroup.length == 1) {
-            const edge = edgeGroup[0];
-            // only lines
-            if (getEdgeType(edge) == EdgeType.LINE) {
-                lines.push(edge);
-            }
-        }
+        const edge = edgeGroup.filter((edge) => getEdgeType(edge) == EdgeType.LINE);
+        lines.push(...edge);
     }
     return lines;
 }
@@ -176,6 +170,28 @@ export function getBendableLineFrom(element: SVGElement, bendableIds: string[]):
     } else if (element.parentElement) {
         return getBendableLineFrom(element.parentNode as SVGElement, bendableIds);
     }
+}
+
+export function getParallelEdgeGroupId(edge: EdgeMetadata): string {
+    return edge.node1.concat('_', edge.node2);
+}
+
+export function getParallelEdgeGroup(edgeId: string, edges: EdgeMetadata[] | undefined): EdgeMetadata[] | undefined {
+    const edge = edges?.find((e) => e.svgId === edgeId);
+    if (!edge || edge.node1 === edge.node2) {
+        return undefined;
+    }
+
+    const groupId = getParallelEdgeGroupId(edge);
+    const group = edges?.filter((e) => {
+        if (e.node1 == edge.node2) return false;
+        return getParallelEdgeGroupId(e) === groupId;
+    });
+    return group && group.length > 1 ? group : undefined;
+}
+
+export function calculateParallelOffset(edge1Middle: Point, edge2Middle: Point): Point {
+    return new Point(edge2Middle.x - edge1Middle.x, edge2Middle.y - edge1Middle.y);
 }
 
 export function isBendableLine(element: SVGElement, bendableIds: string[]): boolean {
@@ -284,6 +300,18 @@ export function getEdgePoints(
         }
     }
     return [halfEdgePoints1, halfEdgePoints2.reverse()];
+}
+
+export function getEdgeMidPointPosition(edgeId: string, svgContainer: HTMLElement): Point | null {
+    const halfEgde1: SVGGraphicsElement | null = svgContainer.querySelector("[id='" + edgeId + ".1']");
+    const halfEgde2: SVGGraphicsElement | null = svgContainer.querySelector("[id='" + edgeId + ".2']");
+    const middle1: Point | null = getEdgeMidPoint(halfEgde1);
+    const middle2: Point | null = getEdgeMidPoint(halfEgde2);
+
+    if (middle1 && middle2) {
+        return getMidPosition(middle1, middle2);
+    }
+    return null;
 }
 
 // format number to string
