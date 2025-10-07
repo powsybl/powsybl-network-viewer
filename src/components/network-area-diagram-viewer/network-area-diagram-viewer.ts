@@ -678,8 +678,18 @@ export class NetworkAreaDiagramViewer {
             const mousePosition = this.getMousePosition(event);
             // Update metadata first
             this.updateEdgeMetadata(this.bentElement, mousePosition, LineOperation.BEND);
+            if (this.parallelBentElement) {
+                this.updateEdgeMetadata(
+                    this.parallelBentElement,
+                    new Point(mousePosition.x + this.parallelOffset.x, mousePosition.y + this.parallelOffset.y),
+                    LineOperation.BEND
+                );
+            }
             // Then update line visually using updated metadata
             this.redrawBentLine(this.bentElement, LineOperation.BEND);
+            if (this.parallelBentElement) {
+                this.redrawBentLine(this.parallelBentElement, LineOperation.BEND);
+            }
         }
     }
 
