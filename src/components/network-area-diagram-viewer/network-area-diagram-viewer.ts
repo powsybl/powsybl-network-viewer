@@ -2263,18 +2263,18 @@ export class NetworkAreaDiagramViewer {
                     this.parallelOffset = DiagramUtils.calculateParallelOffset(middleSelectedEdge, middleParallelEdge);
                     const pointElement1 = this.addLinePoint(selectedEdge.svgId, -1, mousePosition);
 
-                    const pointElement2 = this.addLinePoint(
-                        parallelEdge.svgId,
-                        -1,
-                        new Point(mousePosition.x + this.parallelOffset.x, mousePosition.y + this.parallelOffset.y)
+                    const position2 = new Point(
+                        mousePosition.x + this.parallelOffset.x,
+                        mousePosition.y + this.parallelOffset.y
                     );
+                    const pointElement2 = this.addLinePoint(parallelEdge.svgId, -1, position2);
 
                     this.bentElement = pointElement1 as SVGGraphicsElement;
                     this.parallelBentElement = pointElement2 as SVGGraphicsElement;
                     this.initialPosition = DiagramUtils.getPosition(this.bentElement);
 
                     this.updateEdgeMetadata(this.bentElement, mousePosition, LineOperation.BEND);
-                    this.updateEdgeMetadata(this.parallelBentElement, mousePosition, LineOperation.BEND);
+                    this.updateEdgeMetadata(this.parallelBentElement, position2, LineOperation.BEND);
                 }
             }
         } else {
