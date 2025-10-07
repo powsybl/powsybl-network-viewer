@@ -1145,16 +1145,28 @@ export class NetworkAreaDiagramViewer {
                         ? nodeRadius2[1] + this.svgParameters.getUnknownBusNodeExtraRadius()
                         : nodeRadius2[1]
                 );
-                const edgeMiddle = DiagramUtils.getMidPosition(edgeFork1, edgeFork2);
+
+                let halfEdgePoints1: Point[];
+                let halfEdgePoints2: Point[];
+
+                if (edge.points && edge.points?.length > 0) {
+                    halfEdgePoints1 = [edgeStart1, edgeFork1, ...edge.points.map((p) => new Point(p.x, p.y))];
+                    halfEdgePoints2 = [edgeStart2, edgeFork2, ...edge.points.map((p) => new Point(p.x, p.y)).reverse()];
+                } else {
+                    const edgeMiddle = DiagramUtils.getMidPosition(edgeFork1, edgeFork2);
+                    halfEdgePoints1 = [edgeStart1, edgeFork1, edgeMiddle];
+                    halfEdgePoints2 = [edgeStart2, edgeFork2, edgeMiddle];
+                }
+
                 // redraw edge
                 this.redrawEdge(
                     edgeNode,
-                    [edgeStart1, edgeFork1, edgeMiddle],
-                    [edgeStart2, edgeFork2, edgeMiddle],
+                    halfEdgePoints1,
+                    halfEdgePoints2,
                     nodeRadius1,
                     nodeRadius2,
                     edgeType,
-                    false
+                    edge.points != undefined
                 );
             }
             i++;
@@ -2390,6 +2402,7 @@ export class NetworkAreaDiagramViewer {
         if (!edge || (lineOperation == LineOperation.BEND && !edge.points)) {
             return;
         }
+
         const edgeNode: SVGGraphicsElement | null = this.svgDiv.querySelector("[id='" + edgeId + "']");
         if (!edgeNode) {
             return;
@@ -2400,20 +2413,27 @@ export class NetworkAreaDiagramViewer {
 
         const edgeData = this.getEdgeData(edge);
 
-        // bend line
-        this.redrawEdge(
-            edgeNode,
-            edgeData.edgePoints != undefined
-                ? edgeData.edgePoints[0]
-                : [edgeData.edgeStartPoints[0], edgeData.edgeMiddle],
-            edgeData.edgePoints != undefined
-                ? edgeData.edgePoints[1]
-                : [edgeData.edgeStartPoints[1], edgeData.edgeMiddle],
-            edgeData.nodeRadius1,
-            edgeData.nodeRadius2,
-            edgeType,
-            edge.points != undefined
-        );
+        const parallelGroup = DiagramUtils.getParallelEdgeGroup(edge.svgId, this.diagramMetadata?.edges);
+
+        if (parallelGroup) {
+            this.redrawForkEdge(parallelGroup, vlNode1 ?? vlNode2!);
+        } else {
+            // bend line
+            this.redrawEdge(
+                edgeNode,
+                edgeData.edgePoints != undefined
+                    ? edgeData.edgePoints[0]
+                    : [edgeData.edgeStartPoints[0], edgeData.edgeMiddle],
+                edgeData.edgePoints != undefined
+                    ? edgeData.edgePoints[1]
+                    : [edgeData.edgeStartPoints[1], edgeData.edgeMiddle],
+                edgeData.nodeRadius1,
+                edgeData.nodeRadius2,
+                edgeType,
+                edge.points != undefined
+            );
+        }
+
         this.redrawOtherVoltageLevelNode(vlNode1);
         this.redrawOtherVoltageLevelNode(vlNode2);
         if (edge.points && lineOperation == LineOperation.BEND) {
@@ -2433,8 +2453,13 @@ export class NetworkAreaDiagramViewer {
         }
         // update metadata and call callback
         this.callBendLineCallback(this.bentElement, LineOperation.BEND);
+        if (this.parallelBentElement) {
+            this.callBendLineCallback(this.parallelBentElement, LineOperation.BEND);
+        }
         // reset data
         this.bentElement = null;
+        this.parallelBentElement = undefined;
+        this.parallelOffset = new Point(0, 0);
         this.initialPosition = new Point(0, 0);
         this.ctm = null;
         this.enablePanzoom();
