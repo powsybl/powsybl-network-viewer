@@ -112,10 +112,8 @@ export function getBendableLines(edges: EdgeMetadata[] | undefined): EdgeMetadat
         }
     }
     const lines: EdgeMetadata[] = [];
-    // filter edges
     for (const edgeGroup of groupedEdges.values()) {
-        const edge = edgeGroup.filter((edge) => getEdgeType(edge) == EdgeType.LINE);
-        lines.push(...edge);
+        lines.push(...edgeGroup);
     }
     return lines;
 }
