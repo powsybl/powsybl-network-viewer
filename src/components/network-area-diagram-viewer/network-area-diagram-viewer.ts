@@ -1378,12 +1378,18 @@ export class NetworkAreaDiagramViewer {
         const polyline: string = polylinePoints.map((p) => DiagramUtils.getFormattedPoint(p)).join(' ');
         polylineElement?.setAttribute('points', polyline);
 
-        // redraw edge arrow and label
         if (halfEdge != null && halfEdge.children.length > 1) {
+            // For parallel edges with forks and bend points, skip fork segment for arrow positioning
+            // Structure: [edgeStart, edgeFork, bendPoint1, bendPoint2, ...] (min 4 points)
+            // For other cases: [edgeStart, endPoint] or [edgeStart, middlePoint, endPoint]
+            const hasFork = bentLine && polylinePoints.length > 2;
+            const startIndex = hasFork ? 1 : 0;
+            const middleIndex = hasFork ? 2 : 1;
+
             this.redrawEdgeArrowAndLabel(
                 halfEdge,
-                polylinePoints[0],
-                polylinePoints.length == 2 ? null : polylinePoints[1],
+                polylinePoints[startIndex],
+                polylinePoints.length <= 2 ? null : polylinePoints[middleIndex],
                 polylinePoints.at(-1)!,
                 nodeRadius,
                 bentLine
