@@ -30,9 +30,9 @@
     ],
     "scripts": {
         "postinstall": "rimraf -I -g ./node_modules/@types/deck.gl* ./node_modules/@types/luma.gl* ./node_modules/@types/math.gl* ./node_modules/@types/mapbox-gl",
-        "watch": "vite watch",
         "prebuild": "tsc",
         "build": "vite build",
+        "build:watch": "vite build --watch --mode development",
         "prepublishOnly": "$npm_execpath run build",
         "test": "jest",
         "test:coverage": "jest --coverage",
