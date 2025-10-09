@@ -5,6 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+import type { DefaultProps } from '@deck.gl/core';
 import {
     type Color,
     CompositeLayer,
@@ -15,12 +16,11 @@ import {
     type TextLayerProps,
     type UpdateParameters,
 } from 'deck.gl';
-import type { DefaultProps } from '@deck.gl/core';
-import ScatterplotLayerExt, { ScatterplotLayerExtProps } from './layers/scatterplot-layer-ext';
+import { type MapSubstation, type MapVoltageLevel } from '../equipment-types';
 import { SUBSTATION_RADIUS, SUBSTATION_RADIUS_MAX_PIXEL, SUBSTATION_RADIUS_MIN_PIXEL } from './constants';
-import { type MapSubstation, type MapVoltageLevel } from '../../../equipment-types';
-import { type MapEquipments } from './map-equipments';
 import { type GeoData } from './geo-data';
+import ScatterplotLayerExt, { ScatterplotLayerExtProps } from './layers/scatterplot-layer-ext';
+import { type MapEquipments } from './map-equipments';
 
 function voltageLevelNominalVoltageIndexer(map: Map<number, MapVoltageLevel[]>, voltageLevel: MapVoltageLevel) {
     let list = map.get(voltageLevel.nominalV);
@@ -55,7 +55,7 @@ type _SubstationLayerProps = {
 };
 export type SubstationLayerProps = _SubstationLayerProps & CompositeLayerProps;
 
-export default class SubstationLayer extends CompositeLayer<Required<_SubstationLayerProps>> {
+export class SubstationLayer extends CompositeLayer<Required<_SubstationLayerProps>> {
     // noinspection JSUnusedGlobalSymbols -- it's dynamically get by deck.gl
     static readonly layerName = 'SubstationLayer';
     // noinspection JSUnusedGlobalSymbols -- it's dynamically get by deck.gl
