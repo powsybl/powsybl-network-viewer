@@ -60,7 +60,7 @@
     },
     "dependencies": {
         "@mapbox/mapbox-gl-draw": "<1.5.0",
-        "@powsybl/network-map-layers": "workspace:*",
+        "@powsybl/network-map-layers": "^1.7.1",
         "@svgdotjs/svg.js": "^3.2.4",
         "@svgdotjs/svg.panzoom.js": "^2.1.2",
         "@turf/boolean-point-in-polygon": "^7.2.0",
