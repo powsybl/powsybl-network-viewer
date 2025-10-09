@@ -4,6 +4,7 @@
 # production
 **/dist
 /powsybl-network-viewer-*.tgz
+/powsybl-network-map-layers-*.tgz
 
 # webstorm
 /.idea
