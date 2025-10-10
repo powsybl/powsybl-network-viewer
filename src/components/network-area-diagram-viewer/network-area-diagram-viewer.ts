@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import { Point, SVG, ViewBoxLike, Svg } from '@svgdotjs/svg.js';
+import { Point, SVG, ViewBoxLike, Svg, Polyline } from '@svgdotjs/svg.js';
 import '@svgdotjs/svg.panzoom.js';
 import * as DiagramUtils from './diagram-utils';
 import { ElementType, isTextNode, isVoltageLevelElement } from './diagram-utils';
@@ -75,6 +75,9 @@ export class NetworkAreaDiagramViewer {
     ratio = 1;
     selectedElement: SVGGraphicsElement | null = null;
     draggedElement: SVGGraphicsElement | null = null;
+    edgeMask: Polyline | null = null;
+    maskId: string;
+    containerId: string;
     transform: SVGTransform | undefined;
     ctm: DOMMatrix | null | undefined = null;
     initialPosition: Point = new Point(0, 0);
@@ -101,6 +104,11 @@ export class NetworkAreaDiagramViewer {
 
     static readonly ZOOM_CLASS_PREFIX = 'nad-zoom-';
 
+    private randomId(): string {
+        const uint32 = globalThis.crypto.getRandomValues(new Uint32Array(1))[0];
+        return uint32.toString(16);
+    }
+
     /**
      * @param container - The HTML element that will contain the SVG diagram.
      * @param svgContent - The SVG content to be rendered in the viewer.
@@ -114,6 +122,9 @@ export class NetworkAreaDiagramViewer {
         nadViewerParametersOptions: NadViewerParametersOptions | null
     ) {
         this.container = container;
+        const idTemp = this.randomId();
+        this.maskId = 'mask' + idTemp;
+        this.containerId = 'container' + idTemp;
         this.svgDiv = document.createElement('div');
         this.svgDiv.id = 'svg-container';
         this.svgContent = this.fixSvgContent(svgContent);
@@ -323,8 +334,11 @@ export class NetworkAreaDiagramViewer {
             height: dimensions.viewbox.height,
         };
         this.svgDraw = SVG().addTo(this.svgDiv).size(this.width, this.height).viewbox(viewBox);
+
         const drawnSvg: HTMLElement = <HTMLElement>this.svgDraw.svg(this.svgContent).node.firstElementChild;
         drawnSvg.style.overflow = 'visible';
+
+        this.prepareHoverHelper();
 
         // add events
         const hasMetadata = this.diagramMetadata !== null;
@@ -382,7 +396,52 @@ export class NetworkAreaDiagramViewer {
         firstChild.removeAttribute('width');
         firstChild.removeAttribute('height');
 
-        if (this.nadViewerParameters.getEnableLevelOfDetail()) {
+        this.prepareLevelOfDetail();
+
+        if (this.hasNodeInteraction() && hasMetadata) {
+            // fill empty elements: unknown buses and three windings transformers
+            const emptyElements: NodeListOf<SVGGraphicsElement> = this.svgDiv.querySelectorAll(
+                '.nad-unknown-busnode, .nad-3wt-nodes .nad-winding'
+            );
+            emptyElements.forEach((emptyElement) => {
+                emptyElement.style.fill = '#0000';
+            });
+        }
+        if (this.onRightClickCallback != null && hasMetadata) {
+            // fill empty branch elements: two windings transformers
+            const emptyElements: NodeListOf<SVGGraphicsElement> = this.svgDiv.querySelectorAll(
+                '.nad-branch-edges .nad-winding'
+            );
+            emptyElements.forEach((emptyElement) => {
+                emptyElement.style.fill = '#0000';
+            });
+        }
+    }
+
+    private prepareHoverHelper() {
+        // Create a mask that is used to help the user hover over a line :
+        // The trick is to enlarge the line when hovering, and use this mask as a way to visually hide the
+        // enlargement. We only see the original line's shape through the mask, but the "real" line is thicker,
+        // making it easier to keep under the user's mouse.
+        if (this.nadViewerParameters.getEnableHoverHelper() && this.svgDraw) {
+            const drawnSvg: HTMLElement = <HTMLElement>this.svgDraw.node?.firstElementChild;
+            if (drawnSvg) {
+                drawnSvg.id = this.containerId;
+                this.svgDraw.addClass('hoverHelper');
+                const style = document.createElementNS('http://www.w3.org/2000/svg', 'style');
+                style.textContent = `#${this.containerId} .nad-edge-path:hover{mask:url(#${this.maskId});}`;
+                drawnSvg.appendChild(style);
+                const defs = this.svgDraw.defs();
+                const mask = defs.mask().id(this.maskId);
+                this.edgeMask = mask.polyline();
+                this.edgeMask.fill('none');
+                this.edgeMask.stroke({ color: 'white' });
+            }
+        }
+    }
+
+    private prepareLevelOfDetail() {
+        if (this.nadViewerParameters.getEnableLevelOfDetail() && this.svgDraw) {
             this.svgDraw.fire('zoom'); // Forces a new dynamic zoom check to correctly update the dynamic CSS
 
             // We add an observer to track when the SVG's viewBox is updated by panzoom
@@ -403,25 +462,6 @@ export class NetworkAreaDiagramViewer {
             const debouncedObserverCallback = debounce(observerCallback, 50);
             const observer = new MutationObserver(debouncedObserverCallback);
             observer.observe(targetNode, { attributeFilter: ['viewBox'] });
-        }
-
-        if (this.hasNodeInteraction() && hasMetadata) {
-            // fill empty elements: unknown buses and three windings transformers
-            const emptyElements: NodeListOf<SVGGraphicsElement> = this.svgDiv.querySelectorAll(
-                '.nad-unknown-busnode, .nad-3wt-nodes .nad-winding'
-            );
-            emptyElements.forEach((emptyElement) => {
-                emptyElement.style.fill = '#0000';
-            });
-        }
-        if (this.onRightClickCallback != null && hasMetadata) {
-            // fill empty branch elements: two windings transformers
-            const emptyElements: NodeListOf<SVGGraphicsElement> = this.svgDiv.querySelectorAll(
-                '.nad-branch-edges .nad-winding'
-            );
-            emptyElements.forEach((emptyElement) => {
-                emptyElement.style.fill = '#0000';
-            });
         }
     }
 
@@ -1572,6 +1612,24 @@ export class NetworkAreaDiagramViewer {
         return Math.max(viewbox?.height || 0, viewbox?.width || 0);
     }
 
+    private setSvgZoomLevel(svg: SVGSVGElement) {
+        const zoomLevel = this.getZoomLevel(this.getPreviousMaxDisplayedSize());
+        const isZoomLevelClassDefined = [...svg.classList].some((c) =>
+            c.startsWith(NetworkAreaDiagramViewer.ZOOM_CLASS_PREFIX)
+        );
+        if (!isZoomLevelClassDefined || zoomLevel != this.lastZoomLevel) {
+            // Remove the obsolete nad-zoom-X class
+            for (const c of svg.classList) {
+                if (c.startsWith(NetworkAreaDiagramViewer.ZOOM_CLASS_PREFIX)) {
+                    svg.classList.remove(c);
+                }
+            }
+            // Add the correct nad-zoom-X class
+            svg.classList.add(NetworkAreaDiagramViewer.ZOOM_CLASS_PREFIX + zoomLevel);
+            this.lastZoomLevel = zoomLevel;
+        }
+    }
+
     public checkAndUpdateLevelOfDetail(svg: SVGSVGElement) {
         const maxDisplayedSize = this.getCurrentlyMaxDisplayedSize();
         const previousMaxDisplayedSize = this.getPreviousMaxDisplayedSize();
@@ -1583,6 +1641,7 @@ export class NetworkAreaDiagramViewer {
             return;
         }
         this.setPreviousMaxDisplayedSize(maxDisplayedSize);
+        this.setSvgZoomLevel(svg);
 
         //Workaround chromium (tested on edge and google-chrome 131) doesn't
         //redraw things with percentages on viewbox changes but it should, so
@@ -1610,14 +1669,6 @@ export class NetworkAreaDiagramViewer {
                 if (child.nodeName.toUpperCase() != 'STYLE') {
                     child.innerHTML += '';
                 }
-            }
-            const zoomLevel = this.getZoomLevel(maxDisplayedSize);
-            const isZoomLevelClassDefined = [...innerSvg.classList].some((c) =>
-                c.startsWith(NetworkAreaDiagramViewer.ZOOM_CLASS_PREFIX)
-            );
-            if (!isZoomLevelClassDefined || zoomLevel != this.lastZoomLevel) {
-                innerSvg.setAttribute('class', NetworkAreaDiagramViewer.ZOOM_CLASS_PREFIX + zoomLevel);
-                this.lastZoomLevel = zoomLevel;
             }
         }
     }
@@ -1984,6 +2035,17 @@ export class NetworkAreaDiagramViewer {
         if (edge) {
             const equipmentId = edge.equipmentId ?? '';
             const edgeType = DiagramUtils.getStringEdgeType(edge) ?? '';
+
+            // When hovering over a polyline, we update the mask with the hovered polyline's shape. This way,
+            // when the polyline's width is updated, the mask is used to hide the change of width and keep it
+            // visually the same.
+            if (this.edgeMask) {
+                const polyline = element.querySelector<SVGPolylineElement>('polyline:hover');
+                if (polyline) {
+                    this.edgeMask.plot(polyline.getAttribute('points') ?? '');
+                }
+            }
+
             this.onToggleHoverCallback?.(true, mousePosition, equipmentId, edgeType);
         }
     }
