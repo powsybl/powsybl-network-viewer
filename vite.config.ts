@@ -12,6 +12,7 @@ import svgr from 'vite-plugin-svgr';
 import eslint from 'vite-plugin-eslint';
 import dts from 'vite-plugin-dts';
 import * as path from 'node:path';
+import { copyFileSync } from 'node:fs';
 
 export default defineConfig((config) => ({
     plugins: [
@@ -23,6 +24,11 @@ export default defineConfig((config) => ({
         dts({
             include: ['src'],
             exclude: ['**/*.{spec,test}.{ts,tsx}'],
+            rollupTypes: true,
+            tsconfigPath: './tsconfig.json',
+            afterBuild: () => {
+                copyFileSync('dist/index.d.ts', 'dist/index.d.cts');
+            },
         }),
     ],
     build: {

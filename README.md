@@ -18,11 +18,12 @@ Installation using npm:
 For development purpose, to install this library locally from an app, you should run these commands in the library project :
 
 - npm install
-- npm run build
-- npm pack
+- npm run build:all
+- npm run pack:all
 
 Then in the app project :
 
+- npm install {PATH_TO_LIBRARY}/powsybl-network-map-layers-{LIBRARY_VERSION}.tgz
 - npm install {PATH_TO_LIBRARY}/powsybl-network-viewer-{LIBRARY_VERSION}.tgz
 
 _Warning_ : with Create React App, we realised the library was not updating correctly if you try to install the library multiple times.
