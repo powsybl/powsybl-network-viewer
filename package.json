@@ -30,13 +30,14 @@
     ],
     "scripts": {
         "postinstall": "rimraf -I -g ./node_modules/@types/deck.gl* ./node_modules/@types/luma.gl* ./node_modules/@types/math.gl* ./node_modules/@types/mapbox-gl",
-        "watch": "vite watch",
         "prebuild": "tsc",
         "build": "vite build",
+        "build:watch": "vite build --watch --mode development",
         "prepublishOnly": "$npm_execpath run build",
         "test": "jest",
         "test:coverage": "jest --coverage",
-        "start": "vite demo/ --open",
+        "start": "vite demo/ --config vite.config.ts",
+        "start:open": "vite demo/ --config vite.config.ts --open",
         "lint": "eslint . --ext js,mjs,jsx,ts,mts,tsx --max-warnings 0",
         "lint:format": "prettier --check --cache .",
         "licenses-check": "license-checker --summary --excludePrivatePackages --production --onlyAllow \"$( jq -r .onlyAllow[] license-checker-config.json | tr '\n' ';')\" --excludePackages \"$( jq -r .excludePackages[] license-checker-config.json | tr '\n' ';')\""
