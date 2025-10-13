@@ -33,6 +33,7 @@ const FEEDER_COMPONENT_TYPES = new Set([
     'THREE_WINDINGS_TRANSFORMER',
     'THREE_WINDINGS_TRANSFORMER_LEG',
     'PHASE_SHIFT_TRANSFORMER',
+    'PHASE_SHIFT_TRANSFORMER_LEG',
 ]);
 
 const BUSBAR_SECTION_TYPES = new Set(['BUSBAR_SECTION']);
@@ -82,7 +83,7 @@ export interface SLDMetadata {
     layoutParams: unknown;
 }
 
-export type OnNextVoltageCallbackType = (nextVId: string) => void;
+export type OnNextVoltageCallbackType = (nextVId: string, event: MouseEvent) => void;
 
 export type OnBreakerCallbackType = (breakerId: string, open: boolean, switchElement: SVGElement | null) => void;
 
@@ -447,7 +448,7 @@ export class SingleLineDiagramViewer {
                 }
                 const meta = svgMetadata?.nodes.find((other) => other.id === element.id);
                 if (meta !== undefined && meta !== null) {
-                    this.onNextVoltageCallback?.(meta.nextVId);
+                    this.onNextVoltageCallback?.(meta.nextVId, event);
                 }
             });
 

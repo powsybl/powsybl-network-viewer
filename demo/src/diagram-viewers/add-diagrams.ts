@@ -450,8 +450,8 @@ export const addSldToDemo = () => {
         });
 };
 
-const handleNextVL: OnNextVoltageCallbackType = (id: string) => {
-    const msg = 'Clicked on navigation arrow, dest VL is ' + id;
+const handleNextVL: OnNextVoltageCallbackType = (id: string, event: MouseEvent) => {
+    const msg = (event.ctrlKey ? 'CTRL + ' : '') + 'Click on navigation arrow, dest VL is ' + id;
     console.log(msg);
 };
 
