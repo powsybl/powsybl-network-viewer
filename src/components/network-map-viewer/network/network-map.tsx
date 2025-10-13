@@ -331,12 +331,6 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
     // it doesn't work in the case of using the browser backward/forward buttons (because in this particular case,
     // we get the ref to the deck and it has not yet initialized..)
     function onAfterRender() {
-        // if we have initial view state (initialPosition and initialZoom props)
-        // no need to do anything
-        if (props.initialPosition && props.initialZoom) {
-            return;
-        }
-
         // TODO outdated comment
         //use centered and deck to execute this block only once when the data is ready and deckgl is initialized
         //TODO, replace the next lines with setProps( { initialViewState } ) when we upgrade to 8.1.0
@@ -345,7 +339,11 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
         if (
             (!centered.centered ||
                 (centered.centeredSubstationId && centered.centeredSubstationId !== centered.lastCenteredSubstation)) &&
-            props.geoData !== null
+            props.geoData !== null &&
+            // if we have initial view state (initialPosition and initialZoom props)
+            // no need to do anything
+            !props.initialPosition &&
+            !props.initialZoom
         ) {
             if ((props.geoData?.substationPositionsById.size ?? 0) > 0) {
                 if (centered.centeredSubstationId) {
