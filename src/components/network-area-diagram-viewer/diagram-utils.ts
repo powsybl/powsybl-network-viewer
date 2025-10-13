@@ -73,7 +73,7 @@ export function getBendableFrom(element: SVGElement): SVGElement | undefined {
     }
 }
 
-function isBendable(element: SVGElement): boolean {
+export function isBendable(element: SVGElement): boolean {
     return hasId(element) && element.parentNode != null && idIs(element.parentNode as SVGElement);
 }
 
@@ -146,10 +146,7 @@ export function createLinePointElement(
 
     if (previewPoint) {
         linePointElement.id = `preview-${edgeId}-${index}`;
-        squareElement.setAttribute('fill', 'rgba(255, 165, 0, 0.7)');
-        squareElement.setAttribute('stroke', 'orange');
-        squareElement.setAttribute('stroke-width', '2');
-        linePointElement.style.pointerEvents = 'none';
+        linePointElement.classList.add('nad-line-point-preview');
     }
 
     linePointElement.appendChild(squareElement);
@@ -504,7 +501,8 @@ function isDraggable(element: SVGElement): boolean {
         (hasId(element) &&
             element.parentNode != null &&
             classIsContainerOfDraggables(element.parentNode as SVGElement)) ||
-        isTextNode(element)
+        isTextNode(element) ||
+        isBendable(element)
     );
 }
 

@@ -54,6 +54,12 @@ export enum LineOperation {
     STRAIGHTEN,
 }
 
+export enum DraggedElementType {
+    VOLTAGE_LEVEL_NODE,
+    TEXT_NODE,
+    BENT_SQUARE,
+}
+
 // update css rules when zoom changes by this amount. This allows to not
 // update when only translating (when translating, round errors lead to
 // epsilon changes in the float values), or not too often a bit when smooth
@@ -88,7 +94,7 @@ export class NetworkAreaDiagramViewer {
     layoutParameters: LayoutParameters;
     nadViewerParameters: NadViewerParameters;
     edgeAngles: Map<string, number> = new Map<string, number>();
-    textNodeSelected: boolean = false;
+    draggedElementType: DraggedElementType | null = null;
     enableDragInteraction: boolean = false;
     isDragging: boolean = false;
     endTextEdge: Point = new Point(0, 0);
@@ -105,7 +111,6 @@ export class NetworkAreaDiagramViewer {
     lastZoomLevel: number = 0;
     zoomLevels: number[] = [0, 1000, 2200, 2500, 3000, 4000, 9000, 12000, 20000];
     bendLines: boolean = false;
-    bentElement: SVGGraphicsElement | null = null;
     onBendLineCallback: OnBendLineCallbackType | null;
     straightenedElement: SVGGraphicsElement | null = null;
     bendableLines: string[] = [];
@@ -564,31 +569,24 @@ export class NetworkAreaDiagramViewer {
         });
     }
     private onMouseLeftDown(event: MouseEvent) {
-        // Nodes are selectable and draggable
-        // TextNodes are only draggable
         const targetElement = event.target as SVGElement;
         const selectableElem = DiagramUtils.getSelectableFrom(targetElement);
         const draggableElem = DiagramUtils.getDraggableFrom(targetElement);
 
         if (event.shiftKey) {
-            //SHIFT Selection mode only
             this.initSelection(selectableElem);
             if (this.bendLines) {
-                // straightening line
                 this.onStraightenStart(DiagramUtils.getBendableFrom(targetElement));
             }
         } else {
-            // Interaction mode (could be drag or select)
-            // next 'mousemove' event will determine it
             this.initSelection(selectableElem);
+
             if (this.enableDragInteraction) {
                 this.initDrag(draggableElem);
             }
-            if (this.bendLines) {
-                // bend line moving already defined line point
-                this.onBendStart(DiagramUtils.getBendableFrom(targetElement));
-                // bend line moving new line point
-                this.onBendLineStart(DiagramUtils.getBendableLineFrom(targetElement, this.bendableLines), event);
+
+            if (this.bendLines && !draggableElem) {
+                this.createEdgeBendPoint(DiagramUtils.getBendableLineFrom(targetElement, this.bendableLines), event);
             }
         }
     }
@@ -607,8 +605,17 @@ export class NetworkAreaDiagramViewer {
         if (!draggableElem) {
             return;
         }
+
         this.disablePanzoom();
         this.draggedElement = draggableElem as SVGGraphicsElement;
+
+        if (DiagramUtils.isBendable(this.draggedElement)) {
+            this.draggedElementType = DraggedElementType.BENT_SQUARE;
+        } else if (DiagramUtils.isTextNode(draggableElem)) {
+            this.draggedElementType = DraggedElementType.TEXT_NODE;
+        } else {
+            this.draggedElementType = DraggedElementType.VOLTAGE_LEVEL_NODE;
+        }
     }
 
     private onDragStart() {
@@ -621,9 +628,7 @@ export class NetworkAreaDiagramViewer {
         this.ctm = this.svgDraw?.node.getScreenCTM(); // used to compute mouse movement
         this.edgeAngles = new Map<string, number>(); // used for node redrawing
 
-        // get original position of dragged element
-        this.textNodeSelected = DiagramUtils.isTextNode(this.draggedElement);
-        if (this.textNodeSelected) {
+        if (this.draggedElementType == DraggedElementType.TEXT_NODE) {
             this.initialPosition = DiagramUtils.getTextNodePosition(this.draggedElement); // used for the offset
             this.endTextEdge = new Point(0, 0);
             const textNode: TextNodeMetadata | undefined = this.diagramMetadata?.textNodes.find(
@@ -633,7 +638,7 @@ export class NetworkAreaDiagramViewer {
                 this.originalTextNodeShift = new Point(textNode.shiftX, textNode.shiftY);
                 this.originalTextNodeConnectionShift = new Point(textNode.connectionShiftX, textNode.connectionShiftY);
             }
-        } else {
+        } else if (this.draggedElementType == DraggedElementType.VOLTAGE_LEVEL_NODE) {
             this.initialPosition = DiagramUtils.getPosition(this.draggedElement); // used for the offset
             const node: NodeMetadata | undefined = this.diagramMetadata?.nodes.find(
                 (node) => node.svgId == this.draggedElement?.id
@@ -641,38 +646,35 @@ export class NetworkAreaDiagramViewer {
             if (node) {
                 this.originalNodePosition = new Point(node.x, node.y);
             }
+        } else if (this.draggedElementType === DraggedElementType.BENT_SQUARE) {
+            this.initialPosition = DiagramUtils.getPosition(this.draggedElement);
         }
     }
 
     private onMouseMove(event: MouseEvent) {
-        // first mouse move will start drag & drop and set `isDragging` to true
-        if (!this.draggedElement && !this.bentElement) {
+        if (!this.draggedElement) {
             return;
         }
 
-        if (this.draggedElement) {
-            if (!this.isDragging) {
-                this.onDragStart();
-            }
+        event.preventDefault();
+        this.ctm = this.svgDraw?.node.getScreenCTM();
+        const mousePosition = this.getMousePosition(event);
 
-            event.preventDefault();
-            this.ctm = this.svgDraw?.node.getScreenCTM();
-            const mousePosition = this.getMousePosition(event);
+        if (!this.isDragging) {
+            this.onDragStart();
+        }
 
-            // Update metadata first
-            if (this.textNodeSelected) {
-                const topLeftCornerPosition = DiagramUtils.getTextNodeTopLeftCornerFromCenter(
-                    this.draggedElement,
-                    mousePosition
-                );
-                this.updateTextNodeMetadata(this.draggedElement, topLeftCornerPosition);
-            } else {
-                this.updateNodeMetadata(this.draggedElement, mousePosition);
-            }
-
-            // Then update elements visually using updated metadata
+        if (this.draggedElementType === DraggedElementType.TEXT_NODE) {
+            const topLeftCornerPosition = DiagramUtils.getTextNodeTopLeftCornerFromCenter(
+                this.draggedElement,
+                mousePosition
+            );
+            this.updateTextNodeMetadata(this.draggedElement, topLeftCornerPosition);
             this.updateElement(this.draggedElement);
-        } else if (this.bentElement) {
+        } else if (this.draggedElementType === DraggedElementType.VOLTAGE_LEVEL_NODE) {
+            this.updateNodeMetadata(this.draggedElement, mousePosition);
+            this.updateElement(this.draggedElement);
+        } else if (this.draggedElementType === DraggedElementType.BENT_SQUARE) {
             event.preventDefault();
             this.ctm = this.svgDraw?.node.getScreenCTM(); // used to compute SVG transformations
             const mousePosition = this.getMousePosition(event);
@@ -759,34 +761,31 @@ export class NetworkAreaDiagramViewer {
         if (this.isDragging) {
             // moving element
             this.onDragEnd();
-            this.resetMouseEventParams();
-        } else if (this.draggedElement) {
-            // dragging but not moved yet
-            this.resetMouseEventParams();
         } else if (this.selectedElement) {
             // selecting element
             const mousePosition = this.getMousePosition(mouseEvent);
             this.onSelectEnd(mousePosition);
-            this.resetMouseEventParams();
-        } else if (this.bentElement) {
-            // bending line
-            this.onBendEnd();
         } else if (this.straightenedElement) {
             // straightening line
             this.onStraightenEnd();
         }
+        this.resetMouseEventParams();
     }
 
     private resetMouseEventParams() {
         this.selectedElement = null;
-
         this.isDragging = false;
         this.draggedElement = null;
+        this.draggedElementType = null;
         this.initialPosition = new Point(0, 0);
         this.ctm = null;
         this.originalNodePosition = new Point(0, 0);
         this.originalTextNodeShift = new Point(0, 0);
         this.originalTextNodeConnectionShift = new Point(0, 0);
+
+        // change cursor style back to normal
+        const svg: HTMLElement = <HTMLElement>this.svgDraw?.node.firstElementChild?.parentElement;
+        svg.style.removeProperty('cursor');
 
         this.enablePanzoom();
     }
@@ -795,15 +794,19 @@ export class NetworkAreaDiagramViewer {
         if (!this.draggedElement) {
             return;
         }
-
-        if (this.textNodeSelected) {
-            this.callMoveTextNodeCallback(this.draggedElement);
-        } else {
-            this.callMoveNodeCallback(this.draggedElement);
+        switch (this.draggedElementType) {
+            case DraggedElementType.BENT_SQUARE:
+                this.callBendLineCallback(this.draggedElement, LineOperation.BEND);
+                break;
+            case DraggedElementType.TEXT_NODE:
+                this.callMoveTextNodeCallback(this.draggedElement);
+                break;
+            case DraggedElementType.VOLTAGE_LEVEL_NODE:
+                this.callMoveNodeCallback(this.draggedElement);
+                break;
+            default:
+                return;
         }
-        // change cursor style back to normal
-        const svg: HTMLElement = <HTMLElement>this.svgDraw?.node.firstElementChild?.parentElement;
-        svg.style.removeProperty('cursor');
     }
 
     private callMoveNodeCallback(vlNode: SVGGraphicsElement) {
@@ -1273,26 +1276,31 @@ export class NetworkAreaDiagramViewer {
         const vlNode2: SVGGraphicsElement | null = this.svgDiv.querySelector("[id='" + edge.node2 + "']");
         if (!vlNode1 || !vlNode2) return null;
 
-        const nodeRadius1 = this.getNodeRadius(edge.busNode1 ?? '-1', edge.node1 ?? '-1');
-        const nodeRadius2 = this.getNodeRadius(edge.busNode2 ?? '-1', edge.node2 ?? '-1');
-
-        const startPoints: Point[] = [];
-
-        startPoints[0] = this.getEdgeStart(
+        const startPoint1 = this.calculateEdgeStartPoint(
+            edge.node1,
             edge.busNode1,
-            nodeRadius1[1],
             vlNode1,
             edge.points ? new Point(edge.points[0].x, edge.points[0].y) : vlNode2
         );
 
-        startPoints[1] = this.getEdgeStart(
+        const startPoint2 = this.calculateEdgeStartPoint(
+            edge.node2,
             edge.busNode2,
-            nodeRadius2[1],
             vlNode2,
             edge.points ? new Point(edge.points.at(-1)!.x, edge.points.at(-1)!.y) : vlNode1
         );
 
-        return startPoints;
+        return [startPoint1, startPoint2];
+    }
+
+    private calculateEdgeStartPoint(
+        nodeId: string,
+        busNodeId: string | null,
+        vlNode: SVGGraphicsElement,
+        targetPoint: Point | SVGGraphicsElement
+    ): Point {
+        const nodeRadius = this.getNodeRadius(busNodeId ?? '-1', nodeId ?? '-1');
+        return this.getEdgeStart(busNodeId, nodeRadius[1], vlNode, targetPoint);
     }
 
     private getEdgeStart(
@@ -2142,23 +2150,20 @@ export class NetworkAreaDiagramViewer {
     private getEditButtonBar(): HTMLDivElement {
         const buttonsDiv = document.createElement('div');
         buttonsDiv.id = 'edit-button-bar';
-        buttonsDiv.style.display = 'flex';
-        buttonsDiv.style.alignItems = 'center';
-        buttonsDiv.style.position = 'absolute';
-        buttonsDiv.style.right = '6px';
-        buttonsDiv.style.top = '6px';
 
         const bendLinesButton = DiagramUtils.getBendLinesButton();
         buttonsDiv.appendChild(bendLinesButton);
         bendLinesButton.addEventListener('click', () => {
             if (this.bendLines) {
                 this.disableLineBending();
-                bendLinesButton.style.border = 'none';
+                bendLinesButton.classList.remove('bend-lines-button-active');
+                bendLinesButton.classList.add('bend-lines-button-inactive');
                 bendLinesButton.title = 'Enable line bending';
             } else {
                 this.enableLineBending();
                 if (this.bendLines) {
-                    bendLinesButton.style.border = '2px solid orange';
+                    bendLinesButton.classList.remove('bend-lines-button-inactive');
+                    bendLinesButton.classList.add('bend-lines-button-active');
                     bendLinesButton.title = 'Disable line bending';
                 }
             }
@@ -2183,15 +2188,6 @@ export class NetworkAreaDiagramViewer {
                 }
                 this.bendableLines.push(edge.svgId);
             } else {
-                /*const edgeNode1: SVGGraphicsElement | null = this.svgDiv.querySelector("[id='" + edge.svgId + ".1']");
-                const edgeNode2: SVGGraphicsElement | null = this.svgDiv.querySelector("[id='" + edge.svgId + ".2']");
-                const middle1 = DiagramUtils.getEdgeMidPoint(edgeNode1);
-                const middle2 = DiagramUtils.getEdgeMidPoint(edgeNode2);
-                if (middle1 && middle2 && middle1.x == middle2.x && middle1.y == middle2.y) {
-                    this.addLinePoint(edge.svgId, -1, new Point(middle1.x, middle1.y), linesPointsElement);
-                    this.bendableLines.push(edge.svgId);
-                    this.bendLines = true;
-                }*/
                 this.bendableLines.push(edge.svgId);
                 this.bendLines = true;
             }
@@ -2238,7 +2234,7 @@ export class NetworkAreaDiagramViewer {
         }
     }
 
-    private onBendStart(bendableElem: SVGElement | undefined) {
+    private createEdgeBendPoint(bendableElem: SVGElement | undefined, event: MouseEvent) {
         if (!bendableElem) {
             return;
         }
@@ -2345,7 +2341,12 @@ export class NetworkAreaDiagramViewer {
         this.disablePanzoom(); // to avoid panning the whole SVG when bending a line
         this.ctm = this.svgDraw?.node.getScreenCTM(); // used to compute mouse movement
         const mousePosition = this.getMousePosition(event);
+        const pointElement = this.addLinePoint(bendableElem.id, -1, mousePosition); // add line point, to be moved
 
+        this.initDrag(pointElement);
+        this.onDragStart();
+
+        this.updateEdgeMetadata(pointElement as SVGGraphicsElement, mousePosition, LineOperation.BEND);
         const parallelGroup = DiagramUtils.getParallelEdgeGroup(bendableElem.id, this.diagramMetadata?.edges);
 
         if (parallelGroup) {
@@ -2521,28 +2522,6 @@ export class NetworkAreaDiagramViewer {
             linePoint.remove();
             this.linePointIndexMap.delete(linePoint);
         }
-    }
-
-    private onBendEnd() {
-        if (!this.bentElement) {
-            return;
-        }
-        // update metadata and call callback
-        this.callBendLineCallback(this.bentElement, LineOperation.BEND);
-        if (this.parallelBentElement) {
-            this.callBendLineCallback(this.parallelBentElement, LineOperation.BEND);
-        }
-        // reset data
-        this.bentElement = null;
-        this.parallelBentElement = undefined;
-        this.parallelOffset = new Point(0, 0);
-        this.initialPosition = new Point(0, 0);
-        this.ctm = null;
-        this.enablePanzoom();
-
-        // change cursor style back to normal
-        const svg: HTMLElement = <HTMLElement>this.svgDraw?.node.firstElementChild?.parentElement;
-        svg.style.removeProperty('cursor');
     }
 
     private onStraightenEnd() {
