@@ -749,24 +749,19 @@ export class NetworkAreaDiagramViewer {
         if (this.isDragging) {
             // moving element
             this.onDragEnd();
-            this.resetMouseEventParams();
-        } else if (this.draggedElement) {
-            // dragging but not moved yet
-            this.resetMouseEventParams();
         } else if (this.selectedElement) {
             // selecting element
             const mousePosition = this.getMousePosition(mouseEvent);
             this.onSelectEnd(mousePosition);
-            this.resetMouseEventParams();
         } else if (this.straightenedElement) {
             // straightening line
             this.onStraightenEnd();
         }
+        this.resetMouseEventParams();
     }
 
     private resetMouseEventParams() {
         this.selectedElement = null;
-
         this.isDragging = false;
         this.draggedElement = null;
         this.draggedElementType = null;
@@ -776,6 +771,10 @@ export class NetworkAreaDiagramViewer {
         this.originalTextNodeShift = new Point(0, 0);
         this.originalTextNodeConnectionShift = new Point(0, 0);
 
+        // change cursor style back to normal
+        const svg: HTMLElement = <HTMLElement>this.svgDraw?.node.firstElementChild?.parentElement;
+        svg.style.removeProperty('cursor');
+
         this.enablePanzoom();
     }
 
@@ -783,11 +782,6 @@ export class NetworkAreaDiagramViewer {
         if (!this.draggedElement) {
             return;
         }
-
-        // change cursor style back to normal
-        const svg: HTMLElement = <HTMLElement>this.svgDraw?.node.firstElementChild?.parentElement;
-        svg.style.removeProperty('cursor');
-
         switch (this.draggedElementType) {
             case DraggedElementType.BENT_SQUARE:
                 this.callBendLineCallback(this.draggedElement, LineOperation.BEND);
@@ -2204,6 +2198,7 @@ export class NetworkAreaDiagramViewer {
         this.draggedElementType = DraggedElementType.BENT_SQUARE;
         this.ctm = this.svgDraw?.node.getScreenCTM(); // used to compute mouse movement
         this.initialPosition = DiagramUtils.getPosition(this.draggedElement); // used for the offset
+        this.isDragging = true;
     }
 
     private onBendLineStart(bendableElem: SVGElement | undefined, event: MouseEvent) {
