@@ -203,6 +203,7 @@ export type NetworkMapRef = {
     cleanDraw: () => void;
     getMapDrawer: () => MapboxDraw | undefined;
     resetZoomAndPosition: () => void;
+    getCurrentViewState: () => { zoom: number; center: { lng: number; lat: number } } | null;
 };
 
 const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) => {
@@ -215,8 +216,8 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
         arrowsZoomThreshold: rawProps.arrowsZoomThreshold ?? 7,
         disabled: rawProps.disabled ?? false,
         displayOverlayLoader: rawProps.displayOverlayLoader ?? false,
-        initialPosition: rawProps.initialPosition ?? [0, 0],
-        initialZoom: rawProps.initialZoom ?? 5,
+        initialPosition: rawProps.initialPosition,
+        initialZoom: rawProps.initialZoom,
         isManualRefreshBackdropDisplayed: rawProps.isManualRefreshBackdropDisplayed ?? false,
         labelsZoomThreshold: rawProps.labelsZoomThreshold ?? 9,
         lineFlowAlertThreshold: rawProps.lineFlowAlertThreshold ?? 100,
@@ -330,6 +331,12 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
     // it doesn't work in the case of using the browser backward/forward buttons (because in this particular case,
     // we get the ref to the deck and it has not yet initialized..)
     function onAfterRender() {
+        // if we have initial view state (initialPosition and initialZoom props)
+        // no need to do anything
+        if (props.initialPosition && props.initialZoom) {
+            return;
+        }
+
         // TODO outdated comment
         //use centered and deck to execute this block only once when the data is ready and deckgl is initialized
         //TODO, replace the next lines with setProps( { initialViewState } ) when we upgrade to 8.1.0
@@ -631,9 +638,9 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
     }
 
     const initialViewState = {
-        longitude: props.initialPosition[0],
-        latitude: props.initialPosition[1],
-        zoom: props.initialZoom,
+        longitude: props.initialPosition?.[0] ?? 0,
+        latitude: props.initialPosition?.[1] ?? 0,
+        zoom: props.initialZoom ?? 5,
         maxZoom: 14,
         pitch: 0,
         bearing: 0,
@@ -747,6 +754,17 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
         setCentered(INITIAL_CENTERED);
     }, []);
 
+    const getCurrentViewState = useCallback(() => {
+        const map = mapRef.current;
+        if (!map) {
+            return null;
+        }
+        return {
+            zoom: map.getZoom(),
+            center: map.getCenter(),
+        };
+    }, []);
+
     useImperativeHandle(
         ref,
         () => ({
@@ -762,8 +780,16 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
                 return drawControlRef.current;
             },
             resetZoomAndPosition,
+            getCurrentViewState,
         }),
-        [onPolygonChanged, resetZoomAndPosition, getSelectedSubstations, getSelectedLines, onDrawEvent]
+        [
+            onPolygonChanged,
+            resetZoomAndPosition,
+            getSelectedSubstations,
+            getSelectedLines,
+            onDrawEvent,
+            getCurrentViewState,
+        ]
     );
 
     const onDelete = useCallback(() => {
