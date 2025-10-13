@@ -339,11 +339,7 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
         if (
             (!centered.centered ||
                 (centered.centeredSubstationId && centered.centeredSubstationId !== centered.lastCenteredSubstation)) &&
-            props.geoData !== null &&
-            // if we have initial view state (initialPosition and initialZoom props)
-            // no need to do anything
-            !props.initialPosition &&
-            !props.initialZoom
+            props.geoData !== null
         ) {
             if ((props.geoData?.substationPositionsById.size ?? 0) > 0) {
                 if (centered.centeredSubstationId) {
@@ -363,6 +359,10 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
                         centeredSubstationId: centered.centeredSubstationId,
                         centered: true,
                     });
+                } else if (props.initialPosition && props.initialZoom) {
+                    // if we have initial view state (initialPosition and initialZoom props)
+                    // no need to do anything
+                    return;
                 } else {
                     // @ts-expect-error TODO: manage undefined case
                     const coords = Array.from(props.geoData?.substationPositionsById.entries()).map((x) => x[1]);
