@@ -183,6 +183,7 @@ export type NetworkMapProps = {
     visible?: boolean;
     shouldDisableToolTip?: boolean;
     locateSubStationZoomLevel?: number;
+    enablePitchAndRotate?: boolean;
     onHvdcLineMenuClick?: MenuClickFunction<MapHvdcLine>;
     onLineMenuClick?: MenuClickFunction<MapLine>;
     onTieLineMenuClick?: MenuClickFunction<MapTieLine>;
@@ -232,6 +233,7 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
         visible: rawProps.visible ?? true,
         shouldDisableToolTip: rawProps.shouldDisableToolTip ?? false,
         locateSubStationZoomLevel: rawProps.locateSubStationZoomLevel ?? DEFAULT_LOCATE_SUBSTATION_ZOOM_LEVEL,
+        enablePitchAndRotate: rawProps.enablePitchAndRotate ?? true,
 
         onSubstationClick: rawProps.onSubstationClick ?? (() => {}),
         onSubstationClickChooseVoltageLevel: rawProps.onSubstationClickChooseVoltageLevel ?? (() => {}),
@@ -787,6 +789,8 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
                 onDrag={() => setDragging(true)}
                 onDragEnd={() => setDragging(false)}
                 onContextMenu={onMapContextMenu}
+                pitchWithRotate={props.enablePitchAndRotate}
+                dragRotate={props.enablePitchAndRotate}
             >
                 {props.displayOverlayLoader && renderOverlay()}
                 {props.isManualRefreshBackdropDisplayed && (
@@ -817,7 +821,7 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
                 )}
                 {showTooltip && renderTooltip()}
                 {/* visualizePitch true makes the compass reset the pitch when clicked in addition to visualizing it */}
-                <NavigationControl visualizePitch={true} />
+                <NavigationControl visualizePitch={true} showCompass={props.enablePitchAndRotate} />
                 <DrawControl
                     ref={drawControlRef}
                     position="bottom-left"
@@ -878,6 +882,7 @@ NetworkMap.propTypes = {
     visible: PropTypes.bool,
     shouldDisableToolTip: PropTypes.bool,
     locateSubStationZoomLevel: PropTypes.number,
+    enablePitchAndRotate: PropTypes.bool,
     onHvdcLineMenuClick: PropTypes.func,
     onLineMenuClick: PropTypes.func,
     onTieLineMenuClick: PropTypes.func,
