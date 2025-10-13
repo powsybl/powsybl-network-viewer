@@ -2283,7 +2283,7 @@ export class NetworkAreaDiagramViewer {
         const pointElement2 = this.addLinePoint(parallelEdge.svgId, -1, position2);
 
         this.updateEdgeMetadata(pointElement1 as SVGGraphicsElement, mousePosition, LineOperation.BEND);
-        this.updateEdgeMetadata(pointElement2 as SVGGraphicsElement, mousePosition, LineOperation.BEND);
+        this.updateEdgeMetadata(pointElement2 as SVGGraphicsElement, position2, LineOperation.BEND);
 
         this.parallelBentElement = pointElement2 as SVGGraphicsElement;
         this.initDrag(pointElement1);
@@ -2321,7 +2321,6 @@ export class NetworkAreaDiagramViewer {
             }
         }
 
-        // Fallback to edge midpoint offset
         const middleSelectedEdge = DiagramUtils.getEdgeMidPointPosition(selectedEdge.svgId, this.svgDiv);
         const middleParallelEdge = DiagramUtils.getEdgeMidPointPosition(parallelEdge.svgId, this.svgDiv);
         if (middleSelectedEdge && middleParallelEdge) {
