@@ -73,7 +73,7 @@ export function getBendableFrom(element: SVGElement): SVGElement | undefined {
     }
 }
 
-function isBendable(element: SVGElement): boolean {
+export function isBendable(element: SVGElement): boolean {
     return hasId(element) && element.parentNode != null && idIs(element.parentNode as SVGElement);
 }
 
@@ -475,7 +475,8 @@ function isDraggable(element: SVGElement): boolean {
         (hasId(element) &&
             element.parentNode != null &&
             classIsContainerOfDraggables(element.parentNode as SVGElement)) ||
-        isTextNode(element)
+        isTextNode(element) ||
+        isBendable(element)
     );
 }
 
