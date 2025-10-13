@@ -369,6 +369,17 @@ foreignObject.nad-text-nodes {
     fill: black;
 }
 
+/* Line point preview styles */
+.nad-line-point-preview {
+    pointer-events: none;
+}
+
+.nad-line-point-preview rect {
+    fill: rgba(255, 165, 0, 0.7);
+    stroke: orange;
+    stroke-width: 2;
+}
+
 @keyframes line-blink {
     0%,
     80%,
@@ -419,4 +430,23 @@ foreignObject.nad-text-nodes {
 .nad-disconnected .nad-inductor {stroke: lightgrey}
 .nad-disconnected .nad-svc {stroke: lightgrey}
 .nad-unknown {stroke: none; fill: black}
+
+/* Edit button bar styles */
+#edit-button-bar {
+    display: flex;
+    align-items: center;
+    position: absolute;
+    right: 6px;
+    top: 6px;
+}
+
+.bend-lines-button-active {
+    border: 2px solid orange !important;
+}
+
+.bend-lines-button-inactive {
+    border: none !important;
+}
+
+
 

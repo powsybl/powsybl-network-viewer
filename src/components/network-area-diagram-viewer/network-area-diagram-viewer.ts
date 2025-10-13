@@ -1238,26 +1238,31 @@ export class NetworkAreaDiagramViewer {
         const vlNode2: SVGGraphicsElement | null = this.svgDiv.querySelector("[id='" + edge.node2 + "']");
         if (!vlNode1 || !vlNode2) return null;
 
-        const nodeRadius1 = this.getNodeRadius(edge.busNode1 ?? '-1', edge.node1 ?? '-1');
-        const nodeRadius2 = this.getNodeRadius(edge.busNode2 ?? '-1', edge.node2 ?? '-1');
-
-        const startPoints: Point[] = [];
-
-        startPoints[0] = this.getEdgeStart(
+        const startPoint1 = this.calculateEdgeStartPoint(
+            edge.node1,
             edge.busNode1,
-            nodeRadius1[1],
             vlNode1,
             edge.points ? new Point(edge.points[0].x, edge.points[0].y) : vlNode2
         );
 
-        startPoints[1] = this.getEdgeStart(
+        const startPoint2 = this.calculateEdgeStartPoint(
+            edge.node2,
             edge.busNode2,
-            nodeRadius2[1],
             vlNode2,
             edge.points ? new Point(edge.points.at(-1)!.x, edge.points.at(-1)!.y) : vlNode1
         );
 
-        return startPoints;
+        return [startPoint1, startPoint2];
+    }
+
+    private calculateEdgeStartPoint(
+        nodeId: string,
+        busNodeId: string | null,
+        vlNode: SVGGraphicsElement,
+        targetPoint: Point | SVGGraphicsElement
+    ): Point {
+        const nodeRadius = this.getNodeRadius(busNodeId ?? '-1', nodeId ?? '-1');
+        return this.getEdgeStart(busNodeId, nodeRadius[1], vlNode, targetPoint);
     }
 
     private getEdgeStart(
@@ -2101,23 +2106,20 @@ export class NetworkAreaDiagramViewer {
     private getEditButtonBar(): HTMLDivElement {
         const buttonsDiv = document.createElement('div');
         buttonsDiv.id = 'edit-button-bar';
-        buttonsDiv.style.display = 'flex';
-        buttonsDiv.style.alignItems = 'center';
-        buttonsDiv.style.position = 'absolute';
-        buttonsDiv.style.right = '6px';
-        buttonsDiv.style.top = '6px';
 
         const bendLinesButton = DiagramUtils.getBendLinesButton();
         buttonsDiv.appendChild(bendLinesButton);
         bendLinesButton.addEventListener('click', () => {
             if (this.bendLines) {
                 this.disableLineBending();
-                bendLinesButton.style.border = 'none';
+                bendLinesButton.classList.remove('bend-lines-button-active');
+                bendLinesButton.classList.add('bend-lines-button-inactive');
                 bendLinesButton.title = 'Enable line bending';
             } else {
                 this.enableLineBending();
                 if (this.bendLines) {
-                    bendLinesButton.style.border = '2px solid orange';
+                    bendLinesButton.classList.remove('bend-lines-button-inactive');
+                    bendLinesButton.classList.add('bend-lines-button-active');
                     bendLinesButton.title = 'Disable line bending';
                 }
             }
