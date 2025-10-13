@@ -33,6 +33,7 @@ const FEEDER_COMPONENT_TYPES = new Set([
     'THREE_WINDINGS_TRANSFORMER',
     'THREE_WINDINGS_TRANSFORMER_LEG',
     'PHASE_SHIFT_TRANSFORMER',
+    'PHASE_SHIFT_TRANSFORMER_LEG',
 ]);
 
 const BUSBAR_SECTION_TYPES = new Set(['BUSBAR_SECTION']);
@@ -42,9 +43,9 @@ const MIN_ZOOM_LEVEL_SUB = 0.1;
 const MIN_ZOOM_LEVEL_VL = 0.5;
 
 const ARROW_SVG =
-    '<svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg"><path class="arrow" fill-rule="evenodd" clip-rule="evenodd" d="M16 24.0163L17.2358 25.3171L21.9837 20.5691L26.7317 25.3171L28 24.0163L21.9837 18L16 24.0163Z"/></svg>';
+    '<path class="arrow" fill-rule="evenodd" clip-rule="evenodd" d="M16 24.0163L17.2358 25.3171L21.9837 20.5691L26.7317 25.3171L28 24.0163L21.9837 18L16 24.0163Z"/>';
 const ARROW_HOVER_SVG =
-    '<svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg"><path class="arrow-hover" fill-rule="evenodd" clip-rule="evenodd" d="M22 35C29.1797 35 35 29.1797 35 22C35 14.8203 29.1797 9 22 9C14.8203 9 9 14.8203 9 22C9 29.1797 14.8203 35 22 35ZM17.2358 25.3171L16 24.0163L21.9837 18L28 24.0163L26.7317 25.3171L21.9837 20.5691L17.2358 25.3171Z"/>';
+    '<path class="arrow-hover" fill-rule="evenodd" clip-rule="evenodd" d="M22 35C29.1797 35 35 29.1797 35 22C35 14.8203 29.1797 9 22 9C14.8203 9 9 14.8203 9 22C9 29.1797 14.8203 35 22 35ZM17.2358 25.3171L16 24.0163L21.9837 18L28 24.0163L26.7317 25.3171L21.9837 20.5691L17.2358 25.3171Z"/>';
 
 export interface SLDMetadataNode {
     id: string;
@@ -82,7 +83,7 @@ export interface SLDMetadata {
     layoutParams: unknown;
 }
 
-export type OnNextVoltageCallbackType = (nextVId: string) => void;
+export type OnNextVoltageCallbackType = (nextVId: string, event: MouseEvent) => void;
 
 export type OnBreakerCallbackType = (breakerId: string, open: boolean, switchElement: SVGElement | null) => void;
 
@@ -447,7 +448,7 @@ export class SingleLineDiagramViewer {
                 }
                 const meta = svgMetadata?.nodes.find((other) => other.id === element.id);
                 if (meta !== undefined && meta !== null) {
-                    this.onNextVoltageCallback?.(meta.nextVId);
+                    this.onNextVoltageCallback?.(meta.nextVId, event);
                 }
             });
 
