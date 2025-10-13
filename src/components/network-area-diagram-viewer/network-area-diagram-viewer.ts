@@ -8,7 +8,7 @@
 import { Point, SVG, ViewBoxLike, Svg } from '@svgdotjs/svg.js';
 import '@svgdotjs/svg.panzoom.js';
 import * as DiagramUtils from './diagram-utils';
-import { ElementType, isTextNode, isVoltageLevelElement } from './diagram-utils';
+import { ElementType, getEdgeId, isTextNode, isVoltageLevelElement } from './diagram-utils';
 import { SvgParameters, EdgeInfoEnum, CssLocationEnum } from './svg-parameters';
 import { LayoutParameters } from './layout-parameters';
 import {
@@ -611,6 +611,10 @@ export class NetworkAreaDiagramViewer {
 
         if (DiagramUtils.isBendable(this.draggedElement)) {
             this.draggedElementType = DraggedElementType.BENT_SQUARE;
+            const edgeId = getEdgeId(this.linePointIndexMap, this.draggedElement);
+            if (edgeId) {
+                this.parallelBentElement = this.getParallelPointElement(this.draggedElement, edgeId);
+            }
         } else if (DiagramUtils.isTextNode(draggableElem)) {
             this.draggedElementType = DraggedElementType.TEXT_NODE;
         } else {
@@ -648,6 +652,11 @@ export class NetworkAreaDiagramViewer {
             }
         } else if (this.draggedElementType === DraggedElementType.BENT_SQUARE) {
             this.initialPosition = DiagramUtils.getPosition(this.draggedElement);
+            const p1 = DiagramUtils.getPosition(this.draggedElement);
+            if (this.parallelBentElement) {
+                const p2 = DiagramUtils.getPosition(this.parallelBentElement);
+                this.parallelOffset = DiagramUtils.calculateParallelOffset(p1, p2);
+            }
         }
     }
 
@@ -675,21 +684,14 @@ export class NetworkAreaDiagramViewer {
             this.updateNodeMetadata(this.draggedElement, mousePosition);
             this.updateElement(this.draggedElement);
         } else if (this.draggedElementType === DraggedElementType.BENT_SQUARE) {
-            event.preventDefault();
-            this.ctm = this.svgDraw?.node.getScreenCTM(); // used to compute SVG transformations
-            const mousePosition = this.getMousePosition(event);
-            // Update metadata first
-            this.updateEdgeMetadata(this.bentElement, mousePosition, LineOperation.BEND);
+            this.updateEdgeMetadata(this.draggedElement, mousePosition, LineOperation.BEND);
+            this.redrawBentLine(this.draggedElement, LineOperation.BEND);
             if (this.parallelBentElement) {
                 this.updateEdgeMetadata(
                     this.parallelBentElement,
                     new Point(mousePosition.x + this.parallelOffset.x, mousePosition.y + this.parallelOffset.y),
                     LineOperation.BEND
                 );
-            }
-            // Then update line visually using updated metadata
-            this.redrawBentLine(this.bentElement, LineOperation.BEND);
-            if (this.parallelBentElement) {
                 this.redrawBentLine(this.parallelBentElement, LineOperation.BEND);
             }
         }
@@ -777,6 +779,8 @@ export class NetworkAreaDiagramViewer {
         this.isDragging = false;
         this.draggedElement = null;
         this.draggedElementType = null;
+        this.parallelBentElement = undefined;
+        this.parallelOffset = new Point(0, 0);
         this.initialPosition = new Point(0, 0);
         this.ctm = null;
         this.originalNodePosition = new Point(0, 0);
@@ -797,6 +801,9 @@ export class NetworkAreaDiagramViewer {
         switch (this.draggedElementType) {
             case DraggedElementType.BENT_SQUARE:
                 this.callBendLineCallback(this.draggedElement, LineOperation.BEND);
+                if (this.parallelBentElement) {
+                    this.callBendLineCallback(this.parallelBentElement, LineOperation.BEND);
+                }
                 break;
             case DraggedElementType.TEXT_NODE:
                 this.callMoveTextNodeCallback(this.draggedElement);
@@ -2239,24 +2246,48 @@ export class NetworkAreaDiagramViewer {
             return;
         }
 
-        // change cursor style
-        const svg: HTMLElement = <HTMLElement>this.svgDraw?.node.firstElementChild?.parentElement;
-        svg.style.cursor = 'grabbing';
-
-        this.disablePanzoom(); // to avoid panning the whole SVG when bending a line
-        this.bentElement = bendableElem as SVGGraphicsElement; // line point to be moved
         this.ctm = this.svgDraw?.node.getScreenCTM(); // used to compute mouse movement
-        this.initialPosition = DiagramUtils.getPosition(this.bentElement); // used for the offset
+        const mousePosition = this.getMousePosition(event);
 
-        const edgeId = DiagramUtils.getEdgeId(this.linePointIndexMap, this.bentElement);
-        if (edgeId) {
-            this.parallelBentElement = this.getParallelPointElement(this.bentElement, edgeId);
-            if (this.parallelBentElement) {
-                const p1 = DiagramUtils.getPosition(this.bentElement);
-                const p2 = DiagramUtils.getPosition(this.parallelBentElement);
-                this.parallelOffset = DiagramUtils.calculateParallelOffset(p1, p2);
-            }
+        const parallelGroup = DiagramUtils.getParallelEdgeGroup(bendableElem.id, this.diagramMetadata?.edges);
+        if (parallelGroup) {
+            this.createParallelEdgeBendPoints(bendableElem, parallelGroup, mousePosition);
+        } else {
+            const pointElement = this.addLinePoint(bendableElem.id, -1, mousePosition);
+            this.updateEdgeMetadata(pointElement as SVGGraphicsElement, mousePosition, LineOperation.BEND);
+            this.initDrag(pointElement);
+            this.onDragStart();
         }
+    }
+
+    private createParallelEdgeBendPoints(
+        bendableElem: SVGElement,
+        parallelGroup: EdgeMetadata[],
+        mousePosition: Point
+    ) {
+        const selectedEdge = parallelGroup.find((e) => e.svgId === bendableElem.id);
+        const parallelEdge = parallelGroup.find((e) => e.svgId !== bendableElem.id);
+
+        if (!selectedEdge || !parallelEdge) {
+            return;
+        }
+
+        const parallelOffset = this.calculateLocalParallelOffset(selectedEdge, parallelEdge, mousePosition);
+        if (!parallelOffset) {
+            return;
+        }
+
+        this.parallelOffset = parallelOffset;
+        const pointElement1 = this.addLinePoint(selectedEdge.svgId, -1, mousePosition);
+        const position2 = new Point(mousePosition.x + parallelOffset.x, mousePosition.y + parallelOffset.y);
+        const pointElement2 = this.addLinePoint(parallelEdge.svgId, -1, position2);
+
+        this.updateEdgeMetadata(pointElement1 as SVGGraphicsElement, mousePosition, LineOperation.BEND);
+        this.updateEdgeMetadata(pointElement2 as SVGGraphicsElement, mousePosition, LineOperation.BEND);
+
+        this.parallelBentElement = pointElement2 as SVGGraphicsElement;
+        this.initDrag(pointElement1);
+        this.onDragStart();
     }
 
     private findClosestPreviewPointIndex(previewPoints: Point[], mousePosition: Point): number {
@@ -2298,65 +2329,6 @@ export class NetworkAreaDiagramViewer {
         }
 
         return null;
-    }
-
-    private onBendParallelLinesStart(bendableElem: SVGElement, parallelGroup: EdgeMetadata[], mousePosition: Point) {
-        if (!bendableElem) {
-            return;
-        }
-
-        const selectedEdge = parallelGroup.find((e) => e.svgId === bendableElem.id);
-        const parallelEdge = parallelGroup.find((e) => e.svgId !== bendableElem.id);
-
-        if (!selectedEdge || !parallelEdge) {
-            return;
-        }
-
-        const parallelOffset = this.calculateLocalParallelOffset(selectedEdge, parallelEdge, mousePosition);
-        if (!parallelOffset) {
-            return;
-        }
-
-        this.parallelOffset = parallelOffset;
-        const pointElement1 = this.addLinePoint(selectedEdge.svgId, -1, mousePosition);
-        const position2 = new Point(mousePosition.x + parallelOffset.x, mousePosition.y + parallelOffset.y);
-        const pointElement2 = this.addLinePoint(parallelEdge.svgId, -1, position2);
-
-        this.bentElement = pointElement1 as SVGGraphicsElement;
-        this.parallelBentElement = pointElement2 as SVGGraphicsElement;
-        this.initialPosition = DiagramUtils.getPosition(this.bentElement);
-
-        this.updateEdgeMetadata(this.bentElement, mousePosition, LineOperation.BEND);
-        this.updateEdgeMetadata(this.parallelBentElement, position2, LineOperation.BEND);
-    }
-
-    private onBendLineStart(bendableElem: SVGElement | undefined, event: MouseEvent) {
-        if (!bendableElem) {
-            return;
-        }
-
-        // change cursor style
-        const svg: HTMLElement = <HTMLElement>this.svgDraw?.node.firstElementChild?.parentElement;
-        svg.style.cursor = 'grabbing';
-        this.disablePanzoom(); // to avoid panning the whole SVG when bending a line
-        this.ctm = this.svgDraw?.node.getScreenCTM(); // used to compute mouse movement
-        const mousePosition = this.getMousePosition(event);
-        const pointElement = this.addLinePoint(bendableElem.id, -1, mousePosition); // add line point, to be moved
-
-        this.initDrag(pointElement);
-        this.onDragStart();
-
-        this.updateEdgeMetadata(pointElement as SVGGraphicsElement, mousePosition, LineOperation.BEND);
-        const parallelGroup = DiagramUtils.getParallelEdgeGroup(bendableElem.id, this.diagramMetadata?.edges);
-
-        if (parallelGroup) {
-            this.onBendParallelLinesStart(bendableElem, parallelGroup, mousePosition);
-        } else {
-            const pointElement = this.addLinePoint(bendableElem.id, -1, mousePosition);
-            this.bentElement = pointElement as SVGGraphicsElement;
-            this.initialPosition = DiagramUtils.getPosition(this.bentElement);
-            this.updateEdgeMetadata(this.bentElement, mousePosition, LineOperation.BEND);
-        }
     }
 
     private onStraightenStart(bendableElem: SVGElement | undefined) {
