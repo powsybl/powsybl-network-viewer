@@ -27,7 +27,6 @@ export type {
 } from './components/network-area-diagram-viewer/nad-viewer-parameters';
 export { LayoutParameters } from './components/network-area-diagram-viewer/layout-parameters';
 export { SvgParameters } from './components/network-area-diagram-viewer/svg-parameters';
-
 export {
     SingleLineDiagramViewer,
     type OnBreakerCallbackType,
@@ -43,23 +42,29 @@ export {
 
 export {
     GeoData,
+    LineFlowColorMode,
+    LineFlowMode,
+    MapEquipments,
     type GeoDataEquipment,
     type GeoDataLine,
     type GeoDataSubstation,
-} from './components/network-map-viewer/network/geo-data';
-export { LineFlowMode, LineFlowColorMode } from './components/network-map-viewer/network/line-layer';
-export { MapEquipments } from './components/network-map-viewer/network/map-equipments';
+} from '@powsybl/network-map-layers';
+
+export { default as NetworkMap } from './components/network-map-viewer/network/network-map';
+
 export {
-    default as NetworkMap,
-    type NetworkMapProps,
-    type NetworkMapRef,
     DRAW_EVENT,
     type MenuClickFunction,
+    type NetworkMapProps,
+    type NetworkMapRef,
 } from './components/network-map-viewer/network/network-map';
+
 export { DRAW_MODES } from './components/network-map-viewer/network/draw-control';
 
 export {
+    Country,
     EQUIPMENT_TYPES,
+    type Coordinate,
     type LonLat,
     type MapAnyLine,
     type MapAnyLineWithType,
@@ -72,5 +77,4 @@ export {
     type MapTieLine,
     type MapTieLineWithType,
     type MapVoltageLevel,
-} from './equipment-types';
-export { type Coordinate, Country } from './powsybl';
+} from '@powsybl/network-map-layers';
