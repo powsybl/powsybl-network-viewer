@@ -1205,8 +1205,13 @@ export class NetworkAreaDiagramViewer {
                 let halfEdgePoints2: Point[];
 
                 if (edge.points && edge.points?.length > 0) {
-                    halfEdgePoints1 = [edgeStart1, edgeFork1, ...edge.points.map((p) => new Point(p.x, p.y))];
-                    halfEdgePoints2 = [edgeStart2, edgeFork2, ...edge.points.map((p) => new Point(p.x, p.y)).reverse()];
+                    const [forkToMiddle1, forkToMiddle2] = DiagramUtils.getEdgePoints(
+                        edgeFork1,
+                        edgeFork2,
+                        edge.points.slice()
+                    );
+                    halfEdgePoints1 = [edgeStart1, ...forkToMiddle1];
+                    halfEdgePoints2 = [edgeStart2, ...forkToMiddle2];
                 } else {
                     const edgeMiddle = DiagramUtils.getMidPosition(edgeFork1, edgeFork2);
                     halfEdgePoints1 = [edgeStart1, edgeFork1, edgeMiddle];
