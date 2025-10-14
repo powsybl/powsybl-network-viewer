@@ -305,11 +305,11 @@ export class SingleLineDiagramViewer {
             }
         }
 
-        draw.on('panStart', function () {
-            drawnSvg.style.cursor = 'move';
+        draw.on('panStart', () => {
+            draw.node.style.cursor = 'move';
         });
-        draw.on('panEnd', function () {
-            drawnSvg.style.cursor = 'default';
+        draw.on('panEnd', () => {
+            draw.node.style.cursor = 'default';
         });
 
         this.addSwitchesHandler();
