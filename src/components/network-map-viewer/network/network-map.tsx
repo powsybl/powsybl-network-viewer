@@ -169,7 +169,7 @@ export type NetworkMapProps = {
     lineFlowMode?: LineFlowMode;
     lineFullPath?: boolean;
     lineParallelPath?: boolean;
-    renderPopover?: (equipmentId: string, divRef: RefObject<HTMLDivElement>) => ReactNode;
+    renderPopover?: (equipmentId: string, divRef: RefObject<HTMLDivElement | null>) => ReactNode;
     tooltipZoomThreshold?: number;
     // With mapboxgl v2 (not a problem with maplibre), we need to call
     // map.resize() when the parent size has changed, otherwise the map is not
@@ -256,7 +256,7 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
     const mapRef = useRef<MapRef>(null); //TODO replaced since v7.? by https://visgl.github.io/react-map-gl/docs/api-reference/mapbox/use-map
     const deckRef = useRef<MapboxOverlay>(null);
     const [centered, setCentered] = useState(INITIAL_CENTERED);
-    const lastViewStateRef = useRef<ViewState>();
+    const lastViewStateRef = useRef<ViewState>(undefined);
     const [tooltip, setTooltip] = useState<TooltipType | null>(null);
     const theme = useTheme();
     const foregroundNeutralColor = useMemo(() => {
