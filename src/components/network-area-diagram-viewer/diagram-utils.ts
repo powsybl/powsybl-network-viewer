@@ -291,7 +291,8 @@ function classIsContainerOfHoverables(element: SVGElement): boolean {
     return (
         element.classList.contains('nad-branch-edges') ||
         element.classList.contains('nad-3wt-edges') ||
-        element.classList.contains('nad-vl-nodes')
+        element.classList.contains('nad-vl-nodes') ||
+        element.classList.contains('nad-injections')
     );
 }
 // get radius of voltage level
@@ -460,6 +461,16 @@ export function isTextNode(element: SVGElement | null): boolean {
     return element != null && hasId(element) && element.classList.contains('nad-label-box');
 }
 
+// check if a DOM element is an injection
+export function isInjection(element: SVGElement | null): boolean {
+    return (
+        (element != null &&
+            hasId(element) &&
+            element.parentElement?.parentElement?.parentElement?.classList.contains('nad-injections')) ??
+        false
+    );
+}
+
 // check if a DOM element is a voltage level
 export function isVoltageLevelElement(element: SVGElement | null): boolean {
     return element != null && hasId(element) && element.parentElement?.classList.contains('nad-vl-nodes') === true;
@@ -548,6 +559,9 @@ export function getNodeMove(node: NodeMetadata, nodePosition: Point): NODEMOVE {
 // Function to check if the element is hoverable
 function isHoverable(element: SVGElement): boolean {
     if (isTextNode(element)) {
+        return true;
+    }
+    if (isInjection(element)) {
         return true;
     }
     return (
