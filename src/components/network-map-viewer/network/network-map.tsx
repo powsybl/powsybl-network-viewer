@@ -22,9 +22,6 @@ import {
     MapEquipments,
     type MapHvdcLine,
     type MapLine,
-
-
-
     type MapSubstation,
     type MapTieLine,
     type MapVoltageLevel,
