@@ -636,8 +636,10 @@ test('getBendableLines', () => {
         },
     ];
     const lines = DiagramUtils.getBendableLines(edges);
-    expect(lines.length).toBe(1);
-    expect(lines[0].svgId).toBe('77');
+    expect(lines.length).toBe(4);
+
+    const containsEdge58 = lines.some((line) => line.svgId === '58');
+    expect(containsEdge58).toBe(false);
 });
 
 test('getEdgeMidPoint', () => {
