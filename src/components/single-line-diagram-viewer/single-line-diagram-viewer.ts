@@ -576,12 +576,20 @@ export class SingleLineDiagramViewer {
     private addEquipmentsPopover() {
         this.svgMetadata?.nodes?.forEach((equipment) => {
             const svgEquipment = this.container?.querySelector('#' + equipment.id);
-            svgEquipment?.addEventListener('mouseover', (event) => {
-                this.onToggleHoverCallback?.(true, event.currentTarget, equipment.equipmentId, equipment.componentType);
-            });
-            svgEquipment?.addEventListener('mouseout', () => {
-                this.onToggleHoverCallback?.(false, null, '', '');
-            });
+            const svgLabel = svgEquipment?.querySelector('text[class="sld-label"]');
+            if (svgLabel) {
+                svgLabel.addEventListener('mouseover', (event) => {
+                    this.onToggleHoverCallback?.(
+                        true,
+                        event.currentTarget,
+                        equipment.equipmentId,
+                        equipment.componentType
+                    );
+                });
+                svgLabel.addEventListener('mouseout', () => {
+                    this.onToggleHoverCallback?.(false, null, '', '');
+                });
+            }
         });
     }
 
