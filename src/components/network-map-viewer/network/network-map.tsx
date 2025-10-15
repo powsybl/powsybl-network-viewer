@@ -206,6 +206,7 @@ export type NetworkMapRef = {
     cleanDraw: () => void;
     getMapDrawer: () => MapboxDraw | undefined;
     resetZoomAndPosition: () => void;
+    getCurrentViewState: () => { zoom: number; center: { lng: number; lat: number } } | null;
 };
 
 const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) => {
@@ -218,8 +219,8 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
         arrowsZoomThreshold: rawProps.arrowsZoomThreshold ?? 7,
         disabled: rawProps.disabled ?? false,
         displayOverlayLoader: rawProps.displayOverlayLoader ?? false,
-        initialPosition: rawProps.initialPosition ?? [0, 0],
-        initialZoom: rawProps.initialZoom ?? 5,
+        initialPosition: rawProps.initialPosition,
+        initialZoom: rawProps.initialZoom,
         isManualRefreshBackdropDisplayed: rawProps.isManualRefreshBackdropDisplayed ?? false,
         labelsZoomThreshold: rawProps.labelsZoomThreshold ?? 9,
         lineFlowAlertThreshold: rawProps.lineFlowAlertThreshold ?? 100,
@@ -361,6 +362,10 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
                         centeredSubstationId: centered.centeredSubstationId,
                         centered: true,
                     });
+                } else if (props.initialPosition && props.initialZoom) {
+                    // if we have initial view state (initialPosition and initialZoom props)
+                    // no need to do anything
+                    return;
                 } else {
                     // @ts-expect-error TODO: manage undefined case
                     const coords = Array.from(props.geoData?.substationPositionsById.entries()).map((x) => x[1]);
@@ -634,9 +639,9 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
     }
 
     const initialViewState = {
-        longitude: props.initialPosition[0],
-        latitude: props.initialPosition[1],
-        zoom: props.initialZoom,
+        longitude: props.initialPosition?.[0] ?? 0,
+        latitude: props.initialPosition?.[1] ?? 0,
+        zoom: props.initialZoom ?? 5,
         maxZoom: 14,
         pitch: 0,
         bearing: 0,
@@ -750,6 +755,17 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
         setCentered(INITIAL_CENTERED);
     }, []);
 
+    const getCurrentViewState = useCallback(() => {
+        const map = mapRef.current;
+        if (!map) {
+            return null;
+        }
+        return {
+            zoom: map.getZoom(),
+            center: map.getCenter(),
+        };
+    }, []);
+
     useImperativeHandle(
         ref,
         () => ({
@@ -765,8 +781,16 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
                 return drawControlRef.current;
             },
             resetZoomAndPosition,
+            getCurrentViewState,
         }),
-        [onPolygonChanged, resetZoomAndPosition, getSelectedSubstations, getSelectedLines, onDrawEvent]
+        [
+            onPolygonChanged,
+            resetZoomAndPosition,
+            getSelectedSubstations,
+            getSelectedLines,
+            onDrawEvent,
+            getCurrentViewState,
+        ]
     );
 
     const onDelete = useCallback(() => {
