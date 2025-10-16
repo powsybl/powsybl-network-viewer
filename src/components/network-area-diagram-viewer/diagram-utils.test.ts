@@ -248,18 +248,6 @@ test('isTextNode', () => {
     expect(isTextNode).toBe(true);
 });
 
-test('getTextNodeId', () => {
-    expect(DiagramUtils.getTextNodeId('1')).toBe('1-textnode');
-});
-
-test('getTextEdgeId', () => {
-    expect(DiagramUtils.getTextEdgeId('1')).toBe('1-textedge');
-});
-
-test('getVoltageLevelNodeId', () => {
-    expect(DiagramUtils.getVoltageLevelNodeId('1-textnode')).toBe('1');
-});
-
 test('getTextEdgeEnd', () => {
     let textEdgeEnd = DiagramUtils.getTextEdgeEnd(new Point(110, 110), new Point(60, 60), 25, 50, 80);
     expect(textEdgeEnd.x).toBe(110);
