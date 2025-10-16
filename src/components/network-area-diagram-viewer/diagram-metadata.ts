@@ -74,6 +74,8 @@ export interface EdgeMetadata {
     busNode1: string;
     busNode2: string;
     type: string;
+    edgeInfo1: EdgeInfoMetadata;
+    edgeInfo2: EdgeInfoMetadata;
 }
 
 export interface TextNodeMetadata {
@@ -92,4 +94,13 @@ export interface InjectionMetadata {
     componentType: string;
     busNodeId: string;
     vlNodeId: string;
+    edgeInfo: EdgeInfoMetadata;
+}
+
+export interface EdgeInfoMetadata {
+    svgId: string;
+    infoType: string;
+    direction: string;
+    externalLabel?: string;
+    internalLabel?: string;
 }
