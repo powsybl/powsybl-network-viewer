@@ -12,7 +12,7 @@ import { Box, Button, type ButtonProps, decomposeColor, useTheme } from '@mui/ma
 import {
     EQUIPMENT_TYPES,
     GeoData,
-    getNominalVoltageColor,
+    getNominalVoltageColor as getDefaultNominalVoltageColor,
     LineFlowColorMode,
     LineFlowMode,
     LineLayer,
@@ -198,6 +198,7 @@ export type NetworkMapProps = {
     onDrawPolygonModeActive?: DrawControlProps['onDrawPolygonModeActive'];
     onPolygonChanged?: (polygoneFeature: Feature | Record<string, never>) => void;
     onDrawEvent?: (drawEvent: DRAW_EVENT) => void;
+    getNominalVoltageColor?: typeof getDefaultNominalVoltageColor;
 };
 
 export type NetworkMapRef = {
@@ -252,6 +253,7 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
         //onDrawPolygonModeActive = (active) => console.log('polygon drawing mode active: ', active ? 'active' : 'inactive'),
         onPolygonChanged: rawProps.onPolygonChanged ?? (() => {}),
         onDrawEvent: rawProps.onDrawEvent ?? (() => {}),
+        getNominalVoltageColor: rawProps.getNominalVoltageColor ?? getDefaultNominalVoltageColor,
     };
 
     const [labelsVisible, setLabelsVisible] = useState(false);
@@ -582,7 +584,7 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
                 data: props.mapEquipments?.substations,
                 network: props.mapEquipments,
                 geoData: props.geoData,
-                getNominalVoltageColor: getNominalVoltageColor,
+                getNominalVoltageColor: props.getNominalVoltageColor,
                 filteredNominalVoltages: props.filteredNominalVoltages,
                 labelsVisible: labelsVisible,
                 labelColor: foregroundNeutralColor,
@@ -605,7 +607,7 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
                 network: props.mapEquipments,
                 updatedLines: props.updatedLines,
                 geoData: props.geoData,
-                getNominalVoltageColor: getNominalVoltageColor,
+                getNominalVoltageColor: props.getNominalVoltageColor,
                 disconnectedLineColor: foregroundNeutralColor,
                 filteredNominalVoltages: props.filteredNominalVoltages,
                 lineFlowMode: props.lineFlowMode,
