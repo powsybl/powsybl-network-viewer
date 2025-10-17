@@ -305,11 +305,11 @@ export class SingleLineDiagramViewer {
             }
         }
 
-        draw.on('panStart', function () {
-            drawnSvg.style.cursor = 'move';
+        draw.on('panStart', () => {
+            draw.node.style.cursor = 'move';
         });
-        draw.on('panEnd', function () {
-            drawnSvg.style.cursor = 'default';
+        draw.on('panEnd', () => {
+            draw.node.style.cursor = 'default';
         });
 
         this.addSwitchesHandler();
@@ -576,12 +576,20 @@ export class SingleLineDiagramViewer {
     private addEquipmentsPopover() {
         this.svgMetadata?.nodes?.forEach((equipment) => {
             const svgEquipment = this.container?.querySelector('#' + equipment.id);
-            svgEquipment?.addEventListener('mouseover', (event) => {
-                this.onToggleHoverCallback?.(true, event.currentTarget, equipment.equipmentId, equipment.componentType);
-            });
-            svgEquipment?.addEventListener('mouseout', () => {
-                this.onToggleHoverCallback?.(false, null, '', '');
-            });
+            const svgLabel = svgEquipment?.querySelector('text[class="sld-label"]');
+            if (svgLabel) {
+                svgLabel.addEventListener('mouseover', (event) => {
+                    this.onToggleHoverCallback?.(
+                        true,
+                        event.currentTarget,
+                        equipment.equipmentId,
+                        equipment.componentType
+                    );
+                });
+                svgLabel.addEventListener('mouseout', () => {
+                    this.onToggleHoverCallback?.(false, null, '', '');
+                });
+            }
         });
     }
 
