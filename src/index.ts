@@ -22,6 +22,7 @@ export type {
     OnSelectNodeCallbackType,
     OnToggleNadHoverCallbackType,
     OnRightClickCallbackType,
+    OnBendLineCallbackType,
     NadViewerParametersOptions,
     NadViewerParameters,
 } from './components/network-area-diagram-viewer/nad-viewer-parameters';

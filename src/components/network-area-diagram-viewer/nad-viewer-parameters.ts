@@ -45,6 +45,14 @@ export type OnRightClickCallbackType = (
     mousePosition: Point
 ) => void;
 
+export type OnBendLineCallbackType = (
+    svgId: string,
+    equipmentId: string,
+    equipmentType: string,
+    linePoints: Point[] | null,
+    lineOperation: string
+) => void;
+
 export interface NadViewerParametersOptions {
     // The minimum width of the viewer.
     minWidth?: number;
@@ -85,6 +93,9 @@ export interface NadViewerParametersOptions {
 
     // Callback function triggered when right-clicking on a node or edge.
     onRightClickCallback?: OnRightClickCallbackType | null;
+
+    // Callback function triggered when bending line.
+    onBendLineCallback?: OnBendLineCallbackType | null;
 
     // View box to use in the network area diagram initialization.
     initialViewBox?: ViewBoxLike;
@@ -149,6 +160,9 @@ export class NadViewerParameters {
     }
     public getOnRightClickCallback(): OnRightClickCallbackType | null {
         return this.nadViewerParametersOptions?.onRightClickCallback ?? null;
+    }
+    public getOnBendingLineCallback(): OnBendLineCallbackType | null {
+        return this.nadViewerParametersOptions?.onBendLineCallback ?? null;
     }
     public getInitialViewBox(): ViewBoxLike | undefined {
         return this.nadViewerParametersOptions?.initialViewBox;
