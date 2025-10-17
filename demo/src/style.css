@@ -420,7 +420,7 @@ foreignObject.nad-text-nodes {
 .hoverHelper {
     .nad-edge-path:hover {
         stroke-width: 35px; /* Corresponds to the width the mouse can hover over */
-        cursor: pointer; /* For demonstration purpos */
+        cursor: pointer; /* For demonstration purpose */
     }
     & mask polyline {
         stroke-width: 5px; /* Should be the same width as the edge */
