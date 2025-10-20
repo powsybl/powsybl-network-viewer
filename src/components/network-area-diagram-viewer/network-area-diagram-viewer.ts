@@ -429,7 +429,7 @@ export class NetworkAreaDiagramViewer {
         if (this.hasNodeInteraction() && hasMetadata) {
             // fill empty elements: unknown buses and three windings transformers
             const emptyElements: NodeListOf<SVGGraphicsElement> = this.svgDiv.querySelectorAll(
-                '.nad-unknown-busnode, .nad-3wt-nodes .nad-winding'
+                '.nad-unknown-busnode, .nad-3wt-nodes .nad-winding, g.nad-injections>g>g>g>g>circle'
             );
             emptyElements.forEach((emptyElement) => {
                 emptyElement.style.fill = '#0000';
@@ -732,6 +732,8 @@ export class NetworkAreaDiagramViewer {
 
         if (DiagramUtils.isHighlightableElement(hoverableElem)) {
             this.handleHighlightableElementHover(hoverableElem, mousePosition);
+        } else if (DiagramUtils.isInjection(hoverableElem)) {
+            this.handleInjectionHover(hoverableElem, mousePosition);
         } else {
             this.handleEdgeHover(hoverableElem, mousePosition);
         }
@@ -1014,6 +1016,10 @@ export class NetworkAreaDiagramViewer {
                 this.addBusNodeEdge(busNodeId, edge, busNodeEdges);
             }
         });
+
+        const injectionsEdges: Map<string, InjectionMetadata[]> = new Map<string, InjectionMetadata[]>();
+        this.addInjectionEdges(vlNode.id, injectionsEdges);
+
         // redraw grouped edges
         for (const edgeGroup of groupedEdges.values()) {
             this.redrawEdgeGroup(edgeGroup, vlNode);
@@ -1023,7 +1029,16 @@ export class NetworkAreaDiagramViewer {
             this.redrawLoopEdgeGroup(edgeGroup, position);
         }
         // redraw node
-        this.redrawVoltageLevelNode(vlNode, busNodeEdges);
+        this.redrawVoltageLevelNode(vlNode, busNodeEdges, injectionsEdges);
+    }
+
+    private addInjectionEdges(vlNodeId: string, injectionsEdges: Map<string, InjectionMetadata[]>) {
+        const injections: InjectionMetadata[] | undefined = this.diagramMetadata?.injections?.filter(
+            (injection) => injection.vlNodeId == vlNodeId
+        );
+        injections?.forEach((inj) => {
+            this.addInjectionEdge(inj.busNodeId, inj, injectionsEdges);
+        });
     }
 
     private addBusNodeEdge(busNodeId: string | null, edge: EdgeMetadata, busNodeEdges: Map<string, EdgeMetadata[]>) {
@@ -1034,6 +1049,21 @@ export class NetworkAreaDiagramViewer {
             }
             busEdgeGroup.push(edge);
             busNodeEdges.set(busNodeId, busEdgeGroup);
+        }
+    }
+
+    private addInjectionEdge(
+        busNodeId: string | null,
+        injection: InjectionMetadata,
+        injectionEdges: Map<string, InjectionMetadata[]>
+    ) {
+        let injectionEdgesGroup: InjectionMetadata[] = [];
+        if (busNodeId != null) {
+            if (injectionEdges.has(busNodeId)) {
+                injectionEdgesGroup = injectionEdges.get(busNodeId) ?? [];
+            }
+            injectionEdgesGroup.push(injection);
+            injectionEdges.set(busNodeId, injectionEdgesGroup);
         }
     }
 
@@ -1460,7 +1490,11 @@ export class NetworkAreaDiagramViewer {
         }
     }
 
-    private redrawVoltageLevelNode(node: SVGGraphicsElement | null, busNodeEdges: Map<string, EdgeMetadata[]>) {
+    private redrawVoltageLevelNode(
+        node: SVGGraphicsElement | null,
+        busNodeEdges: Map<string, EdgeMetadata[]>,
+        injectionsEdges: Map<string, InjectionMetadata[]>
+    ) {
         if (node != null) {
             // get buses belonging to voltage level
             const busNodes: BusNodeMetadata[] | undefined = this.diagramMetadata?.busNodes.filter(
@@ -1487,6 +1521,13 @@ export class NetworkAreaDiagramViewer {
                         traversingBusEdgesAngles.push(edgeAngle);
                     }
                 });
+                const busInjectionsEdges = injectionsEdges.get(busNode.svgId) ?? [];
+                busInjectionsEdges.forEach((inj) => {
+                    const edgeAngle = this.getInjectionEdgeAngle(inj);
+                    if (typeof edgeAngle !== 'undefined') {
+                        traversingBusEdgesAngles.push(edgeAngle);
+                    }
+                });
             }
         }
     }
@@ -1508,6 +1549,16 @@ export class NetworkAreaDiagramViewer {
             }
         }
         return this.edgeAngles.get(halfEdgeId);
+    }
+
+    private getInjectionEdgeAngle(injection: InjectionMetadata) {
+        const injectionEdgeDrawElement: HTMLElement | null = <HTMLElement>(
+            (this.svgDiv.querySelector(`#${CSS.escape(injection.svgId)} polyline.nad-edge-path`) as Element)
+        );
+        if (injectionEdgeDrawElement != null) {
+            return DiagramUtils.getPolylineAngle(injectionEdgeDrawElement) ?? undefined;
+        }
+        return undefined;
     }
 
     private redrawBusNode(
@@ -1542,25 +1593,34 @@ export class NetworkAreaDiagramViewer {
 
     private redrawOtherVoltageLevelNode(otherNode: SVGGraphicsElement | null) {
         if (otherNode != null) {
-            // get other voltage level node edges
-            const edges: EdgeMetadata[] | undefined = this.diagramMetadata?.edges.filter(
-                (edge) => edge.node1 == (otherNode?.id ?? -1) || edge.node2 == (otherNode?.id ?? -1)
-            );
             // group other voltage level node edges by bus node
             const busNodeEdges: Map<string, EdgeMetadata[]> = new Map<string, EdgeMetadata[]>();
-            edges?.forEach((edge) => {
-                if (edge.node1 == edge.node2) {
-                    // loop edge
-                    this.addBusNodeEdge(edge.busNode1, edge, busNodeEdges);
-                    this.addBusNodeEdge(edge.busNode2, edge, busNodeEdges);
-                } else {
-                    const busNodeId = edge.node1 == otherNode?.id ? edge.busNode1 : edge.busNode2;
-                    this.addBusNodeEdge(busNodeId, edge, busNodeEdges);
-                }
-            });
+            this.addBusNodeEdges(otherNode?.id ?? -1, busNodeEdges);
+
+            const injectionsEdges: Map<string, InjectionMetadata[]> = new Map<string, InjectionMetadata[]>();
+            this.addInjectionEdges(otherNode.id, injectionsEdges);
+
             // redraw other voltage level node
-            this.redrawVoltageLevelNode(otherNode, busNodeEdges);
+            this.redrawVoltageLevelNode(otherNode, busNodeEdges, injectionsEdges);
         }
+    }
+
+    private addBusNodeEdges(nodeId: string, busNodeEdges: Map<string, EdgeMetadata[]>) {
+        // get other voltage level node edges
+        const edges: EdgeMetadata[] | undefined = this.diagramMetadata?.edges.filter(
+            (edge) => edge.node1 == nodeId || edge.node2 == nodeId
+        );
+        // group other voltage level node edges by bus node
+        edges?.forEach((edge) => {
+            if (edge.node1 == edge.node2) {
+                // loop edge
+                this.addBusNodeEdge(edge.busNode1, edge, busNodeEdges);
+                this.addBusNodeEdge(edge.busNode2, edge, busNodeEdges);
+            } else {
+                const busNodeId = edge.node1 == nodeId ? edge.busNode1 : edge.busNode2;
+                this.addBusNodeEdge(busNodeId, edge, busNodeEdges);
+            }
+        });
     }
 
     private redrawThreeWtEdge(edge: EdgeMetadata, edgeNode: SVGGraphicsElement, vlNode: SVGGraphicsElement) {
@@ -1635,33 +1695,8 @@ export class NetworkAreaDiagramViewer {
         }
         this.setPreviousMaxDisplayedSize(maxDisplayedSize);
 
-        //Workaround chromium (tested on edge and google-chrome 131) doesn't
-        //redraw things with percentages on viewbox changes but it should, so
-        //we force it. This is not strictly related to the enableLevelOfDetail
-        //and dynamic css feature, but it turns out that we use percentages in
-        //css only in the case where enableLevelOfDetail=true, so we can do the
-        //workaround here at each viewbox change until we have other needs or
-        //until we remove the workaround entirely. Firefox does correctly
-        //redraw, but we force for everyone to have the same behavior
-        //everywhere and detect problems more easily. We can't use
-        //innerHtml+='' on the <style> tags because values set with
-        //setProperty(key, value) in updateSvgCssDisplayValue are not reflected
-        //in the html text so the innerHTML trick has the effect of resetting
-        //them. So instead of doing it on the svg, we do it on all its children
-        //that are not style elements. This won't work if there are deeply
-        //nested style elements that need dynamic css rules but in practice
-        //only the root style element has dynamic rules so it's ok.
-        //TODO Remove this when chromium fixes their bug.
-        //TODO If this workaround causes problems, we can find a better way to
-        //force a redraw that doesnt change the elements in the dom.
         const innerSvg = svg.querySelector('svg');
         if (innerSvg) {
-            for (const child of innerSvg.children) {
-                // annoying, sometimes lowercase (html), sometimes uppercase (xml in xhtml or svg))
-                if (child.nodeName.toUpperCase() != 'STYLE') {
-                    child.innerHTML += '';
-                }
-            }
             const zoomLevel = this.getZoomLevel(maxDisplayedSize);
             const isZoomLevelClassDefined = [...innerSvg.classList].some((c) =>
                 c.startsWith(NetworkAreaDiagramViewer.ZOOM_CLASS_PREFIX)
@@ -2027,6 +2062,15 @@ export class NetworkAreaDiagramViewer {
                     ElementType[ElementType.VOLTAGE_LEVEL]
                 );
             }
+        }
+    }
+
+    private handleInjectionHover(element: SVGElement, mousePosition: Point) {
+        const injection = this.diagramMetadata?.injections?.find((inj) => inj.svgId === element.id);
+        if (injection) {
+            const equipmentId = injection.equipmentId ?? '';
+            const equipmentType = injection.componentType ?? '';
+            this.onToggleHoverCallback?.(true, mousePosition, equipmentId, equipmentType);
         }
     }
 
