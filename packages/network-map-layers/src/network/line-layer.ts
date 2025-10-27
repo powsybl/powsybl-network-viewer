@@ -22,7 +22,7 @@ import type { LiteralUnion } from 'type-fest';
 import { type LonLat, type MapAnyLine, type MapAnyLineWithType } from '../equipment-types';
 import BoltIcon from '../images/bolt_black_24dp.svg?url';
 import PadlockIcon from '../images/lock_black_24dp.svg?url';
-import { getNominalVoltageColor, INVALID_FLOW_OPACITY } from '../utils/colors';
+import { INVALID_FLOW_OPACITY } from '../utils/colors';
 import { SUBSTATION_RADIUS, SUBSTATION_RADIUS_MAX_PIXEL, SUBSTATION_RADIUS_MIN_PIXEL } from './constants';
 import { type GeoData } from './geo-data';
 import ArrowLayer, { type Arrow, ArrowDirection, type ArrowLayerProps } from './layers/arrow-layer';
