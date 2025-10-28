@@ -2422,10 +2422,9 @@ export class NetworkAreaDiagramViewer {
         const previewPoints = this.calculateEdgeSegmentMidpoints(edge);
         if (previewPoints.length === 0) return;
 
-        let previewContainer = this.svgDraw?.node.querySelector('#edge-preview-points');
+        let previewContainer = this.svgDraw?.node.querySelector('.nad-edge-preview-points');
         if (!previewContainer) {
             previewContainer = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-            previewContainer.id = 'edge-preview-points';
             previewContainer.classList.add('nad-edge-preview-points');
             this.svgDraw?.node.firstElementChild?.appendChild(previewContainer);
         }
@@ -2501,7 +2500,7 @@ export class NetworkAreaDiagramViewer {
     }
 
     private hideEdgePreviewPoints(): void {
-        const previewContainer = this.svgDraw?.node.querySelector('#edge-preview-points');
+        const previewContainer = this.svgDraw?.node.querySelector('.nad-edge-preview-points');
         if (previewContainer) {
             previewContainer.remove();
         }
