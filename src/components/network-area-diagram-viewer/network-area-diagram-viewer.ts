@@ -1205,12 +1205,8 @@ export class NetworkAreaDiagramViewer {
         const edgeData = this.getEdgeData(edge);
         this.redrawEdge(
             edgeNode,
-            edgeData.edgePoints != undefined
-                ? edgeData.edgePoints[0]
-                : [edgeData.edgeStartPoints[0], edgeData.edgeMiddle],
-            edgeData.edgePoints != undefined
-                ? edgeData.edgePoints[1]
-                : [edgeData.edgeStartPoints[1], edgeData.edgeMiddle],
+            edgeData.edgePoints ? edgeData.edgePoints[0] : [edgeData.edgeStartPoints[0], edgeData.edgeMiddle],
+            edgeData.edgePoints ? edgeData.edgePoints[1] : [edgeData.edgeStartPoints[1], edgeData.edgeMiddle],
             edgeData.nodeRadius1,
             edgeData.nodeRadius2,
             edgeType,
@@ -2217,7 +2213,7 @@ export class NetworkAreaDiagramViewer {
         if (!bendableElem) {
             return;
         }
-        const edgeId = bendableElem.id !== undefined ? this.linePointIndexMap.get(bendableElem.id)?.edgeId : '-1';
+        const edgeId = bendableElem.id ? this.linePointIndexMap.get(bendableElem.id)?.edgeId : '-1';
         const edge: EdgeMetadata | undefined = this.diagramMetadata?.edges.find((edge) => edge.svgId == edgeId);
         if (edge?.points == undefined) {
             return;
@@ -2261,11 +2257,11 @@ export class NetworkAreaDiagramViewer {
                 edge.points = linePoints.linePoints;
                 this.linePointIndexMap.set(linePointElement.id, { edgeId: edge.svgId, index: linePoints.index });
 
-                this.linePointIndexMap.forEach((value, key) => {
+                for (const [key, value] of this.linePointIndexMap) {
                     if (key !== linePointElement.id && value.edgeId == edge.svgId && value.index >= linePoints.index) {
                         value.index++;
                     }
-                });
+                }
             }
         } else if (edge.points) {
             // update line point
@@ -2280,11 +2276,11 @@ export class NetworkAreaDiagramViewer {
         const index = this.linePointIndexMap.get(linePointElement.id)?.index ?? -1;
 
         if (edge.points) {
-            this.linePointIndexMap.forEach((value) => {
-                if (value.edgeId == edge.svgId && value.index >= index) {
+            for (const [key, value] of this.linePointIndexMap) {
+                if (key !== linePointElement.id && value.edgeId == edge.svgId && value.index >= index) {
                     value.index--;
                 }
-            });
+            }
             // delete point
             edge.points.splice(index, 1);
             if (edge.points.length == 0) {
@@ -2298,7 +2294,7 @@ export class NetworkAreaDiagramViewer {
         this.initialPosition = DiagramUtils.getPosition(linePoint);
 
         // get edge data
-        const edgeId = linePoint.id !== undefined ? this.linePointIndexMap.get(linePoint.id)?.edgeId : '-1';
+        const edgeId = linePoint.id ? this.linePointIndexMap.get(linePoint.id)?.edgeId : '-1';
         const edge: EdgeMetadata | undefined = this.diagramMetadata?.edges.find((edge) => edge.svgId == edgeId);
         if (!edge || (lineOperation == LineOperation.BEND && !edge.points)) {
             return;
@@ -2316,12 +2312,8 @@ export class NetworkAreaDiagramViewer {
         // bend line
         this.redrawEdge(
             edgeNode,
-            edgeData.edgePoints != undefined
-                ? edgeData.edgePoints[0]
-                : [edgeData.edgeStartPoints[0], edgeData.edgeMiddle],
-            edgeData.edgePoints != undefined
-                ? edgeData.edgePoints[1]
-                : [edgeData.edgeStartPoints[1], edgeData.edgeMiddle],
+            edgeData.edgePoints ? edgeData.edgePoints[0] : [edgeData.edgeStartPoints[0], edgeData.edgeMiddle],
+            edgeData.edgePoints ? edgeData.edgePoints[1] : [edgeData.edgeStartPoints[1], edgeData.edgeMiddle],
             edgeData.nodeRadius1,
             edgeData.nodeRadius2,
             edgeType,
