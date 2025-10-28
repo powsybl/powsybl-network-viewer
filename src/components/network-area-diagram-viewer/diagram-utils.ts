@@ -81,15 +81,15 @@ function idIs(element: SVGElement): boolean {
     return element.id == 'lines-points';
 }
 
-export function getLinePointId(edgeId: string | undefined, index: number): string {
-    return edgeId + '-point-' + index;
+export function getLinePointId(): string {
+    return crypto.randomUUID();
 }
 
 export function getEdgeId(
-    linePointIndexMap: Map<SVGGElement, { edgeId: string; index: number }>,
+    linePointIndexMap: Map<string, { edgeId: string; index: number }>,
     linePoint: SVGGElement
 ): string | undefined {
-    return linePointIndexMap.get(linePoint)?.edgeId;
+    return linePointIndexMap.get(linePoint.id)?.edgeId;
 }
 
 export function getLinePointMapKey(edgeId: string, index: number): string {
@@ -140,8 +140,7 @@ export function createLinePointElement(
     linePoint: Point,
     index: number,
     previewPoint?: boolean,
-    linePointIndexMap?: Map<SVGGElement, { edgeId: string; index: number }>,
-    linePointByEdgeIndexMap?: Map<string, SVGElement>
+    linePointIndexMap?: Map<string, { edgeId: string; index: number }>
 ): SVGElement {
     const linePointElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     linePointElement.setAttribute('transform', 'translate(' + getFormattedPoint(linePoint) + ')');
@@ -153,16 +152,14 @@ export function createLinePointElement(
     squareElement.setAttribute('y', '-8');
 
     if (previewPoint) {
-        linePointElement.id = `preview-${edgeId}-${index}`;
         linePointElement.classList.add('nad-line-point-preview');
     }
 
     linePointElement.appendChild(squareElement);
 
-    if (!previewPoint && linePointIndexMap && linePointByEdgeIndexMap) {
-        linePointElement.id = getLinePointId(edgeId, index);
-        linePointIndexMap.set(linePointElement, { edgeId: edgeId, index: index });
-        linePointByEdgeIndexMap.set(getLinePointMapKey(edgeId, index), linePointElement);
+    if (!previewPoint && linePointIndexMap) {
+        linePointElement.id = getLinePointId();
+        linePointIndexMap.set(linePointElement.id, { edgeId: edgeId, index: index });
     }
     return linePointElement;
 }
