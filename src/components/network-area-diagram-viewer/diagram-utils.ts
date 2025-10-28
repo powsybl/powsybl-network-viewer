@@ -168,6 +168,68 @@ export function calculateParallelOffset(edge1Middle: Point, edge2Middle: Point):
     return new Point(edge2Middle.x - edge1Middle.x, edge2Middle.y - edge1Middle.y);
 }
 
+/**
+ * Calculate the intersection point of two lines defined by point + direction.
+ * Line 1: passes through p1 with direction dir1
+ * Line 2: passes through p2 with direction dir2
+ * @returns The intersection point, or null if lines are parallel
+ */
+export function calculateLineIntersection(
+    p1: Point,
+    dir1: Point,
+    p2: Point,
+    dir2: Point
+): Point | null {
+
+    const denominator = dir1.x * dir2.y - dir1.y * dir2.x;
+
+    // If denominator is 0, lines are parallel
+    if (Math.abs(denominator) < 1e-10) {
+        return null;
+    }
+
+    const dx = p2.x - p1.x;
+    const dy = p2.y - p1.y;
+
+    const t = (dx * dir2.y - dy * dir2.x) / denominator;
+
+    return new Point(p1.x + t * dir1.x, p1.y + t * dir1.y);
+}
+
+/**
+ * Calculate the parallel bend point position for a slave line.
+ * The slave point must maintain parallelism with the master line segments.
+ *
+ * @param masterPrevPoint - Point before the master bend point
+ * @param masterBendPoint - The master bend point (new position)
+ * @param masterNextPoint - Point after the master bend point
+ * @param slavePrevPoint - Point before the slave bend point (on slave line)
+ * @param slaveNextPoint - Point after the slave bend point (on slave line)
+ * @returns The new position for the slave bend point, or null if calculation fails
+ */
+export function calculateParallelBendPoint(
+    masterPrevPoint: Point,
+    masterBendPoint: Point,
+    masterNextPoint: Point,
+    slavePrevPoint: Point,
+    slaveNextPoint: Point
+): Point | null {
+    // Direction from master prev to master bend
+    const dir1 = new Point(
+        masterBendPoint.x - masterPrevPoint.x,
+        masterBendPoint.y - masterPrevPoint.y
+    );
+
+    // Direction from master bend to master next
+    const dir2 = new Point(
+        masterNextPoint.x - masterBendPoint.x,
+        masterNextPoint.y - masterBendPoint.y
+    );
+
+    // The slave bend point is at the intersection of L1 and L2
+    return calculateLineIntersection(slavePrevPoint, dir1, slaveNextPoint, dir2);
+}
+
 export function isBendableLine(element: SVGElement, bendableIds: string[]): boolean {
     return (
         hasId(element) &&
