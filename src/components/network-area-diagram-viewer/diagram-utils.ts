@@ -212,7 +212,7 @@ export function addPointToList(
         for (let i = 0; i < pointsMetadata.length - 1; i++) {
             const point1 = new Point(pointsMetadata[i].x, pointsMetadata[i].y);
             const point2 = new Point(pointsMetadata[i + 1].x, pointsMetadata[i + 1].y);
-            const distance = getDistanceFromSegment(bendPoint, point1, point2);
+            const distance = getSquareDistanceFromSegment(bendPoint, point1, point2);
             if (distance < minDistance) {
                 minDistance = distance;
                 index = i;
@@ -225,12 +225,16 @@ export function addPointToList(
     return { linePoints: pointsMetadata, index: index };
 }
 
-function getDistanceFromSegment(p: Point, a: Point, b: Point): number {
-    const param =
-        ((p.x - a.x) * (b.x - a.x) + (p.y - a.y) * (b.y - a.y)) / (Math.pow(b.x - a.x, 2) + Math.pow(b.y - a.y, 2));
+function getSquareDistanceFromSegment(p: Point, a: Point, b: Point): number {
+    const dx = b.x - a.x;
+    const dy = b.y - a.y;
+    const param = ((p.x - a.x) * dx + (p.y - a.y) * dy) / (dx ** 2 + dy ** 2);
     const xx = getValue(param, a.x, b.x);
     const yy = getValue(param, a.y, b.y);
-    return Math.sqrt(Math.pow(p.x - xx, 2) + Math.pow(p.y - yy, 2));
+    const distX = p.x - xx;
+    const distY = p.y - yy;
+
+    return distX ** 2 + distY ** 2;
 }
 
 function getValue(param: number, firstValue: number, secondValue: number): number {

@@ -1234,10 +1234,6 @@ export class NetworkAreaDiagramViewer {
             const otherNode: SVGGraphicsElement | null = this.getOtherNode(edgeNodes, vlNode);
             this.redrawOtherVoltageLevelNode(otherNode);
         }
-
-        if (this.bendLines && edge.points == undefined) {
-            this.moveLinePoint(edge.svgId, edgeData.edgeMiddle);
-        }
     }
 
     private isThreeWtEdge(edgeType: DiagramUtils.EdgeType, edgeNode: SVGGraphicsElement) {
@@ -2210,15 +2206,6 @@ export class NetworkAreaDiagramViewer {
         this.linePointByEdgeIndexMap.clear();
         this.bendableLines = [];
         this.bendLines = false;
-    }
-
-    private moveLinePoint(svgId: string, newPosition: Point) {
-        const linePointElement: SVGGraphicsElement | undefined = this.linePointByEdgeIndexMap.get(
-            DiagramUtils.getLinePointMapKey(svgId, 0)
-        );
-        if (linePointElement) {
-            this.updateNodePosition(linePointElement, newPosition);
-        }
     }
 
     private createEdgeBendPoint(bendableElem: SVGElement | undefined, event: MouseEvent) {
