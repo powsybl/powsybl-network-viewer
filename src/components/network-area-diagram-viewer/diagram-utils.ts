@@ -6,7 +6,7 @@
  */
 
 import { Point } from '@svgdotjs/svg.js';
-import { EdgeMetadata, BusNodeMetadata, NodeMetadata, TextNodeMetadata } from './diagram-metadata';
+import { EdgeMetadata, BusNodeMetadata, NodeMetadata, TextNodeMetadata, EdgePointMetadata } from './diagram-metadata';
 import { SvgParameters } from './svg-parameters';
 import ZoomToFitSvg from '../../resources/material-icons/zoom-to-fit.svg';
 import ZoomInSvg from '../../resources/material-icons/zoom-in.svg';
@@ -14,6 +14,7 @@ import ZoomOutSvg from '../../resources/material-icons/zoom-out.svg';
 import SaveSvg from '../../resources/material-icons/save_svg.svg';
 import SavePng from '../../resources/material-icons/save_png.svg';
 import ScreenshotSvg from '../../resources/material-icons/screenshot.svg';
+import BendLinesSvg from '../../resources/material-icons/bend-lines.svg';
 
 export type Dimensions = { width: number; height: number; viewbox: ViewBox };
 export type ViewBox = { x: number; y: number; width: number; height: number };
@@ -63,6 +64,295 @@ const EdgeTypeMapping: { [key: string]: EdgeType } = {
 
 const TEXT_BOX_WIDTH_DEFAULT = 200.0;
 const TEXT_BOX_HEIGHT_DEFAULT = 100.0;
+
+export function getBendableFrom(element: SVGElement): SVGElement | undefined {
+    if (isBendable(element)) {
+        return element;
+    } else if (element.parentElement) {
+        return getBendableFrom(element.parentNode as SVGElement);
+    }
+}
+
+export function isBendable(element: SVGElement): boolean {
+    return element.classList.contains('nad-line-point');
+}
+
+export function getBendableLines(edges: EdgeMetadata[] | undefined): EdgeMetadata[] {
+    // group edges by edge ends
+    const groupedEdges: Map<string, EdgeMetadata[]> = new Map<string, EdgeMetadata[]>();
+    for (const edge of edges ?? []) {
+        let edgeGroup: EdgeMetadata[] = [];
+        // filter out loop edges
+        if (edge.node1 != edge.node2) {
+            const edgeGroupId = edge.node1.concat('_', edge.node2);
+            if (groupedEdges.has(edgeGroupId)) {
+                edgeGroup = groupedEdges.get(edgeGroupId) ?? [];
+            }
+            edgeGroup.push(edge);
+            groupedEdges.set(edgeGroupId, edgeGroup);
+        }
+    }
+    const lines: EdgeMetadata[] = [];
+    for (const edgeGroup of groupedEdges.values()) {
+        lines.push(...edgeGroup);
+    }
+    return lines;
+}
+
+export function getEdgeMidPoint(halfEdge: SVGGraphicsElement | null): Point | null {
+    if (halfEdge == null) {
+        return null;
+    }
+    const polyline = <Element>halfEdge.querySelector('polyline');
+    const points = getPolylinePoints(<HTMLElement>polyline);
+    return points == null ? null : points[1];
+}
+
+export function createLinePointElement(
+    edgeId: string,
+    linePoint: Point,
+    index: number,
+    previewPoint?: boolean,
+    linePointIndexMap?: Map<string, { edgeId: string; index: number }>
+): SVGElement {
+    const linePointElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    linePointElement.setAttribute('transform', 'translate(' + getFormattedPoint(linePoint) + ')');
+
+    const squareElement = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    squareElement.setAttribute('width', '16');
+    squareElement.setAttribute('height', '16');
+    squareElement.setAttribute('x', '-8');
+    squareElement.setAttribute('y', '-8');
+
+    if (previewPoint) {
+        linePointElement.classList.add('nad-line-point-preview');
+    }
+
+    linePointElement.appendChild(squareElement);
+
+    if (!previewPoint && linePointIndexMap) {
+        linePointElement.id = crypto.randomUUID();
+        linePointElement.classList.add('nad-line-point');
+        linePointIndexMap.set(linePointElement.id, { edgeId: edgeId, index: index });
+    }
+    return linePointElement;
+}
+
+export function getBendableLineFrom(element: SVGElement, bendableIds: string[]): SVGElement | undefined {
+    if (isBendableLine(element, bendableIds)) {
+        return element;
+    } else if (element.parentElement) {
+        return getBendableLineFrom(element.parentNode as SVGElement, bendableIds);
+    }
+}
+
+export function getParallelEdgeGroupId(edge: EdgeMetadata): string {
+    return edge.node1.concat('_', edge.node2);
+}
+
+export function getParallelEdgeGroup(edgeId: string, edges: EdgeMetadata[] | undefined): EdgeMetadata[] | undefined {
+    const edge = edges?.find((e) => e.svgId === edgeId);
+    if (!edge || edge.node1 === edge.node2) {
+        return undefined;
+    }
+
+    const groupId = getParallelEdgeGroupId(edge);
+    const group = edges?.filter((e) => {
+        if (e.node1 == edge.node2) return false;
+        return getParallelEdgeGroupId(e) === groupId;
+    });
+    return group && group.length > 1 ? group : undefined;
+}
+
+export function calculateParallelOffset(edge1Middle: Point, edge2Middle: Point): Point {
+    return new Point(edge2Middle.x - edge1Middle.x, edge2Middle.y - edge1Middle.y);
+}
+
+/**
+ * Calculate the intersection point of two lines defined by point + direction.
+ * Line 1: passes through p1 with direction dir1
+ * Line 2: passes through p2 with direction dir2
+ * @returns The intersection point, or null if lines are parallel
+ */
+export function calculateLineIntersection(
+    p1: Point,
+    dir1: Point,
+    p2: Point,
+    dir2: Point
+): Point | null {
+
+    const denominator = dir1.x * dir2.y - dir1.y * dir2.x;
+
+    // If denominator is 0, lines are parallel
+    if (Math.abs(denominator) < 1e-10) {
+        return null;
+    }
+
+    const dx = p2.x - p1.x;
+    const dy = p2.y - p1.y;
+
+    const t = (dx * dir2.y - dy * dir2.x) / denominator;
+
+    return new Point(p1.x + t * dir1.x, p1.y + t * dir1.y);
+}
+
+/**
+ * Calculate the parallel bend point position for a slave line.
+ * The slave point must maintain parallelism with the master line segments.
+ *
+ * @param masterPrevPoint - Point before the master bend point
+ * @param masterBendPoint - The master bend point (new position)
+ * @param masterNextPoint - Point after the master bend point
+ * @param slavePrevPoint - Point before the slave bend point (on slave line)
+ * @param slaveNextPoint - Point after the slave bend point (on slave line)
+ * @returns The new position for the slave bend point, or null if calculation fails
+ */
+export function calculateParallelBendPoint(
+    masterPrevPoint: Point,
+    masterBendPoint: Point,
+    masterNextPoint: Point,
+    slavePrevPoint: Point,
+    slaveNextPoint: Point
+): Point | null {
+    // Direction from master prev to master bend
+    const dir1 = new Point(
+        masterBendPoint.x - masterPrevPoint.x,
+        masterBendPoint.y - masterPrevPoint.y
+    );
+
+    // Direction from master bend to master next
+    const dir2 = new Point(
+        masterNextPoint.x - masterBendPoint.x,
+        masterNextPoint.y - masterBendPoint.y
+    );
+
+    // The slave bend point is at the intersection of L1 and L2
+    return calculateLineIntersection(slavePrevPoint, dir1, slaveNextPoint, dir2);
+}
+
+export function isBendableLine(element: SVGElement, bendableIds: string[]): boolean {
+    return (
+        hasId(element) &&
+        element.parentNode != null &&
+        classIsContainerOfLines(element.parentNode as SVGElement) &&
+        bendableIds.includes(element.id)
+    );
+}
+
+function classIsContainerOfLines(element: SVGElement): boolean {
+    return element.classList.contains('nad-branch-edges');
+}
+
+export function getBendLinesButton(): HTMLButtonElement {
+    const b = getButton(BendLinesSvg, 'Enable line bending', '25px');
+    b.style.borderRadius = '5px 5px 5px 5px';
+    return b;
+}
+
+// insert a point in the edge point list
+// it return the new list, and the index of the added point
+export function addPointToList(
+    pointsMetadata: EdgePointMetadata[] | undefined,
+    node1: Point,
+    node2: Point,
+    bendPoint: Point
+): { linePoints: EdgePointMetadata[]; index: number } {
+    let index = 0;
+    if (pointsMetadata == undefined) {
+        pointsMetadata = [{ x: bendPoint.x, y: bendPoint.y }];
+    } else {
+        pointsMetadata.splice(0, 0, { x: node1.x, y: node1.y });
+        pointsMetadata.push({ x: node2.x, y: node2.y });
+        let minDistance = Number.MAX_VALUE;
+        for (let i = 0; i < pointsMetadata.length - 1; i++) {
+            const point1 = new Point(pointsMetadata[i].x, pointsMetadata[i].y);
+            const point2 = new Point(pointsMetadata[i + 1].x, pointsMetadata[i + 1].y);
+            const distance = getSquareDistanceFromSegment(bendPoint, point1, point2);
+            if (distance < minDistance) {
+                minDistance = distance;
+                index = i;
+            }
+        }
+        pointsMetadata.pop();
+        pointsMetadata.splice(0, 1);
+        pointsMetadata.splice(index, 0, { x: round(bendPoint.x), y: round(bendPoint.y) });
+    }
+    return { linePoints: pointsMetadata, index: index };
+}
+
+function getSquareDistanceFromSegment(p: Point, a: Point, b: Point): number {
+    const dx = b.x - a.x;
+    const dy = b.y - a.y;
+    const param = ((p.x - a.x) * dx + (p.y - a.y) * dy) / (dx ** 2 + dy ** 2);
+    const xx = getValue(param, a.x, b.x);
+    const yy = getValue(param, a.y, b.y);
+    const distX = p.x - xx;
+    const distY = p.y - yy;
+
+    return distX ** 2 + distY ** 2;
+}
+
+function getValue(param: number, firstValue: number, secondValue: number): number {
+    if (param < 0) {
+        return firstValue;
+    }
+    return param > 1 ? secondValue : firstValue + param * (secondValue - firstValue);
+}
+
+function getDistance(point1: Point, point2: Point): number {
+    const deltax = point1.x - point2.x;
+    const deltay = point1.y - point2.y;
+    return Math.hypot(deltax, deltay);
+}
+
+export function getEdgePoints(
+    edgeStart1: Point,
+    edgeStart2: Point,
+    pointsMetadata: EdgePointMetadata[]
+): [Point[], Point[]] {
+    pointsMetadata.splice(0, 0, { x: edgeStart1.x, y: edgeStart1.y });
+    pointsMetadata.push({ x: edgeStart2.x, y: edgeStart2.y });
+    let distance = 0;
+    for (let i = 0; i < pointsMetadata.length - 1; i++) {
+        distance += getDistance(
+            new Point(pointsMetadata[i].x, pointsMetadata[i].y),
+            new Point(pointsMetadata[i + 1].x, pointsMetadata[i + 1].y)
+        );
+    }
+    const halfEdgePoints1: Point[] = [new Point(pointsMetadata[0].x, pointsMetadata[0].y)];
+    const halfEdgePoints2: Point[] = [];
+    let partialDistance = 0;
+    let middleAdded: boolean = false;
+    for (let i = 0; i < pointsMetadata.length - 1; i++) {
+        const point = new Point(pointsMetadata[i].x, pointsMetadata[i].y);
+        const nextPoint = new Point(pointsMetadata[i + 1].x, pointsMetadata[i + 1].y);
+        partialDistance += getDistance(point, nextPoint);
+        if (partialDistance < distance / 2) {
+            halfEdgePoints1.push(nextPoint);
+        } else {
+            if (!middleAdded) {
+                const edgeMiddle = getPointAtDistance(nextPoint, point, partialDistance - distance / 2);
+                halfEdgePoints1.push(edgeMiddle);
+                halfEdgePoints2.push(edgeMiddle);
+                middleAdded = true;
+            }
+            halfEdgePoints2.push(nextPoint);
+        }
+    }
+    return [halfEdgePoints1, halfEdgePoints2.reverse()];
+}
+
+export function getEdgeMidPointPosition(edgeId: string, svgContainer: HTMLElement): Point | null {
+    const halfEgde1: SVGGraphicsElement | null = svgContainer.querySelector("[id='" + edgeId + ".1']");
+    const halfEgde2: SVGGraphicsElement | null = svgContainer.querySelector("[id='" + edgeId + ".2']");
+    const middle1: Point | null = getEdgeMidPoint(halfEgde1);
+    const middle2: Point | null = getEdgeMidPoint(halfEgde2);
+
+    if (middle1 && middle2) {
+        return getMidPosition(middle1, middle2);
+    }
+    return null;
+}
 
 // format number to string
 export function getFormattedValue(value: number): string {
@@ -256,7 +546,8 @@ function isDraggable(element: SVGElement): boolean {
         (hasId(element) &&
             element.parentNode != null &&
             classIsContainerOfDraggables(element.parentNode as SVGElement)) ||
-        isTextNode(element)
+        isTextNode(element) ||
+        isBendable(element)
     );
 }
 
@@ -385,7 +676,7 @@ export function getPolylinePoints(polyline: HTMLElement): Point[] | null {
     if (polylinePoints == null) {
         return null;
     }
-    const coordinates: string[] = polylinePoints.split(/,| /);
+    const coordinates: string[] = polylinePoints.split(/[, ]/);
     if (coordinates.length < 4) {
         return null;
     }
