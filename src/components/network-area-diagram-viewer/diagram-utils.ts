@@ -74,11 +74,7 @@ export function getBendableFrom(element: SVGElement): SVGElement | undefined {
 }
 
 export function isBendable(element: SVGElement): boolean {
-    return hasId(element) && element.parentNode != null && idIs(element.parentNode as SVGElement);
-}
-
-function idIs(element: SVGElement): boolean {
-    return element.id == 'lines-points';
+    return element.classList.contains('nad-line-point');
 }
 
 export function getLinePointId(): string {
@@ -159,6 +155,7 @@ export function createLinePointElement(
 
     if (!previewPoint && linePointIndexMap) {
         linePointElement.id = getLinePointId();
+        linePointElement.classList.add('nad-line-point');
         linePointIndexMap.set(linePointElement.id, { edgeId: edgeId, index: index });
     }
     return linePointElement;

@@ -2155,7 +2155,6 @@ export class NetworkAreaDiagramViewer {
 
     private enableLineBending() {
         const linesPointsElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-        linesPointsElement.id = 'lines-points';
         linesPointsElement.classList.add('nad-line-points');
         const bendableEdges = DiagramUtils.getBendableLines(this.diagramMetadata?.edges);
         for (const edge of bendableEdges) {
@@ -2185,14 +2184,14 @@ export class NetworkAreaDiagramViewer {
         point: Point,
         linePointsElement?: SVGElement | null
     ): SVGElement {
-        linePointsElement ??= this.svgDraw?.node.querySelector('#lines-points');
+        linePointsElement ??= this.svgDraw?.node.querySelector('.nad-line-points');
         const pointElement = DiagramUtils.createLinePointElement(lineId, point, index, false, this.linePointIndexMap);
         linePointsElement?.appendChild(pointElement);
         return pointElement;
     }
 
     private disableLineBending() {
-        const linePointsElement = this.svgDraw?.node.querySelector('#lines-points');
+        const linePointsElement = this.svgDraw?.node.querySelector('.nad-line-points');
         linePointsElement?.remove();
         this.linePointIndexMap.clear();
         this.bendableLines = [];
@@ -2263,7 +2262,7 @@ export class NetworkAreaDiagramViewer {
                 this.linePointIndexMap.set(linePointElement.id, { edgeId: edge.svgId, index: linePoints.index });
 
                 this.linePointIndexMap.forEach((value, key) => {
-                    if (key !== linePointElement.id && value.index >= linePoints.index) {
+                    if (key !== linePointElement.id && value.edgeId == edge.svgId && value.index >= linePoints.index) {
                         value.index++;
                     }
                 });
