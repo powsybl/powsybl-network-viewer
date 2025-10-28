@@ -81,17 +81,6 @@ export function getLinePointId(): string {
     return crypto.randomUUID();
 }
 
-export function getEdgeId(
-    linePointIndexMap: Map<string, { edgeId: string; index: number }>,
-    linePoint: SVGGElement
-): string | undefined {
-    return linePointIndexMap.get(linePoint.id)?.edgeId;
-}
-
-export function getLinePointMapKey(edgeId: string, index: number): string {
-    return `${edgeId}:${index}`;
-}
-
 export function getBendableLines(edges: EdgeMetadata[] | undefined): EdgeMetadata[] {
     // group edges by edge ends
     const groupedEdges: Map<string, EdgeMetadata[]> = new Map<string, EdgeMetadata[]>();

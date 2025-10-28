@@ -2232,7 +2232,7 @@ export class NetworkAreaDiagramViewer {
         lineOperation: LineOperation
     ) {
         const edge: EdgeMetadata | undefined = this.diagramMetadata?.edges.find(
-            (edge) => edge.svgId == DiagramUtils.getEdgeId(this.linePointIndexMap, linePointElement)
+            (edge) => edge.svgId == this.linePointIndexMap.get(linePointElement.id)?.edgeId
         );
         if (edge) {
             if (position && lineOperation == LineOperation.BEND) {
@@ -2298,7 +2298,7 @@ export class NetworkAreaDiagramViewer {
         this.initialPosition = DiagramUtils.getPosition(linePoint);
 
         // get edge data
-        const edgeId = linePoint.id !== undefined ? DiagramUtils.getEdgeId(this.linePointIndexMap, linePoint) : '-1';
+        const edgeId = linePoint.id !== undefined ? this.linePointIndexMap.get(linePoint.id)?.edgeId : '-1';
         const edge: EdgeMetadata | undefined = this.diagramMetadata?.edges.find((edge) => edge.svgId == edgeId);
         if (!edge || (lineOperation == LineOperation.BEND && !edge.points)) {
             return;
@@ -2358,7 +2358,7 @@ export class NetworkAreaDiagramViewer {
     private callBendLineCallback(linePointElement: SVGGraphicsElement, lineOperation: LineOperation) {
         if (this.onBendLineCallback) {
             const edge: EdgeMetadata | undefined = this.diagramMetadata?.edges.find(
-                (edge) => edge.svgId == DiagramUtils.getEdgeId(this.linePointIndexMap, linePointElement)
+                (edge) => edge.svgId == this.linePointIndexMap.get(linePointElement.id)?.edgeId
             );
             if (edge) {
                 const linePoints: Point[] | null = edge.points
