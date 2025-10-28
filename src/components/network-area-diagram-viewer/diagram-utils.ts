@@ -77,10 +77,6 @@ export function isBendable(element: SVGElement): boolean {
     return element.classList.contains('nad-line-point');
 }
 
-export function getLinePointId(): string {
-    return crypto.randomUUID();
-}
-
 export function getBendableLines(edges: EdgeMetadata[] | undefined): EdgeMetadata[] {
     // group edges by edge ends
     const groupedEdges: Map<string, EdgeMetadata[]> = new Map<string, EdgeMetadata[]>();
@@ -143,7 +139,7 @@ export function createLinePointElement(
     linePointElement.appendChild(squareElement);
 
     if (!previewPoint && linePointIndexMap) {
-        linePointElement.id = getLinePointId();
+        linePointElement.id = crypto.randomUUID();
         linePointElement.classList.add('nad-line-point');
         linePointIndexMap.set(linePointElement.id, { edgeId: edgeId, index: index });
     }
