@@ -74,26 +74,7 @@ export function getBendableFrom(element: SVGElement): SVGElement | undefined {
 }
 
 export function isBendable(element: SVGElement): boolean {
-    return hasId(element) && element.parentNode != null && idIs(element.parentNode as SVGElement);
-}
-
-function idIs(element: SVGElement): boolean {
-    return element.id == 'lines-points';
-}
-
-export function getLinePointId(edgeId: string | undefined, index: number): string {
-    return edgeId + '-point-' + index;
-}
-
-export function getEdgeId(
-    linePointIndexMap: Map<SVGGElement, { edgeId: string; index: number }>,
-    linePoint: SVGGElement
-): string | undefined {
-    return linePointIndexMap.get(linePoint)?.edgeId;
-}
-
-export function getLinePointMapKey(edgeId: string, index: number): string {
-    return `${edgeId}:${index}`;
+    return element.classList.contains('nad-line-point');
 }
 
 export function getBendableLines(edges: EdgeMetadata[] | undefined): EdgeMetadata[] {
@@ -132,8 +113,7 @@ export function createLinePointElement(
     linePoint: Point,
     index: number,
     previewPoint?: boolean,
-    linePointIndexMap?: Map<SVGGElement, { edgeId: string; index: number }>,
-    linePointByEdgeIndexMap?: Map<string, SVGElement>
+    linePointIndexMap?: Map<string, { edgeId: string; index: number }>
 ): SVGElement {
     const linePointElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     linePointElement.setAttribute('transform', 'translate(' + getFormattedPoint(linePoint) + ')');
@@ -145,16 +125,15 @@ export function createLinePointElement(
     squareElement.setAttribute('y', '-8');
 
     if (previewPoint) {
-        linePointElement.id = `preview-${edgeId}-${index}`;
         linePointElement.classList.add('nad-line-point-preview');
     }
 
     linePointElement.appendChild(squareElement);
 
-    if (!previewPoint && linePointIndexMap && linePointByEdgeIndexMap) {
-        linePointElement.id = getLinePointId(edgeId, index);
-        linePointIndexMap.set(linePointElement, { edgeId: edgeId, index: index });
-        linePointByEdgeIndexMap.set(getLinePointMapKey(edgeId, index), linePointElement);
+    if (!previewPoint && linePointIndexMap) {
+        linePointElement.id = crypto.randomUUID();
+        linePointElement.classList.add('nad-line-point');
+        linePointIndexMap.set(linePointElement.id, { edgeId: edgeId, index: index });
     }
     return linePointElement;
 }
@@ -226,7 +205,7 @@ export function addPointToList(
         for (let i = 0; i < pointsMetadata.length - 1; i++) {
             const point1 = new Point(pointsMetadata[i].x, pointsMetadata[i].y);
             const point2 = new Point(pointsMetadata[i + 1].x, pointsMetadata[i + 1].y);
-            const distance = getDistanceFromSegment(bendPoint, point1, point2);
+            const distance = getSquareDistanceFromSegment(bendPoint, point1, point2);
             if (distance < minDistance) {
                 minDistance = distance;
                 index = i;
@@ -239,12 +218,16 @@ export function addPointToList(
     return { linePoints: pointsMetadata, index: index };
 }
 
-function getDistanceFromSegment(p: Point, a: Point, b: Point): number {
-    const param =
-        ((p.x - a.x) * (b.x - a.x) + (p.y - a.y) * (b.y - a.y)) / (Math.pow(b.x - a.x, 2) + Math.pow(b.y - a.y, 2));
+function getSquareDistanceFromSegment(p: Point, a: Point, b: Point): number {
+    const dx = b.x - a.x;
+    const dy = b.y - a.y;
+    const param = ((p.x - a.x) * dx + (p.y - a.y) * dy) / (dx ** 2 + dy ** 2);
     const xx = getValue(param, a.x, b.x);
     const yy = getValue(param, a.y, b.y);
-    return Math.sqrt(Math.pow(p.x - xx, 2) + Math.pow(p.y - yy, 2));
+    const distX = p.x - xx;
+    const distY = p.y - yy;
+
+    return distX ** 2 + distY ** 2;
 }
 
 function getValue(param: number, firstValue: number, secondValue: number): number {
@@ -537,7 +520,8 @@ function classIsContainerOfHoverables(element: SVGElement): boolean {
     return (
         element.classList.contains('nad-branch-edges') ||
         element.classList.contains('nad-3wt-edges') ||
-        element.classList.contains('nad-vl-nodes')
+        element.classList.contains('nad-vl-nodes') ||
+        element.classList.contains('nad-injections')
     );
 }
 // get radius of voltage level
@@ -706,6 +690,16 @@ export function isTextNode(element: SVGElement | null): boolean {
     return element != null && hasId(element) && element.classList.contains('nad-label-box');
 }
 
+// check if a DOM element is an injection
+export function isInjection(element: SVGElement | null): boolean {
+    return (
+        (element != null &&
+            hasId(element) &&
+            element.parentElement?.parentElement?.parentElement?.classList.contains('nad-injections')) ??
+        false
+    );
+}
+
 // check if a DOM element is a voltage level
 export function isVoltageLevelElement(element: SVGElement | null): boolean {
     return element != null && hasId(element) && element.parentElement?.classList.contains('nad-vl-nodes') === true;
@@ -794,6 +788,9 @@ export function getNodeMove(node: NodeMetadata, nodePosition: Point): NODEMOVE {
 // Function to check if the element is hoverable
 function isHoverable(element: SVGElement): boolean {
     if (isTextNode(element)) {
+        return true;
+    }
+    if (isInjection(element)) {
         return true;
     }
     return (

@@ -125,6 +125,10 @@ test('getDraggableFrom', () => {
     expect(draggagleElement).not.toBeUndefined();
     draggagleElement = DiagramUtils.getDraggableFrom(getSvgTextNode());
     expect(draggagleElement).not.toBeUndefined();
+
+    draggagleElement = DiagramUtils.getDraggableFrom(getSvgLinePointElement());
+    expect(draggagleElement).not.toBeUndefined();
+
     draggagleElement = DiagramUtils.getDraggableFrom(getSvgLoopEdge());
     expect(draggagleElement).toBeUndefined();
 });
@@ -573,20 +577,6 @@ test('getBendableFrom', () => {
     expect(bendableElement).toBeUndefined();
 });
 
-test('getLinePointId', () => {
-    expect(DiagramUtils.getLinePointId('1', 0)).toBe('1-point-0');
-    expect(DiagramUtils.getLinePointId('10', 2)).toBe('10-point-2');
-    expect(DiagramUtils.getLinePointId('5', 12)).toBe('5-point-12');
-});
-
-test('getEdgeId', () => {
-    const pointElement = getSvgLinePointElement() as SVGGElement;
-    const linePointMap = new Map<SVGGElement, { edgeId: string; index: number }>();
-    linePointMap.set(pointElement, { edgeId: '1', index: 0 });
-
-    expect(DiagramUtils.getEdgeId(linePointMap, pointElement)).toBe('1');
-});
-
 test('getBendableLines', () => {
     const edges: EdgeMetadata[] = [
         {
@@ -647,27 +637,6 @@ test('getEdgeMidPoint', () => {
     expect(midPoint).not.toBeNull();
     expect(midPoint?.x).toBe(-423.41);
     expect(midPoint?.y).toBe(184.65);
-});
-
-test('createLinePointElement', () => {
-    const linePointMap = new Map<SVGGElement, { edgeId: string; index: number }>();
-    const linePointByEdgeMap = new Map<string, SVGElement>();
-    const linePoint = DiagramUtils.createLinePointElement(
-        '1',
-        new Point(-5.15, 4.23),
-        -1,
-        false,
-        linePointMap,
-        linePointByEdgeMap
-    );
-    expect(linePoint).not.toBeUndefined();
-    expect(linePoint.id).toBe('1-point--1');
-    expect(linePoint.getAttribute('transform')).toBe('translate(-5.15,4.23)');
-    expect(linePointMap.has(linePoint as SVGGElement)).toBe(true);
-    expect(linePointMap.get(linePoint as SVGGElement)?.index).toBe(-1);
-    expect(linePointMap.get(linePoint as SVGGElement)?.edgeId).toBe('1');
-
-    expect(linePointByEdgeMap.get(DiagramUtils.getLinePointMapKey('1', -1))).toBe(linePoint);
 });
 
 test('getBendableLineFrom', () => {
@@ -850,8 +819,8 @@ function getSvgPath(): HTMLElement {
 
 function getSvgLinePointElement(): SVGGraphicsElement {
     const linePointSvg =
-        '<g id="lines-points">' +
-        '<g id="67-point" transform="translate(-679.99,-11.42)"><circle r="10"></circle></g></g>';
+        '<g class="nad-line-points">' +
+        '<g id="67-point" class="nad-line-point" transform="translate(-679.99,-11.42)"><circle r="10"></circle></g></g>';
     return <SVGGraphicsElement>SVG().svg(linePointSvg).node.firstElementChild?.firstElementChild;
 }
 

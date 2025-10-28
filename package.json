@@ -1,6 +1,6 @@
 {
     "name": "@powsybl/network-viewer",
-    "version": "1.13.0-dev.0",
+    "version": "2.1.0-dev.0",
     "description": "TypeScript library to integrate PowSyBl network viewers in a JavaScript project.",
     "author": "PowSyBl team",
     "homepage": "https://www.powsybl.org/",
@@ -62,7 +62,7 @@
     },
     "dependencies": {
         "@mapbox/mapbox-gl-draw": "<1.5.0",
-        "@powsybl/network-map-layers": "^1.7.1",
+        "@powsybl/network-map-layers": "^2.0.0",
         "@svgdotjs/svg.js": "^3.2.4",
         "@svgdotjs/svg.panzoom.js": "^2.1.2",
         "@turf/boolean-point-in-polygon": "^7.2.0",
@@ -78,8 +78,8 @@
         "@emotion/styled": "^11.14.0",
         "@mui/icons-material": "^5.16.14",
         "@mui/material": "^5.16.14",
-        "react": "^18.3.1",
-        "react-dom": "^18.3.1",
+        "react": "^19.2.0",
+        "react-dom": "^19.2.0",
         "react-intl": "^7.1.6"
     },
     "devDependencies": {
@@ -96,8 +96,8 @@
         "@types/license-checker": "^25.0.6",
         "@types/mapbox__mapbox-gl-draw": "^1.4.8",
         "@types/node": "^22.13.4",
-        "@types/react": "^18.3.18",
-        "@types/react-dom": "^18.3.5",
+        "@types/react": "^19.2.2",
+        "@types/react-dom": "^19.2.1",
         "@typescript-eslint/eslint-plugin": "^6.21.0",
         "@vitejs/plugin-react": "^4.3.4",
         "babel-jest": "^29.7.0",

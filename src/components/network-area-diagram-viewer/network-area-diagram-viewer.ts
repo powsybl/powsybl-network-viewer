@@ -8,7 +8,7 @@
 import { Point, SVG, ViewBoxLike, Svg } from '@svgdotjs/svg.js';
 import '@svgdotjs/svg.panzoom.js';
 import * as DiagramUtils from './diagram-utils';
-import { ElementType, getEdgeId, isTextNode, isVoltageLevelElement } from './diagram-utils';
+import { ElementType, isTextNode, isVoltageLevelElement } from './diagram-utils';
 import { SvgParameters, EdgeInfoEnum, CssLocationEnum } from './svg-parameters';
 import { LayoutParameters } from './layout-parameters';
 import {
@@ -115,8 +115,7 @@ export class NetworkAreaDiagramViewer {
     straightenedElement: SVGGraphicsElement | null = null;
     bendableLines: string[] = [];
 
-    linePointIndexMap = new Map<SVGGElement, { edgeId: string; index: number }>();
-    linePointByEdgeIndexMap = new Map<string, SVGGElement>();
+    linePointIndexMap = new Map<string, { edgeId: string; index: number }>();
 
     parallelBentElements: SVGGraphicsElement[] = [];
     parallelOffsets: Map<string, Point> = new Map();
@@ -433,7 +432,7 @@ export class NetworkAreaDiagramViewer {
         if (this.hasNodeInteraction() && hasMetadata) {
             // fill empty elements: unknown buses and three windings transformers
             const emptyElements: NodeListOf<SVGGraphicsElement> = this.svgDiv.querySelectorAll(
-                '.nad-unknown-busnode, .nad-3wt-nodes .nad-winding'
+                '.nad-unknown-busnode, .nad-3wt-nodes .nad-winding, g.nad-injections>g>g>g>g>circle'
             );
             emptyElements.forEach((emptyElement) => {
                 emptyElement.style.fill = '#0000';
@@ -658,7 +657,7 @@ export class NetworkAreaDiagramViewer {
             for (const parallelElement of this.parallelBentElements) {
                 const p2 = DiagramUtils.getPosition(parallelElement);
                 const offset = DiagramUtils.calculateParallelOffset(p1, p2);
-                const edgeId = DiagramUtils.getEdgeId(this.linePointIndexMap, parallelElement);
+                const edgeId = this.linePointIndexMap.get(parallelElement.id)?.edgeId;
                 if (edgeId) {
                     this.parallelOffsets.set(edgeId, offset);
                 }
@@ -752,6 +751,8 @@ export class NetworkAreaDiagramViewer {
 
         if (DiagramUtils.isHighlightableElement(hoverableElem)) {
             this.handleHighlightableElementHover(hoverableElem, mousePosition);
+        } else if (DiagramUtils.isInjection(hoverableElem)) {
+            this.handleInjectionHover(hoverableElem, mousePosition);
         } else {
             this.handleEdgeHover(hoverableElem, mousePosition);
         }
@@ -1264,12 +1265,8 @@ export class NetworkAreaDiagramViewer {
         const edgeData = this.getEdgeData(edge);
         this.redrawEdge(
             edgeNode,
-            edgeData.edgePoints != undefined
-                ? edgeData.edgePoints[0]
-                : [edgeData.edgeStartPoints[0], edgeData.edgeMiddle],
-            edgeData.edgePoints != undefined
-                ? edgeData.edgePoints[1]
-                : [edgeData.edgeStartPoints[1], edgeData.edgeMiddle],
+            edgeData.edgePoints ? edgeData.edgePoints[0] : [edgeData.edgeStartPoints[0], edgeData.edgeMiddle],
+            edgeData.edgePoints ? edgeData.edgePoints[1] : [edgeData.edgeStartPoints[1], edgeData.edgeMiddle],
             edgeData.nodeRadius1,
             edgeData.nodeRadius2,
             edgeType,
@@ -1291,10 +1288,6 @@ export class NetworkAreaDiagramViewer {
             // redraw other voltage level node
             const otherNode: SVGGraphicsElement | null = this.getOtherNode(edgeNodes, vlNode);
             this.redrawOtherVoltageLevelNode(otherNode);
-        }
-
-        if (this.bendLines && edge.points == undefined) {
-            this.moveLinePoint(edge.svgId, edgeData.edgeMiddle);
         }
     }
 
@@ -1759,33 +1752,8 @@ export class NetworkAreaDiagramViewer {
         }
         this.setPreviousMaxDisplayedSize(maxDisplayedSize);
 
-        //Workaround chromium (tested on edge and google-chrome 131) doesn't
-        //redraw things with percentages on viewbox changes but it should, so
-        //we force it. This is not strictly related to the enableLevelOfDetail
-        //and dynamic css feature, but it turns out that we use percentages in
-        //css only in the case where enableLevelOfDetail=true, so we can do the
-        //workaround here at each viewbox change until we have other needs or
-        //until we remove the workaround entirely. Firefox does correctly
-        //redraw, but we force for everyone to have the same behavior
-        //everywhere and detect problems more easily. We can't use
-        //innerHtml+='' on the <style> tags because values set with
-        //setProperty(key, value) in updateSvgCssDisplayValue are not reflected
-        //in the html text so the innerHTML trick has the effect of resetting
-        //them. So instead of doing it on the svg, we do it on all its children
-        //that are not style elements. This won't work if there are deeply
-        //nested style elements that need dynamic css rules but in practice
-        //only the root style element has dynamic rules so it's ok.
-        //TODO Remove this when chromium fixes their bug.
-        //TODO If this workaround causes problems, we can find a better way to
-        //force a redraw that doesnt change the elements in the dom.
         const innerSvg = svg.querySelector('svg');
         if (innerSvg) {
-            for (const child of innerSvg.children) {
-                // annoying, sometimes lowercase (html), sometimes uppercase (xml in xhtml or svg))
-                if (child.nodeName.toUpperCase() != 'STYLE') {
-                    child.innerHTML += '';
-                }
-            }
             const zoomLevel = this.getZoomLevel(maxDisplayedSize);
             const isZoomLevelClassDefined = [...innerSvg.classList].some((c) =>
                 c.startsWith(NetworkAreaDiagramViewer.ZOOM_CLASS_PREFIX)
@@ -2154,6 +2122,15 @@ export class NetworkAreaDiagramViewer {
         }
     }
 
+    private handleInjectionHover(element: SVGElement, mousePosition: Point) {
+        const injection = this.diagramMetadata?.injections?.find((inj) => inj.svgId === element.id);
+        if (injection) {
+            const equipmentId = injection.equipmentId ?? '';
+            const equipmentType = injection.componentType ?? '';
+            this.onToggleHoverCallback?.(true, mousePosition, equipmentId, equipmentType);
+        }
+    }
+
     private handleEdgeHover(element: SVGElement, mousePosition: Point): void {
         const edge = this.diagramMetadata?.edges.find((edge) => edge.svgId === element.id);
         if (edge) {
@@ -2240,7 +2217,6 @@ export class NetworkAreaDiagramViewer {
 
     private enableLineBending() {
         const linesPointsElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-        linesPointsElement.id = 'lines-points';
         linesPointsElement.classList.add('nad-line-points');
         const bendableEdges = DiagramUtils.getBendableLines(this.diagramMetadata?.edges);
         for (const edge of bendableEdges) {
@@ -2270,35 +2246,18 @@ export class NetworkAreaDiagramViewer {
         point: Point,
         linePointsElement?: SVGElement | null
     ): SVGElement {
-        linePointsElement ??= this.svgDraw?.node.querySelector('#lines-points');
-        const pointElement = DiagramUtils.createLinePointElement(
-            lineId,
-            point,
-            index,
-            false,
-            this.linePointIndexMap,
-            this.linePointByEdgeIndexMap
-        );
+        linePointsElement ??= this.svgDraw?.node.querySelector('.nad-line-points');
+        const pointElement = DiagramUtils.createLinePointElement(lineId, point, index, false, this.linePointIndexMap);
         linePointsElement?.appendChild(pointElement);
         return pointElement;
     }
 
     private disableLineBending() {
-        const linePointsElement = this.svgDraw?.node.querySelector('#lines-points');
+        const linePointsElement = this.svgDraw?.node.querySelector('.nad-line-points');
         linePointsElement?.remove();
         this.linePointIndexMap.clear();
-        this.linePointByEdgeIndexMap.clear();
         this.bendableLines = [];
         this.bendLines = false;
-    }
-
-    private moveLinePoint(svgId: string, newPosition: Point) {
-        const linePointElement: SVGGraphicsElement | undefined = this.linePointByEdgeIndexMap.get(
-            DiagramUtils.getLinePointMapKey(svgId, 0)
-        );
-        if (linePointElement) {
-            this.updateNodePosition(linePointElement, newPosition);
-        }
     }
 
     private createEdgeBendPoint(bendableElem: SVGElement | undefined, event: MouseEvent) {
@@ -2402,10 +2361,7 @@ export class NetworkAreaDiagramViewer {
         if (!bendableElem) {
             return;
         }
-        const edgeId =
-            bendableElem.id !== undefined
-                ? DiagramUtils.getEdgeId(this.linePointIndexMap, bendableElem as SVGGraphicsElement)
-                : '-1';
+        const edgeId = bendableElem.id ? this.linePointIndexMap.get(bendableElem.id)?.edgeId : '-1';
         const edge: EdgeMetadata | undefined = this.diagramMetadata?.edges.find((edge) => edge.svgId == edgeId);
         if (edge?.points == undefined) {
             return;
@@ -2424,7 +2380,7 @@ export class NetworkAreaDiagramViewer {
         lineOperation: LineOperation
     ) {
         const edge: EdgeMetadata | undefined = this.diagramMetadata?.edges.find(
-            (edge) => edge.svgId == DiagramUtils.getEdgeId(this.linePointIndexMap, linePointElement)
+            (edge) => edge.svgId == this.linePointIndexMap.get(linePointElement.id)?.edgeId
         );
         if (edge) {
             if (position && lineOperation == LineOperation.BEND) {
@@ -2436,7 +2392,7 @@ export class NetworkAreaDiagramViewer {
     }
 
     private updateEdgeMetadataWhenBending(edge: EdgeMetadata, linePointElement: SVGGraphicsElement, position: Point) {
-        const index = this.linePointIndexMap.get(linePointElement)?.index ?? -1;
+        const index = this.linePointIndexMap.get(linePointElement.id)?.index;
         if (index == -1) {
             // first time this point is added to metadata
             // get nodes for computing where to put the point in the list
@@ -2451,33 +2407,17 @@ export class NetworkAreaDiagramViewer {
                     position
                 );
                 edge.points = linePoints.linePoints;
-                // update line point elements with shifted index
-                for (let i = edge.points.length - 1; i > linePoints.index; i--) {
-                    const linePoint: SVGGraphicsElement | undefined = this.linePointByEdgeIndexMap.get(
-                        DiagramUtils.getLinePointMapKey(edge.svgId, i - 1)
-                    );
-                    if (linePoint) {
-                        // Delete old map entry
-                        this.linePointByEdgeIndexMap.delete(DiagramUtils.getLinePointMapKey(edge.svgId, i - 1));
-                        // Update maps with new index
-                        this.linePointIndexMap.set(linePoint, { edgeId: edge.svgId, index: i });
-                        this.linePointByEdgeIndexMap.set(DiagramUtils.getLinePointMapKey(edge.svgId, i), linePoint);
-                        linePoint.id = DiagramUtils.getLinePointId(edge.svgId, i);
+                this.linePointIndexMap.set(linePointElement.id, { edgeId: edge.svgId, index: linePoints.index });
+
+                for (const [key, value] of this.linePointIndexMap) {
+                    if (key !== linePointElement.id && value.edgeId == edge.svgId && value.index >= linePoints.index) {
+                        value.index++;
                     }
                 }
-                // Clean up the temporary -1
-                this.linePointByEdgeIndexMap.delete(DiagramUtils.getLinePointMapKey(edge.svgId, -1));
-                // update line point element
-                this.linePointIndexMap.set(linePointElement, { edgeId: edge.svgId, index: linePoints.index });
-                this.linePointByEdgeIndexMap.set(
-                    DiagramUtils.getLinePointMapKey(edge.svgId, linePoints.index),
-                    linePointElement
-                );
-                linePointElement.id = DiagramUtils.getLinePointId(edge.svgId, linePoints.index);
             }
         } else if (edge.points) {
             // update line point
-            edge.points[index] = { x: DiagramUtils.round(position.x), y: DiagramUtils.round(position.y) };
+            edge.points[index!] = { x: DiagramUtils.round(position.x), y: DiagramUtils.round(position.y) };
         } else {
             // it should not come here, anyway, add the new point
             edge.points = [{ x: DiagramUtils.round(position.x), y: DiagramUtils.round(position.y) }];
@@ -2485,19 +2425,12 @@ export class NetworkAreaDiagramViewer {
     }
 
     private updateEdgeMetadataWhenStraightening(edge: EdgeMetadata, linePointElement: SVGGraphicsElement) {
-        const index = this.linePointIndexMap.get(linePointElement)?.index ?? -1;
+        const index = this.linePointIndexMap.get(linePointElement.id)?.index ?? -1;
 
         if (edge.points) {
-            this.linePointByEdgeIndexMap.delete(DiagramUtils.getLinePointMapKey(edge.svgId, index));
-            for (let i = index + 1; i < edge.points.length; i++) {
-                const linePoint: SVGGraphicsElement | undefined = this.linePointByEdgeIndexMap.get(
-                    DiagramUtils.getLinePointMapKey(edge.svgId, i)
-                );
-                if (linePoint) {
-                    this.linePointByEdgeIndexMap.delete(DiagramUtils.getLinePointMapKey(edge.svgId, i));
-                    this.linePointIndexMap.set(linePoint, { edgeId: edge.svgId, index: i - 1 });
-                    this.linePointByEdgeIndexMap.set(DiagramUtils.getLinePointMapKey(edge.svgId, i - 1), linePoint);
-                    linePoint.id = DiagramUtils.getLinePointId(edge.svgId, i - 1);
+            for (const [key, value] of this.linePointIndexMap) {
+                if (key !== linePointElement.id && value.edgeId == edge.svgId && value.index >= index) {
+                    value.index--;
                 }
             }
             // delete point
@@ -2513,7 +2446,7 @@ export class NetworkAreaDiagramViewer {
         this.initialPosition = DiagramUtils.getPosition(linePoint);
 
         // get edge data
-        const edgeId = linePoint.id !== undefined ? DiagramUtils.getEdgeId(this.linePointIndexMap, linePoint) : '-1';
+        const edgeId = linePoint.id ? this.linePointIndexMap.get(linePoint.id)?.edgeId : '-1';
         const edge: EdgeMetadata | undefined = this.diagramMetadata?.edges.find((edge) => edge.svgId == edgeId);
         if (!edge || (lineOperation == LineOperation.BEND && !edge.points)) {
             return;
@@ -2537,10 +2470,10 @@ export class NetworkAreaDiagramViewer {
             // bend line
             this.redrawEdge(
                 edgeNode,
-                edgeData.edgePoints != undefined
+                edgeData.edgePoints
                     ? edgeData.edgePoints[0]
                     : [edgeData.edgeStartPoints[0], edgeData.edgeMiddle],
-                edgeData.edgePoints != undefined
+                edgeData.edgePoints
                     ? edgeData.edgePoints[1]
                     : [edgeData.edgeStartPoints[1], edgeData.edgeMiddle],
                 edgeData.nodeRadius1,
@@ -2554,12 +2487,12 @@ export class NetworkAreaDiagramViewer {
         this.redrawOtherVoltageLevelNode(vlNode2);
         if (edge.points && lineOperation == LineOperation.BEND) {
             // move line point
-            const index = this.linePointIndexMap.get(linePoint)?.index ?? 0;
+            const index = this.linePointIndexMap.get(linePoint.id)?.index ?? 0;
             const position: Point = new Point(edge.points[index].x, edge.points[index].y);
             this.updateNodePosition(linePoint, position);
         } else {
             linePoint.remove();
-            this.linePointIndexMap.delete(linePoint);
+            this.linePointIndexMap.delete(linePoint.id);
         }
     }
 
@@ -2603,7 +2536,7 @@ export class NetworkAreaDiagramViewer {
     private callBendLineCallback(linePointElement: SVGGraphicsElement, lineOperation: LineOperation) {
         if (this.onBendLineCallback) {
             const edge: EdgeMetadata | undefined = this.diagramMetadata?.edges.find(
-                (edge) => edge.svgId == DiagramUtils.getEdgeId(this.linePointIndexMap, linePointElement)
+                (edge) => edge.svgId == this.linePointIndexMap.get(linePointElement.id)?.edgeId
             );
             if (edge) {
                 const linePoints: Point[] | null = edge.points
@@ -2667,10 +2600,9 @@ export class NetworkAreaDiagramViewer {
         const previewPoints = this.calculateEdgeSegmentMidpoints(edge);
         if (previewPoints.length === 0) return;
 
-        let previewContainer = this.svgDraw?.node.querySelector('#edge-preview-points');
+        let previewContainer = this.svgDraw?.node.querySelector('.nad-edge-preview-points');
         if (!previewContainer) {
             previewContainer = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-            previewContainer.id = 'edge-preview-points';
             previewContainer.classList.add('nad-edge-preview-points');
             this.svgDraw?.node.firstElementChild?.appendChild(previewContainer);
         }
@@ -2809,7 +2741,7 @@ export class NetworkAreaDiagramViewer {
     }
 
     private hideEdgePreviewPoints(): void {
-        const previewContainer = this.svgDraw?.node.querySelector('#edge-preview-points');
+        const previewContainer = this.svgDraw?.node.querySelector('.nad-edge-preview-points');
         if (previewContainer) {
             previewContainer.remove();
         }
