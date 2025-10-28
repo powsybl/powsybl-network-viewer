@@ -1135,19 +1135,38 @@ export class NetworkAreaDiagramViewer {
         const point1 = DiagramUtils.getPosition(edgeNodes[0]);
         const point2 = DiagramUtils.getPosition(edgeNodes[1]);
 
-        // Calculate reference angles based on the first edge's bend points (if any)
-        // All parallel edges will use these same reference angles to maintain parallelism
+        // Calculate reference angles based on the centroid of all parallel edges' bend points
         let angle1: number;
         let angle2: number;
         if (edges[0].points && edges[0].points.length > 0) {
-            // Fork should point towards first bend point on each side
-            const firstBendPoint = new Point(edges[0].points[0].x, edges[0].points[0].y);
-            const lastBendPoint = new Point(
-                edges[0].points[edges[0].points.length - 1].x,
-                edges[0].points[edges[0].points.length - 1].y
-            );
-            angle1 = DiagramUtils.getAngle(point1, firstBendPoint);
-            angle2 = DiagramUtils.getAngle(point2, lastBendPoint);
+            // Fork should point towards the center of all parallel lines at bend point level
+            let sumFirstX = 0,
+                sumFirstY = 0;
+            let sumLastX = 0,
+                sumLastY = 0;
+            let count = 0;
+
+            edges.forEach((edge) => {
+                if (edge.points && edge.points.length > 0) {
+                    sumFirstX += edge.points[0].x;
+                    sumFirstY += edge.points[0].y;
+                    sumLastX += edge.points[edge.points.length - 1].x;
+                    sumLastY += edge.points[edge.points.length - 1].y;
+                    count++;
+                }
+            });
+
+            if (count > 0) {
+                const centerFirstBendPoint = new Point(sumFirstX / count, sumFirstY / count);
+                const centerLastBendPoint = new Point(sumLastX / count, sumLastY / count);
+                angle1 = DiagramUtils.getAngle(point1, centerFirstBendPoint);
+                angle2 = DiagramUtils.getAngle(point2, centerLastBendPoint);
+            } else {
+                // Fallback to traditional angle if no bend points found
+                const angle = DiagramUtils.getAngle(point1, point2);
+                angle1 = angle;
+                angle2 = angle + Math.PI;
+            }
         } else {
             // No bend points: use traditional node-to-node angle
             const angle = DiagramUtils.getAngle(point1, point2);
@@ -2292,69 +2311,68 @@ export class NetworkAreaDiagramViewer {
         this.parallelBentElements = [];
         this.parallelOffsets.clear();
 
+        // Create the bend point on the master edge at mouse position
         const pointElement1 = this.addLinePoint(selectedEdge.svgId, -1, mousePosition);
         this.updateEdgeMetadata(pointElement1 as SVGGraphicsElement, mousePosition, LineOperation.BEND);
 
+        // Get the index of the newly created bend point
+        const masterPointData = this.linePointIndexMap.get(pointElement1.id);
+        if (!masterPointData) {
+            this.initDrag(pointElement1);
+            this.onDragStart();
+            return;
+        }
+
+        // Get adjacent points for the master edge
+        const masterAdjacentPoints = this.getAdjacentPoints(selectedEdge, masterPointData.index);
+        if (!masterAdjacentPoints) {
+            this.initDrag(pointElement1);
+            this.onDragStart();
+            return;
+        }
+
+        // Create parallel bend points on slave edges using line intersection
         for (const parallelEdge of parallelGroup) {
             if (parallelEdge.svgId === selectedEdge.svgId) {
                 continue;
             }
 
-            const parallelOffset = this.calculateLocalParallelOffset(selectedEdge, parallelEdge, mousePosition);
-            if (!parallelOffset) {
+            const pointElement = this.addLinePoint(parallelEdge.svgId, -1, mousePosition);
+            this.updateEdgeMetadata(pointElement as SVGGraphicsElement, mousePosition, LineOperation.BEND);
+
+            const slavePointData = this.linePointIndexMap.get(pointElement.id);
+            if (!slavePointData) {
                 continue;
             }
 
-            const position = new Point(mousePosition.x + parallelOffset.x, mousePosition.y + parallelOffset.y);
-            const pointElement = this.addLinePoint(parallelEdge.svgId, -1, position);
-            this.updateEdgeMetadata(pointElement as SVGGraphicsElement, position, LineOperation.BEND);
+            const slaveAdjacentPoints = this.getAdjacentPoints(parallelEdge, slavePointData.index);
+            if (!slaveAdjacentPoints) {
+                continue;
+            }
+
+            const parallelPosition = DiagramUtils.calculateParallelBendPoint(
+                masterAdjacentPoints.prevPoint,
+                mousePosition,
+                masterAdjacentPoints.nextPoint,
+                slaveAdjacentPoints.prevPoint,
+                slaveAdjacentPoints.nextPoint
+            );
+
+            if (!parallelPosition) {
+                continue;
+            }
+
+            this.updateEdgeMetadata(pointElement as SVGGraphicsElement, parallelPosition, LineOperation.BEND);
+
+            this.redrawBentLine(pointElement as SVGGraphicsElement, LineOperation.BEND);
+
+            pointElement.setAttribute('transform', 'translate(' + DiagramUtils.getFormattedPoint(parallelPosition) + ')');
 
             this.parallelBentElements.push(pointElement as SVGGraphicsElement);
-            this.parallelOffsets.set(parallelEdge.svgId, parallelOffset);
         }
 
         this.initDrag(pointElement1);
         this.onDragStart();
-    }
-
-    private findClosestPreviewPointIndex(previewPoints: Point[], mousePosition: Point): number {
-        let closestIndex = 0;
-        let minDistance = Number.MAX_VALUE;
-        for (let i = 0; i < previewPoints.length; i++) {
-            const distance = Math.hypot(mousePosition.x - previewPoints[i].x, mousePosition.y - previewPoints[i].y);
-            if (distance < minDistance) {
-                minDistance = distance;
-                closestIndex = i;
-            }
-        }
-        return closestIndex;
-    }
-
-    private calculateLocalParallelOffset(
-        selectedEdge: EdgeMetadata,
-        parallelEdge: EdgeMetadata,
-        mousePosition: Point
-    ): Point | null {
-        const previewPointsSelected = this.calculateParallelEdgeSegmentMidpoints(selectedEdge);
-        const previewPointsParallel = this.calculateParallelEdgeSegmentMidpoints(parallelEdge);
-
-        if (previewPointsSelected.length > 0 && previewPointsParallel.length > 0) {
-            const closestIndex = this.findClosestPreviewPointIndex(previewPointsSelected, mousePosition);
-            if (closestIndex < previewPointsParallel.length) {
-                return DiagramUtils.calculateParallelOffset(
-                    previewPointsSelected[closestIndex],
-                    previewPointsParallel[closestIndex]
-                );
-            }
-        }
-
-        const middleSelectedEdge = DiagramUtils.getEdgeMidPointPosition(selectedEdge.svgId, this.svgDiv);
-        const middleParallelEdge = DiagramUtils.getEdgeMidPointPosition(parallelEdge.svgId, this.svgDiv);
-        if (middleSelectedEdge && middleParallelEdge) {
-            return DiagramUtils.calculateParallelOffset(middleSelectedEdge, middleParallelEdge);
-        }
-
-        return null;
     }
 
     private onStraightenStart(bendableElem: SVGElement | undefined) {
@@ -2710,9 +2728,6 @@ export class NetworkAreaDiagramViewer {
     private showEdgePreviewPoints(edge: EdgeMetadata): void {
         if (!edge.svgId) return;
 
-        const previewPoints = this.calculateEdgeSegmentMidpoints(edge);
-        if (previewPoints.length === 0) return;
-
         let previewContainer = this.svgDraw?.node.querySelector('.nad-edge-preview-points');
         if (!previewContainer) {
             previewContainer = document.createElementNS('http://www.w3.org/2000/svg', 'g');
@@ -2722,16 +2737,20 @@ export class NetworkAreaDiagramViewer {
 
         previewContainer.innerHTML = '';
 
+        // Check if this edge is part of a parallel group (fork edges)
         const parallelGroup = DiagramUtils.getParallelEdgeGroup(edge.svgId, this.diagramMetadata?.edges);
+
         if (parallelGroup) {
+            // For fork edges, show preview points for all parallel edges in the group
             for (const parallelEdge of parallelGroup) {
-                const previewPoints = this.calculateParallelEdgeSegmentMidpoints(parallelEdge);
+                const previewPoints = this.calculateEdgeSegmentMidpoints(parallelEdge);
                 for (const [index, point] of previewPoints.entries()) {
                     const previewPoint = DiagramUtils.createLinePointElement(parallelEdge.svgId, point, index, true);
                     previewContainer?.appendChild(previewPoint);
                 }
             }
         } else {
+            // For non-fork edges, use standard calculation
             const previewPoints = this.calculateEdgeSegmentMidpoints(edge);
             for (const [index, point] of previewPoints.entries()) {
                 const previewPoint = DiagramUtils.createLinePointElement(edge.svgId, point, index, true);
@@ -2774,58 +2793,75 @@ export class NetworkAreaDiagramViewer {
         };
     }
 
-    private calculateParallelEdgeSegmentMidpoints(edge: EdgeMetadata): Point[] {
-        const midpoints: Point[] = [];
-
+    private getEdgeEndpoints(edge: EdgeMetadata): [Point, Point] | null {
         const parallelGroup = DiagramUtils.getParallelEdgeGroup(edge.svgId, this.diagramMetadata?.edges);
+
         if (parallelGroup) {
-            const halfEdge1: SVGGraphicsElement | null = this.svgDiv.querySelector(`[id='${edge.svgId}.1']`);
-            const halfEdge2: SVGGraphicsElement | null = this.svgDiv.querySelector(`[id='${edge.svgId}.2']`);
+            // Fork edge: read fork points from rendered SVG
+            const halfEdge1 = this.svgDiv.querySelector(`[id='${edge.svgId}.1']`);
+            const halfEdge2 = this.svgDiv.querySelector(`[id='${edge.svgId}.2']`);
 
-            if (halfEdge1 && halfEdge2) {
-                const polyline1 = halfEdge1.querySelector('polyline');
-                const polyline2 = halfEdge2.querySelector('polyline');
-
-                if (polyline1 && polyline2) {
-                    const points1 = DiagramUtils.getPolylinePoints(<HTMLElement>(<unknown>polyline1));
-                    const points2 = DiagramUtils.getPolylinePoints(<HTMLElement>(<unknown>polyline2));
-
-                    if (points1 && points2) {
-                        // Exclude fork segments: skip first point of each half-edge
-                        const allPoints: Point[] = [...points1.slice(1), ...points2.slice(1, 2)];
-
-                        for (let i = 0; i < allPoints.length - 1; i++) {
-                            midpoints.push(DiagramUtils.getMidPosition(allPoints[i], allPoints[i + 1]));
-                        }
-                    }
-                }
+            if (!halfEdge1 || !halfEdge2) {
+                return null;
             }
+
+            const polyline1 = halfEdge1.querySelector('polyline');
+            const polyline2 = halfEdge2.querySelector('polyline');
+
+            if (!polyline1 || !polyline2) {
+                return null;
+            }
+
+            const points1 = DiagramUtils.getPolylinePoints(<HTMLElement>(<unknown>polyline1));
+            const points2 = DiagramUtils.getPolylinePoints(<HTMLElement>(<unknown>polyline2));
+
+            if (!points1 || !points2 || points1.length < 2 || points2.length < 2) {
+                return null;
+            }
+
+            const forkPoint1 = points1[1];
+            const forkPoint2 = points2[1];
+
+            return [forkPoint1, forkPoint2];
+        } else {
+            // Non-fork edge: use voltage level centers
+            const node1 = this.diagramMetadata?.nodes.find((node) => node.svgId == edge.node1);
+            const node2 = this.diagramMetadata?.nodes.find((node) => node.svgId == edge.node2);
+
+            if (!node1 || !node2) {
+                return null;
+            }
+
+            return [new Point(node1.x, node1.y), new Point(node2.x, node2.y)];
         }
-        return midpoints;
     }
 
     private calculateEdgeSegmentMidpoints(edge: EdgeMetadata): Point[] {
         if (!edge.node1 || !edge.node2) return [];
+
+        const endpoints = this.getEdgeEndpoints(edge);
+        if (!endpoints) return [];
+
+        const [startPoint, endPoint] = endpoints;
         const midpoints: Point[] = [];
 
-        const startPoints = this.getEdgeStartPoints(edge);
-        if (!startPoints) return [];
-
         if (edge.points && edge.points.length > 0) {
-            const previousPoint = startPoints[0];
+            // First segment: startPoint -> first bend point
+            midpoints.push(DiagramUtils.getMidPosition(startPoint, new Point(edge.points[0].x, edge.points[0].y)));
 
-            midpoints.push(DiagramUtils.getMidPosition(previousPoint, new Point(edge.points[0].x, edge.points[0].y)));
-
+            // Segments between bend points
             for (let i = 0; i < edge.points.length - 1; i++) {
                 const current = new Point(edge.points[i].x, edge.points[i].y);
                 const next = new Point(edge.points[i + 1].x, edge.points[i + 1].y);
                 midpoints.push(DiagramUtils.getMidPosition(current, next));
             }
 
-            const lastPoint = new Point(edge.points.at(-1)!.x, edge.points.at(-1)!.y);
-            midpoints.push(DiagramUtils.getMidPosition(lastPoint, startPoints[1]));
+            // Last segment: last bend point -> endPoint
+            const lastBend = new Point(edge.points.at(-1)!.x, edge.points.at(-1)!.y);
+            midpoints.push(DiagramUtils.getMidPosition(lastBend, endPoint));
         } else {
-            midpoints.push(DiagramUtils.getMidPosition(startPoints[0], startPoints[1]));
+            // No bend points: single segment from start to end
+            midpoints.push(DiagramUtils.getMidPosition(startPoint, endPoint));
         }
 
         return midpoints;
