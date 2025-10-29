@@ -5,8 +5,33 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import type { LiteralUnion } from 'type-fest';
-import PropTypes from 'prop-types';
+import { MapboxOverlay, type MapboxOverlayProps } from '@deck.gl/mapbox';
+import type MapboxDraw from '@mapbox/mapbox-gl-draw';
+import { Replay } from '@mui/icons-material';
+import { Box, Button, type ButtonProps, decomposeColor, useTheme } from '@mui/material';
+import {
+    EQUIPMENT_TYPES,
+    GeoData,
+    getNominalVoltageColor as getDefaultNominalVoltageColor,
+    LineFlowColorMode,
+    LineFlowMode,
+    LineLayer,
+    type LineLayerProps,
+    type MapAnyLineWithType,
+    type MapEquipment,
+    MapEquipments,
+    type MapHvdcLine,
+    type MapLine,
+    type MapSubstation,
+    type MapTieLine,
+    type MapVoltageLevel,
+    SubstationLayer,
+} from '@powsybl/network-map-layers';
+import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
+import { type Layer, type PickingInfo } from 'deck.gl';
+import type { Feature, Polygon } from 'geojson';
+import mapboxgl, { type MapLayerMouseEvent as MapBoxLayerMouseEvent } from 'mapbox-gl';
+import maplibregl, { type MapLayerMouseEvent as MapLibreLayerMouseEvent } from 'maplibre-gl';
 import {
     forwardRef,
     memo,
@@ -19,9 +44,6 @@ import {
     useRef,
     useState,
 } from 'react';
-import { Box, Button, type ButtonProps, decomposeColor, useTheme } from '@mui/material';
-import { MapboxOverlay, type MapboxOverlayProps } from '@deck.gl/mapbox';
-import { Replay } from '@mui/icons-material';
 import { FormattedMessage } from 'react-intl';
 import {
     Map,
@@ -31,33 +53,14 @@ import {
     useControl,
     type ViewState,
 } from 'react-map-gl/mapbox-legacy';
-import type { Feature, Polygon } from 'geojson';
-import { type Layer, type PickingInfo } from 'deck.gl';
-import type MapboxDraw from '@mapbox/mapbox-gl-draw';
-import { getNominalVoltageColor } from '../../../utils/colors';
+import type { LiteralUnion } from 'type-fest';
 import { useNameOrId } from '../utils/equipmentInfosHandler';
-import { GeoData } from './geo-data';
-import DrawControl, { type DrawControlProps } from './draw-control';
-import LineLayer, { LineFlowColorMode, LineFlowMode, type LineLayerProps } from './line-layer';
-import { MapEquipments } from './map-equipments';
-import SubstationLayer from './substation-layer';
-import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
 import LoaderWithOverlay from '../utils/loader-with-overlay';
-import mapboxgl, { type MapLayerMouseEvent as MapBoxLayerMouseEvent } from 'mapbox-gl';
+import DrawControl, { type DrawControlProps } from './draw-control';
+
 import 'mapbox-gl/dist/mapbox-gl.css';
-import maplibregl, { type MapLayerMouseEvent as MapLibreLayerMouseEvent } from 'maplibre-gl';
-import 'maplibre-gl/dist/maplibre-gl.css';
 import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
-import {
-    EQUIPMENT_TYPES,
-    type MapAnyLineWithType,
-    type MapEquipment,
-    type MapHvdcLine,
-    type MapLine,
-    type MapSubstation,
-    type MapTieLine,
-    type MapVoltageLevel,
-} from '../../../equipment-types';
+import 'maplibre-gl/dist/maplibre-gl.css';
 
 // MouseEvent.button https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/button
 const MOUSE_EVENT_BUTTON_LEFT = 0;
@@ -169,7 +172,7 @@ export type NetworkMapProps = {
     lineFlowMode?: LineFlowMode;
     lineFullPath?: boolean;
     lineParallelPath?: boolean;
-    renderPopover?: (equipmentId: string, divRef: RefObject<HTMLDivElement>) => ReactNode;
+    renderPopover?: (equipmentId: string, divRef: RefObject<HTMLDivElement | null>) => ReactNode;
     tooltipZoomThreshold?: number;
     // With mapboxgl v2 (not a problem with maplibre), we need to call
     // map.resize() when the parent size has changed, otherwise the map is not
@@ -195,6 +198,7 @@ export type NetworkMapProps = {
     onDrawPolygonModeActive?: DrawControlProps['onDrawPolygonModeActive'];
     onPolygonChanged?: (polygoneFeature: Feature | Record<string, never>) => void;
     onDrawEvent?: (drawEvent: DRAW_EVENT) => void;
+    getNominalVoltageColor?: typeof getDefaultNominalVoltageColor;
 };
 
 export type NetworkMapRef = {
@@ -203,6 +207,7 @@ export type NetworkMapRef = {
     cleanDraw: () => void;
     getMapDrawer: () => MapboxDraw | undefined;
     resetZoomAndPosition: () => void;
+    getCurrentViewState: () => { zoom: number; center: { lng: number; lat: number } } | null;
 };
 
 const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) => {
@@ -215,8 +220,8 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
         arrowsZoomThreshold: rawProps.arrowsZoomThreshold ?? 7,
         disabled: rawProps.disabled ?? false,
         displayOverlayLoader: rawProps.displayOverlayLoader ?? false,
-        initialPosition: rawProps.initialPosition ?? [0, 0],
-        initialZoom: rawProps.initialZoom ?? 5,
+        initialPosition: rawProps.initialPosition,
+        initialZoom: rawProps.initialZoom,
         isManualRefreshBackdropDisplayed: rawProps.isManualRefreshBackdropDisplayed ?? false,
         labelsZoomThreshold: rawProps.labelsZoomThreshold ?? 9,
         lineFlowAlertThreshold: rawProps.lineFlowAlertThreshold ?? 100,
@@ -248,6 +253,7 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
         //onDrawPolygonModeActive = (active) => console.log('polygon drawing mode active: ', active ? 'active' : 'inactive'),
         onPolygonChanged: rawProps.onPolygonChanged ?? (() => {}),
         onDrawEvent: rawProps.onDrawEvent ?? (() => {}),
+        getNominalVoltageColor: rawProps.getNominalVoltageColor ?? getDefaultNominalVoltageColor,
     };
 
     const [labelsVisible, setLabelsVisible] = useState(false);
@@ -256,7 +262,7 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
     const mapRef = useRef<MapRef>(null); //TODO replaced since v7.? by https://visgl.github.io/react-map-gl/docs/api-reference/mapbox/use-map
     const deckRef = useRef<MapboxOverlay>(null);
     const [centered, setCentered] = useState(INITIAL_CENTERED);
-    const lastViewStateRef = useRef<ViewState>();
+    const lastViewStateRef = useRef<ViewState>(undefined);
     const [tooltip, setTooltip] = useState<TooltipType | null>(null);
     const theme = useTheme();
     const foregroundNeutralColor = useMemo(() => {
@@ -358,6 +364,10 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
                         centeredSubstationId: centered.centeredSubstationId,
                         centered: true,
                     });
+                } else if (props.initialPosition && props.initialZoom) {
+                    // if we have initial view state (initialPosition and initialZoom props)
+                    // no need to do anything
+                    return;
                 } else {
                     // @ts-expect-error TODO: manage undefined case
                     const coords = Array.from(props.geoData?.substationPositionsById.entries()).map((x) => x[1]);
@@ -574,7 +584,7 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
                 data: props.mapEquipments?.substations,
                 network: props.mapEquipments,
                 geoData: props.geoData,
-                getNominalVoltageColor: getNominalVoltageColor,
+                getNominalVoltageColor: props.getNominalVoltageColor,
                 filteredNominalVoltages: props.filteredNominalVoltages,
                 labelsVisible: labelsVisible,
                 labelColor: foregroundNeutralColor,
@@ -597,7 +607,7 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
                 network: props.mapEquipments,
                 updatedLines: props.updatedLines,
                 geoData: props.geoData,
-                getNominalVoltageColor: getNominalVoltageColor,
+                getNominalVoltageColor: props.getNominalVoltageColor,
                 disconnectedLineColor: foregroundNeutralColor,
                 filteredNominalVoltages: props.filteredNominalVoltages,
                 lineFlowMode: props.lineFlowMode,
@@ -631,9 +641,9 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
     }
 
     const initialViewState = {
-        longitude: props.initialPosition[0],
-        latitude: props.initialPosition[1],
-        zoom: props.initialZoom,
+        longitude: props.initialPosition?.[0] ?? 0,
+        latitude: props.initialPosition?.[1] ?? 0,
+        zoom: props.initialZoom ?? 5,
         maxZoom: 14,
         pitch: 0,
         bearing: 0,
@@ -747,6 +757,17 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
         setCentered(INITIAL_CENTERED);
     }, []);
 
+    const getCurrentViewState = useCallback(() => {
+        const map = mapRef.current;
+        if (!map) {
+            return null;
+        }
+        return {
+            zoom: map.getZoom(),
+            center: map.getCenter(),
+        };
+    }, []);
+
     useImperativeHandle(
         ref,
         () => ({
@@ -762,8 +783,16 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
                 return drawControlRef.current;
             },
             resetZoomAndPosition,
+            getCurrentViewState,
         }),
-        [onPolygonChanged, resetZoomAndPosition, getSelectedSubstations, getSelectedLines, onDrawEvent]
+        [
+            onPolygonChanged,
+            resetZoomAndPosition,
+            getSelectedSubstations,
+            getSelectedLines,
+            onDrawEvent,
+            getCurrentViewState,
+        ]
     );
 
     const onDelete = useCallback(() => {
@@ -845,56 +874,6 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
         )
     );
 });
-
-NetworkMap.propTypes = {
-    disabled: PropTypes.bool,
-    geoData: PropTypes.instanceOf(GeoData),
-    mapBoxToken: PropTypes.string,
-    mapEquipments: PropTypes.instanceOf(MapEquipments),
-    mapLibrary: PropTypes.oneOf([CARTO, CARTO_NOLABEL, MAPBOX, ETALAB]),
-    mapTheme: PropTypes.oneOf([LIGHT, DARK]),
-
-    areFlowsValid: PropTypes.bool,
-    arrowsZoomThreshold: PropTypes.number,
-    centerOnSubstation: PropTypes.any,
-    displayOverlayLoader: PropTypes.bool,
-    filteredNominalVoltages: PropTypes.array,
-    initialPosition: PropTypes.any,
-    initialZoom: PropTypes.number,
-    isManualRefreshBackdropDisplayed: PropTypes.bool,
-    labelsZoomThreshold: PropTypes.number,
-    lineFlowAlertThreshold: PropTypes.number,
-    lineFlowColorMode: PropTypes.oneOf(Object.values(LineFlowColorMode)),
-    lineFlowMode: PropTypes.oneOf(Object.values(LineFlowMode)),
-    lineFullPath: PropTypes.bool,
-    lineParallelPath: PropTypes.bool,
-    renderPopover: PropTypes.func,
-    tooltipZoomThreshold: PropTypes.number,
-    // With mapboxgl v2 (not a problem with maplibre), we need to call
-    // map.resize() when the parent size has changed, otherwise the map is not
-    // redrawn. It seems like this is autodetected when the browser window is
-    // resized, but not for programmatic resizes of the parent. For now in our
-    // app, only study display mode resizes programmatically
-    // use this prop to make the map resize when needed, each time this prop changes, map.resize() is trigged
-    triggerMapResizeOnChange: PropTypes.any,
-    updatedLines: PropTypes.array,
-    useName: PropTypes.bool,
-    visible: PropTypes.bool,
-    shouldDisableToolTip: PropTypes.bool,
-    locateSubStationZoomLevel: PropTypes.number,
-    enablePitchAndRotate: PropTypes.bool,
-    onHvdcLineMenuClick: PropTypes.func,
-    onLineMenuClick: PropTypes.func,
-    onTieLineMenuClick: PropTypes.func,
-    onManualRefreshClick: PropTypes.func,
-    onSubstationClick: PropTypes.func,
-    onSubstationClickChooseVoltageLevel: PropTypes.func,
-    onSubstationMenuClick: PropTypes.func,
-    onVoltageLevelMenuClick: PropTypes.func,
-    onDrawPolygonModeActive: PropTypes.func,
-    onPolygonChanged: PropTypes.func,
-    onDrawEvent: PropTypes.func,
-};
 
 //TODO why is the FunctionComponent memoized?! It never change and useMemo!=useCallback
 export default memo(NetworkMap);

@@ -131,6 +131,12 @@ export default function App() {
                                         </div>
                                     );
                                 }}
+                                getNominalVoltageColor={(nominalVoltage: number) => {
+                                    if (nominalVoltage >= 200) {
+                                        return [255, 0, 0]; // Red for high voltage
+                                    }
+                                    return [0, 0, 255]; // Blue for others
+                                }}
                             />
                             <button onClick={() => networkMapRef.current?.resetZoomAndPosition()}>
                                 Reset zoom and position
