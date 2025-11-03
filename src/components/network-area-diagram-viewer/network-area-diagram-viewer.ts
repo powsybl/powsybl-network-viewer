@@ -26,6 +26,7 @@ import {
     OnRightClickCallbackType,
     OnSelectNodeCallbackType,
     OnToggleNadHoverCallbackType,
+    OnBendLineCallbackType,
     NadViewerParameters,
     NadViewerParametersOptions,
 } from './nad-viewer-parameters';
@@ -47,6 +48,17 @@ export type VoltageLevelState = {
         angle: number;
     }[];
 };
+
+export enum LineOperation {
+    BEND,
+    STRAIGHTEN,
+}
+
+export enum DraggedElementType {
+    VOLTAGE_LEVEL_NODE,
+    TEXT_NODE,
+    BENT_SQUARE,
+}
 
 // update css rules when zoom changes by this amount. This allows to not
 // update when only translating (when translating, round errors lead to
@@ -82,7 +94,7 @@ export class NetworkAreaDiagramViewer {
     layoutParameters: LayoutParameters;
     nadViewerParameters: NadViewerParameters;
     edgeAngles: Map<string, number> = new Map<string, number>();
-    textNodeSelected: boolean = false;
+    draggedElementType: DraggedElementType | null = null;
     enableDragInteraction: boolean = false;
     isDragging: boolean = false;
     endTextEdge: Point = new Point(0, 0);
@@ -98,6 +110,12 @@ export class NetworkAreaDiagramViewer {
     originalTextNodeConnectionShift: Point = new Point(0, 0);
     lastZoomLevel: number = 0;
     zoomLevels: number[] = [0, 1000, 2200, 2500, 3000, 4000, 9000, 12000, 20000];
+    bendLines: boolean = false;
+    onBendLineCallback: OnBendLineCallbackType | null;
+    straightenedElement: SVGGraphicsElement | null = null;
+    bendableLines: string[] = [];
+
+    linePointIndexMap = new Map<string, { edgeId: string; index: number }>();
 
     static readonly ZOOM_CLASS_PREFIX = 'nad-zoom-';
 
@@ -129,6 +147,7 @@ export class NetworkAreaDiagramViewer {
         this.onRightClickCallback = this.nadViewerParameters.getOnRightClickCallback();
         this.onSelectNodeCallback = this.nadViewerParameters.getOnSelectNodeCallback();
         this.onToggleHoverCallback = this.nadViewerParameters.getOnToggleHoverCallback();
+        this.onBendLineCallback = this.nadViewerParameters.getOnBendingLineCallback();
         this.zoomLevels = this.nadViewerParameters.getZoomLevels();
         this.zoomLevels.sort((a, b) => b - a);
         this.init();
@@ -296,6 +315,7 @@ export class NetworkAreaDiagramViewer {
         if (this.nadViewerParameters.getAddButtons()) {
             nadViewerDiv.appendChild(this.getZoomButtonsBar());
             nadViewerDiv.appendChild(this.getActionButtonsBar());
+            nadViewerDiv.appendChild(this.getEditButtonBar());
         }
 
         // add svg div
@@ -544,21 +564,24 @@ export class NetworkAreaDiagramViewer {
         });
     }
     private onMouseLeftDown(event: MouseEvent) {
-        // Nodes are selectable and draggable
-        // TextNodes are only draggable
         const targetElement = event.target as SVGElement;
         const selectableElem = DiagramUtils.getSelectableFrom(targetElement);
         const draggableElem = DiagramUtils.getDraggableFrom(targetElement);
 
         if (event.shiftKey) {
-            //SHIFT Selection mode only
             this.initSelection(selectableElem);
+            if (this.bendLines) {
+                this.onStraightenStart(DiagramUtils.getBendableFrom(targetElement));
+            }
         } else {
-            // Interaction mode (could be drag or select)
-            // next 'mousemove' event will determine it
             this.initSelection(selectableElem);
+
             if (this.enableDragInteraction) {
                 this.initDrag(draggableElem);
+            }
+
+            if (this.bendLines && !draggableElem) {
+                this.createEdgeBendPoint(DiagramUtils.getBendableLineFrom(targetElement, this.bendableLines), event);
             }
         }
     }
@@ -577,8 +600,17 @@ export class NetworkAreaDiagramViewer {
         if (!draggableElem) {
             return;
         }
+
         this.disablePanzoom();
         this.draggedElement = draggableElem as SVGGraphicsElement;
+
+        if (DiagramUtils.isBendable(this.draggedElement)) {
+            this.draggedElementType = DraggedElementType.BENT_SQUARE;
+        } else if (DiagramUtils.isTextNode(draggableElem)) {
+            this.draggedElementType = DraggedElementType.TEXT_NODE;
+        } else {
+            this.draggedElementType = DraggedElementType.VOLTAGE_LEVEL_NODE;
+        }
     }
 
     private onDragStart() {
@@ -591,9 +623,7 @@ export class NetworkAreaDiagramViewer {
         this.ctm = this.svgDraw?.node.getScreenCTM(); // used to compute mouse movement
         this.edgeAngles = new Map<string, number>(); // used for node redrawing
 
-        // get original position of dragged element
-        this.textNodeSelected = DiagramUtils.isTextNode(this.draggedElement);
-        if (this.textNodeSelected) {
+        if (this.draggedElementType == DraggedElementType.TEXT_NODE) {
             this.initialPosition = DiagramUtils.getTextNodePosition(this.draggedElement); // used for the offset
             this.endTextEdge = new Point(0, 0);
             const textNode: TextNodeMetadata | undefined = this.diagramMetadata?.textNodes.find(
@@ -603,7 +633,7 @@ export class NetworkAreaDiagramViewer {
                 this.originalTextNodeShift = new Point(textNode.shiftX, textNode.shiftY);
                 this.originalTextNodeConnectionShift = new Point(textNode.connectionShiftX, textNode.connectionShiftY);
             }
-        } else {
+        } else if (this.draggedElementType == DraggedElementType.VOLTAGE_LEVEL_NODE) {
             this.initialPosition = DiagramUtils.getPosition(this.draggedElement); // used for the offset
             const node: NodeMetadata | undefined = this.diagramMetadata?.nodes.find(
                 (node) => node.svgId == this.draggedElement?.id
@@ -611,35 +641,38 @@ export class NetworkAreaDiagramViewer {
             if (node) {
                 this.originalNodePosition = new Point(node.x, node.y);
             }
+        } else if (this.draggedElementType === DraggedElementType.BENT_SQUARE) {
+            this.initialPosition = DiagramUtils.getPosition(this.draggedElement);
         }
     }
 
     private onMouseMove(event: MouseEvent) {
-        // first mouse move will start drag & drop and set `isDragging` to true
         if (!this.draggedElement) {
             return;
-        }
-        if (!this.isDragging) {
-            this.onDragStart();
         }
 
         event.preventDefault();
         this.ctm = this.svgDraw?.node.getScreenCTM();
         const mousePosition = this.getMousePosition(event);
 
-        // Update metadata first
-        if (this.textNodeSelected) {
+        if (!this.isDragging) {
+            this.onDragStart();
+        }
+
+        if (this.draggedElementType === DraggedElementType.TEXT_NODE) {
             const topLeftCornerPosition = DiagramUtils.getTextNodeTopLeftCornerFromCenter(
                 this.draggedElement,
                 mousePosition
             );
             this.updateTextNodeMetadata(this.draggedElement, topLeftCornerPosition);
-        } else {
+            this.updateElement(this.draggedElement);
+        } else if (this.draggedElementType === DraggedElementType.VOLTAGE_LEVEL_NODE) {
             this.updateNodeMetadata(this.draggedElement, mousePosition);
+            this.updateElement(this.draggedElement);
+        } else if (this.draggedElementType === DraggedElementType.BENT_SQUARE) {
+            this.updateEdgeMetadata(this.draggedElement, mousePosition, LineOperation.BEND);
+            this.redrawBentLine(this.draggedElement, LineOperation.BEND);
         }
-
-        // Then update elements visually using updated metadata
-        this.updateElement(this.draggedElement);
     }
 
     private updateNodeMetadata(vlNode: SVGGraphicsElement, position: Point) {
@@ -710,25 +743,31 @@ export class NetworkAreaDiagramViewer {
         if (this.isDragging) {
             // moving element
             this.onDragEnd();
-            this.resetMouseEventParams();
         } else if (this.selectedElement) {
             // selecting element
             const mousePosition = this.getMousePosition(mouseEvent);
             this.onSelectEnd(mousePosition);
-            this.resetMouseEventParams();
+        } else if (this.straightenedElement) {
+            // straightening line
+            this.onStraightenEnd();
         }
+        this.resetMouseEventParams();
     }
 
     private resetMouseEventParams() {
         this.selectedElement = null;
-
         this.isDragging = false;
         this.draggedElement = null;
+        this.draggedElementType = null;
         this.initialPosition = new Point(0, 0);
         this.ctm = null;
         this.originalNodePosition = new Point(0, 0);
         this.originalTextNodeShift = new Point(0, 0);
         this.originalTextNodeConnectionShift = new Point(0, 0);
+
+        // change cursor style back to normal
+        const svg: HTMLElement = <HTMLElement>this.svgDraw?.node.firstElementChild?.parentElement;
+        svg.style.removeProperty('cursor');
 
         this.enablePanzoom();
     }
@@ -737,15 +776,19 @@ export class NetworkAreaDiagramViewer {
         if (!this.draggedElement) {
             return;
         }
-
-        if (this.textNodeSelected) {
-            this.callMoveTextNodeCallback(this.draggedElement);
-        } else {
-            this.callMoveNodeCallback(this.draggedElement);
+        switch (this.draggedElementType) {
+            case DraggedElementType.BENT_SQUARE:
+                this.callBendLineCallback(this.draggedElement, LineOperation.BEND);
+                break;
+            case DraggedElementType.TEXT_NODE:
+                this.callMoveTextNodeCallback(this.draggedElement);
+                break;
+            case DraggedElementType.VOLTAGE_LEVEL_NODE:
+                this.callMoveNodeCallback(this.draggedElement);
+                break;
+            default:
+                return;
         }
-        // change cursor style back to normal
-        const svg: HTMLElement = <HTMLElement>this.svgDraw?.node.firstElementChild?.parentElement;
-        svg.style.removeProperty('cursor');
     }
 
     private callMoveNodeCallback(vlNode: SVGGraphicsElement) {
@@ -1119,14 +1162,12 @@ export class NetworkAreaDiagramViewer {
                 // redraw edge
                 this.redrawEdge(
                     edgeNode,
-                    edgeStart1,
-                    edgeFork1,
-                    edgeStart2,
-                    edgeFork2,
-                    edgeMiddle,
+                    [edgeStart1, edgeFork1, edgeMiddle],
+                    [edgeStart2, edgeFork2, edgeMiddle],
                     nodeRadius1,
                     nodeRadius2,
-                    edgeType
+                    edgeType,
+                    false
                 );
             }
             i++;
@@ -1160,17 +1201,25 @@ export class NetworkAreaDiagramViewer {
             this.redrawThreeWtEdge(edge, edgeNode, vlNode);
             return;
         }
-        // compute moved edge data: polyline points
-        const nodeRadius1 = this.getNodeRadius(edge.busNode1 ?? '-1', edge.node1 ?? '-1');
-        const edgeStart1 = this.getEdgeStart(edge.busNode1, nodeRadius1[1], edgeNodes[0], edgeNodes[1]);
-        const nodeRadius2 = this.getNodeRadius(edge.busNode2 ?? '-1', edge.node2 ?? '-1');
-        const edgeStart2 = this.getEdgeStart(edge.busNode2, nodeRadius2[1], edgeNodes[1], edgeNodes[0]);
-        const edgeMiddle = DiagramUtils.getMidPosition(edgeStart1, edgeStart2);
-        // redraw edge
-        this.redrawEdge(edgeNode, edgeStart1, null, edgeStart2, null, edgeMiddle, nodeRadius1, nodeRadius2, edgeType);
+
+        const edgeData = this.getEdgeData(edge);
+        this.redrawEdge(
+            edgeNode,
+            edgeData.edgePoints ? edgeData.edgePoints[0] : [edgeData.edgeStartPoints[0], edgeData.edgeMiddle],
+            edgeData.edgePoints ? edgeData.edgePoints[1] : [edgeData.edgeStartPoints[1], edgeData.edgeMiddle],
+            edgeData.nodeRadius1,
+            edgeData.nodeRadius2,
+            edgeType,
+            edge.points != undefined
+        );
+
         // if dangling line edge -> redraw boundary node
         if (edgeType == DiagramUtils.EdgeType.DANGLING_LINE) {
-            this.redrawBoundaryNode(edgeNodes[1], DiagramUtils.getAngle(edgeStart2, edgeMiddle), nodeRadius2[1]);
+            this.redrawBoundaryNode(
+                edgeNodes[1],
+                DiagramUtils.getAngle(edgeData.edgeStartPoints[1], edgeData.edgeMiddle),
+                edgeData.nodeRadius2[1]
+            );
             if (vlNode.id == edgeNodes[1]?.id) {
                 // if boundary node moved -> redraw other voltage level node
                 this.redrawOtherVoltageLevelNode(edgeNodes[0]);
@@ -1192,136 +1241,131 @@ export class NetworkAreaDiagramViewer {
         return pst3wtEdge ?? false;
     }
 
+    private getEdgeStartPoints(edge: EdgeMetadata): Point[] | null {
+        const vlNode1: SVGGraphicsElement | null = this.svgDiv.querySelector("[id='" + edge.node1 + "']");
+        const vlNode2: SVGGraphicsElement | null = this.svgDiv.querySelector("[id='" + edge.node2 + "']");
+        if (!vlNode1 || !vlNode2) return null;
+
+        const startPoint1 = this.calculateEdgeStartPoint(
+            edge.node1,
+            edge.busNode1,
+            vlNode1,
+            edge.points ? new Point(edge.points[0].x, edge.points[0].y) : vlNode2
+        );
+
+        const startPoint2 = this.calculateEdgeStartPoint(
+            edge.node2,
+            edge.busNode2,
+            vlNode2,
+            edge.points ? new Point(edge.points.at(-1)!.x, edge.points.at(-1)!.y) : vlNode1
+        );
+
+        return [startPoint1, startPoint2];
+    }
+
+    private calculateEdgeStartPoint(
+        nodeId: string,
+        busNodeId: string | null,
+        vlNode: SVGGraphicsElement,
+        targetPoint: Point | SVGGraphicsElement
+    ): Point {
+        const nodeRadius = this.getNodeRadius(busNodeId ?? '-1', nodeId ?? '-1');
+        return this.getEdgeStart(busNodeId, nodeRadius[1], vlNode, targetPoint);
+    }
+
     private getEdgeStart(
         busNodeId: string | null,
         outerRadius: number,
         point1: SVGGraphicsElement | null,
-        point2: SVGGraphicsElement | null
+        point2: SVGGraphicsElement | null | Point
     ): Point {
         const unknownBusNode = busNodeId != null && busNodeId.length == 0;
         return DiagramUtils.getPointAtDistance(
             DiagramUtils.getPosition(point1),
-            DiagramUtils.getPosition(point2),
+            point2 instanceof Point ? point2 : DiagramUtils.getPosition(point2),
             unknownBusNode ? outerRadius + this.svgParameters.getUnknownBusNodeExtraRadius() : outerRadius
         );
     }
 
     private redrawEdge(
         edgeNode: SVGGraphicsElement,
-        edgeStart1: Point,
-        edgeFork1: Point | null, // if null -> straight line
-        edgeStart2: Point,
-        edgeFork2: Point | null, // if null -> straight line
-        edgeMiddle: Point,
+        halfEdgePoints1: Point[],
+        halfEdgePoints2: Point[],
         nodeRadius1: [number, number, number],
         nodeRadius2: [number, number, number],
-        edgeType: DiagramUtils.EdgeType
+        edgeType: DiagramUtils.EdgeType,
+        bentLine: boolean
     ) {
         const isTransformerEdge =
             edgeType == DiagramUtils.EdgeType.TWO_WINDINGS_TRANSFORMER ||
             edgeType == DiagramUtils.EdgeType.PHASE_SHIFT_TRANSFORMER;
         const isHVDCLineEdge =
             edgeType == DiagramUtils.EdgeType.HVDC_LINE_LCC || edgeType == DiagramUtils.EdgeType.HVDC_LINE_VSC;
-        this.redrawHalfEdge(edgeNode, '1', edgeStart1, edgeFork1, edgeMiddle, isTransformerEdge, nodeRadius1);
-        this.redrawHalfEdge(edgeNode, '2', edgeStart2, edgeFork2, edgeMiddle, isTransformerEdge, nodeRadius2);
+        this.redrawHalfEdge(edgeNode, '1', halfEdgePoints1.slice(), isTransformerEdge, nodeRadius1, bentLine);
+        this.redrawHalfEdge(edgeNode, '2', halfEdgePoints2.slice(), isTransformerEdge, nodeRadius2, bentLine);
+
         if (isTransformerEdge) {
             this.redrawTransformer(
                 edgeNode,
-                edgeFork1 == null ? edgeStart1 : edgeFork1,
-                edgeMiddle,
-                edgeFork2 == null ? edgeStart2 : edgeFork2,
-                edgeMiddle,
+                halfEdgePoints1.at(-2)!,
+                halfEdgePoints1.at(-1)!,
+                halfEdgePoints2.at(-2)!,
+                halfEdgePoints2.at(-1)!,
                 edgeType
             );
         } else if (isHVDCLineEdge) {
             this.redrawConverterStation(
                 edgeNode,
-                edgeFork1 == null ? edgeStart1 : edgeFork1,
-                edgeMiddle,
-                edgeFork2 == null ? edgeStart2 : edgeFork2,
-                edgeMiddle
+                halfEdgePoints1.at(-2)!,
+                halfEdgePoints1.at(-1)!,
+                halfEdgePoints2.at(-2)!,
+                halfEdgePoints2.at(-1)!
             );
         }
         // if present, move edge name
         if (this.svgParameters.getEdgeNameDisplayed()) {
-            this.updateEdgeName(edgeNode, edgeMiddle, edgeFork1 == null ? edgeStart1 : edgeFork1);
+            this.updateEdgeName(edgeNode, halfEdgePoints1.at(-1)!, halfEdgePoints2.at(-2)!);
         }
         // store edge angles, to use them for bus node redrawing
-        this.edgeAngles.set(
-            edgeNode.id + '.1',
-            DiagramUtils.getAngle(edgeStart1, edgeFork1 == null ? edgeMiddle : edgeFork1)
-        );
-        this.edgeAngles.set(
-            edgeNode.id + '.2',
-            DiagramUtils.getAngle(edgeStart2, edgeFork2 == null ? edgeMiddle : edgeFork2)
-        );
+        this.edgeAngles.set(edgeNode.id + '.1', DiagramUtils.getAngle(halfEdgePoints1[0], halfEdgePoints1[1]));
+        this.edgeAngles.set(edgeNode.id + '.2', DiagramUtils.getAngle(halfEdgePoints2[0], halfEdgePoints2[1]));
     }
 
     private redrawHalfEdge(
         edgeNode: SVGGraphicsElement,
         side: string,
-        startPolyline: Point,
-        middlePolyline: Point | null, // if null -> straight line
-        endPolyline: Point,
+        polylinePoints: Point[],
         transformerEdge: boolean,
-        nodeRadius: [number, number, number]
+        nodeRadius: [number, number, number],
+        bentLine: boolean
     ) {
         // get half edge element
         const halfEdge: SVGGraphicsElement | null = edgeNode.querySelector("[id='" + edgeNode.id + '.' + side + "']");
-        // move edge polyline
-        const polyline: SVGGraphicsElement | null | undefined = halfEdge?.querySelector('polyline');
+        // get polyline
+        const polylineElement: SVGGraphicsElement | null | undefined = halfEdge?.querySelector('polyline');
+
         // if transformer edge reduce edge polyline, leaving space for the transformer
-        endPolyline = transformerEdge
-            ? DiagramUtils.getPointAtDistance(
-                  endPolyline,
-                  middlePolyline == null ? startPolyline : middlePolyline,
-                  1.5 * this.svgParameters.getTransformerCircleRadius()
-              )
-            : endPolyline;
-        const polylinePoints: string = DiagramUtils.getFormattedPolyline(startPolyline, middlePolyline, endPolyline);
-        polyline?.setAttribute('points', polylinePoints);
+        if (transformerEdge) {
+            polylinePoints[polylinePoints.length - 1] = DiagramUtils.getPointAtDistance(
+                polylinePoints.at(-1)!,
+                polylinePoints.at(-2)!,
+                1.5 * this.svgParameters.getTransformerCircleRadius()
+            );
+        }
+
+        const polyline: string = polylinePoints.map((p) => DiagramUtils.getFormattedPoint(p)).join(' ');
+        polylineElement?.setAttribute('points', polyline);
+
         // redraw edge arrow and label
         if (halfEdge != null && halfEdge.children.length > 1) {
-            this.redrawEdgeArrowAndLabel(halfEdge, startPolyline, middlePolyline, endPolyline, nodeRadius);
-        }
-    }
-
-    private redrawEdgeArrowAndLabel(
-        edgeNode: SVGGraphicsElement,
-        startPolyline: Point,
-        middlePolyline: Point | null, // if null -> straight line
-        endPolyline: Point,
-        nodeRadius: [number, number, number]
-    ) {
-        // move edge arrow
-        const arrowCenter = DiagramUtils.getPointAtDistance(
-            middlePolyline == null ? startPolyline : middlePolyline,
-            endPolyline,
-            middlePolyline == null
-                ? this.svgParameters.getArrowShift() + (nodeRadius[2] - nodeRadius[1])
-                : this.svgParameters.getArrowShift()
-        );
-        const arrowElement = edgeNode.lastElementChild as SVGGraphicsElement;
-        arrowElement?.setAttribute('transform', 'translate(' + DiagramUtils.getFormattedPoint(arrowCenter) + ')');
-        const arrowAngle = DiagramUtils.getArrowAngle(
-            middlePolyline == null ? startPolyline : middlePolyline,
-            endPolyline
-        );
-        const arrowRotationElement = arrowElement.firstElementChild?.firstElementChild as SVGGraphicsElement;
-        arrowRotationElement.setAttribute('transform', 'rotate(' + DiagramUtils.getFormattedValue(arrowAngle) + ')');
-        // move edge label
-        const labelData = DiagramUtils.getLabelData(
-            middlePolyline == null ? startPolyline : middlePolyline,
-            endPolyline,
-            this.svgParameters.getArrowLabelShift()
-        );
-        const labelRotationElement = arrowElement.firstElementChild?.lastElementChild as SVGGraphicsElement;
-        labelRotationElement.setAttribute('transform', 'rotate(' + DiagramUtils.getFormattedValue(labelData[0]) + ')');
-        labelRotationElement.setAttribute('x', DiagramUtils.getFormattedValue(labelData[1]));
-        if (labelData[2]) {
-            labelRotationElement.setAttribute('style', labelData[2]);
-        } else if (labelRotationElement.hasAttribute('style')) {
-            labelRotationElement.removeAttribute('style');
+            this.redrawEdgeArrowAndLabel(
+                halfEdge,
+                polylinePoints[0],
+                polylinePoints.length == 2 ? null : polylinePoints[1],
+                polylinePoints.at(-1)!,
+                nodeRadius,
+                bentLine
+            );
         }
     }
 
@@ -1583,17 +1627,14 @@ export class NetworkAreaDiagramViewer {
                 const edgeStart = this.getEdgeStart(edge.busNode1, nodeRadius1[1], edgeNodes[0], edgeNodes[1]);
                 const translation = this.getTranslation(position);
                 const edgeEnd = threeWtMoved
-                    ? new Point(
-                          points[points.length - 1].x + translation.x,
-                          points[points.length - 1].y + translation.y
-                      )
-                    : points[points.length - 1];
+                    ? new Point(points.at(-1)!.x + translation.x, points.at(-1)!.y + translation.y)
+                    : points.at(-1)!;
                 // move polyline
                 const polylinePoints: string = DiagramUtils.getFormattedPolyline(edgeStart, null, edgeEnd);
                 twtEdge.setAttribute('points', polylinePoints);
                 // redraw edge arrow and label
                 if (edgeNode.children.length > 1) {
-                    this.redrawEdgeArrowAndLabel(edgeNode, edgeStart, null, edgeEnd, nodeRadius1);
+                    this.redrawEdgeArrowAndLabel(edgeNode, edgeStart, null, edgeEnd, nodeRadius1, false);
                 }
                 // store edge angles, to use them for bus node redrawing
                 this.edgeAngles.set(edgeNode.id + '.1', DiagramUtils.getAngle(edgeStart, edgeEnd));
@@ -2030,6 +2071,14 @@ export class NetworkAreaDiagramViewer {
             const equipmentId = edge.equipmentId ?? '';
             const edgeType = DiagramUtils.getStringEdgeType(edge) ?? '';
             this.onToggleHoverCallback?.(true, mousePosition, equipmentId, edgeType);
+
+            // Show preview points for bending if bend lines is enabled and edge is bendable
+            if (this.bendLines) {
+                const isBendable = this.bendableLines.includes(edge.svgId);
+                if (isBendable) {
+                    this.showEdgePreviewPoints(edge);
+                }
+            }
         }
     }
 
@@ -2073,5 +2122,379 @@ export class NetworkAreaDiagramViewer {
     private handleHoverExit() {
         this.onToggleHoverCallback?.(false, null, '', '');
         this.clearHighlights();
+        this.hideEdgePreviewPoints();
+    }
+
+    private getEditButtonBar(): HTMLDivElement {
+        const buttonsDiv = document.createElement('div');
+        buttonsDiv.id = 'edit-button-bar';
+
+        const bendLinesButton = DiagramUtils.getBendLinesButton();
+        buttonsDiv.appendChild(bendLinesButton);
+        bendLinesButton.addEventListener('click', () => {
+            if (this.bendLines) {
+                this.disableLineBending();
+                bendLinesButton.classList.remove('bend-lines-button-active');
+                bendLinesButton.classList.add('bend-lines-button-inactive');
+                bendLinesButton.title = 'Enable line bending';
+            } else {
+                this.enableLineBending();
+                if (this.bendLines) {
+                    bendLinesButton.classList.remove('bend-lines-button-inactive');
+                    bendLinesButton.classList.add('bend-lines-button-active');
+                    bendLinesButton.title = 'Disable line bending';
+                }
+            }
+        });
+        return buttonsDiv;
+    }
+
+    private enableLineBending() {
+        const linesPointsElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        linesPointsElement.classList.add('nad-line-points');
+        const bendableEdges = DiagramUtils.getBendableLines(this.diagramMetadata?.edges);
+        for (const edge of bendableEdges) {
+            if (edge.points) {
+                for (let index = 0; index < edge.points.length; index++) {
+                    this.addLinePoint(
+                        edge.svgId,
+                        index,
+                        new Point(edge.points[index].x, edge.points[index].y),
+                        linesPointsElement
+                    );
+                }
+                this.bendableLines.push(edge.svgId);
+            } else {
+                this.bendableLines.push(edge.svgId);
+                this.bendLines = true;
+            }
+        }
+        if (this.bendLines) {
+            this.svgDraw?.node.firstElementChild?.appendChild(linesPointsElement);
+        }
+    }
+
+    private addLinePoint(
+        lineId: string,
+        index: number,
+        point: Point,
+        linePointsElement?: SVGElement | null
+    ): SVGElement {
+        linePointsElement ??= this.svgDraw?.node.querySelector('.nad-line-points');
+        const pointElement = DiagramUtils.createLinePointElement(lineId, point, index, false, this.linePointIndexMap);
+        linePointsElement?.appendChild(pointElement);
+        return pointElement;
+    }
+
+    private disableLineBending() {
+        const linePointsElement = this.svgDraw?.node.querySelector('.nad-line-points');
+        linePointsElement?.remove();
+        this.linePointIndexMap.clear();
+        this.bendableLines = [];
+        this.bendLines = false;
+    }
+
+    private createEdgeBendPoint(bendableElem: SVGElement | undefined, event: MouseEvent) {
+        if (!bendableElem) {
+            return;
+        }
+
+        this.ctm = this.svgDraw?.node.getScreenCTM(); // used to compute mouse movement
+        const mousePosition = this.getMousePosition(event);
+        const pointElement = this.addLinePoint(bendableElem.id, -1, mousePosition); // add line point, to be moved
+
+        this.initDrag(pointElement);
+        this.onDragStart();
+
+        this.updateEdgeMetadata(pointElement as SVGGraphicsElement, mousePosition, LineOperation.BEND);
+    }
+
+    private onStraightenStart(bendableElem: SVGElement | undefined) {
+        if (!bendableElem) {
+            return;
+        }
+        const edgeId = bendableElem.id ? this.linePointIndexMap.get(bendableElem.id)?.edgeId : '-1';
+        const edge: EdgeMetadata | undefined = this.diagramMetadata?.edges.find((edge) => edge.svgId == edgeId);
+        if (edge?.points == undefined) {
+            return;
+        }
+        this.disablePanzoom(); // to avoid panning the whole SVG when straightening a line
+        this.straightenedElement = bendableElem as SVGGraphicsElement; // element to be straightened
+    }
+
+    private updateEdgeMetadata(
+        linePointElement: SVGGraphicsElement,
+        position: Point | null,
+        lineOperation: LineOperation
+    ) {
+        const edge: EdgeMetadata | undefined = this.diagramMetadata?.edges.find(
+            (edge) => edge.svgId == this.linePointIndexMap.get(linePointElement.id)?.edgeId
+        );
+        if (edge) {
+            if (position && lineOperation == LineOperation.BEND) {
+                this.updateEdgeMetadataWhenBending(edge, linePointElement, position);
+            } else {
+                this.updateEdgeMetadataWhenStraightening(edge, linePointElement);
+            }
+        }
+    }
+
+    private updateEdgeMetadataWhenBending(edge: EdgeMetadata, linePointElement: SVGGraphicsElement, position: Point) {
+        const index = this.linePointIndexMap.get(linePointElement.id)?.index;
+        if (index == -1) {
+            // first time this point is added to metadata
+            // get nodes for computing where to put the point in the list
+            const node1 = this.diagramMetadata?.nodes.find((node) => node.svgId == edge.node1);
+            const node2 = this.diagramMetadata?.nodes.find((node) => node.svgId == edge.node2);
+            if (node1 && node2) {
+                // insert the point in the list of points
+                const linePoints = DiagramUtils.addPointToList(
+                    edge.points?.slice(),
+                    new Point(node1.x, node1.y),
+                    new Point(node2.x, node2.y),
+                    position
+                );
+                edge.points = linePoints.linePoints;
+                this.linePointIndexMap.set(linePointElement.id, { edgeId: edge.svgId, index: linePoints.index });
+
+                for (const [key, value] of this.linePointIndexMap) {
+                    if (key !== linePointElement.id && value.edgeId == edge.svgId && value.index >= linePoints.index) {
+                        value.index++;
+                    }
+                }
+            }
+        } else if (edge.points) {
+            // update line point
+            edge.points[index!] = { x: DiagramUtils.round(position.x), y: DiagramUtils.round(position.y) };
+        } else {
+            // it should not come here, anyway, add the new point
+            edge.points = [{ x: DiagramUtils.round(position.x), y: DiagramUtils.round(position.y) }];
+        }
+    }
+
+    private updateEdgeMetadataWhenStraightening(edge: EdgeMetadata, linePointElement: SVGGraphicsElement) {
+        const index = this.linePointIndexMap.get(linePointElement.id)?.index ?? -1;
+
+        if (edge.points) {
+            for (const [key, value] of this.linePointIndexMap) {
+                if (key !== linePointElement.id && value.edgeId == edge.svgId && value.index >= index) {
+                    value.index--;
+                }
+            }
+            // delete point
+            edge.points.splice(index, 1);
+            if (edge.points.length == 0) {
+                edge.points = undefined;
+            }
+        }
+    }
+
+    private redrawBentLine(linePoint: SVGGraphicsElement, lineOperation: LineOperation) {
+        globalThis.getSelection()?.empty();
+        this.initialPosition = DiagramUtils.getPosition(linePoint);
+
+        // get edge data
+        const edgeId = linePoint.id ? this.linePointIndexMap.get(linePoint.id)?.edgeId : '-1';
+        const edge: EdgeMetadata | undefined = this.diagramMetadata?.edges.find((edge) => edge.svgId == edgeId);
+        if (!edge || (lineOperation == LineOperation.BEND && !edge.points)) {
+            return;
+        }
+        const edgeNode: SVGGraphicsElement | null = this.svgDiv.querySelector("[id='" + edgeId + "']");
+        if (!edgeNode) {
+            return;
+        }
+        const vlNode1: SVGGraphicsElement | null = this.svgDiv.querySelector("[id='" + edge?.node1 + "']");
+        const vlNode2: SVGGraphicsElement | null = this.svgDiv.querySelector("[id='" + edge?.node2 + "']");
+        const edgeType = DiagramUtils.getEdgeType(edge);
+
+        const edgeData = this.getEdgeData(edge);
+
+        // bend line
+        this.redrawEdge(
+            edgeNode,
+            edgeData.edgePoints ? edgeData.edgePoints[0] : [edgeData.edgeStartPoints[0], edgeData.edgeMiddle],
+            edgeData.edgePoints ? edgeData.edgePoints[1] : [edgeData.edgeStartPoints[1], edgeData.edgeMiddle],
+            edgeData.nodeRadius1,
+            edgeData.nodeRadius2,
+            edgeType,
+            edge.points != undefined
+        );
+        this.redrawOtherVoltageLevelNode(vlNode1);
+        this.redrawOtherVoltageLevelNode(vlNode2);
+        if (edge.points && lineOperation == LineOperation.BEND) {
+            // move line point
+            const index = this.linePointIndexMap.get(linePoint.id)?.index ?? 0;
+            const position: Point = new Point(edge.points[index].x, edge.points[index].y);
+            this.updateNodePosition(linePoint, position);
+        } else {
+            linePoint.remove();
+            this.linePointIndexMap.delete(linePoint.id);
+        }
+    }
+
+    private onStraightenEnd() {
+        if (!this.straightenedElement) {
+            return;
+        }
+        // Update metadata
+        this.updateEdgeMetadata(this.straightenedElement, null, LineOperation.STRAIGHTEN);
+        // straighten line
+        this.redrawBentLine(this.straightenedElement, LineOperation.STRAIGHTEN);
+        // call callback
+        this.callBendLineCallback(this.straightenedElement, LineOperation.STRAIGHTEN);
+        // reset data
+        this.straightenedElement = null;
+        this.enablePanzoom();
+    }
+
+    private callBendLineCallback(linePointElement: SVGGraphicsElement, lineOperation: LineOperation) {
+        if (this.onBendLineCallback) {
+            const edge: EdgeMetadata | undefined = this.diagramMetadata?.edges.find(
+                (edge) => edge.svgId == this.linePointIndexMap.get(linePointElement.id)?.edgeId
+            );
+            if (edge) {
+                const linePoints: Point[] | null = edge.points
+                    ? edge.points.map((point) => new Point(point.x, point.y))
+                    : null;
+                this.onBendLineCallback(
+                    edge.svgId,
+                    edge.equipmentId,
+                    DiagramUtils.getStringEdgeType(edge),
+                    linePoints,
+                    LineOperation[lineOperation]
+                );
+            }
+        }
+    }
+
+    private redrawEdgeArrowAndLabel(
+        edgeNode: SVGGraphicsElement,
+        startPolyline: Point,
+        middlePolyline: Point | null, // if null -> straight line
+        endPolyline: Point,
+        nodeRadius: [number, number, number],
+        bentLine: boolean
+    ) {
+        // move edge arrow
+        const arrowCenter = DiagramUtils.getPointAtDistance(
+            middlePolyline == null || bentLine ? startPolyline : middlePolyline,
+            bentLine && middlePolyline ? middlePolyline : endPolyline,
+            middlePolyline == null || bentLine
+                ? this.svgParameters.getArrowShift() + (nodeRadius[2] - nodeRadius[1])
+                : this.svgParameters.getArrowShift()
+        );
+        const arrowElement = edgeNode.lastElementChild as SVGGraphicsElement;
+        arrowElement?.setAttribute('transform', 'translate(' + DiagramUtils.getFormattedPoint(arrowCenter) + ')');
+        const arrowAngle = DiagramUtils.getArrowAngle(
+            middlePolyline == null || bentLine ? startPolyline : middlePolyline,
+            bentLine && middlePolyline ? middlePolyline : endPolyline
+        );
+        const arrowRotationElement = arrowElement.firstElementChild?.firstElementChild as SVGGraphicsElement;
+        arrowRotationElement.setAttribute('transform', 'rotate(' + DiagramUtils.getFormattedValue(arrowAngle) + ')');
+
+        // move edge label
+        const labelData = DiagramUtils.getLabelData(
+            middlePolyline == null || bentLine ? startPolyline : middlePolyline,
+            bentLine && middlePolyline ? middlePolyline : endPolyline,
+            this.svgParameters.getArrowLabelShift()
+        );
+        const labelRotationElement = arrowElement.firstElementChild?.lastElementChild as SVGGraphicsElement;
+        labelRotationElement.setAttribute('transform', 'rotate(' + DiagramUtils.getFormattedValue(labelData[0]) + ')');
+        labelRotationElement.setAttribute('x', DiagramUtils.getFormattedValue(labelData[1]));
+        if (labelData[2]) {
+            labelRotationElement.setAttribute('style', labelData[2]);
+        } else if (labelRotationElement.hasAttribute('style')) {
+            labelRotationElement.removeAttribute('style');
+        }
+    }
+
+    private showEdgePreviewPoints(edge: EdgeMetadata): void {
+        if (!edge.svgId) return;
+
+        const previewPoints = this.calculateEdgeSegmentMidpoints(edge);
+        if (previewPoints.length === 0) return;
+
+        let previewContainer = this.svgDraw?.node.querySelector('.nad-edge-preview-points');
+        if (!previewContainer) {
+            previewContainer = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+            previewContainer.classList.add('nad-edge-preview-points');
+            this.svgDraw?.node.firstElementChild?.appendChild(previewContainer);
+        }
+
+        previewContainer.innerHTML = '';
+
+        for (const [index, point] of previewPoints.entries()) {
+            const previewPoint = DiagramUtils.createLinePointElement(edge.svgId, point, index, true);
+            previewContainer?.appendChild(previewPoint);
+        }
+    }
+
+    private getEdgeData(edge: EdgeMetadata): {
+        edgeStartPoints: Point[];
+        edgeMiddle: Point;
+        nodeRadius1: [number, number, number];
+        nodeRadius2: [number, number, number];
+        edgePoints: Point[][] | undefined;
+    } {
+        const edgeStartPoints = this.getEdgeStartPoints(edge);
+        if (!edgeStartPoints) {
+            return {
+                edgeStartPoints: [],
+                edgeMiddle: new Point(0, 0),
+                nodeRadius1: [0, 0, 0],
+                nodeRadius2: [0, 0, 0],
+                edgePoints: undefined,
+            };
+        }
+
+        const edgeMiddle = DiagramUtils.getMidPosition(edgeStartPoints[0], edgeStartPoints[1]);
+        const nodeRadius1 = this.getNodeRadius(edge.busNode1 ?? '-1', edge.node1 ?? '-1');
+        const nodeRadius2 = this.getNodeRadius(edge.busNode2 ?? '-1', edge.node2 ?? '-1');
+        const edgePoints = edge.points
+            ? DiagramUtils.getEdgePoints(edgeStartPoints[0], edgeStartPoints[1], edge.points.slice())
+            : undefined;
+
+        return {
+            edgeStartPoints,
+            edgeMiddle,
+            nodeRadius1,
+            nodeRadius2,
+            edgePoints,
+        };
+    }
+
+    private calculateEdgeSegmentMidpoints(edge: EdgeMetadata): Point[] {
+        if (!edge.node1 || !edge.node2) return [];
+
+        const startPoints = this.getEdgeStartPoints(edge);
+        if (!startPoints) return [];
+
+        const midpoints: Point[] = [];
+
+        if (edge.points && edge.points.length > 0) {
+            const previousPoint = startPoints[0];
+
+            midpoints.push(DiagramUtils.getMidPosition(previousPoint, new Point(edge.points[0].x, edge.points[0].y)));
+
+            for (let i = 0; i < edge.points.length - 1; i++) {
+                const current = new Point(edge.points[i].x, edge.points[i].y);
+                const next = new Point(edge.points[i + 1].x, edge.points[i + 1].y);
+                midpoints.push(DiagramUtils.getMidPosition(current, next));
+            }
+
+            const lastPoint = new Point(edge.points.at(-1)!.x, edge.points.at(-1)!.y);
+            midpoints.push(DiagramUtils.getMidPosition(lastPoint, startPoints[1]));
+        } else {
+            midpoints.push(DiagramUtils.getMidPosition(startPoints[0], startPoints[1]));
+        }
+
+        return midpoints;
+    }
+
+    private hideEdgePreviewPoints(): void {
+        const previewContainer = this.svgDraw?.node.querySelector('.nad-edge-preview-points');
+        if (previewContainer) {
+            previewContainer.remove();
+        }
     }
 }
