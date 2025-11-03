@@ -6,7 +6,7 @@
  */
 
 import { Point } from '@svgdotjs/svg.js';
-import { EdgeMetadata, BusNodeMetadata, NodeMetadata, TextNodeMetadata, EdgePointMetadata } from './diagram-metadata';
+import { BusNodeMetadata, EdgeMetadata, EdgePointMetadata, NodeMetadata, TextNodeMetadata } from './diagram-metadata';
 import { SvgParameters } from './svg-parameters';
 import ZoomToFitSvg from '../../resources/material-icons/zoom-to-fit.svg';
 import ZoomInSvg from '../../resources/material-icons/zoom-in.svg';
@@ -51,6 +51,18 @@ export type ElementData = {
     svgId: string;
     equipmentId: string;
     type: string;
+};
+
+export type HalfEdge = {
+    side: string;
+    startPolyline: Point;
+    middlePolyline: Point | null;
+    endPolyline: Point;
+    busInnerRadius: number;
+    busOuterRadius: number;
+    voltageLevelRadius: number;
+    edgeInfoId?: string;
+    edgePoints: Point[];
 };
 
 const EdgeTypeMapping: { [key: string]: EdgeType } = {
@@ -233,9 +245,20 @@ function getDistance(point1: Point, point2: Point): number {
 
 export function getEdgePoints(
     edgeStart1: Point,
+    edgeFork1: Point | undefined,
     edgeStart2: Point,
-    pointsMetadata: EdgePointMetadata[]
+    edgeFork2: Point | undefined,
+    edgeEnd1: Point,
+    edgeEnd2: Point,
+    pointsMetadata0: EdgePointMetadata[] | undefined
 ): [Point[], Point[]] {
+    if (!pointsMetadata0) {
+        const edgePoints1 = edgeFork1 ? [edgeStart1, edgeFork1, edgeEnd1] : [edgeStart1, edgeEnd1];
+        const edgePoints2 = edgeFork2 ? [edgeStart2, edgeFork2, edgeEnd2] : [edgeStart2, edgeEnd2];
+        return [edgePoints1, edgePoints2];
+    }
+
+    const pointsMetadata = pointsMetadata0.slice();
     pointsMetadata.splice(0, 0, { x: edgeStart1.x, y: edgeStart1.y });
     pointsMetadata.push({ x: edgeStart2.x, y: edgeStart2.y });
     let distance = 0;
@@ -338,16 +361,33 @@ export function getAngle(point1: Point, point2: Point): number {
     return Math.atan2(point2.y - point1.y, point2.x - point1.x);
 }
 
-// get the angle of an arrow between two points of an edge polyline
-export function getArrowAngle(point1: Point, point2: Point): number {
-    const angle = getAngle(point1, point2);
+// get the rotation angle of an halfEdge arrow
+export function getArrowRotation(halfEdge: HalfEdge): number {
+    const angle = getArrowEdgeAngle(halfEdge);
     return radToDeg(angle + (angle > Math.PI / 2 ? (-3 * Math.PI) / 2 : Math.PI / 2));
+}
+
+// get the angle of the edge part corresponding to an halfEdge arrow
+export function getArrowEdgeAngle(halfEdge: HalfEdge): number {
+    return halfEdge.middlePolyline
+        ? getAngle(halfEdge.middlePolyline, halfEdge.endPolyline)
+        : getAngle(halfEdge.edgePoints[0], halfEdge.edgePoints[1]);
+}
+
+export function getArrowCenter(halfEdge: HalfEdge, svgParameters: SvgParameters): Point {
+    if (halfEdge.middlePolyline) {
+        return getPointAtDistance(halfEdge.middlePolyline, halfEdge.endPolyline, svgParameters.getArrowShift());
+    } else {
+        const arrowShiftFromEdgeStart =
+            svgParameters.getArrowShift() + (halfEdge.voltageLevelRadius - halfEdge.busOuterRadius);
+        return getPointAtDistance(halfEdge.edgePoints[0], halfEdge.edgePoints[1], arrowShiftFromEdgeStart);
+    }
 }
 
 // get the data [angle, shift, text anchor] of a label
 // between two points of an edge polyline
-export function getLabelData(point1: Point, point2: Point, arrowLabelShift: number): [number, number, string | null] {
-    const angle = getAngle(point1, point2);
+export function getLabelData(halfEdge: HalfEdge, arrowLabelShift: number): [number, number, string | null] {
+    const angle = getArrowEdgeAngle(halfEdge);
     const textFlipped = Math.cos(angle) < 0;
     return [
         radToDeg(textFlipped ? angle - Math.PI : angle),
@@ -501,18 +541,27 @@ function classIsContainerOfHoverables(element: SVGElement): boolean {
     );
 }
 // get radius of voltage level
-export function getVoltageLevelCircleRadius(nbNeighbours: number, voltageLevelCircleRadius: number): number {
+export function getVoltageLevelCircleRadius(
+    nbNeighbours: number,
+    fictitiousVl: boolean | undefined,
+    svgParameters: SvgParameters
+): number {
+    const voltageLevelCircleRadius = fictitiousVl
+        ? svgParameters.getFictitiousVoltageLevelCircleRadius()
+        : svgParameters.getVoltageLevelCircleRadius();
     return Math.min(Math.max(nbNeighbours + 1, 1), 2) * voltageLevelCircleRadius;
 }
 
 // get inner and outer radius of bus node and radius of voltage level
 export function getNodeRadius(
-    nbNeighbours: number,
-    voltageLevelCircleRadius: number,
-    busIndex: number,
-    interAnnulusSpace: number
+    busNode: BusNodeMetadata | undefined,
+    node: NodeMetadata | undefined,
+    svgParameters: SvgParameters
 ): [number, number, number] {
-    const vlCircleRadius: number = getVoltageLevelCircleRadius(nbNeighbours, voltageLevelCircleRadius);
+    const nbNeighbours = busNode?.nbNeighbours ?? 0;
+    const busIndex = busNode?.index ?? 0;
+    const vlCircleRadius: number = getVoltageLevelCircleRadius(nbNeighbours, node?.fictitious, svgParameters);
+    const interAnnulusSpace = svgParameters.getInterAnnulusSpace();
     const unitaryRadius = vlCircleRadius / (nbNeighbours + 1);
     return [
         busIndex == 0 ? 0 : busIndex * unitaryRadius + interAnnulusSpace / 2,
@@ -661,6 +710,140 @@ export function getEdgeNameAngle(point1: Point, point2: Point): number {
     return radToDeg(textFlipped ? angle - Math.PI : angle);
 }
 
+export function getThreeWtHalfEdge(
+    edge: HTMLElement,
+    edgeMetadata: EdgeMetadata,
+    busNode: BusNodeMetadata | undefined,
+    node: NodeMetadata | undefined,
+    edgeNode1: SVGGraphicsElement | null,
+    edgeNode2: SVGGraphicsElement | null,
+    threeWtMoved: boolean,
+    translation: Point,
+    svgParameters: SvgParameters
+): HalfEdge | undefined {
+    const points = getPolylinePoints(edge);
+    if (!points) {
+        return;
+    }
+    const point1 = getPosition(edgeNode1);
+    const point2 = getPosition(edgeNode2);
+    const nodeRadius = getNodeRadius(busNode, node, svgParameters);
+    const unknownBusNode = edgeMetadata.busNode1 != null && edgeMetadata.busNode1.length == 0;
+    const edgeStart = getPointAtDistance(
+        point1,
+        point2,
+        unknownBusNode ? nodeRadius[1] + svgParameters.getUnknownBusNodeExtraRadius() : nodeRadius[1]
+    );
+    const edgeEnd = threeWtMoved
+        ? new Point(points.at(-1)!.x + translation.x, points.at(-1)!.y + translation.y)
+        : points.at(-1)!;
+    return {
+        side: '1',
+        startPolyline: edgeStart,
+        middlePolyline: null,
+        endPolyline: edgeEnd,
+        busInnerRadius: nodeRadius[0],
+        busOuterRadius: nodeRadius[1],
+        voltageLevelRadius: nodeRadius[2],
+        edgeInfoId: edgeMetadata.edgeInfo1?.svgId,
+        edgePoints: [edgeStart, edgeEnd],
+    };
+}
+
+export function getHalfEdges(
+    edge: EdgeMetadata,
+    busNode1: BusNodeMetadata | undefined,
+    busNode2: BusNodeMetadata | undefined,
+    node1: NodeMetadata | undefined,
+    node2: NodeMetadata | undefined,
+    iEdge: number,
+    nbGroupedEdges: number,
+    edgeType: EdgeType,
+    svgParameters: SvgParameters
+): HalfEdge[] | null[] {
+    if (node1 == null || node2 == null) {
+        return [null, null];
+    }
+    const point1 = new Point(node1.x, node1.y);
+    const point2 = new Point(node2.x, node2.y);
+    let edgeFork1: Point | undefined;
+    let edgeFork2: Point | undefined;
+    if (nbGroupedEdges > 1) {
+        const angle = getAngle(point1, point2);
+        const angleStep = svgParameters.getEdgesForkAperture() / (nbGroupedEdges - 1);
+        const alpha = -svgParameters.getEdgesForkAperture() / 2 + iEdge * angleStep;
+        const angleFork1 = angle - alpha;
+        const angleFork2 = angle + Math.PI + alpha;
+        edgeFork1 = getEdgeFork(point1, svgParameters.getEdgesForkLength(), angleFork1);
+        edgeFork2 = getEdgeFork(point2, svgParameters.getEdgesForkLength(), angleFork2);
+    }
+    const edgeDirection1 = getEdgeDirection(point2, edgeFork1, edge.points?.at(0));
+    const edgeDirection2 = getEdgeDirection(point1, edgeFork2, edge.points?.at(-1));
+    const unknownBusNode1 = edge.busNode1 != null && edge.busNode1.length == 0;
+    const nodeRadius1 = getNodeRadius(busNode1, node1, svgParameters);
+    const edgeStart1 = getPointAtDistance(
+        point1,
+        edgeDirection1,
+        unknownBusNode1 ? nodeRadius1[1] + svgParameters.getUnknownBusNodeExtraRadius() : nodeRadius1[1]
+    );
+    const unknownBusNode2 = edge.busNode2 != null && edge.busNode2.length == 0;
+    const nodeRadius2 = getNodeRadius(busNode2, node2, svgParameters);
+    const edgeStart2 = getPointAtDistance(
+        point2,
+        edgeDirection2,
+        unknownBusNode2 ? nodeRadius2[1] + svgParameters.getUnknownBusNodeExtraRadius() : nodeRadius2[1]
+    );
+    const edgeMiddle = edgeFork1 && edgeFork2 ? getMidPosition(edgeFork1, edgeFork2) : getMidPosition(point1, point2);
+
+    // if transformer edge, reduce edge polyline, leaving space for the transformer
+    let edgeEnd1 = edgeMiddle;
+    let edgeEnd2 = edgeMiddle;
+    if (isTransformerEdge(edgeType)) {
+        const endShift = 1.5 * svgParameters.getTransformerCircleRadius();
+        edgeEnd1 = getPointAtDistance(edgeMiddle, edgeFork1 ?? edgeStart1, endShift);
+        edgeEnd2 = getPointAtDistance(edgeMiddle, edgeFork2 ?? edgeStart2, endShift);
+    }
+
+    const edgePoints = getEdgePoints(edgeStart1, edgeFork1, edgeStart2, edgeFork2, edgeEnd1, edgeEnd2, edge.points);
+    const halfEdge1: HalfEdge = {
+        side: '1',
+        startPolyline: edgeStart1,
+        middlePolyline: edgeFork1 ?? null,
+        endPolyline: edgeMiddle,
+        busInnerRadius: nodeRadius1[0],
+        busOuterRadius: nodeRadius1[1],
+        voltageLevelRadius: nodeRadius1[2],
+        edgeInfoId: edge.edgeInfo1?.svgId,
+        edgePoints: edgePoints[0],
+    };
+    const halfEdge2: HalfEdge = {
+        side: '2',
+        startPolyline: edgeStart2,
+        middlePolyline: edgeFork2 ?? null,
+        endPolyline: edgeMiddle,
+        busInnerRadius: nodeRadius2[0],
+        busOuterRadius: nodeRadius2[1],
+        voltageLevelRadius: nodeRadius2[2],
+        edgeInfoId: edge.edgeInfo2?.svgId,
+        edgePoints: edgePoints[1],
+    };
+    return [halfEdge1, halfEdge2];
+}
+
+export function isTransformerEdge(edgeType: EdgeType): boolean {
+    return edgeType == EdgeType.TWO_WINDINGS_TRANSFORMER || edgeType == EdgeType.PHASE_SHIFT_TRANSFORMER;
+}
+
+function getEdgeDirection(
+    nodePoint: Point,
+    edgeFork: Point | undefined,
+    firstBendingPoint: EdgePointMetadata | undefined
+): Point {
+    if (firstBendingPoint) return new Point(firstBendingPoint.x, firstBendingPoint.y);
+    if (edgeFork) return edgeFork;
+    return nodePoint;
+}
+
 // check if a DOM element is a text node
 export function isTextNode(element: SVGElement | null): boolean {
     return element != null && hasId(element) && element.classList.contains('nad-label-box');
@@ -787,14 +970,43 @@ export function getTextNodeMoves(
     ];
 }
 
-// get arrow element class, based on p value
-export function getArrowClass(p: number): string {
-    return p < 0 ? 'nad-state-in' : 'nad-state-out';
+// get edge info element class, based on type
+export function getEdgeInfoClass(edgeInfoType: string): string | null {
+    const classMap: Record<string, string> = {
+        ActivePower: 'nad-active',
+        ReactivePower: 'nad-reactive',
+        Current: 'nad-current',
+    };
+    return classMap[edgeInfoType];
 }
 
-export function isVlNodeFictitious(vlNodeId: string, nodes: NodeMetadata[] | undefined): boolean {
-    const node: NodeMetadata | undefined = nodes?.find((node) => node.svgId == vlNodeId);
-    return node?.fictitious ?? false;
+// get arrow element direction, based on p value
+export function getArrowDirection(p: number): string {
+    return p < 0 ? 'IN' : 'OUT';
+}
+
+// get arrow element path, based on direction
+export function getArrowPath(direction: string | undefined, svgParameters: SvgParameters): string | undefined {
+    switch (direction) {
+        case 'IN':
+            return svgParameters.getArrowPathIn();
+        case 'OUT':
+            return svgParameters.getArrowPathOut();
+        default:
+            return undefined;
+    }
+}
+
+// get arrow element path, based on direction
+export function getArrowClass(direction: string | undefined): string | undefined {
+    switch (direction) {
+        case 'IN':
+            return 'nad-arrow-in';
+        case 'OUT':
+            return 'nad-arrow-out';
+        default:
+            return undefined;
+    }
 }
 
 // get the element data from the element selected using the rigth button of the mouse

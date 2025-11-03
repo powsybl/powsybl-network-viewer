@@ -7,8 +7,16 @@
  */
 
 import * as DiagramUtils from './diagram-utils';
-import { EdgeMetadata, BusNodeMetadata, NodeMetadata, TextNodeMetadata, EdgePointMetadata } from './diagram-metadata';
-import { SVG, Point } from '@svgdotjs/svg.js';
+import {
+    BusNodeMetadata,
+    DiagramPaddingMetadata,
+    EdgeMetadata,
+    EdgePointMetadata,
+    NodeMetadata,
+    SvgParametersMetadata,
+    TextNodeMetadata
+} from './diagram-metadata';
+import { Point, SVG } from '@svgdotjs/svg.js';
 import { SvgParameters } from './svg-parameters';
 
 test('getFormattedValue', () => {
@@ -65,10 +73,10 @@ test('getAngle', () => {
 });
 
 test('getArrowAngle', () => {
-    expect(DiagramUtils.getArrowAngle(new Point(10, 10), new Point(50, 50))).toBe(135);
-    expect(DiagramUtils.getArrowAngle(new Point(10, 10), new Point(10, 50))).toBe(180);
-    expect(DiagramUtils.getArrowAngle(new Point(10, 10), new Point(50, 10))).toBe(90);
-    expect(DiagramUtils.getArrowAngle(new Point(50, 50), new Point(10, 10))).toBe(-45);
+    expect(DiagramUtils.getArrowRotation(new Point(10, 10), new Point(50, 50))).toBe(135);
+    expect(DiagramUtils.getArrowRotation(new Point(10, 10), new Point(10, 50))).toBe(180);
+    expect(DiagramUtils.getArrowRotation(new Point(10, 10), new Point(50, 10))).toBe(90);
+    expect(DiagramUtils.getArrowRotation(new Point(50, 50), new Point(10, 10))).toBe(-45);
 });
 
 test('getLabelData', () => {
@@ -143,33 +151,121 @@ test('getSelectableFrom', () => {
 });
 
 test('getVoltageLevelCircleRadius', () => {
-    expect(DiagramUtils.getVoltageLevelCircleRadius(0, 30)).toBe(30);
-    expect(DiagramUtils.getVoltageLevelCircleRadius(1, 30)).toBe(60);
-    expect(DiagramUtils.getVoltageLevelCircleRadius(2, 30)).toBe(60);
+    const diagramPaddingMetadata: DiagramPaddingMetadata = {
+        bottom: 0,
+        left: 0,
+        right: 0,
+        top: 0,
+    };
+    const svgParametersMetadata: SvgParametersMetadata = {
+        angleValuePrecision: 0,
+        arrowLabelShift: 0,
+        arrowPathIn: '',
+        arrowPathOut: '',
+        arrowShift: 0,
+        converterStationWidth: 0,
+        cssLocation: '',
+        currentValuePrecision: 0,
+        diagramPadding: diagramPaddingMetadata,
+        edgeInfoDisplayed: '',
+        edgeNameDisplayed: false,
+        edgesForkAperture: 0,
+        edgesForkLength: 0,
+        insertNameDesc: false,
+        interAnnulusSpace: 0,
+        nodeHollowWidth: 0,
+        powerValuePrecision: 0,
+        transformerCircleRadius: 0,
+        unknownBusNodeExtraRadius: 0,
+        voltageValuePrecision: 0,
+        voltageLevelCircleRadius: 30,
+        fictitiousVoltageLevelCircleRadius: 15,
+    };
+    const svgParameters = new SvgParameters(svgParametersMetadata);
+    expect(DiagramUtils.getVoltageLevelCircleRadius(0, true, svgParameters)).toBe(15);
+    expect(DiagramUtils.getVoltageLevelCircleRadius(0, false, svgParameters)).toBe(30);
+    expect(DiagramUtils.getVoltageLevelCircleRadius(1, false, svgParameters)).toBe(60);
+    expect(DiagramUtils.getVoltageLevelCircleRadius(2, false, svgParameters)).toBe(60);
 });
 
 test('getNodeRadius', () => {
-    let nodeRadius = DiagramUtils.getNodeRadius(0, 30, 0, 5);
+    const diagramPaddingMetadata: DiagramPaddingMetadata = {
+        bottom: 0,
+        left: 0,
+        right: 0,
+        top: 0,
+    };
+    const svgParametersMetadata: SvgParametersMetadata = {
+        angleValuePrecision: 0,
+        arrowLabelShift: 0,
+        arrowPathIn: '',
+        arrowPathOut: '',
+        arrowShift: 0,
+        converterStationWidth: 0,
+        cssLocation: '',
+        currentValuePrecision: 0,
+        diagramPadding: diagramPaddingMetadata,
+        edgeInfoDisplayed: '',
+        edgeNameDisplayed: false,
+        edgesForkAperture: 0,
+        edgesForkLength: 0,
+        insertNameDesc: false,
+        interAnnulusSpace: 5,
+        nodeHollowWidth: 0,
+        powerValuePrecision: 0,
+        transformerCircleRadius: 0,
+        unknownBusNodeExtraRadius: 0,
+        voltageValuePrecision: 0,
+        voltageLevelCircleRadius: 30,
+        fictitiousVoltageLevelCircleRadius: 15,
+    };
+    const svgParameters = new SvgParameters(svgParametersMetadata);
+
+    const busNode: BusNodeMetadata = {
+        equipmentId: '',
+        index: 0,
+        nbNeighbours: 0,
+        svgId: '',
+        vlNode: '',
+    };
+    const node: NodeMetadata = {
+        svgId: '4',
+        equipmentId: '',
+        x: 0,
+        y: 0,
+    };
+    let nodeRadius = DiagramUtils.getNodeRadius(busNode, node, svgParameters);
     expect(nodeRadius[0]).toBe(0);
     expect(nodeRadius[1]).toBe(27.5);
     expect(nodeRadius[2]).toBe(30);
-    nodeRadius = DiagramUtils.getNodeRadius(1, 30, 0, 5);
+
+    busNode.nbNeighbours = 1;
+    nodeRadius = DiagramUtils.getNodeRadius(busNode, node, svgParameters);
     expect(nodeRadius[0]).toBe(0);
     expect(nodeRadius[1]).toBe(27.5);
     expect(nodeRadius[2]).toBe(60);
-    nodeRadius = DiagramUtils.getNodeRadius(1, 30, 1, 5);
+
+    busNode.index = 1;
+    nodeRadius = DiagramUtils.getNodeRadius(busNode, node, svgParameters);
     expect(nodeRadius[0]).toBe(32.5);
     expect(nodeRadius[1]).toBe(57.5);
     expect(nodeRadius[2]).toBe(60);
-    nodeRadius = DiagramUtils.getNodeRadius(2, 30, 0, 5);
+
+    busNode.nbNeighbours = 2;
+    busNode.index = 0;
+    nodeRadius = DiagramUtils.getNodeRadius(busNode, node, svgParameters);
     expect(nodeRadius[0]).toBe(0);
     expect(nodeRadius[1]).toBe(17.5);
     expect(nodeRadius[2]).toBe(60);
-    nodeRadius = DiagramUtils.getNodeRadius(2, 30, 1, 5);
+
+    busNode.index = 1;
+    nodeRadius = DiagramUtils.getNodeRadius(busNode, node, svgParameters);
     expect(nodeRadius[0]).toBe(22.5);
     expect(nodeRadius[1]).toBe(37.5);
     expect(nodeRadius[2]).toBe(60);
-    nodeRadius = DiagramUtils.getNodeRadius(2, 30, 2, 5);
+
+    busNode.index = 2;
+    nodeRadius = DiagramUtils.getNodeRadius(busNode, node, svgParameters);
     expect(nodeRadius[0]).toBe(42.5);
     expect(nodeRadius[1]).toBe(57.5);
     expect(nodeRadius[2]).toBe(60);
@@ -380,28 +476,41 @@ test('getTextNodeMoves', () => {
 });
 
 test('getArrowClass', () => {
-    expect(DiagramUtils.getArrowClass(12)).toBe('nad-state-out');
-    expect(DiagramUtils.getArrowClass(-12)).toBe('nad-state-in');
-});
-
-test('isVlNodeFictitious', () => {
-    const nodes: NodeMetadata[] = [
-        {
-            svgId: '0',
-            equipmentId: 'vl',
-            x: 189.53,
-            y: 123.47,
-        },
-        {
-            svgId: '2',
-            equipmentId: 'vl2',
-            x: -171.8,
-            y: 131.88,
-            fictitious: true,
-        },
-    ];
-    expect(DiagramUtils.isVlNodeFictitious('0', nodes)).toBe(false);
-    expect(DiagramUtils.isVlNodeFictitious('2', nodes)).toBe(true);
+    const diagramPaddingMetadata: DiagramPaddingMetadata = {
+        bottom: 0,
+        left: 0,
+        right: 0,
+        top: 0,
+    };
+    const arrowPathIn = 'M-10 -10 H10 L0 10z';
+    const arrowPathOut = 'M-10 10 H10 L0 -10z';
+    const svgParametersMetadata: SvgParametersMetadata = {
+        angleValuePrecision: 0,
+        arrowLabelShift: 0,
+        arrowPathIn: arrowPathIn,
+        arrowPathOut: arrowPathOut,
+        arrowShift: 0,
+        converterStationWidth: 0,
+        cssLocation: '',
+        currentValuePrecision: 0,
+        diagramPadding: diagramPaddingMetadata,
+        edgeInfoDisplayed: '',
+        edgeNameDisplayed: false,
+        edgesForkAperture: 0,
+        edgesForkLength: 0,
+        insertNameDesc: false,
+        interAnnulusSpace: 0,
+        nodeHollowWidth: 0,
+        powerValuePrecision: 0,
+        transformerCircleRadius: 0,
+        unknownBusNodeExtraRadius: 0,
+        voltageValuePrecision: 0,
+        voltageLevelCircleRadius: 30,
+        fictitiousVoltageLevelCircleRadius: 15,
+    };
+    const svgParameters = new SvgParameters(svgParametersMetadata);
+    expect(DiagramUtils.getArrowPath('IN', svgParameters)).toBe(arrowPathIn);
+    expect(DiagramUtils.getArrowPath('OUT', svgParameters)).toBe(arrowPathOut);
 });
 
 test('getRightClickableElementData', () => {
