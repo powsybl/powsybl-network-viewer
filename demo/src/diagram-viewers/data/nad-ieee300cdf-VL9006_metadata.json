@@ -63,214 +63,214 @@
     "edgeInfosIncluded" : true
   },
   "busNodes" : [ {
-    "svgId" : "6",
+    "svgId" : "5",
     "equipmentId" : "VL37_1",
     "nbNeighbours" : 1,
     "index" : 0,
     "vlNode" : "0",
     "legend" : "116.5 kV / 1.9°"
   }, {
-    "svgId" : "5",
+    "svgId" : "4",
     "equipmentId" : "VL37_0",
     "nbNeighbours" : 1,
     "index" : 1,
     "vlNode" : "0",
     "legend" : "117.5 kV / 1.9°"
   }, {
-    "svgId" : "12",
+    "svgId" : "10",
     "equipmentId" : "VL9002_0",
     "nbNeighbours" : 0,
     "index" : 0,
-    "vlNode" : "7",
+    "vlNode" : "6",
     "legend" : "6.6 kV / -3.5°"
   }, {
-    "svgId" : "20",
+    "svgId" : "17",
     "equipmentId" : "VL9003_0",
     "nbNeighbours" : 0,
     "index" : 0,
-    "vlNode" : "13",
+    "vlNode" : "11",
     "legend" : "6.5 kV / -6.2°"
   }, {
-    "svgId" : "24",
+    "svgId" : "20",
     "equipmentId" : "VL9006_0",
     "nbNeighbours" : 1,
     "index" : 0,
-    "vlNode" : "21",
+    "vlNode" : "18",
     "legend" : "6.6 kV / -4.0°"
   }, {
-    "svgId" : "25",
+    "svgId" : "21",
     "equipmentId" : "VL9006_1",
     "nbNeighbours" : 1,
     "index" : 1,
-    "vlNode" : "21",
+    "vlNode" : "18",
     "legend" : "6.6 kV / -2.5°"
   }, {
-    "svgId" : "29",
+    "svgId" : "24",
     "equipmentId" : "VL9007_0",
     "nbNeighbours" : 0,
     "index" : 0,
-    "vlNode" : "26",
+    "vlNode" : "22",
     "legend" : "6.6 kV / -5.2°"
   }, {
-    "svgId" : "35",
+    "svgId" : "29",
     "equipmentId" : "VL9121_0",
     "nbNeighbours" : 0,
     "index" : 0,
-    "vlNode" : "30",
+    "vlNode" : "25",
     "legend" : "6.5 kV / -4.5°"
   }, {
-    "svgId" : "40",
+    "svgId" : "33",
     "equipmentId" : "VL15_1",
     "nbNeighbours" : 1,
     "index" : 0,
-    "vlNode" : "36",
+    "vlNode" : "30",
     "legend" : "122.0 kV / 4.6°"
   }, {
-    "svgId" : "39",
+    "svgId" : "32",
     "equipmentId" : "VL15_0",
     "nbNeighbours" : 1,
     "index" : 1,
-    "vlNode" : "36",
+    "vlNode" : "30",
     "legend" : "118.3 kV / 9.1°"
   }, {
-    "svgId" : "44",
+    "svgId" : "36",
     "equipmentId" : "VL38_0",
     "nbNeighbours" : 0,
     "index" : 0,
-    "vlNode" : "41",
+    "vlNode" : "34",
     "legend" : "117.6 kV / 1.7°"
   }, {
-    "svgId" : "48",
+    "svgId" : "39",
     "equipmentId" : "VL40_0",
     "nbNeighbours" : 0,
     "index" : 0,
-    "vlNode" : "45",
+    "vlNode" : "37",
     "legend" : "117.9 kV / 1.5°"
   }, {
-    "svgId" : "52",
+    "svgId" : "42",
     "equipmentId" : "VL41_0",
     "nbNeighbours" : 0,
     "index" : 0,
-    "vlNode" : "49",
+    "vlNode" : "40",
     "legend" : "118.9 kV / 3.5°"
   }, {
-    "svgId" : "56",
+    "svgId" : "45",
     "equipmentId" : "VL49_0",
     "nbNeighbours" : 0,
     "index" : 0,
-    "vlNode" : "53",
+    "vlNode" : "43",
     "legend" : "119.6 kV / -0.0°"
   }, {
-    "svgId" : "60",
+    "svgId" : "48",
     "equipmentId" : "VL89_0",
     "nbNeighbours" : 0,
     "index" : 0,
-    "vlNode" : "57",
+    "vlNode" : "46",
     "legend" : "118.4 kV / 5.5°"
   }, {
-    "svgId" : "64",
+    "svgId" : "51",
     "equipmentId" : "VL90_0",
     "nbNeighbours" : 0,
     "index" : 0,
-    "vlNode" : "61",
+    "vlNode" : "49",
     "legend" : "118.2 kV / 4.0°"
   }, {
-    "svgId" : "68",
+    "svgId" : "54",
     "equipmentId" : "VL9005_0",
     "nbNeighbours" : 0,
     "index" : 0,
-    "vlNode" : "65",
+    "vlNode" : "52",
     "legend" : "116.5 kV / 1.9°"
   }, {
-    "svgId" : "72",
+    "svgId" : "57",
     "equipmentId" : "VL9021_0",
     "nbNeighbours" : 0,
     "index" : 0,
-    "vlNode" : "69",
+    "vlNode" : "55",
     "legend" : "6.5 kV / -3.7°"
   }, {
-    "svgId" : "76",
+    "svgId" : "60",
     "equipmentId" : "VL9024_0",
     "nbNeighbours" : 0,
     "index" : 0,
-    "vlNode" : "73",
+    "vlNode" : "58",
     "legend" : "0.6 kV / -6.0°"
   }, {
-    "svgId" : "80",
+    "svgId" : "63",
     "equipmentId" : "VL9031_0",
     "nbNeighbours" : 6,
     "index" : 0,
-    "vlNode" : "77",
+    "vlNode" : "61",
     "legend" : "0.6 kV / -11.2°"
   }, {
-    "svgId" : "81",
+    "svgId" : "64",
     "equipmentId" : "VL9031_1",
     "nbNeighbours" : 6,
     "index" : 1,
-    "vlNode" : "77",
+    "vlNode" : "61",
     "legend" : "0.6 kV / -10.1°"
   }, {
-    "svgId" : "82",
+    "svgId" : "65",
     "equipmentId" : "VL9031_2",
     "nbNeighbours" : 6,
     "index" : 2,
-    "vlNode" : "77",
+    "vlNode" : "61",
     "legend" : "0.6 kV / -11.5°"
   }, {
-    "svgId" : "83",
+    "svgId" : "66",
     "equipmentId" : "VL9031_3",
     "nbNeighbours" : 6,
     "index" : 3,
-    "vlNode" : "77",
+    "vlNode" : "61",
     "legend" : "0.6 kV / -7.5°"
   }, {
-    "svgId" : "84",
+    "svgId" : "67",
     "equipmentId" : "VL9031_4",
     "nbNeighbours" : 6,
     "index" : 4,
-    "vlNode" : "77",
+    "vlNode" : "61",
     "legend" : "0.6 kV / -9.5°"
   }, {
-    "svgId" : "85",
+    "svgId" : "68",
     "equipmentId" : "VL9031_5",
     "nbNeighbours" : 6,
     "index" : 5,
-    "vlNode" : "77",
+    "vlNode" : "61",
     "legend" : "0.6 kV / -8.9°"
   }, {
-    "svgId" : "86",
+    "svgId" : "69",
     "equipmentId" : "VL9031_6",
     "nbNeighbours" : 6,
     "index" : 6,
-    "vlNode" : "77",
+    "vlNode" : "61",
     "legend" : "0.6 kV / -10.6°"
   }, {
-    "svgId" : "90",
+    "svgId" : "72",
     "equipmentId" : "VL9036_0",
     "nbNeighbours" : 0,
     "index" : 0,
-    "vlNode" : "87",
+    "vlNode" : "70",
     "legend" : "2.2 kV / -9.1°"
   }, {
-    "svgId" : "94",
+    "svgId" : "75",
     "equipmentId" : "VL9044_0",
     "nbNeighbours" : 0,
     "index" : 0,
-    "vlNode" : "91",
+    "vlNode" : "73",
     "legend" : "6.5 kV / -6.3°"
   }, {
-    "svgId" : "98",
+    "svgId" : "78",
     "equipmentId" : "VL9071_0",
     "nbNeighbours" : 1,
     "index" : 0,
-    "vlNode" : "95",
+    "vlNode" : "76",
     "legend" : "0.6 kV / -6.9°"
   }, {
-    "svgId" : "99",
+    "svgId" : "79",
     "equipmentId" : "VL9071_1",
     "nbNeighbours" : 1,
     "index" : 1,
-    "vlNode" : "95",
+    "vlNode" : "76",
     "legend" : "0.6 kV / -6.4°"
   } ],
   "nodes" : [ {
@@ -279,845 +279,825 @@
     "x" : 640.93,
     "y" : -338.93,
     "legendSvgId" : "1",
-    "legendEdgeSvgId" : "2",
     "legendHeader" : [ "VL37" ]
   }, {
-    "svgId" : "7",
+    "svgId" : "6",
     "equipmentId" : "VL9002",
     "x" : -234.64,
     "y" : 877.48,
-    "legendSvgId" : "8",
-    "legendEdgeSvgId" : "9",
+    "legendSvgId" : "7",
     "legendHeader" : [ "VL9002" ]
   }, {
-    "svgId" : "13",
+    "svgId" : "11",
     "equipmentId" : "VL9003",
     "x" : -694.48,
     "y" : -222.95,
-    "legendSvgId" : "14",
-    "legendEdgeSvgId" : "15",
+    "legendSvgId" : "12",
     "legendHeader" : [ "VL9003" ]
   }, {
-    "svgId" : "21",
+    "svgId" : "18",
     "equipmentId" : "VL9006",
     "x" : -181.31,
     "y" : 169.17,
-    "legendSvgId" : "22",
-    "legendEdgeSvgId" : "23",
+    "legendSvgId" : "19",
     "legendHeader" : [ "VL9006" ]
   }, {
-    "svgId" : "26",
+    "svgId" : "22",
     "equipmentId" : "VL9007",
     "x" : -665.51,
     "y" : 200.12,
-    "legendSvgId" : "27",
-    "legendEdgeSvgId" : "28",
+    "legendSvgId" : "23",
     "legendHeader" : [ "VL9007" ]
   }, {
-    "svgId" : "30",
+    "svgId" : "25",
     "equipmentId" : "VL9121",
     "x" : 32.67,
     "y" : 479.2,
-    "legendSvgId" : "31",
-    "legendEdgeSvgId" : "32",
+    "legendSvgId" : "26",
     "legendHeader" : [ "VL9121" ]
   }, {
-    "svgId" : "36",
+    "svgId" : "30",
     "equipmentId" : "VL15",
     "x" : 1174.06,
     "y" : -237.85,
-    "legendSvgId" : "37",
-    "legendEdgeSvgId" : "38",
+    "legendSvgId" : "31",
     "legendHeader" : [ "VL15" ]
   }, {
-    "svgId" : "41",
+    "svgId" : "34",
     "equipmentId" : "VL38",
     "x" : 1172.11,
     "y" : -655.15,
-    "legendSvgId" : "42",
-    "legendEdgeSvgId" : "43",
+    "legendSvgId" : "35",
     "legendHeader" : [ "VL38" ]
   }, {
-    "svgId" : "45",
+    "svgId" : "37",
     "equipmentId" : "VL40",
     "x" : 650.79,
     "y" : -994.74,
-    "legendSvgId" : "46",
-    "legendEdgeSvgId" : "47",
+    "legendSvgId" : "38",
     "legendHeader" : [ "VL40" ]
   }, {
-    "svgId" : "49",
+    "svgId" : "40",
     "equipmentId" : "VL41",
     "x" : 262.66,
     "y" : -288.42,
-    "legendSvgId" : "50",
-    "legendEdgeSvgId" : "51",
+    "legendSvgId" : "41",
     "legendHeader" : [ "VL41" ]
   }, {
-    "svgId" : "53",
+    "svgId" : "43",
     "equipmentId" : "VL49",
     "x" : 290.91,
     "y" : -733.98,
-    "legendSvgId" : "54",
-    "legendEdgeSvgId" : "55",
+    "legendSvgId" : "44",
     "legendHeader" : [ "VL49" ]
   }, {
-    "svgId" : "57",
+    "svgId" : "46",
     "equipmentId" : "VL89",
     "x" : 588.59,
     "y" : 109.54,
-    "legendSvgId" : "58",
-    "legendEdgeSvgId" : "59",
+    "legendSvgId" : "47",
     "legendHeader" : [ "VL89" ]
   }, {
-    "svgId" : "61",
+    "svgId" : "49",
     "equipmentId" : "VL90",
     "x" : 983.96,
     "y" : 103.34,
-    "legendSvgId" : "62",
-    "legendEdgeSvgId" : "63",
+    "legendSvgId" : "50",
     "legendHeader" : [ "VL90" ]
   }, {
-    "svgId" : "65",
+    "svgId" : "52",
     "equipmentId" : "VL9005",
     "x" : 800.81,
     "y" : -657.26,
-    "legendSvgId" : "66",
-    "legendEdgeSvgId" : "67",
+    "legendSvgId" : "53",
     "legendHeader" : [ "VL9005" ]
   }, {
-    "svgId" : "69",
+    "svgId" : "55",
     "equipmentId" : "VL9021",
     "x" : 19.76,
     "y" : 1247.29,
-    "legendSvgId" : "70",
-    "legendEdgeSvgId" : "71",
+    "legendSvgId" : "56",
     "legendHeader" : [ "VL9021" ]
   }, {
-    "svgId" : "73",
+    "svgId" : "58",
     "equipmentId" : "VL9024",
     "x" : -529.95,
     "y" : 1193.31,
-    "legendSvgId" : "74",
-    "legendEdgeSvgId" : "75",
+    "legendSvgId" : "59",
     "legendHeader" : [ "VL9024" ]
   }, {
-    "svgId" : "77",
+    "svgId" : "61",
     "equipmentId" : "VL9031",
     "x" : -956.12,
     "y" : -644.58,
-    "legendSvgId" : "78",
-    "legendEdgeSvgId" : "79",
+    "legendSvgId" : "62",
     "legendHeader" : [ "VL9031" ]
   }, {
-    "svgId" : "87",
+    "svgId" : "70",
     "equipmentId" : "VL9036",
     "x" : -510.41,
     "y" : -604.32,
-    "legendSvgId" : "88",
-    "legendEdgeSvgId" : "89",
+    "legendSvgId" : "71",
     "legendHeader" : [ "VL9036" ]
   }, {
-    "svgId" : "91",
+    "svgId" : "73",
     "equipmentId" : "VL9044",
     "x" : -1158.33,
     "y" : -213.76,
-    "legendSvgId" : "92",
-    "legendEdgeSvgId" : "93",
+    "legendSvgId" : "74",
     "legendHeader" : [ "VL9044" ]
   }, {
-    "svgId" : "95",
+    "svgId" : "76",
     "equipmentId" : "VL9071",
     "x" : -1026.69,
     "y" : 455.81,
-    "legendSvgId" : "96",
-    "legendEdgeSvgId" : "97",
+    "legendSvgId" : "77",
     "legendHeader" : [ "VL9071" ]
   } ],
   "injections" : [ {
-    "svgId" : "3",
+    "svgId" : "2",
     "equipmentId" : "B37-L",
     "componentType" : "LOAD",
-    "busNodeId" : "5",
+    "busNodeId" : "4",
     "vlNodeId" : "0",
     "edgeInfo" : {
-      "svgId" : "4",
+      "svgId" : "3",
       "infoType" : "ActivePower",
       "direction" : "OUT",
       "externalLabel" : "85"
     }
   }, {
-    "svgId" : "10",
+    "svgId" : "8",
     "equipmentId" : "B9002-G",
     "componentType" : "GENERATOR",
-    "busNodeId" : "12",
-    "vlNodeId" : "7",
+    "busNodeId" : "10",
+    "vlNodeId" : "6",
     "edgeInfo" : {
-      "svgId" : "11",
+      "svgId" : "9",
       "infoType" : "ActivePower",
       "direction" : "OUT",
       "externalLabel" : "-0"
     }
   }, {
-    "svgId" : "16",
+    "svgId" : "13",
     "equipmentId" : "B9003-L",
     "componentType" : "LOAD",
-    "busNodeId" : "20",
-    "vlNodeId" : "13",
+    "busNodeId" : "17",
+    "vlNodeId" : "11",
     "edgeInfo" : {
-      "svgId" : "17",
+      "svgId" : "14",
       "infoType" : "ActivePower",
       "direction" : "OUT",
       "externalLabel" : "3"
     }
   }, {
-    "svgId" : "18",
+    "svgId" : "15",
     "equipmentId" : "B9003-SH",
     "componentType" : "SHUNT_COMPENSATOR_CAPACITOR",
-    "busNodeId" : "20",
-    "vlNodeId" : "13",
+    "busNodeId" : "17",
+    "vlNodeId" : "11",
     "edgeInfo" : {
-      "svgId" : "19",
+      "svgId" : "16",
       "infoType" : "ActivePower",
       "direction" : "OUT",
       "externalLabel" : "0"
     }
   }, {
-    "svgId" : "33",
+    "svgId" : "27",
     "equipmentId" : "B9121-L",
     "componentType" : "LOAD",
-    "busNodeId" : "35",
-    "vlNodeId" : "30",
+    "busNodeId" : "29",
+    "vlNodeId" : "25",
     "edgeInfo" : {
-      "svgId" : "34",
+      "svgId" : "28",
       "infoType" : "ActivePower",
       "direction" : "OUT",
       "externalLabel" : "4"
     }
   } ],
   "edges" : [ {
-    "svgId" : "100",
+    "svgId" : "80",
     "equipmentId" : "L15-37-1",
-    "node1" : "36",
+    "node1" : "30",
     "node2" : "0",
-    "busNode1" : "39",
-    "busNode2" : "5",
+    "busNode1" : "32",
+    "busNode2" : "4",
     "type" : "LineEdge",
     "edgeInfo1" : {
-      "svgId" : "101",
+      "svgId" : "81",
       "infoType" : "ActivePower",
       "direction" : "OUT",
       "externalLabel" : "51"
     },
     "edgeInfo2" : {
-      "svgId" : "102",
+      "svgId" : "82",
       "infoType" : "ActivePower",
       "direction" : "IN",
       "externalLabel" : "-49"
     }
   }, {
-    "svgId" : "103",
+    "svgId" : "83",
     "equipmentId" : "L37-38-1",
     "node1" : "0",
-    "node2" : "41",
-    "busNode1" : "5",
-    "busNode2" : "44",
+    "node2" : "34",
+    "busNode1" : "4",
+    "busNode2" : "36",
     "type" : "LineEdge",
     "edgeInfo1" : {
-      "svgId" : "104",
+      "svgId" : "84",
       "infoType" : "ActivePower",
       "direction" : "OUT",
       "externalLabel" : "7"
     },
     "edgeInfo2" : {
-      "svgId" : "105",
+      "svgId" : "85",
       "infoType" : "ActivePower",
       "direction" : "IN",
       "externalLabel" : "-7"
     }
   }, {
-    "svgId" : "106",
+    "svgId" : "86",
     "equipmentId" : "L37-40-1",
     "node1" : "0",
-    "node2" : "45",
-    "busNode1" : "5",
-    "busNode2" : "48",
+    "node2" : "37",
+    "busNode1" : "4",
+    "busNode2" : "39",
     "type" : "LineEdge",
     "edgeInfo1" : {
-      "svgId" : "107",
+      "svgId" : "87",
       "infoType" : "ActivePower",
       "direction" : "OUT",
       "externalLabel" : "9"
     },
     "edgeInfo2" : {
-      "svgId" : "108",
+      "svgId" : "88",
       "infoType" : "ActivePower",
       "direction" : "IN",
       "externalLabel" : "-9"
     }
   }, {
-    "svgId" : "109",
+    "svgId" : "89",
     "equipmentId" : "L37-41-1",
     "node1" : "0",
-    "node2" : "49",
-    "busNode1" : "5",
-    "busNode2" : "52",
+    "node2" : "40",
+    "busNode1" : "4",
+    "busNode2" : "42",
     "type" : "LineEdge",
     "edgeInfo1" : {
-      "svgId" : "110",
+      "svgId" : "90",
       "infoType" : "ActivePower",
       "direction" : "IN",
       "externalLabel" : "-82"
     },
     "edgeInfo2" : {
-      "svgId" : "111",
+      "svgId" : "91",
       "infoType" : "ActivePower",
       "direction" : "OUT",
       "externalLabel" : "83"
     }
   }, {
-    "svgId" : "112",
+    "svgId" : "92",
     "equipmentId" : "L37-49-1",
     "node1" : "0",
-    "node2" : "53",
-    "busNode1" : "5",
-    "busNode2" : "56",
+    "node2" : "43",
+    "busNode1" : "4",
+    "busNode2" : "45",
     "type" : "LineEdge",
     "edgeInfo1" : {
-      "svgId" : "113",
+      "svgId" : "93",
       "infoType" : "ActivePower",
       "direction" : "OUT",
       "externalLabel" : "38"
     },
     "edgeInfo2" : {
-      "svgId" : "114",
+      "svgId" : "94",
       "infoType" : "ActivePower",
       "direction" : "IN",
       "externalLabel" : "-37"
     }
   }, {
-    "svgId" : "115",
+    "svgId" : "95",
     "equipmentId" : "L37-89-1",
     "node1" : "0",
-    "node2" : "57",
-    "busNode1" : "5",
-    "busNode2" : "60",
+    "node2" : "46",
+    "busNode1" : "4",
+    "busNode2" : "48",
     "type" : "LineEdge",
     "edgeInfo1" : {
-      "svgId" : "116",
+      "svgId" : "96",
       "infoType" : "ActivePower",
       "direction" : "IN",
       "externalLabel" : "-23"
     },
     "edgeInfo2" : {
-      "svgId" : "117",
+      "svgId" : "97",
       "infoType" : "ActivePower",
       "direction" : "OUT",
       "externalLabel" : "24"
     }
   }, {
-    "svgId" : "118",
+    "svgId" : "98",
     "equipmentId" : "L37-90-1",
     "node1" : "0",
-    "node2" : "61",
-    "busNode1" : "5",
-    "busNode2" : "64",
+    "node2" : "49",
+    "busNode1" : "4",
+    "busNode2" : "51",
     "type" : "LineEdge",
     "edgeInfo1" : {
-      "svgId" : "119",
+      "svgId" : "99",
       "infoType" : "ActivePower",
       "direction" : "IN",
       "externalLabel" : "-28"
     },
     "edgeInfo2" : {
-      "svgId" : "120",
+      "svgId" : "100",
       "infoType" : "ActivePower",
       "direction" : "OUT",
       "externalLabel" : "28"
     }
   }, {
-    "svgId" : "121",
+    "svgId" : "101",
     "equipmentId" : "L9001-9005-1",
     "node1" : "0",
-    "node2" : "65",
-    "busNode1" : "6",
-    "busNode2" : "68",
+    "node2" : "52",
+    "busNode1" : "5",
+    "busNode2" : "54",
     "type" : "LineEdge",
     "edgeInfo1" : {
-      "svgId" : "122",
+      "svgId" : "102",
       "infoType" : "ActivePower",
       "direction" : "OUT",
       "externalLabel" : "6"
     },
     "edgeInfo2" : {
-      "svgId" : "123",
+      "svgId" : "103",
       "infoType" : "ActivePower",
       "direction" : "IN",
       "externalLabel" : "-6"
     }
   }, {
-    "svgId" : "124",
+    "svgId" : "104",
     "equipmentId" : "T37-9001-1",
     "node1" : "0",
     "node2" : "0",
-    "busNode1" : "5",
-    "busNode2" : "6",
+    "busNode1" : "4",
+    "busNode2" : "5",
     "type" : "TwoWtEdge",
     "edgeInfo1" : {
-      "svgId" : "125",
+      "svgId" : "105",
       "infoType" : "ActivePower",
       "direction" : "OUT",
       "externalLabel" : "44"
     },
     "edgeInfo2" : {
-      "svgId" : "126",
+      "svgId" : "106",
       "infoType" : "ActivePower",
       "direction" : "IN",
       "externalLabel" : "-44"
     }
   }, {
-    "svgId" : "127",
+    "svgId" : "107",
     "equipmentId" : "T9001-9006-1",
     "node1" : "0",
-    "node2" : "21",
-    "busNode1" : "6",
-    "busNode2" : "24",
+    "node2" : "18",
+    "busNode1" : "5",
+    "busNode2" : "20",
     "type" : "TwoWtEdge",
     "edgeInfo1" : {
-      "svgId" : "128",
+      "svgId" : "108",
       "infoType" : "ActivePower",
       "direction" : "OUT",
       "externalLabel" : "25"
     },
     "edgeInfo2" : {
-      "svgId" : "129",
+      "svgId" : "109",
       "infoType" : "ActivePower",
       "direction" : "IN",
       "externalLabel" : "-25"
     }
   }, {
-    "svgId" : "130",
+    "svgId" : "110",
     "equipmentId" : "T9001-9012-1",
     "node1" : "0",
-    "node2" : "21",
-    "busNode1" : "6",
-    "busNode2" : "25",
+    "node2" : "18",
+    "busNode1" : "5",
+    "busNode2" : "21",
     "type" : "TwoWtEdge",
     "edgeInfo1" : {
-      "svgId" : "131",
+      "svgId" : "111",
       "infoType" : "ActivePower",
       "direction" : "OUT",
       "externalLabel" : "13"
     },
     "edgeInfo2" : {
-      "svgId" : "132",
+      "svgId" : "112",
       "infoType" : "ActivePower",
       "direction" : "IN",
       "externalLabel" : "-12"
     }
   }, {
-    "svgId" : "133",
-    "equipmentId" : "L9002-9021-1",
-    "node1" : "7",
-    "node2" : "69",
-    "busNode1" : "12",
-    "busNode2" : "72",
+    "svgId" : "113",
+    "equipmentId" : "L9012-9002-1",
+    "node1" : "18",
+    "node2" : "6",
+    "busNode1" : "21",
+    "busNode2" : "10",
     "type" : "LineEdge",
     "edgeInfo1" : {
-      "svgId" : "134",
+      "svgId" : "114",
+      "infoType" : "ActivePower",
+      "direction" : "OUT",
+      "externalLabel" : "4"
+    },
+    "edgeInfo2" : {
+      "svgId" : "115",
+      "infoType" : "ActivePower",
+      "direction" : "IN",
+      "externalLabel" : "-4"
+    }
+  }, {
+    "svgId" : "116",
+    "equipmentId" : "L9012-9002-2",
+    "node1" : "18",
+    "node2" : "6",
+    "busNode1" : "21",
+    "busNode2" : "10",
+    "type" : "LineEdge",
+    "edgeInfo1" : {
+      "svgId" : "117",
+      "infoType" : "ActivePower",
+      "direction" : "OUT",
+      "externalLabel" : "4"
+    },
+    "edgeInfo2" : {
+      "svgId" : "118",
+      "infoType" : "ActivePower",
+      "direction" : "IN",
+      "externalLabel" : "-4"
+    }
+  }, {
+    "svgId" : "119",
+    "equipmentId" : "L9002-9021-1",
+    "node1" : "6",
+    "node2" : "55",
+    "busNode1" : "10",
+    "busNode2" : "57",
+    "type" : "LineEdge",
+    "edgeInfo1" : {
+      "svgId" : "120",
       "infoType" : "ActivePower",
       "direction" : "OUT",
       "externalLabel" : "7"
     },
     "edgeInfo2" : {
+      "svgId" : "121",
+      "infoType" : "ActivePower",
+      "direction" : "IN",
+      "externalLabel" : "-7"
+    }
+  }, {
+    "svgId" : "122",
+    "equipmentId" : "T9002-9024-1",
+    "node1" : "6",
+    "node2" : "58",
+    "busNode1" : "10",
+    "busNode2" : "60",
+    "type" : "TwoWtEdge",
+    "edgeInfo1" : {
+      "svgId" : "123",
+      "infoType" : "ActivePower",
+      "direction" : "OUT",
+      "externalLabel" : "1"
+    },
+    "edgeInfo2" : {
+      "svgId" : "124",
+      "infoType" : "ActivePower",
+      "direction" : "IN",
+      "externalLabel" : "-1"
+    }
+  }, {
+    "svgId" : "125",
+    "equipmentId" : "L9006-9003-1",
+    "node1" : "18",
+    "node2" : "11",
+    "busNode1" : "20",
+    "busNode2" : "17",
+    "type" : "LineEdge",
+    "edgeInfo1" : {
+      "svgId" : "126",
+      "infoType" : "ActivePower",
+      "direction" : "OUT",
+      "externalLabel" : "8"
+    },
+    "edgeInfo2" : {
+      "svgId" : "127",
+      "infoType" : "ActivePower",
+      "direction" : "IN",
+      "externalLabel" : "-8"
+    }
+  }, {
+    "svgId" : "128",
+    "equipmentId" : "L9006-9003-2",
+    "node1" : "18",
+    "node2" : "11",
+    "busNode1" : "20",
+    "busNode2" : "17",
+    "type" : "LineEdge",
+    "edgeInfo1" : {
+      "svgId" : "129",
+      "infoType" : "ActivePower",
+      "direction" : "OUT",
+      "externalLabel" : "8"
+    },
+    "edgeInfo2" : {
+      "svgId" : "130",
+      "infoType" : "ActivePower",
+      "direction" : "IN",
+      "externalLabel" : "-8"
+    }
+  }, {
+    "svgId" : "131",
+    "equipmentId" : "L9007-9003-1",
+    "node1" : "22",
+    "node2" : "11",
+    "busNode1" : "24",
+    "busNode2" : "17",
+    "type" : "LineEdge",
+    "edgeInfo1" : {
+      "svgId" : "132",
+      "infoType" : "ActivePower",
+      "direction" : "OUT",
+      "externalLabel" : "7"
+    },
+    "edgeInfo2" : {
+      "svgId" : "133",
+      "infoType" : "ActivePower",
+      "direction" : "IN",
+      "externalLabel" : "-7"
+    }
+  }, {
+    "svgId" : "134",
+    "equipmentId" : "L9003-9044-1",
+    "node1" : "11",
+    "node2" : "73",
+    "busNode1" : "17",
+    "busNode2" : "75",
+    "type" : "LineEdge",
+    "edgeInfo1" : {
       "svgId" : "135",
       "infoType" : "ActivePower",
-      "direction" : "IN",
-      "externalLabel" : "-7"
-    }
-  }, {
-    "svgId" : "136",
-    "equipmentId" : "L9012-9002-1",
-    "node1" : "21",
-    "node2" : "7",
-    "busNode1" : "25",
-    "busNode2" : "12",
-    "type" : "LineEdge",
-    "edgeInfo1" : {
-      "svgId" : "137",
-      "infoType" : "ActivePower",
       "direction" : "OUT",
       "externalLabel" : "4"
     },
     "edgeInfo2" : {
+      "svgId" : "136",
+      "infoType" : "ActivePower",
+      "direction" : "IN",
+      "externalLabel" : "-4"
+    }
+  }, {
+    "svgId" : "137",
+    "equipmentId" : "T9003-9031-1",
+    "node1" : "11",
+    "node2" : "61",
+    "busNode1" : "17",
+    "busNode2" : "63",
+    "type" : "TwoWtEdge",
+    "edgeInfo1" : {
       "svgId" : "138",
       "infoType" : "ActivePower",
-      "direction" : "IN",
-      "externalLabel" : "-4"
-    }
-  }, {
-    "svgId" : "139",
-    "equipmentId" : "L9012-9002-2",
-    "node1" : "21",
-    "node2" : "7",
-    "busNode1" : "25",
-    "busNode2" : "12",
-    "type" : "LineEdge",
-    "edgeInfo1" : {
-      "svgId" : "140",
-      "infoType" : "ActivePower",
       "direction" : "OUT",
-      "externalLabel" : "4"
+      "externalLabel" : "2"
     },
     "edgeInfo2" : {
+      "svgId" : "139",
+      "infoType" : "ActivePower",
+      "direction" : "IN",
+      "externalLabel" : "-2"
+    }
+  }, {
+    "svgId" : "140",
+    "equipmentId" : "T9003-9032-1",
+    "node1" : "11",
+    "node2" : "61",
+    "busNode1" : "17",
+    "busNode2" : "64",
+    "type" : "TwoWtEdge",
+    "edgeInfo1" : {
       "svgId" : "141",
       "infoType" : "ActivePower",
-      "direction" : "IN",
-      "externalLabel" : "-4"
-    }
-  }, {
-    "svgId" : "142",
-    "equipmentId" : "T9002-9024-1",
-    "node1" : "7",
-    "node2" : "73",
-    "busNode1" : "12",
-    "busNode2" : "76",
-    "type" : "TwoWtEdge",
-    "edgeInfo1" : {
-      "svgId" : "143",
-      "infoType" : "ActivePower",
       "direction" : "OUT",
       "externalLabel" : "1"
     },
     "edgeInfo2" : {
+      "svgId" : "142",
+      "infoType" : "ActivePower",
+      "direction" : "IN",
+      "externalLabel" : "-1"
+    }
+  }, {
+    "svgId" : "143",
+    "equipmentId" : "T9003-9033-1",
+    "node1" : "11",
+    "node2" : "61",
+    "busNode1" : "17",
+    "busNode2" : "65",
+    "type" : "TwoWtEdge",
+    "edgeInfo1" : {
       "svgId" : "144",
       "infoType" : "ActivePower",
-      "direction" : "IN",
-      "externalLabel" : "-1"
-    }
-  }, {
-    "svgId" : "145",
-    "equipmentId" : "L9003-9044-1",
-    "node1" : "13",
-    "node2" : "91",
-    "busNode1" : "20",
-    "busNode2" : "94",
-    "type" : "LineEdge",
-    "edgeInfo1" : {
-      "svgId" : "146",
-      "infoType" : "ActivePower",
       "direction" : "OUT",
-      "externalLabel" : "4"
+      "externalLabel" : "2"
     },
     "edgeInfo2" : {
+      "svgId" : "145",
+      "infoType" : "ActivePower",
+      "direction" : "IN",
+      "externalLabel" : "-2"
+    }
+  }, {
+    "svgId" : "146",
+    "equipmentId" : "T9003-9034-1",
+    "node1" : "11",
+    "node2" : "61",
+    "busNode1" : "17",
+    "busNode2" : "66",
+    "type" : "TwoWtEdge",
+    "edgeInfo1" : {
       "svgId" : "147",
       "infoType" : "ActivePower",
-      "direction" : "IN",
-      "externalLabel" : "-4"
-    }
-  }, {
-    "svgId" : "148",
-    "equipmentId" : "L9006-9003-1",
-    "node1" : "21",
-    "node2" : "13",
-    "busNode1" : "24",
-    "busNode2" : "20",
-    "type" : "LineEdge",
-    "edgeInfo1" : {
-      "svgId" : "149",
-      "infoType" : "ActivePower",
       "direction" : "OUT",
-      "externalLabel" : "8"
+      "externalLabel" : "2"
     },
     "edgeInfo2" : {
+      "svgId" : "148",
+      "infoType" : "ActivePower",
+      "direction" : "IN",
+      "externalLabel" : "-2"
+    }
+  }, {
+    "svgId" : "149",
+    "equipmentId" : "T9003-9035-1",
+    "node1" : "11",
+    "node2" : "61",
+    "busNode1" : "17",
+    "busNode2" : "67",
+    "type" : "TwoWtEdge",
+    "edgeInfo1" : {
       "svgId" : "150",
       "infoType" : "ActivePower",
-      "direction" : "IN",
-      "externalLabel" : "-8"
-    }
-  }, {
-    "svgId" : "151",
-    "equipmentId" : "L9006-9003-2",
-    "node1" : "21",
-    "node2" : "13",
-    "busNode1" : "24",
-    "busNode2" : "20",
-    "type" : "LineEdge",
-    "edgeInfo1" : {
-      "svgId" : "152",
-      "infoType" : "ActivePower",
       "direction" : "OUT",
-      "externalLabel" : "8"
+      "externalLabel" : "2"
     },
     "edgeInfo2" : {
+      "svgId" : "151",
+      "infoType" : "ActivePower",
+      "direction" : "IN",
+      "externalLabel" : "-2"
+    }
+  }, {
+    "svgId" : "152",
+    "equipmentId" : "T9003-9036-1",
+    "node1" : "11",
+    "node2" : "70",
+    "busNode1" : "17",
+    "busNode2" : "72",
+    "type" : "TwoWtEdge",
+    "edgeInfo1" : {
       "svgId" : "153",
       "infoType" : "ActivePower",
-      "direction" : "IN",
-      "externalLabel" : "-8"
-    }
-  }, {
-    "svgId" : "154",
-    "equipmentId" : "L9007-9003-1",
-    "node1" : "26",
-    "node2" : "13",
-    "busNode1" : "29",
-    "busNode2" : "20",
-    "type" : "LineEdge",
-    "edgeInfo1" : {
-      "svgId" : "155",
-      "infoType" : "ActivePower",
       "direction" : "OUT",
-      "externalLabel" : "7"
+      "externalLabel" : "3"
     },
     "edgeInfo2" : {
+      "svgId" : "154",
+      "infoType" : "ActivePower",
+      "direction" : "IN",
+      "externalLabel" : "-3"
+    }
+  }, {
+    "svgId" : "155",
+    "equipmentId" : "T9003-9037-1",
+    "node1" : "11",
+    "node2" : "61",
+    "busNode1" : "17",
+    "busNode2" : "68",
+    "type" : "TwoWtEdge",
+    "edgeInfo1" : {
       "svgId" : "156",
       "infoType" : "ActivePower",
-      "direction" : "IN",
-      "externalLabel" : "-7"
-    }
-  }, {
-    "svgId" : "157",
-    "equipmentId" : "T9003-9031-1",
-    "node1" : "13",
-    "node2" : "77",
-    "busNode1" : "20",
-    "busNode2" : "80",
-    "type" : "TwoWtEdge",
-    "edgeInfo1" : {
-      "svgId" : "158",
-      "infoType" : "ActivePower",
       "direction" : "OUT",
       "externalLabel" : "2"
     },
     "edgeInfo2" : {
+      "svgId" : "157",
+      "infoType" : "ActivePower",
+      "direction" : "IN",
+      "externalLabel" : "-2"
+    }
+  }, {
+    "svgId" : "158",
+    "equipmentId" : "T9003-9038-1",
+    "node1" : "11",
+    "node2" : "61",
+    "busNode1" : "17",
+    "busNode2" : "69",
+    "type" : "TwoWtEdge",
+    "edgeInfo1" : {
       "svgId" : "159",
       "infoType" : "ActivePower",
-      "direction" : "IN",
-      "externalLabel" : "-2"
-    }
-  }, {
-    "svgId" : "160",
-    "equipmentId" : "T9003-9032-1",
-    "node1" : "13",
-    "node2" : "77",
-    "busNode1" : "20",
-    "busNode2" : "81",
-    "type" : "TwoWtEdge",
-    "edgeInfo1" : {
-      "svgId" : "161",
-      "infoType" : "ActivePower",
-      "direction" : "OUT",
-      "externalLabel" : "1"
-    },
-    "edgeInfo2" : {
-      "svgId" : "162",
-      "infoType" : "ActivePower",
-      "direction" : "IN",
-      "externalLabel" : "-1"
-    }
-  }, {
-    "svgId" : "163",
-    "equipmentId" : "T9003-9033-1",
-    "node1" : "13",
-    "node2" : "77",
-    "busNode1" : "20",
-    "busNode2" : "82",
-    "type" : "TwoWtEdge",
-    "edgeInfo1" : {
-      "svgId" : "164",
-      "infoType" : "ActivePower",
-      "direction" : "OUT",
-      "externalLabel" : "2"
-    },
-    "edgeInfo2" : {
-      "svgId" : "165",
-      "infoType" : "ActivePower",
-      "direction" : "IN",
-      "externalLabel" : "-2"
-    }
-  }, {
-    "svgId" : "166",
-    "equipmentId" : "T9003-9034-1",
-    "node1" : "13",
-    "node2" : "77",
-    "busNode1" : "20",
-    "busNode2" : "83",
-    "type" : "TwoWtEdge",
-    "edgeInfo1" : {
-      "svgId" : "167",
-      "infoType" : "ActivePower",
-      "direction" : "OUT",
-      "externalLabel" : "2"
-    },
-    "edgeInfo2" : {
-      "svgId" : "168",
-      "infoType" : "ActivePower",
-      "direction" : "IN",
-      "externalLabel" : "-2"
-    }
-  }, {
-    "svgId" : "169",
-    "equipmentId" : "T9003-9035-1",
-    "node1" : "13",
-    "node2" : "77",
-    "busNode1" : "20",
-    "busNode2" : "84",
-    "type" : "TwoWtEdge",
-    "edgeInfo1" : {
-      "svgId" : "170",
-      "infoType" : "ActivePower",
-      "direction" : "OUT",
-      "externalLabel" : "2"
-    },
-    "edgeInfo2" : {
-      "svgId" : "171",
-      "infoType" : "ActivePower",
-      "direction" : "IN",
-      "externalLabel" : "-2"
-    }
-  }, {
-    "svgId" : "172",
-    "equipmentId" : "T9003-9036-1",
-    "node1" : "13",
-    "node2" : "87",
-    "busNode1" : "20",
-    "busNode2" : "90",
-    "type" : "TwoWtEdge",
-    "edgeInfo1" : {
-      "svgId" : "173",
-      "infoType" : "ActivePower",
       "direction" : "OUT",
       "externalLabel" : "3"
     },
     "edgeInfo2" : {
-      "svgId" : "174",
+      "svgId" : "160",
       "infoType" : "ActivePower",
       "direction" : "IN",
       "externalLabel" : "-3"
     }
   }, {
-    "svgId" : "175",
-    "equipmentId" : "T9003-9037-1",
-    "node1" : "13",
-    "node2" : "77",
-    "busNode1" : "20",
-    "busNode2" : "85",
-    "type" : "TwoWtEdge",
-    "edgeInfo1" : {
-      "svgId" : "176",
-      "infoType" : "ActivePower",
-      "direction" : "OUT",
-      "externalLabel" : "2"
-    },
-    "edgeInfo2" : {
-      "svgId" : "177",
-      "infoType" : "ActivePower",
-      "direction" : "IN",
-      "externalLabel" : "-2"
-    }
-  }, {
-    "svgId" : "178",
-    "equipmentId" : "T9003-9038-1",
-    "node1" : "13",
-    "node2" : "77",
-    "busNode1" : "20",
-    "busNode2" : "86",
-    "type" : "TwoWtEdge",
-    "edgeInfo1" : {
-      "svgId" : "179",
-      "infoType" : "ActivePower",
-      "direction" : "OUT",
-      "externalLabel" : "3"
-    },
-    "edgeInfo2" : {
-      "svgId" : "180",
-      "infoType" : "ActivePower",
-      "direction" : "IN",
-      "externalLabel" : "-3"
-    }
-  }, {
-    "svgId" : "181",
+    "svgId" : "161",
     "equipmentId" : "L9006-9007-1",
-    "node1" : "21",
-    "node2" : "26",
-    "busNode1" : "24",
-    "busNode2" : "29",
+    "node1" : "18",
+    "node2" : "22",
+    "busNode1" : "20",
+    "busNode2" : "24",
     "type" : "LineEdge",
     "edgeInfo1" : {
-      "svgId" : "182",
+      "svgId" : "162",
       "infoType" : "ActivePower",
       "direction" : "OUT",
       "externalLabel" : "9"
     },
     "edgeInfo2" : {
-      "svgId" : "183",
+      "svgId" : "163",
       "infoType" : "ActivePower",
       "direction" : "IN",
       "externalLabel" : "-9"
     }
   }, {
-    "svgId" : "184",
+    "svgId" : "164",
     "equipmentId" : "L9012-9121-1",
-    "node1" : "21",
-    "node2" : "30",
-    "busNode1" : "25",
-    "busNode2" : "35",
+    "node1" : "18",
+    "node2" : "25",
+    "busNode1" : "21",
+    "busNode2" : "29",
     "type" : "LineEdge",
     "edgeInfo1" : {
-      "svgId" : "185",
+      "svgId" : "165",
       "infoType" : "ActivePower",
       "direction" : "OUT",
       "externalLabel" : "4"
     },
     "edgeInfo2" : {
-      "svgId" : "186",
+      "svgId" : "166",
       "infoType" : "ActivePower",
       "direction" : "IN",
       "externalLabel" : "-4"
     }
   }, {
-    "svgId" : "187",
+    "svgId" : "167",
     "equipmentId" : "T9007-9071-1",
-    "node1" : "26",
-    "node2" : "95",
-    "busNode1" : "29",
-    "busNode2" : "98",
+    "node1" : "22",
+    "node2" : "76",
+    "busNode1" : "24",
+    "busNode2" : "78",
     "type" : "TwoWtEdge",
     "edgeInfo1" : {
-      "svgId" : "188",
+      "svgId" : "168",
       "infoType" : "ActivePower",
       "direction" : "OUT",
       "externalLabel" : "1"
     },
     "edgeInfo2" : {
-      "svgId" : "189",
+      "svgId" : "169",
       "infoType" : "ActivePower",
       "direction" : "IN",
       "externalLabel" : "-1"
     }
   }, {
-    "svgId" : "190",
+    "svgId" : "170",
     "equipmentId" : "T9007-9072-1",
-    "node1" : "26",
-    "node2" : "95",
-    "busNode1" : "29",
-    "busNode2" : "99",
+    "node1" : "22",
+    "node2" : "76",
+    "busNode1" : "24",
+    "busNode2" : "79",
     "type" : "TwoWtEdge",
     "edgeInfo1" : {
-      "svgId" : "191",
+      "svgId" : "171",
       "infoType" : "ActivePower",
       "direction" : "OUT",
       "externalLabel" : "1"
     },
     "edgeInfo2" : {
-      "svgId" : "192",
+      "svgId" : "172",
       "infoType" : "ActivePower",
       "direction" : "IN",
       "externalLabel" : "-1"
     }
   } ],
   "textNodes" : [ {
-    "svgId" : "1",
+    "svgId" : "0-textnode",
     "equipmentId" : "VL37",
     "vlNode" : "0",
     "shiftX" : 100.0,
@@ -1125,41 +1105,41 @@
     "connectionShiftX" : 100.0,
     "connectionShiftY" : -15.0
   }, {
-    "svgId" : "8",
+    "svgId" : "6-textnode",
     "equipmentId" : "VL9002",
-    "vlNode" : "7",
+    "vlNode" : "6",
     "shiftX" : 100.0,
     "shiftY" : -40.0,
     "connectionShiftX" : 100.0,
     "connectionShiftY" : -15.0
   }, {
-    "svgId" : "14",
+    "svgId" : "11-textnode",
     "equipmentId" : "VL9003",
-    "vlNode" : "13",
+    "vlNode" : "11",
     "shiftX" : 100.0,
     "shiftY" : -40.0,
     "connectionShiftX" : 100.0,
     "connectionShiftY" : -15.0
   }, {
-    "svgId" : "22",
+    "svgId" : "18-textnode",
     "equipmentId" : "VL9006",
-    "vlNode" : "21",
+    "vlNode" : "18",
     "shiftX" : 100.0,
     "shiftY" : -40.0,
     "connectionShiftX" : 100.0,
     "connectionShiftY" : -15.0
   }, {
-    "svgId" : "27",
+    "svgId" : "22-textnode",
     "equipmentId" : "VL9007",
-    "vlNode" : "26",
+    "vlNode" : "22",
     "shiftX" : 100.0,
     "shiftY" : -40.0,
     "connectionShiftX" : 100.0,
     "connectionShiftY" : -15.0
   }, {
-    "svgId" : "31",
+    "svgId" : "25-textnode",
     "equipmentId" : "VL9121",
-    "vlNode" : "30",
+    "vlNode" : "25",
     "shiftX" : 100.0,
     "shiftY" : -40.0,
     "connectionShiftX" : 100.0,

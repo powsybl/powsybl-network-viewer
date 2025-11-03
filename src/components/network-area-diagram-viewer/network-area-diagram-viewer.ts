@@ -14,10 +14,11 @@ import { LayoutParameters } from './layout-parameters';
 import {
     BusNodeMetadata,
     DiagramMetadata,
+    EdgeInfoMetadata,
     EdgeMetadata,
     InjectionMetadata,
     NodeMetadata,
-    TextNodeMetadata,
+    TextNodeMetadata
 } from './diagram-metadata';
 import { debounce } from '@mui/material';
 import {
@@ -28,7 +29,7 @@ import {
     OnMoveTextNodeCallbackType,
     OnRightClickCallbackType,
     OnSelectNodeCallbackType,
-    OnToggleNadHoverCallbackType,
+    OnToggleNadHoverCallbackType
 } from './nad-viewer-parameters';
 
 export type BranchState = {
@@ -1245,6 +1246,14 @@ export class NetworkAreaDiagramViewer {
         this.redrawEdgeArrowAndLabel(halfEdge);
     }
 
+    private getHalfEdgeNode(edgeId: string, side: string): Element | null | undefined {
+        return this.getHalfEdgeNodeFromEdgeNode(this.svgDiv.querySelector("[id='" + edgeId + "']"), side);
+    }
+
+    private getHalfEdgeNodeFromEdgeNode(edgeNode: Element | null, side: string): Element | null | undefined {
+        return edgeNode?.querySelector(':scope > .nad-edge-path:nth-of-type(' + side + ')');
+    }
+
     private redrawEdgeArrowAndLabel(halfEdge: HalfEdge) {
         if (!halfEdge.edgeInfoId) {
             return;
@@ -1280,6 +1289,7 @@ export class NetworkAreaDiagramViewer {
         edgeType: DiagramUtils.EdgeType
     ) {
         const transformerElement: SVGGraphicsElement = edgeNode.lastElementChild as SVGGraphicsElement;
+
         // move transformer circles
         const transformerCircles: NodeListOf<SVGGraphicsElement> = transformerElement?.querySelectorAll('circle');
         this.redrawTransformerCircle(
@@ -1292,6 +1302,7 @@ export class NetworkAreaDiagramViewer {
             halfEdge2.edgePoints.at(-2)!,
             halfEdge2.edgePoints.at(-1)!
         );
+
         // if phase shifting transformer move transformer arrow
         const isPSTransformerEdge = edgeType == DiagramUtils.EdgeType.PHASE_SHIFT_TRANSFORMER;
         if (isPSTransformerEdge) {
@@ -1414,11 +1425,7 @@ export class NetworkAreaDiagramViewer {
         const edgeAngles = busNode.svgId == edge.busNode1 ? this.edgeAngles1 : this.edgeAngles2;
         if (!edgeAngles.has(edgeId)) {
             // if not yet stored in angle map -> compute and store it
-            const halfEdgeDrawElement: HTMLElement | null = <HTMLElement>(
-                (this.svgDiv
-                    .querySelector("[id='" + edgeId + "']")
-                    ?.querySelector(':scope > .nad-edge-path:nth-of-type(' + side + ')') as Element)
-            );
+            const halfEdgeDrawElement: HTMLElement | null = <HTMLElement>this.getHalfEdgeNode(edgeId, side);
             if (halfEdgeDrawElement != null) {
                 const angle = isLoopEdge
                     ? DiagramUtils.getPathAngle(halfEdgeDrawElement)
@@ -1613,18 +1620,26 @@ export class NetworkAreaDiagramViewer {
                 }
                 this.edgesMap.set(branchState.branchId, edge);
             }
+
             const edgeId = this.edgesMap.get(branchState.branchId)?.svgId ?? '-1';
-            this.setBranchSideLabel(branchState.branchId, '1', edgeId, branchState.value1);
-            this.setBranchSideLabel(branchState.branchId, '2', edgeId, branchState.value2);
+            const edge: EdgeMetadata | undefined = this.diagramMetadata?.edges.find((edge) => edge.svgId == edgeId);
+            if (!edge) {
+                console.warn('Skipping updating branch ' + branchState.branchId + ' label: edge metadata missing');
+                return;
+            }
+
+            // TODO: detect if edge has parallel edges and call this.getHalfEdge, with the correct iEdge and nbGroupedEdges
+            const halfEdges = this.getHalfEdges(edge, 0, 1);
+
+            this.setBranchSideLabel(edge, halfEdges[0], edge.edgeInfo1, '1', branchState.value1);
+            this.setBranchSideLabel(edge, halfEdges[1], edge.edgeInfo2, '2', branchState.value2);
             this.setBranchSideConnection(branchState.branchId, '1', edgeId, branchState.connected1);
             this.setBranchSideConnection(branchState.branchId, '2', edgeId, branchState.connected2);
 
-            const edge = (this.diagramMetadata?.edges ?? []).find((edge) => edge.equipmentId == branchState.branchId);
-
-            if (branchState.connectedBus1 && edge) {
+            if (branchState.connectedBus1) {
                 this.setBranchBusConnection(edge, branchState.branchId, '1', branchState.connectedBus1);
             }
-            if (branchState.connectedBus2 && edge) {
+            if (branchState.connectedBus2) {
                 this.setBranchBusConnection(edge, branchState.branchId, '2', branchState.connectedBus2);
             }
         });
@@ -1684,29 +1699,91 @@ export class NetworkAreaDiagramViewer {
         });
     }
 
-    private setBranchSideLabel(branchId: string, side: string, edgeId: string, value: number | string) {
-        const arrowGElement: SVGGraphicsElement | null = this.svgDiv.querySelector(
-            "[id='" + edgeId + '.' + side + "'] .nad-edge-infos g"
-        );
-        if (arrowGElement !== null) {
-            arrowGElement.classList.remove('nad-arrow-in', 'nad-arrow-out');
-            if (typeof value === 'number') {
-                const arrowDirection = DiagramUtils.getArrowDirection(value);
-                const arrowClass = DiagramUtils.getArrowClass(arrowDirection);
-                if (arrowClass) {
-                    arrowGElement.classList.add(arrowClass);
+    private setBranchSideLabel(
+        edge: EdgeMetadata,
+        halfEdge: HalfEdge | null,
+        edgeInfoMetadata: EdgeInfoMetadata | undefined,
+        side: string,
+        value: number | string
+    ) {
+        if (!halfEdge) return;
+
+        if (!edgeInfoMetadata) {
+            edgeInfoMetadata = {
+                svgId: crypto.randomUUID(),
+                infoType: 'ActivePower',
+            };
+            if (side == '1') {
+                edge.edgeInfo1 = edgeInfoMetadata;
+            } else {
+                edge.edgeInfo2 = edgeInfoMetadata;
+            }
+        }
+        edgeInfoMetadata.externalLabel =
+            typeof value === 'number' ? value.toFixed(this.getEdgeInfoValuePrecision()) : value;
+        edgeInfoMetadata.direction = typeof value === 'number' ? DiagramUtils.getArrowDirection(value) : undefined;
+
+        const edgeInfo = this.getOrCreateEdgeInfo(edgeInfoMetadata);
+
+        edgeInfo.classList.remove('nad-active', 'nad-reactive', 'nad-current');
+        const edgeInfoClass = DiagramUtils.getEdgeInfoClass(edgeInfoMetadata.infoType);
+        if (edgeInfoClass) {
+            edgeInfo.classList.add(edgeInfoClass);
+        }
+
+        if (typeof value === 'number') {
+            const arrowPath = DiagramUtils.getArrowPath(edgeInfoMetadata.direction, this.svgParameters);
+            if (arrowPath) {
+                const edgeInfoArrow = this.getOrCreateEdgeInfoArrow(edgeInfo);
+                edgeInfoArrow.setAttribute('d', arrowPath);
+                const edgeInfoClass = DiagramUtils.getArrowClass(edgeInfoMetadata.direction);
+                if (edgeInfoClass) {
+                    edgeInfoArrow.classList.add(edgeInfoClass);
                 }
             }
-            const branchLabelElement = arrowGElement.querySelector('text');
-            if (branchLabelElement !== null) {
-                branchLabelElement.innerHTML =
-                    typeof value === 'number' ? value.toFixed(this.getEdgeInfoValuePrecision()) : value;
-            } else {
-                console.warn('Skipping updating branch ' + branchId + ' side ' + side + ' label: text not found');
-            }
-        } else {
-            console.warn('Skipping updating branch ' + branchId + ' side ' + side + ' label: label not found');
         }
+
+        const branchLabelElement = this.getOrCreateEdgeInfoText(edgeInfo);
+        branchLabelElement.innerHTML = edgeInfoMetadata.externalLabel;
+
+        this.redrawEdgeArrowAndLabel(halfEdge);
+    }
+
+    private getOrCreateEdgeInfo(edgeInfoMetadata: EdgeInfoMetadata): SVGElement {
+        const edgeInfo: SVGElement | null = this.svgDiv.querySelector("[id='" + edgeInfoMetadata.svgId + "']");
+        if (edgeInfo) {
+            return edgeInfo;
+        }
+
+        let edgeInfos = this.svgDiv.querySelector('g.nad-edge-infos');
+        if (!edgeInfos) {
+            edgeInfos = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+            this.innerSvg?.appendChild(edgeInfos);
+        }
+
+        const newEdgeInfo = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        newEdgeInfo.id = edgeInfoMetadata.svgId;
+        edgeInfos.appendChild(newEdgeInfo);
+
+        return newEdgeInfo;
+    }
+
+    private getOrCreateEdgeInfoArrow(edgeInfo: SVGElement): SVGPathElement {
+        let edgeInfoArrow = edgeInfo.querySelector('path');
+        if (!edgeInfoArrow) {
+            edgeInfoArrow = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            edgeInfo.appendChild(edgeInfoArrow);
+        }
+        return edgeInfoArrow;
+    }
+
+    private getOrCreateEdgeInfoText(edgeInfo: SVGElement): SVGTextElement {
+        let edgeInfoText = edgeInfo.querySelector('text');
+        if (!edgeInfoText) {
+            edgeInfoText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            edgeInfo.appendChild(edgeInfoText);
+        }
+        return edgeInfoText;
     }
 
     private getEdgeInfoValuePrecision() {
@@ -1723,8 +1800,8 @@ export class NetworkAreaDiagramViewer {
     }
 
     private setBranchSideConnection(branchId: string, side: string, edgeId: string, connected: boolean | undefined) {
-        const halfEdge: SVGGraphicsElement | null = this.svgDiv.querySelector("[id='" + edgeId + '.' + side + "']");
-        if (halfEdge !== null) {
+        const halfEdge = this.getHalfEdgeNode(edgeId, side);
+        if (halfEdge) {
             if (connected == undefined || connected) {
                 halfEdge.classList.remove('nad-disconnected');
             } else {
