@@ -1299,8 +1299,8 @@ export class NetworkAreaDiagramViewer {
         const isTransformerEdge =
             edgeType == DiagramUtils.EdgeType.TWO_WINDINGS_TRANSFORMER ||
             edgeType == DiagramUtils.EdgeType.PHASE_SHIFT_TRANSFORMER;
-        const isHVDCLineEdge = edgeType == DiagramUtils.EdgeType.HVDC_LINE;
-
+        const isHVDCLineEdge =
+            edgeType == DiagramUtils.EdgeType.HVDC_LINE_LCC || edgeType == DiagramUtils.EdgeType.HVDC_LINE_VSC;
         this.redrawHalfEdge(edgeNode, '1', halfEdgePoints1.slice(), isTransformerEdge, nodeRadius1, bentLine);
         this.redrawHalfEdge(edgeNode, '2', halfEdgePoints2.slice(), isTransformerEdge, nodeRadius2, bentLine);
 
