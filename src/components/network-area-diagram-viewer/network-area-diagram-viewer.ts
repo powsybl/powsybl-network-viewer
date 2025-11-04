@@ -738,7 +738,7 @@ export class NetworkAreaDiagramViewer {
         this.clearHighlights();
         const mousePosition = this.getMousePosition(mouseEvent);
 
-        this.hoveredElement = hoverableElem as SVGElement;
+        this.hoveredElement = hoverableElem;
         this.hoveredElementPosition = mousePosition;
 
         if (DiagramUtils.isHighlightableElement(hoverableElem)) {
