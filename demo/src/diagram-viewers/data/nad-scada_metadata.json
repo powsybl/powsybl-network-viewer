@@ -63,25 +63,25 @@
     "edgeInfosIncluded" : true
   },
   "busNodes" : [ {
-    "svgId" : "2",
+    "svgId" : "3",
     "equipmentId" : "vl_0",
     "nbNeighbours" : 0,
     "index" : 0,
     "vlNode" : "0",
     "legend" : " kV / °"
   }, {
-    "svgId" : "5",
+    "svgId" : "7",
     "equipmentId" : "vl2_0",
     "nbNeighbours" : 0,
     "index" : 0,
-    "vlNode" : "3",
+    "vlNode" : "4",
     "legend" : " kV / °"
   }, {
-    "svgId" : "15",
+    "svgId" : "18",
     "equipmentId" : "dl",
     "nbNeighbours" : 0,
     "index" : 0,
-    "vlNode" : "14"
+    "vlNode" : "17"
   } ],
   "nodes" : [ {
     "svgId" : "0",
@@ -89,94 +89,97 @@
     "x" : 189.53,
     "y" : 123.47,
     "legendSvgId" : "1",
+    "legendEdgeSvgId" : "2",
     "legendHeader" : [ "vl" ]
   }, {
-    "svgId" : "3",
+    "svgId" : "4",
     "equipmentId" : "vl2",
     "x" : -171.8,
     "y" : 131.88,
-    "legendSvgId" : "4",
+    "legendSvgId" : "5",
+    "legendEdgeSvgId" : "6",
     "legendHeader" : [ "vl2" ]
   }, {
-    "svgId" : "6",
+    "svgId" : "8",
     "equipmentId" : "vl3",
     "x" : -312.98,
     "y" : -477.87,
-    "legendSvgId" : "7",
+    "legendSvgId" : "9",
+    "legendEdgeSvgId" : "10",
     "legendHeader" : [ "vl3" ]
   }, {
-    "svgId" : "10",
+    "svgId" : "13",
     "equipmentId" : "t3wt",
     "x" : -39.15,
     "y" : -202.32
   }, {
-    "svgId" : "14",
+    "svgId" : "17",
     "equipmentId" : "dl",
     "x" : 459.36,
     "y" : 402.78
   } ],
   "edges" : [ {
-    "svgId" : "8",
+    "svgId" : "11",
     "equipmentId" : "line",
     "node1" : "0",
-    "node2" : "3",
-    "busNode1" : "2",
-    "busNode2" : "5",
+    "node2" : "4",
+    "busNode1" : "3",
+    "busNode2" : "7",
     "type" : "LineEdge",
     "label" : "line"
   }, {
-    "svgId" : "9",
+    "svgId" : "12",
     "equipmentId" : "tw2t",
     "node1" : "0",
-    "node2" : "3",
-    "busNode1" : "2",
-    "busNode2" : "5",
+    "node2" : "4",
+    "busNode1" : "3",
+    "busNode2" : "7",
     "type" : "PstEdge",
     "label" : "tw2t"
   }, {
-    "svgId" : "16",
+    "svgId" : "19",
     "equipmentId" : "dl",
     "node1" : "0",
-    "node2" : "14",
-    "busNode1" : "2",
-    "busNode2" : "15",
+    "node2" : "17",
+    "busNode1" : "3",
+    "busNode2" : "18",
     "type" : "DanglingLineEdge"
   }, {
-    "svgId" : "17",
+    "svgId" : "20",
     "equipmentId" : "hvdcline",
     "node1" : "0",
-    "node2" : "3",
-    "busNode1" : "2",
-    "busNode2" : "5",
-    "type" : "HvdcLineEdge",
+    "node2" : "4",
+    "busNode1" : "3",
+    "busNode2" : "7",
+    "type" : "HvdcLineLccEdge",
     "label" : "hvdcline"
   }, {
-    "svgId" : "11",
+    "svgId" : "14",
     "equipmentId" : "t3wt",
     "node1" : "0",
-    "node2" : "10",
-    "busNode1" : "2",
-    "busNode2" : "10",
+    "node2" : "13",
+    "busNode1" : "3",
+    "busNode2" : "13",
     "type" : "ThreeWtEdge"
   }, {
-    "svgId" : "12",
+    "svgId" : "15",
     "equipmentId" : "t3wt",
-    "node1" : "3",
-    "node2" : "10",
-    "busNode1" : "5",
-    "busNode2" : "10",
+    "node1" : "4",
+    "node2" : "13",
+    "busNode1" : "7",
+    "busNode2" : "13",
     "type" : "PstEdge"
   }, {
-    "svgId" : "13",
+    "svgId" : "16",
     "equipmentId" : "t3wt",
-    "node1" : "6",
-    "node2" : "10",
+    "node1" : "8",
+    "node2" : "13",
     "busNode1" : "",
-    "busNode2" : "10",
+    "busNode2" : "13",
     "type" : "ThreeWtEdge"
   } ],
   "textNodes" : [ {
-    "svgId" : "0-textnode",
+    "svgId" : "1",
     "equipmentId" : "vl",
     "vlNode" : "0",
     "shiftX" : 100.0,
@@ -184,17 +187,17 @@
     "connectionShiftX" : 100.0,
     "connectionShiftY" : -15.0
   }, {
-    "svgId" : "3-textnode",
+    "svgId" : "5",
     "equipmentId" : "vl2",
-    "vlNode" : "3",
+    "vlNode" : "4",
     "shiftX" : 100.0,
     "shiftY" : -40.0,
     "connectionShiftX" : 100.0,
     "connectionShiftY" : -15.0
   }, {
-    "svgId" : "6-textnode",
+    "svgId" : "9",
     "equipmentId" : "vl3",
-    "vlNode" : "6",
+    "vlNode" : "8",
     "shiftX" : 100.0,
     "shiftY" : -40.0,
     "connectionShiftX" : 100.0,
