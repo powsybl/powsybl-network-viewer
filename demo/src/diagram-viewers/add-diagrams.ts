@@ -348,7 +348,8 @@ export const addNadToDemo = () => {
                 onMoveTextNodeCallback: handleTextNodeMove,
                 onSelectNodeCallback: handleNodeSelect,
                 onToggleHoverCallback: showHoveredEquipmentId,
-                onRightClickCallback: handleRightClick
+                onRightClickCallback: handleRightClick,
+                hoverHelperSize: 12,
             };
             new NetworkAreaDiagramViewer(
                 document.getElementById('svg-container-nad-hoverCallback')!,

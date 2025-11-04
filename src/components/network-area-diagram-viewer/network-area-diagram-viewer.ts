@@ -62,7 +62,6 @@ const dynamicCssRulesUpdateThreshold = 0.01;
 
 export class NetworkAreaDiagramViewer {
     static readonly DEFAULT_PNG_BACKGROUND_COLOR = 'white';
-    static readonly HOVER_SENSITIVITY_THRESHOLD = 12;
 
     container: HTMLElement;
     svgDiv: HTMLElement;
@@ -76,7 +75,7 @@ export class NetworkAreaDiagramViewer {
     ratio = 1;
     selectedElement: SVGGraphicsElement | null = null;
     draggedElement: SVGGraphicsElement | null = null;
-    hoveredElement: SVGGraphicsElement | null = null;
+    hoveredElement: SVGElement | null = null;
     hoveredElementPosition: Point = new Point(0, 0);
     transform: SVGTransform | undefined;
     ctm: DOMMatrix | null | undefined = null;
@@ -101,6 +100,7 @@ export class NetworkAreaDiagramViewer {
     originalTextNodeConnectionShift: Point = new Point(0, 0);
     lastZoomLevel: number = 0;
     zoomLevels: number[] = [0, 1000, 2200, 2500, 3000, 4000, 9000, 12000, 20000];
+    hoverHelperSize: number = 0;
 
     static readonly ZOOM_CLASS_PREFIX = 'nad-zoom-';
 
@@ -134,6 +134,7 @@ export class NetworkAreaDiagramViewer {
         this.onToggleHoverCallback = this.nadViewerParameters.getOnToggleHoverCallback();
         this.zoomLevels = this.nadViewerParameters.getZoomLevels();
         this.zoomLevels.sort((a, b) => b - a);
+        this.hoverHelperSize = this.nadViewerParameters.getHoverHelperSize();
         this.init();
         this.svgParameters = new SvgParameters(this.diagramMetadata?.svgParameters);
         this.layoutParameters = new LayoutParameters(this.diagramMetadata?.layoutParameters);
@@ -352,7 +353,7 @@ export class NetworkAreaDiagramViewer {
             });
 
             this.svgDraw.on('mouseout', (e: Event) => {
-                this.handleHoverExit(e as MouseEvent, true);
+                this.handleHoverExit(e as MouseEvent, this.hoverHelperSize > 0);
             });
         }
         if (this.onRightClickCallback != null && hasMetadata) {
@@ -550,7 +551,7 @@ export class NetworkAreaDiagramViewer {
         // Nodes are selectable and draggable
         // TextNodes are only draggable
         let targetElement = event.target as SVGElement;
-        if (this.isInArtificialHoverRange(this.getMousePosition(event))) {
+        if (this.hoveredElement && this.isInArtificialHoverRange(this.getMousePosition(event))) {
             targetElement = this.hoveredElement;
         }
         const selectableElem = DiagramUtils.getSelectableFrom(targetElement);
@@ -697,14 +698,14 @@ export class NetworkAreaDiagramViewer {
 
         const hoverableElem = DiagramUtils.getHoverableFrom(mouseEvent.target as SVGElement);
         if (!hoverableElem) {
-            this.handleHoverExit(mouseEvent, true);
+            this.handleHoverExit(mouseEvent, this.hoverHelperSize > 0);
             return;
         }
 
         this.clearHighlights();
         const mousePosition = this.getMousePosition(mouseEvent);
 
-        this.hoveredElement = hoverableElem as SVGGraphicsElement;
+        this.hoveredElement = hoverableElem as SVGElement;
         this.hoveredElementPosition = mousePosition;
 
         if (DiagramUtils.isHighlightableElement(hoverableElem)) {
@@ -717,11 +718,14 @@ export class NetworkAreaDiagramViewer {
     }
 
     private isInArtificialHoverRange(mousePosition: Point): boolean {
-        return this.hoveredElement && DiagramUtils.getDistance(this.hoveredElementPosition, mousePosition) < NetworkAreaDiagramViewer.HOVER_SENSITIVITY_THRESHOLD;
+        if (!this.hoveredElement) {
+            return false;
+        }
+        return DiagramUtils.getDistance(this.hoveredElementPosition, mousePosition) < this.hoverHelperSize;
     }
 
     private trackArtificialHover(event: MouseEvent) {
-        if (this.hoveredElement) {
+        if (this.hoverHelperSize > 0 && this.hoveredElement) {
             // Check if we are over the hovered object
             const hoverableElem = DiagramUtils.getHoverableFrom(event.target as SVGElement);
             const mousePosition: Point = this.getMousePosition(event);
@@ -1904,7 +1908,7 @@ export class NetworkAreaDiagramViewer {
             this.diagramMetadata?.textNodes,
             this.diagramMetadata?.edges
         );
-        if (!elementData && this.isInArtificialHoverRange(mousePosition)) {
+        if (!elementData && this.hoveredElement && this.isInArtificialHoverRange(mousePosition)) {
             elementData = DiagramUtils.getRightClickableElementData(
                 this.hoveredElement,
                 this.diagramMetadata?.nodes,
