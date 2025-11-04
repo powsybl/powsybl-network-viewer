@@ -351,7 +351,7 @@ export const addNadToDemo = () => {
                 document.getElementById('svg-container-nad-hoverCallback')?.appendChild(hoverVisualizer);
             };
 
-            let nadViewerParametersOptions: NadViewerParametersOptions = {
+            const nadViewerParametersOptions: NadViewerParametersOptions = {
                 enableDragInteraction: true,
                 addButtons: true,
                 onMoveNodeCallback: handleNodeMove,

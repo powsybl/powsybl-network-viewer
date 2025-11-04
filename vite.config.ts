@@ -18,9 +18,9 @@ export default defineConfig((config) => ({
     plugins: [
         react(),
         svgr(), // works on every import with the pattern "**/*.svg?react"
-        // eslint({
-        //     failOnWarning: config.mode !== 'development',
-        // }),
+        eslint({
+            failOnWarning: config.mode !== 'development',
+        }),
         dts({
             include: ['src'],
             exclude: ['**/*.{spec,test}.{ts,tsx}'],
