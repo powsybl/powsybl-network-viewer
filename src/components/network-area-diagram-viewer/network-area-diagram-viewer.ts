@@ -1529,7 +1529,10 @@ export class NetworkAreaDiagramViewer {
         if (!halfEdge) return;
 
         // move polyline
-        const polylinePoints: string = DiagramUtils.getFormattedPolyline(halfEdge.edgePoints[0], halfEdge.edgePoints[1]);
+        const polylinePoints: string = DiagramUtils.getFormattedPolyline(
+            halfEdge.edgePoints[0],
+            halfEdge.edgePoints[1]
+        );
         twtEdge.setAttribute('points', polylinePoints);
 
         // redraw edge arrow and label

@@ -244,9 +244,9 @@ function getDistance(point1: Point, point2: Point): number {
 export function getEdgePoints(
     edgeStart1: Point,
     edgeFork1: Point | undefined,
+    edgeEnd1: Point,
     edgeStart2: Point,
     edgeFork2: Point | undefined,
-    edgeEnd1: Point,
     edgeEnd2: Point,
     bendingPoints: EdgePointMetadata[] | undefined
 ): [Point[], Point[]] {
@@ -797,7 +797,7 @@ export function getHalfEdges(
         edgeEnd2 = getPointAtDistance(edgeMiddle, edgeFork2 ?? edgeStart2, endShift);
     }
 
-    const edgePoints = getEdgePoints(edgeStart1, edgeFork1, edgeStart2, edgeFork2, edgeEnd1, edgeEnd2, edge.points);
+    const edgePoints = getEdgePoints(edgeStart1, edgeFork1, edgeEnd1, edgeStart2, edgeFork2, edgeEnd2, edge.points);
     const halfEdge1: HalfEdge = {
         side: '1',
         fork: nbGroupedEdges > 1,
