@@ -334,42 +334,6 @@ export const addNadToDemo = () => {
                 nadViewerParametersOptions
             );
         });
-
-    fetch(NadSvgExample)
-        .then((response) => response.text())
-        .then((svgContent) => {
-            const showHoveredEquipmentId: OnToggleNadHoverCallbackType = (hovered, mousePosition, equipmentId) => {
-                const hoverDiv = document.getElementById('hoverVisualizer');
-                if (hoverDiv) {
-                    hoverDiv.textContent = hovered ? 'Hovering over ' + equipmentId : 'No hover at the moment';
-                }
-            };
-            const addHoverVisualizer = () => {
-                const hoverVisualizer = document.createElement('div');
-                hoverVisualizer.id = 'hoverVisualizer';
-                hoverVisualizer.textContent = 'No hover at the moment';
-                document.getElementById('svg-container-nad-hoverCallback')?.appendChild(hoverVisualizer);
-            };
-
-            const nadViewerParametersOptions: NadViewerParametersOptions = {
-                enableDragInteraction: true,
-                addButtons: true,
-                onMoveNodeCallback: handleNodeMove,
-                onMoveTextNodeCallback: handleTextNodeMove,
-                onSelectNodeCallback: handleNodeSelect,
-                onToggleHoverCallback: showHoveredEquipmentId,
-                onRightClickCallback: handleRightClick,
-                hoverHelperSize: 12,
-            };
-            new NetworkAreaDiagramViewer(
-                document.getElementById('svg-container-nad-hoverCallback')!,
-                svgContent,
-                NadSvgExampleMeta,
-                nadViewerParametersOptions
-            );
-
-            addHoverVisualizer();
-        });
 };
 
 export const addSldToDemo = () => {
