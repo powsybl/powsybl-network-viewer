@@ -30,12 +30,12 @@ test('getFormattedPoint', () => {
 });
 
 test('getFormattedPolyline', () => {
-    expect(DiagramUtils.getFormattedPolyline(new Point(144, 34.836), null, new Point(213.892, 74))).toBe(
+    expect(DiagramUtils.getFormattedPolyline(new Point(144, 34.836), new Point(213.892, 74))).toBe(
         '144.00,34.84 213.89,74.00'
     );
     expect(
-        DiagramUtils.getFormattedPolyline(new Point(144, 34.836), new Point(192.83, 55.1475), new Point(213.892, 74))
-    ).toBe('144.00,34.84 192.83,55.15 213.89,74.00');
+        DiagramUtils.getFormattedPolyline(new Point(144, 34.836), new Point(213.892, 74))
+    ).toBe('144.00,34.84 213.89,74.00');
 });
 
 test('degToRad', () => {

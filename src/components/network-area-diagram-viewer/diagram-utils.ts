@@ -55,7 +55,6 @@ export type ElementData = {
 
 export type HalfEdge = {
     side: string;
-    startPolyline: Point;
     middlePolyline: Point | null;
     endPolyline: Point;
     busInnerRadius: number;
@@ -250,15 +249,15 @@ export function getEdgePoints(
     edgeFork2: Point | undefined,
     edgeEnd1: Point,
     edgeEnd2: Point,
-    pointsMetadata0: EdgePointMetadata[] | undefined
+    bendingPoints: EdgePointMetadata[] | undefined
 ): [Point[], Point[]] {
-    if (!pointsMetadata0) {
+    if (!bendingPoints) {
         const edgePoints1 = edgeFork1 ? [edgeStart1, edgeFork1, edgeEnd1] : [edgeStart1, edgeEnd1];
         const edgePoints2 = edgeFork2 ? [edgeStart2, edgeFork2, edgeEnd2] : [edgeStart2, edgeEnd2];
         return [edgePoints1, edgePoints2];
     }
 
-    const pointsMetadata = pointsMetadata0.slice();
+    const pointsMetadata = bendingPoints.slice();
     pointsMetadata.splice(0, 0, { x: edgeStart1.x, y: edgeStart1.y });
     pointsMetadata.push({ x: edgeStart2.x, y: edgeStart2.y });
     let distance = 0;
@@ -302,13 +301,8 @@ export function getFormattedPoint(point: Point): string {
 }
 
 // format points to polyline string
-export function getFormattedPolyline(startPolyline: Point, middlePolyline: Point | null, endPolyline: Point): string {
-    let polyline: string = getFormattedPoint(startPolyline);
-    if (middlePolyline != null) {
-        polyline += ' ' + getFormattedPoint(middlePolyline);
-    }
-    polyline += ' ' + getFormattedPoint(endPolyline);
-    return polyline;
+export function getFormattedPolyline(startPolyline: Point, endPolyline: Point): string {
+    return getFormattedPoint(startPolyline) + ' ' + getFormattedPoint(endPolyline);
 }
 
 // transform angle degrees to radians
@@ -359,6 +353,11 @@ export function getPointAtDistance(point1: Point, point2: Point, radius: number)
 // get the angle between two points
 export function getAngle(point1: Point, point2: Point): number {
     return Math.atan2(point2.y - point1.y, point2.x - point1.x);
+}
+
+// get the angle between two points
+export function getEdgeStartAngle(halfEdge: HalfEdge): number {
+    return getAngle(halfEdge.edgePoints[0], halfEdge.edgePoints[1])
 }
 
 // get the rotation angle of an halfEdge arrow
@@ -446,33 +445,30 @@ export function getTransformerArrowMatrixString(
 // get the points of a converter station of an HVDC line edge
 function getConverterStationPoints(
     startPolyline1: Point,
-    endPolyline1: Point,
     startPolyline2: Point,
-    endPolyline2: Point,
+    middlePolyline: Point,
     converterStationWidth: number
 ): [Point, Point] {
     const halfWidth = converterStationWidth / 2;
-    const point1: Point = getPointAtDistance(endPolyline1, startPolyline1, halfWidth);
-    const point2: Point = getPointAtDistance(endPolyline2, startPolyline2, halfWidth);
+    const point1: Point = getPointAtDistance(middlePolyline, startPolyline1, halfWidth);
+    const point2: Point = getPointAtDistance(middlePolyline, startPolyline2, halfWidth);
     return [point1, point2];
 }
 
 // get the polyline of a converter station of an HVDC line edge
 export function getConverterStationPolyline(
-    startPolyline1: Point,
-    endPolyline1: Point,
-    startPolyline2: Point,
-    endPolyline2: Point,
+    halfEdge1: HalfEdge,
+    halfEdge2: HalfEdge,
     converterStationWidth: number
 ): string {
+    const middlePoint = halfEdge1.edgePoints.at(-1)!;
     const points: [Point, Point] = getConverterStationPoints(
-        startPolyline1,
-        endPolyline1,
-        startPolyline2,
-        endPolyline2,
+        halfEdge1.edgePoints.at(-2)!,
+        halfEdge2.edgePoints.at(-2)!,
+        middlePoint,
         converterStationWidth
     );
-    return getFormattedPolyline(points[0], null, points[1]);
+    return getFormattedPolyline(points[0], points[1]);
 }
 
 // get the draggable element, if present,
@@ -739,7 +735,6 @@ export function getThreeWtHalfEdge(
         : points.at(-1)!;
     return {
         side: '1',
-        startPolyline: edgeStart,
         middlePolyline: null,
         endPolyline: edgeEnd,
         busInnerRadius: nodeRadius[0],
@@ -807,7 +802,6 @@ export function getHalfEdges(
     const edgePoints = getEdgePoints(edgeStart1, edgeFork1, edgeStart2, edgeFork2, edgeEnd1, edgeEnd2, edge.points);
     const halfEdge1: HalfEdge = {
         side: '1',
-        startPolyline: edgeStart1,
         middlePolyline: edgeFork1 ?? null,
         endPolyline: edgeMiddle,
         busInnerRadius: nodeRadius1[0],
@@ -818,7 +812,6 @@ export function getHalfEdges(
     };
     const halfEdge2: HalfEdge = {
         side: '2',
-        startPolyline: edgeStart2,
         middlePolyline: edgeFork2 ?? null,
         endPolyline: edgeMiddle,
         busInnerRadius: nodeRadius2[0],

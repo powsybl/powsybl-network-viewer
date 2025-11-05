@@ -962,7 +962,7 @@ export class NetworkAreaDiagramViewer {
                 voltageLevelCircleRadius
             );
             // update text edge polyline
-            const polyline = DiagramUtils.getFormattedPolyline(startTextEdge, null, this.endTextEdge);
+            const polyline = DiagramUtils.getFormattedPolyline(startTextEdge, this.endTextEdge);
             textEdge.setAttribute('points', polyline);
         }
     }
@@ -1191,11 +1191,7 @@ export class NetworkAreaDiagramViewer {
 
         // if dangling line edge -> redraw boundary node
         if (edgeType == DiagramUtils.EdgeType.DANGLING_LINE) {
-            this.redrawBoundaryNode(
-                edgeNodes[1],
-                DiagramUtils.getAngle(halfEdges[1]!.startPolyline, halfEdges[1]!.endPolyline),
-                halfEdges[1]!.busOuterRadius
-            );
+            this.redrawBoundaryNode(edgeNodes[1], halfEdges[1]);
             if (vlNode.id == edgeNodes[1]?.id) {
                 // if boundary node moved -> redraw other voltage level node
                 this.redrawOtherVoltageLevelNode(edgeNodes[0]);
@@ -1241,20 +1237,8 @@ export class NetworkAreaDiagramViewer {
             this.updateEdgeName(edgeNode, halfEdge1.edgePoints.at(-1)!, halfEdge2.edgePoints.at(-2)!);
         }
         // store edge angles, to use them for bus node redrawing
-        this.edgeAngles1.set(
-            edgeNode.id,
-            DiagramUtils.getAngle(
-                halfEdge1.startPolyline,
-                halfEdge1.middlePolyline == null ? halfEdge1.endPolyline : halfEdge1.middlePolyline
-            )
-        );
-        this.edgeAngles2.set(
-            edgeNode.id,
-            DiagramUtils.getAngle(
-                halfEdge2.startPolyline,
-                halfEdge2.middlePolyline == null ? halfEdge2.endPolyline : halfEdge2.middlePolyline
-            )
-        );
+        this.edgeAngles1.set(edgeNode.id, DiagramUtils.getEdgeStartAngle(halfEdge1));
+        this.edgeAngles2.set(edgeNode.id, DiagramUtils.getEdgeStartAngle(halfEdge2));
     }
 
     private redrawHalfEdge(edgeNode: SVGGraphicsElement, halfEdge: HalfEdge) {
@@ -1357,10 +1341,8 @@ export class NetworkAreaDiagramViewer {
     private redrawConverterStation(edgeNode: SVGGraphicsElement, halfEdge1: HalfEdge, halfEdge2: HalfEdge) {
         const converterStationElement: SVGGraphicsElement = edgeNode.lastElementChild as SVGGraphicsElement;
         const polylinePoints: string = DiagramUtils.getConverterStationPolyline(
-            halfEdge1.middlePolyline == null ? halfEdge1.startPolyline : halfEdge1.middlePolyline,
-            halfEdge1.endPolyline,
-            halfEdge2.middlePolyline == null ? halfEdge2.startPolyline : halfEdge2.middlePolyline,
-            halfEdge2.endPolyline,
+            halfEdge1,
+            halfEdge2,
             this.svgParameters.getConverterStationWidth()
         );
         const polyline: SVGGraphicsElement | null = converterStationElement.querySelector('polyline');
@@ -1527,51 +1509,48 @@ export class NetworkAreaDiagramViewer {
     private redrawThreeWtEdge(edge: EdgeMetadata, edgeNode: SVGGraphicsElement, vlNode: SVGGraphicsElement) {
         const position = DiagramUtils.getPosition(vlNode);
         const twtEdge: HTMLElement = <HTMLElement>edgeNode.firstElementChild;
-        if (twtEdge != null) {
-            // compute polyline points
-            const edgeNodes = this.getEdgeNodes(edge, vlNode);
-            const threeWtMoved = edgeNodes[1]?.id == this.draggedElement?.id;
-            const translation = this.getTranslation(position);
-            const halfEdge = DiagramUtils.getThreeWtHalfEdge(
-                twtEdge,
-                edge,
-                this.getBusNodeMetadata(edge.busNode1),
-                this.getNodeMetadata(edge.node1),
-                edgeNodes[0],
-                edgeNodes[1],
-                threeWtMoved,
-                translation,
-                this.svgParameters
-            );
-            if (halfEdge) {
-                // move polyline
-                const polylinePoints: string = DiagramUtils.getFormattedPolyline(
-                    halfEdge.startPolyline,
-                    null,
-                    halfEdge.endPolyline
-                );
-                twtEdge.setAttribute('points', polylinePoints);
+        if (!twtEdge) return;
 
-                // redraw edge arrow and label
-                this.redrawEdgeArrowAndLabel(halfEdge);
+        // compute polyline points
+        const edgeNodes = this.getEdgeNodes(edge, vlNode);
+        const threeWtMoved = edgeNodes[1]?.id == this.draggedElement?.id;
+        const translation = this.getTranslation(position);
+        const halfEdge = DiagramUtils.getThreeWtHalfEdge(
+            twtEdge,
+            edge,
+            this.getBusNodeMetadata(edge.busNode1),
+            this.getNodeMetadata(edge.node1),
+            edgeNodes[0],
+            edgeNodes[1],
+            threeWtMoved,
+            translation,
+            this.svgParameters
+        );
+        if (!halfEdge) return;
 
-                // store edge angles, to use them for bus node redrawing
-                this.edgeAngles1.set(edgeNode.id, DiagramUtils.getAngle(halfEdge.startPolyline, halfEdge.endPolyline));
-                // redraw voltage level node connected to three windings transformer
-                if (threeWtMoved) {
-                    this.redrawOtherVoltageLevelNode(edgeNodes[0]);
-                }
-            }
+        // move polyline
+        const polylinePoints: string = DiagramUtils.getFormattedPolyline(halfEdge.edgePoints[0], halfEdge.edgePoints[1]);
+        twtEdge.setAttribute('points', polylinePoints);
+
+        // redraw edge arrow and label
+        this.redrawEdgeArrowAndLabel(halfEdge);
+
+        // store edge angles, to use them for bus node redrawing
+        this.edgeAngles1.set(edgeNode.id, DiagramUtils.getEdgeStartAngle(halfEdge));
+        // redraw voltage level node connected to three windings transformer
+        if (threeWtMoved) {
+            this.redrawOtherVoltageLevelNode(edgeNodes[0]);
         }
     }
 
-    private redrawBoundaryNode(node: SVGGraphicsElement | null, edgeStartAngle: number, busOuterRadius: number) {
-        if (node != null) {
-            const path: string = DiagramUtils.getBoundarySemicircle(edgeStartAngle, busOuterRadius);
-            const pathElement: HTMLElement | null = <HTMLElement>node.firstElementChild;
-            if (pathElement != null && pathElement.tagName == 'path') {
-                pathElement.setAttribute('d', path);
-            }
+    private redrawBoundaryNode(node: SVGGraphicsElement | null, halfEdge: HalfEdge | null) {
+        if (!node || !halfEdge) return;
+
+        const edgeStartAngle = DiagramUtils.getAngle(halfEdge.edgePoints[0], halfEdge.edgePoints[1]);
+        const path: string = DiagramUtils.getBoundarySemicircle(edgeStartAngle, halfEdge.busOuterRadius);
+        const pathElement: HTMLElement | null = <HTMLElement>node.firstElementChild;
+        if (pathElement != null && pathElement.tagName == 'path') {
+            pathElement.setAttribute('d', path);
         }
     }
 
@@ -2324,7 +2303,7 @@ export class NetworkAreaDiagramViewer {
         const midpoints: Point[] = [];
 
         if (edge.points && edge.points.length > 0) {
-            const previousPoint = halfEdges[0].startPolyline;
+            const previousPoint = halfEdges[0].edgePoints[0];
 
             midpoints.push(DiagramUtils.getMidPosition(previousPoint, new Point(edge.points[0].x, edge.points[0].y)));
 
@@ -2335,9 +2314,9 @@ export class NetworkAreaDiagramViewer {
             }
 
             const lastPoint = new Point(edge.points.at(-1)!.x, edge.points.at(-1)!.y);
-            midpoints.push(DiagramUtils.getMidPosition(lastPoint, halfEdges[1].startPolyline));
+            midpoints.push(DiagramUtils.getMidPosition(lastPoint, halfEdges[1].edgePoints[0]));
         } else {
-            midpoints.push(DiagramUtils.getMidPosition(halfEdges[0].startPolyline, halfEdges[1].startPolyline));
+            midpoints.push(DiagramUtils.getMidPosition(halfEdges[0].edgePoints[0], halfEdges[1].edgePoints[0]));
         }
 
         return midpoints;
