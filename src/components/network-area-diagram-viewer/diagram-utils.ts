@@ -56,7 +56,6 @@ export type ElementData = {
 export type HalfEdge = {
     side: string;
     middlePolyline: Point | null;
-    endPolyline: Point;
     busInnerRadius: number;
     busOuterRadius: number;
     voltageLevelRadius: number;
@@ -357,7 +356,7 @@ export function getAngle(point1: Point, point2: Point): number {
 
 // get the angle between two points
 export function getEdgeStartAngle(halfEdge: HalfEdge): number {
-    return getAngle(halfEdge.edgePoints[0], halfEdge.edgePoints[1])
+    return getAngle(halfEdge.edgePoints[0], halfEdge.edgePoints[1]);
 }
 
 // get the rotation angle of an halfEdge arrow
@@ -369,13 +368,13 @@ export function getArrowRotation(halfEdge: HalfEdge): number {
 // get the angle of the edge part corresponding to an halfEdge arrow
 export function getArrowEdgeAngle(halfEdge: HalfEdge): number {
     return halfEdge.middlePolyline
-        ? getAngle(halfEdge.middlePolyline, halfEdge.endPolyline)
+        ? getAngle(halfEdge.edgePoints[1], halfEdge.edgePoints[2])
         : getAngle(halfEdge.edgePoints[0], halfEdge.edgePoints[1]);
 }
 
 export function getArrowCenter(halfEdge: HalfEdge, svgParameters: SvgParameters): Point {
     if (halfEdge.middlePolyline) {
-        return getPointAtDistance(halfEdge.middlePolyline, halfEdge.endPolyline, svgParameters.getArrowShift());
+        return getPointAtDistance(halfEdge.edgePoints[1], halfEdge.edgePoints[2], svgParameters.getArrowShift());
     } else {
         const arrowShiftFromEdgeStart =
             svgParameters.getArrowShift() + (halfEdge.voltageLevelRadius - halfEdge.busOuterRadius);
@@ -736,7 +735,6 @@ export function getThreeWtHalfEdge(
     return {
         side: '1',
         middlePolyline: null,
-        endPolyline: edgeEnd,
         busInnerRadius: nodeRadius[0],
         busOuterRadius: nodeRadius[1],
         voltageLevelRadius: nodeRadius[2],
@@ -803,7 +801,6 @@ export function getHalfEdges(
     const halfEdge1: HalfEdge = {
         side: '1',
         middlePolyline: edgeFork1 ?? null,
-        endPolyline: edgeMiddle,
         busInnerRadius: nodeRadius1[0],
         busOuterRadius: nodeRadius1[1],
         voltageLevelRadius: nodeRadius1[2],
@@ -813,7 +810,6 @@ export function getHalfEdges(
     const halfEdge2: HalfEdge = {
         side: '2',
         middlePolyline: edgeFork2 ?? null,
-        endPolyline: edgeMiddle,
         busInnerRadius: nodeRadius2[0],
         busOuterRadius: nodeRadius2[1],
         voltageLevelRadius: nodeRadius2[2],

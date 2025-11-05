@@ -1307,7 +1307,7 @@ export class NetworkAreaDiagramViewer {
                 transformerElement,
                 halfEdge1.edgePoints.at(-2)!,
                 halfEdge1.edgePoints.at(-1)!,
-                DiagramUtils.getMidPosition(halfEdge1.endPolyline, halfEdge2.endPolyline)
+                DiagramUtils.getMidPosition(halfEdge1.edgePoints.at(-1)!, halfEdge2.edgePoints.at(-1)!)
             );
         }
     }
