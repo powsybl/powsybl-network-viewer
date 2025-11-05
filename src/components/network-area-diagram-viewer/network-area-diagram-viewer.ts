@@ -18,7 +18,7 @@ import {
     EdgeMetadata,
     InjectionMetadata,
     NodeMetadata,
-    TextNodeMetadata
+    TextNodeMetadata,
 } from './diagram-metadata';
 import { debounce } from '@mui/material';
 import {
@@ -29,7 +29,7 @@ import {
     OnMoveTextNodeCallbackType,
     OnRightClickCallbackType,
     OnSelectNodeCallbackType,
-    OnToggleNadHoverCallbackType
+    OnToggleNadHoverCallbackType,
 } from './nad-viewer-parameters';
 
 export type BranchState = {
@@ -119,6 +119,8 @@ export class NetworkAreaDiagramViewer {
     bendableLines: string[] = [];
 
     linePointIndexMap = new Map<string, { edgeId: string; index: number }>();
+
+    groupedEdgesIndexMap: Map<string, string[]> | null = null;
 
     static readonly ZOOM_CLASS_PREFIX = 'nad-zoom-';
 
@@ -1608,7 +1610,25 @@ export class NetworkAreaDiagramViewer {
         this.setBranchStates(branchStatesArray);
     }
 
+    private buildGroupedEdgesIndexMap(): Map<string, string[]> {
+        if (!this.groupedEdgesIndexMap) {
+            this.groupedEdgesIndexMap = new Map();
+
+            for (const edge of this.diagramMetadata?.edges ?? []) {
+                if (edge.node1 !== edge.node2) {
+                    const key = edge.node1.concat('_', edge.node2);
+                    const group = this.groupedEdgesIndexMap.get(key) ?? [];
+                    group.push(edge.equipmentId);
+                    this.groupedEdgesIndexMap.set(key, group);
+                }
+            }
+        }
+        return this.groupedEdgesIndexMap;
+    }
+
     public setBranchStates(branchStates: BranchState[]) {
+        const groupedEdgesIndex = this.buildGroupedEdgesIndexMap();
+
         branchStates.forEach((branchState) => {
             if (!this.edgesMap.has(branchState.branchId)) {
                 const edge = (this.diagramMetadata?.edges ?? []).find(
@@ -1628,8 +1648,18 @@ export class NetworkAreaDiagramViewer {
                 return;
             }
 
-            // TODO: detect if edge has parallel edges and call this.getHalfEdge, with the correct iEdge and nbGroupedEdges
-            const halfEdges = this.getHalfEdges(edge, 0, 1);
+            // detect if edge has parallel edges and call this.getHalfEdge, with the correct iEdge and nbGroupedEdges
+            let iEdge = 0;
+            let nbGroupedEdges = 1;
+            const groupedEdges = groupedEdgesIndex.get(edge.node1.concat('_', edge.node2));
+            if (groupedEdges && groupedEdges.length > 0) {
+                const i = groupedEdges.indexOf(edge.equipmentId);
+                if (i !== -1) {
+                    iEdge = i;
+                    nbGroupedEdges = groupedEdges.length;
+                }
+            }
+            const halfEdges = this.getHalfEdges(edge, iEdge, nbGroupedEdges);
 
             this.setBranchSideLabel(edge, halfEdges[0], edge.edgeInfo1, '1', branchState.value1);
             this.setBranchSideLabel(edge, halfEdges[1], edge.edgeInfo2, '2', branchState.value2);
