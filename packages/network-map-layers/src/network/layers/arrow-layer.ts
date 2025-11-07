@@ -72,7 +72,6 @@ type _ArrowLayerProps = {
     maxParallelOffset?: number;
     /** min pixel distance */
     minParallelOffset?: number;
-    opacity?: number;
 } & LayerProps;
 export type ArrowLayerProps = _ArrowLayerProps & LayerProps;
 
@@ -92,7 +91,7 @@ const defaultProps: DefaultProps<ArrowLayerProps> = {
     getLineAngles: { type: 'accessor', value: [0, 0, 0] },
     maxParallelOffset: { type: 'number', value: 100 },
     minParallelOffset: { type: 'number', value: 3 },
-    opacity: { type: 'number', value: 1.0 },
+    // opacity prop is handled at the layer level for visually proportional perception https://deck.gl/docs/api-reference/core/layer#opacity
 };
 
 /**
@@ -433,7 +432,7 @@ export default class ArrowLayer extends Layer<Required<_ArrowLayerProps>> {
     }
 
     draw({ uniforms, renderPass }: { uniforms: Record<string, UniformValue>; renderPass: RenderPass }) {
-        const { sizeMinPixels, sizeMaxPixels, opacity } = this.props;
+        const { sizeMinPixels, sizeMaxPixels } = this.props;
 
         const {
             model,
@@ -442,7 +441,6 @@ export default class ArrowLayer extends Layer<Required<_ArrowLayerProps>> {
             timestamp,
             // maxTextureSize,
         } = this.state;
-        // TODO we ask an opacity but we don't seem to set or used it?
         model!.setBindings({
             // @ts-expect-error TODO TS2339: Properties width and height does not exists on type Texture2D
             linePositionsTexture,
@@ -457,7 +455,6 @@ export default class ArrowLayer extends Layer<Required<_ArrowLayerProps>> {
             // maxTextureSize,
             // @ts-expect-error TODO TS2339: Properties width and height does not exists on type Texture2D
             linePositionsTextureSize: [linePositionsTexture.width, linePositionsTexture.height],
-            opacity,
             // @ts-expect-error TODO TS2339: Properties width and height does not exists on type Texture2D
             lineDistancesTextureSize: [lineDistancesTexture.width, lineDistancesTexture.height],
             // @ts-expect-error TODO TS2339: Properties width and height does not exists on type Texture2D
