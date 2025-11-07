@@ -112,7 +112,7 @@ test('getArrowAngle', () => {
         voltageLevelRadius: 0,
         edgePoints: [new Point(0, 10), new Point(50, 50), new Point(10, 10)],
     };
-    expect(halfEdge4).toBe(-45);
+    expect(DiagramUtils.getArrowRotation(halfEdge4)).toBe(-45);
 });
 
 test('getLabelData', () => {
@@ -184,9 +184,9 @@ test('getConverterStationPolyline', () => {
         busInnerRadius: 0,
         busOuterRadius: 0,
         voltageLevelRadius: 0,
-        edgePoints: [new Point(60, 60), new Point(85, 85)],
+        edgePoints: [new Point(160, 160), new Point(85, 85)],
     };
-    expect(DiagramUtils.getConverterStationPolyline(halfEdge1, halfEdge2, 70)).toBe('85.25,85.25 84.75,84.75');
+    expect(DiagramUtils.getConverterStationPolyline(halfEdge1, halfEdge2, 70)).toBe('60.25,60.25 109.75,109.75');
 });
 
 test('getDraggableFrom', () => {
