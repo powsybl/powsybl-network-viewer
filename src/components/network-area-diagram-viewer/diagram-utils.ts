@@ -6,7 +6,14 @@
  */
 
 import { Point } from '@svgdotjs/svg.js';
-import { BusNodeMetadata, EdgeMetadata, EdgePointMetadata, NodeMetadata, TextNodeMetadata } from './diagram-metadata';
+import {
+    BusNodeMetadata,
+    DiagramMetadata,
+    EdgeMetadata,
+    EdgePointMetadata,
+    NodeMetadata,
+    TextNodeMetadata,
+} from './diagram-metadata';
 import { SvgParameters } from './svg-parameters';
 import ZoomToFitSvg from '../../resources/material-icons/zoom-to-fit.svg';
 import ZoomInSvg from '../../resources/material-icons/zoom-in.svg';
@@ -708,27 +715,23 @@ export function getEdgeNameAngle(point1: Point, point2: Point): number {
 export function getThreeWtHalfEdge(
     edge: HTMLElement,
     edgeMetadata: EdgeMetadata,
-    busNode: BusNodeMetadata | undefined,
-    node: NodeMetadata | undefined,
-    edgeNode1: SVGGraphicsElement | null,
-    edgeNode2: SVGGraphicsElement | null,
     threeWtMoved: boolean,
     translation: Point,
+    diagramMetadata: DiagramMetadata | null,
     svgParameters: SvgParameters
 ): HalfEdge | undefined {
     const points = getPolylinePoints(edge);
-    if (!points) {
-        return;
-    }
-    const point1 = getPosition(edgeNode1);
-    const point2 = getPosition(edgeNode2);
-    const nodeRadius = getNodeRadius(busNode, node, svgParameters);
-    const unknownBusNode = edgeMetadata.busNode1 != null && edgeMetadata.busNode1.length == 0;
-    const edgeStart = getPointAtDistance(
-        point1,
-        point2,
-        unknownBusNode ? nodeRadius[1] + svgParameters.getUnknownBusNodeExtraRadius() : nodeRadius[1]
-    );
+    if (!points) return;
+
+    const busNode = getBusNodeMetadata(edgeMetadata.busNode1, diagramMetadata);
+    const vlNode = getNodeMetadata(edgeMetadata.node1, diagramMetadata);
+    const twtNode = getNodeMetadata(edgeMetadata.node2, diagramMetadata);
+    if (!vlNode || !twtNode) return;
+
+    const pointVl = new Point(vlNode.x, vlNode.y);
+    const pointTwt = new Point(twtNode.x, twtNode.y);
+    const nodeRadius = getNodeRadius(busNode, vlNode, svgParameters);
+    const edgeStart = getEdgeStart(edgeMetadata.busNode1, pointVl, pointTwt, nodeRadius[1], svgParameters);
     const edgeEnd = threeWtMoved
         ? new Point(points.at(-1)!.x + translation.x, points.at(-1)!.y + translation.y)
         : points.at(-1)!;
@@ -745,18 +748,20 @@ export function getThreeWtHalfEdge(
 
 export function getHalfEdges(
     edge: EdgeMetadata,
-    busNode1: BusNodeMetadata | undefined,
-    busNode2: BusNodeMetadata | undefined,
-    node1: NodeMetadata | undefined,
-    node2: NodeMetadata | undefined,
     iEdge: number,
     nbGroupedEdges: number,
-    edgeType: EdgeType,
+    diagramMetadata: DiagramMetadata | null,
     svgParameters: SvgParameters
 ): HalfEdge[] | null[] {
+    const edgeType = getEdgeType(edge);
+    const busNode1 = getBusNodeMetadata(edge.busNode1, diagramMetadata);
+    const busNode2 = getBusNodeMetadata(edge.busNode2, diagramMetadata);
+    const node1 = getNodeMetadata(edge.node1, diagramMetadata);
+    const node2 = getNodeMetadata(edge.node2, diagramMetadata);
     if (node1 == null || node2 == null) {
         return [null, null];
     }
+
     const point1 = new Point(node1.x, node1.y);
     const point2 = new Point(node2.x, node2.y);
     let edgeFork1: Point | undefined;
@@ -770,22 +775,15 @@ export function getHalfEdges(
         edgeFork1 = getEdgeFork(point1, svgParameters.getEdgesForkLength(), angleFork1);
         edgeFork2 = getEdgeFork(point2, svgParameters.getEdgesForkLength(), angleFork2);
     }
+
     const edgeDirection1 = getEdgeDirection(point2, edgeFork1, edge.points?.at(0));
-    const edgeDirection2 = getEdgeDirection(point1, edgeFork2, edge.points?.at(-1));
-    const unknownBusNode1 = edge.busNode1 != null && edge.busNode1.length == 0;
     const nodeRadius1 = getNodeRadius(busNode1, node1, svgParameters);
-    const edgeStart1 = getPointAtDistance(
-        point1,
-        edgeDirection1,
-        unknownBusNode1 ? nodeRadius1[1] + svgParameters.getUnknownBusNodeExtraRadius() : nodeRadius1[1]
-    );
-    const unknownBusNode2 = edge.busNode2 != null && edge.busNode2.length == 0;
+    const edgeStart1 = getEdgeStart(edge.busNode1, point1, edgeDirection1, nodeRadius1[1], svgParameters);
+
+    const edgeDirection2 = getEdgeDirection(point1, edgeFork2, edge.points?.at(-1));
     const nodeRadius2 = getNodeRadius(busNode2, node2, svgParameters);
-    const edgeStart2 = getPointAtDistance(
-        point2,
-        edgeDirection2,
-        unknownBusNode2 ? nodeRadius2[1] + svgParameters.getUnknownBusNodeExtraRadius() : nodeRadius2[1]
-    );
+    const edgeStart2 = getEdgeStart(edge.busNode2, point2, edgeDirection2, nodeRadius2[1], svgParameters);
+
     const edgeMiddle = edgeFork1 && edgeFork2 ? getMidPosition(edgeFork1, edgeFork2) : getMidPosition(point1, point2);
 
     // if transformer edge, reduce edge polyline, leaving space for the transformer
@@ -819,8 +817,28 @@ export function getHalfEdges(
     return [halfEdge1, halfEdge2];
 }
 
+function getBusNodeMetadata(busNodeId: string, diagramMetadata: DiagramMetadata | null): BusNodeMetadata | undefined {
+    return diagramMetadata?.busNodes.find((busNode) => busNode.svgId == busNodeId);
+}
+
+export function getNodeMetadata(nodeId: string, diagramMetadata: DiagramMetadata | null): NodeMetadata | undefined {
+    return diagramMetadata?.nodes.find((node) => node.svgId == nodeId);
+}
+
 export function isTransformerEdge(edgeType: EdgeType): boolean {
     return edgeType == EdgeType.TWO_WINDINGS_TRANSFORMER || edgeType == EdgeType.PHASE_SHIFT_TRANSFORMER;
+}
+
+function getEdgeStart(
+    busNodeId: string | undefined,
+    vlPoint: Point,
+    direction: Point,
+    busOuterRadius: number,
+    svgParameters: SvgParameters
+): Point {
+    const unknownBusNode1 = busNodeId?.length == 0;
+    const rho = unknownBusNode1 ? busOuterRadius + svgParameters.getUnknownBusNodeExtraRadius() : busOuterRadius;
+    return getPointAtDistance(vlPoint, direction, rho);
 }
 
 function getEdgeDirection(
