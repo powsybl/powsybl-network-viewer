@@ -77,7 +77,6 @@ test('getArrowAngle', () => {
     const halfEdge1: HalfEdge = {
         side: '1',
         fork: false,
-        busInnerRadius: 0,
         busOuterRadius: 0,
         voltageLevelRadius: 0,
         edgePoints: [new Point(10, 10), new Point(50, 50)],
@@ -87,7 +86,6 @@ test('getArrowAngle', () => {
     const halfEdge2: HalfEdge = {
         side: '2',
         fork: true,
-        busInnerRadius: 0,
         busOuterRadius: 0,
         voltageLevelRadius: 0,
         edgePoints: [new Point(0, 0), new Point(10, 10), new Point(10, 50)],
@@ -97,7 +95,6 @@ test('getArrowAngle', () => {
     const halfEdge3: HalfEdge = {
         side: '2',
         fork: false,
-        busInnerRadius: 0,
         busOuterRadius: 0,
         voltageLevelRadius: 0,
         edgePoints: [new Point(10, 10), new Point(50, 10)],
@@ -107,7 +104,6 @@ test('getArrowAngle', () => {
     const halfEdge4: HalfEdge = {
         side: '1',
         fork: true,
-        busInnerRadius: 0,
         busOuterRadius: 0,
         voltageLevelRadius: 0,
         edgePoints: [new Point(0, 10), new Point(50, 50), new Point(10, 10)],
@@ -119,7 +115,6 @@ test('getLabelData', () => {
     const halfEdge1: HalfEdge = {
         side: '1',
         fork: false,
-        busInnerRadius: 0,
         busOuterRadius: 0,
         voltageLevelRadius: 0,
         edgePoints: [new Point(10, 10), new Point(50, 50)],
@@ -132,7 +127,6 @@ test('getLabelData', () => {
     const halfEdge2: HalfEdge = {
         side: '2',
         fork: true,
-        busInnerRadius: 0,
         busOuterRadius: 0,
         voltageLevelRadius: 0,
         edgePoints: [new Point(0, 0), new Point(10, 10), new Point(-30, 50)],
@@ -173,7 +167,6 @@ test('getConverterStationPolyline', () => {
     const halfEdge1: HalfEdge = {
         side: '1',
         fork: false,
-        busInnerRadius: 0,
         busOuterRadius: 0,
         voltageLevelRadius: 0,
         edgePoints: [new Point(10, 10), new Point(85, 85)],
@@ -181,7 +174,6 @@ test('getConverterStationPolyline', () => {
     const halfEdge2: HalfEdge = {
         side: '1',
         fork: false,
-        busInnerRadius: 0,
         busOuterRadius: 0,
         voltageLevelRadius: 0,
         edgePoints: [new Point(160, 160), new Point(85, 85)],

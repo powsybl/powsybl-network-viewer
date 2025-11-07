@@ -63,7 +63,6 @@ export type ElementData = {
 export type HalfEdge = {
     side: string;
     fork: boolean;
-    busInnerRadius: number;
     busOuterRadius: number;
     voltageLevelRadius: number;
     edgeInfoId?: string;
@@ -738,7 +737,6 @@ export function getThreeWtHalfEdge(
     return {
         side: '1',
         fork: false,
-        busInnerRadius: nodeRadius[0],
         busOuterRadius: nodeRadius[1],
         voltageLevelRadius: nodeRadius[2],
         edgeInfoId: edgeMetadata.edgeInfo1?.svgId,
@@ -799,7 +797,6 @@ export function getHalfEdges(
     const halfEdge1: HalfEdge = {
         side: '1',
         fork: nbGroupedEdges > 1,
-        busInnerRadius: nodeRadius1[0],
         busOuterRadius: nodeRadius1[1],
         voltageLevelRadius: nodeRadius1[2],
         edgeInfoId: edge.edgeInfo1?.svgId,
@@ -808,7 +805,6 @@ export function getHalfEdges(
     const halfEdge2: HalfEdge = {
         side: '2',
         fork: nbGroupedEdges > 1,
-        busInnerRadius: nodeRadius2[0],
         busOuterRadius: nodeRadius2[1],
         voltageLevelRadius: nodeRadius2[2],
         edgeInfoId: edge.edgeInfo2?.svgId,
