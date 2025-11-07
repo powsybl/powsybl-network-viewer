@@ -41,6 +41,8 @@ export interface SvgParametersMetadata {
     voltageValuePrecision: number;
     insertNameDesc: boolean;
     cssLocation: string;
+    arrowPathIn: string;
+    arrowPathOut: string;
 }
 
 export interface DiagramPaddingMetadata {
@@ -56,6 +58,7 @@ export interface BusNodeMetadata {
     nbNeighbours: number;
     index: number;
     vlNode: string;
+    legend?: string;
 }
 
 export interface NodeMetadata {
@@ -64,6 +67,10 @@ export interface NodeMetadata {
     x: number;
     y: number;
     fictitious?: boolean;
+    legendSvgId?: string;
+    legendEdgeSvgId?: string;
+    legendHeader?: string[];
+    legendFooter?: string[];
 }
 
 export interface EdgeMetadata {
@@ -75,6 +82,9 @@ export interface EdgeMetadata {
     busNode2: string;
     type: string;
     points?: EdgePointMetadata[];
+    label?: string;
+    edgeInfo1?: EdgeInfoMetadata;
+    edgeInfo2?: EdgeInfoMetadata;
 }
 
 export interface EdgePointMetadata {
@@ -98,4 +108,13 @@ export interface InjectionMetadata {
     componentType: string;
     busNodeId: string;
     vlNodeId: string;
+    edgeInfo: EdgeInfoMetadata;
+}
+
+export interface EdgeInfoMetadata {
+    svgId: string;
+    infoType: string;
+    direction?: string;
+    externalLabel?: string;
+    internalLabel?: string;
 }
