@@ -1500,8 +1500,8 @@ export class NetworkAreaDiagramViewer {
             const traversingBusEdgesAngles: number[] = [];
             for (let index = 0; index < sortedBusNodes.length; index++) {
                 const busNode = sortedBusNodes[index];
-                // skip redrawing of first bus
-                if (index > 0) {
+                // skip redrawing of first bus or if there are no traversing bus edges
+                if (index > 0 && traversingBusEdgesAngles.length > 0) {
                     this.redrawBusNode(node, busNode, index, traversingBusEdgesAngles);
                 }
                 // add angles of edges starting from bus to traversing edges angles
