@@ -679,21 +679,6 @@ export function isVoltageLevelElement(element: SVGElement | null): boolean {
     return element != null && hasId(element) && element.parentElement?.classList.contains('nad-vl-nodes') === true;
 }
 
-// get text node id of a vl node
-export function getTextNodeId(voltageLevelNodeId: string | undefined): string {
-    return voltageLevelNodeId + '-textnode';
-}
-
-// get text edge id of a vl node
-export function getTextEdgeId(voltageLevelNodeId: string | undefined): string {
-    return voltageLevelNodeId + '-textedge';
-}
-
-// get vl node id of a text node
-export function getVoltageLevelNodeId(textNodeId: string | undefined): string {
-    return textNodeId !== undefined ? textNodeId.replace('-textnode', '') : '-1';
-}
-
 // compute text edge end w.r.t. textbox and vlnode positions (angle)
 export function getTextEdgeEnd(
     textNodePosition: Point,
