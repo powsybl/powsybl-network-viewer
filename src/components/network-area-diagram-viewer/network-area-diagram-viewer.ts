@@ -89,7 +89,7 @@ export class NetworkAreaDiagramViewer {
     selectedElement: SVGGraphicsElement | null = null;
     draggedElement: SVGGraphicsElement | null = null;
     hoveredElement: SVGElement | null = null;
-    hoveredElementPosition: Point = new Point(0, 0);
+    hoveredElementLastKnownPosition: Point = new Point(0, 0);
     transform: SVGTransform | undefined;
     ctm: DOMMatrix | null | undefined = null;
     initialPosition: Point = new Point(0, 0);
@@ -371,7 +371,7 @@ export class NetworkAreaDiagramViewer {
             });
 
             this.svgDraw.on('mouseout', (e: Event) => {
-                this.handleHoverExit(e as MouseEvent, true);
+                this.checkIfHoverExit(e as MouseEvent);
             });
         }
         if (this.onRightClickCallback != null && hasMetadata) {
@@ -653,7 +653,7 @@ export class NetworkAreaDiagramViewer {
     }
 
     private onMouseMove(event: MouseEvent) {
-        this.trackArtificialHover(event);
+        this.updateHoveredElementLastKnownPosition(event);
 
         if (!this.draggedElement) {
             return;
@@ -731,7 +731,7 @@ export class NetworkAreaDiagramViewer {
 
         const hoverableElem = DiagramUtils.getHoverableFrom(mouseEvent.target as SVGElement);
         if (!hoverableElem) {
-            this.handleHoverExit(mouseEvent, true);
+            this.checkIfHoverExit(mouseEvent);
             return;
         }
 
@@ -739,7 +739,7 @@ export class NetworkAreaDiagramViewer {
         const mousePosition = this.getMousePosition(mouseEvent);
 
         this.hoveredElement = hoverableElem;
-        this.hoveredElementPosition = mousePosition;
+        this.hoveredElementLastKnownPosition = mousePosition;
 
         if (DiagramUtils.isHighlightableElement(hoverableElem)) {
             this.handleHighlightableElementHover(hoverableElem, mousePosition);
@@ -755,33 +755,31 @@ export class NetworkAreaDiagramViewer {
             return false;
         }
         return (
-            DiagramUtils.getDistance(this.hoveredElementPosition, mousePosition) <
+            DiagramUtils.getDistance(this.hoveredElementLastKnownPosition, mousePosition) <
             NetworkAreaDiagramViewer.ARTIFICIAL_HOVER_SIZE
         );
     }
 
-    private trackArtificialHover(event: MouseEvent) {
+    private updateHoveredElementLastKnownPosition(event: MouseEvent) {
         if (this.hoveredElement) {
             // Check if we are over the hovered object
             const hoverableElem = DiagramUtils.getHoverableFrom(event.target as SVGElement);
             const mousePosition: Point = this.getMousePosition(event);
             if (hoverableElem && hoverableElem === this.hoveredElement) {
                 // We are still over the hoveredElement, we update the mouse position
-                this.hoveredElementPosition = mousePosition;
+                this.hoveredElementLastKnownPosition = mousePosition;
                 return;
             }
 
-            // Check if we are out of range of the artificial hover zone
+            // As we are not over the element, check if we are out of range of the artificial hover zone
             if (!this.isInArtificialHoverRange(mousePosition)) {
-                this.hoveredElement = null;
-                // Always call this without the artifical hover, as we already tested if this is needed in this function.
-                this.handleHoverExit(event, false);
+                this.handleHoverExit();
             }
         }
     }
 
     private onMouseLeftUpOrLeave(mouseEvent: MouseEvent) {
-        this.trackArtificialHover(mouseEvent);
+        this.updateHoveredElementLastKnownPosition(mouseEvent);
 
         // check if I moved or selected an element
         if (this.isDragging) {
@@ -2255,14 +2253,16 @@ export class NetworkAreaDiagramViewer {
         });
     }
 
-    private handleHoverExit(event: MouseEvent, withArtificialHover: boolean = false) {
-        if (withArtificialHover) {
-            const mousePosition: Point = this.getMousePosition(event);
-            // If we are still in the artificial hover zone, we do not trigger the hover exit
-            if (this.isInArtificialHoverRange(mousePosition)) {
-                return;
-            }
+    private checkIfHoverExit(event: MouseEvent) {
+        // If we are still in the artificial hover zone, we do not trigger the hover exit
+        if (this.isInArtificialHoverRange(this.getMousePosition(event))) {
+            return;
         }
+        this.handleHoverExit();
+    }
+
+    private handleHoverExit() {
+        this.hoveredElement = null;
         this.onToggleHoverCallback?.(false, null, '', '');
         this.clearHighlights();
         this.hideEdgePreviewPoints();
