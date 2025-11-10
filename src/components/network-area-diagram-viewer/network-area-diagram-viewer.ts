@@ -84,7 +84,7 @@ export class NetworkAreaDiagramViewer {
     originalWidth: number;
     originalHeight: number;
     svgDraw: Svg | undefined;
-    innerSvg: SVGElement | null;
+    innerSvg: SVGElement | undefined;
     ratio = 1;
     selectedElement: SVGGraphicsElement | null = null;
     draggedElement: SVGGraphicsElement | null = null;
@@ -152,7 +152,7 @@ export class NetworkAreaDiagramViewer {
         this.onBendLineCallback = this.nadViewerParameters.getOnBendingLineCallback();
         this.zoomLevels = this.nadViewerParameters.getZoomLevels();
         this.zoomLevels.sort((a, b) => b - a);
-        this.innerSvg = this.init();
+        this.init();
         this.svgParameters = new SvgParameters(this.diagramMetadata?.svgParameters);
         this.layoutParameters = new LayoutParameters(this.diagramMetadata?.layoutParameters);
         this.previousMaxDisplayedSize = 0;
@@ -292,15 +292,11 @@ export class NetworkAreaDiagramViewer {
         return this.enableDragInteraction || this.onRightClickCallback != null || this.onSelectNodeCallback != null;
     }
 
-    public init(): SVGElement | null {
-        if (!this.container || !this.svgContent) {
-            return null;
-        }
+    public init() {
+        if (!this.container || !this.svgContent) return;
 
         const dimensions: DiagramUtils.Dimensions | null = this.getDimensionsFromSvg();
-        if (!dimensions) {
-            return null;
-        }
+        if (!dimensions) return;
 
         // clear the previous svg in div element before replacing
         this.container.innerHTML = '';
@@ -343,8 +339,8 @@ export class NetworkAreaDiagramViewer {
             height: dimensions.viewbox.height,
         };
         this.svgDraw = SVG().addTo(this.svgDiv).size(this.width, this.height).viewbox(viewBox);
-        const drawnSvg: SVGElement = <SVGElement>this.svgDraw.svg(this.svgContent).node.firstElementChild;
-        drawnSvg.style.overflow = 'visible';
+        this.innerSvg = <SVGElement>this.svgDraw.svg(this.svgContent).node.firstElementChild;
+        this.innerSvg.style.overflow = 'visible';
 
         // add events
         const hasMetadata = this.diagramMetadata !== null;
@@ -379,6 +375,8 @@ export class NetworkAreaDiagramViewer {
                 }
             });
         }
+
+        const drawnSvg = this.innerSvg;
         this.svgDraw.on('panStart', function () {
             if (drawnSvg.parentElement != undefined) {
                 drawnSvg.parentElement.style.cursor = 'move';
@@ -442,8 +440,6 @@ export class NetworkAreaDiagramViewer {
                 emptyElement.style.fill = '#0000';
             });
         }
-
-        return drawnSvg;
     }
 
     private getZoomButtonsBar(): HTMLDivElement {
