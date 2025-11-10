@@ -10,7 +10,7 @@ import {
     BusNodeMetadata,
     DiagramMetadata,
     EdgeMetadata,
-    EdgePointMetadata,
+    PointMetadata,
     NodeMetadata,
     TextNodeMetadata,
 } from './diagram-metadata';
@@ -194,11 +194,11 @@ export function getBendLinesButton(): HTMLButtonElement {
 // insert a point in the edge point list
 // it return the new list, and the index of the added point
 export function addPointToList(
-    pointsMetadata: EdgePointMetadata[] | undefined,
+    pointsMetadata: PointMetadata[] | undefined,
     node1: Point,
     node2: Point,
     bendPoint: Point
-): { linePoints: EdgePointMetadata[]; index: number } {
+): { linePoints: PointMetadata[]; index: number } {
     let index = 0;
     if (pointsMetadata == undefined) {
         pointsMetadata = [{ x: bendPoint.x, y: bendPoint.y }];
@@ -254,7 +254,7 @@ export function getEdgePoints(
     edgeStart2: Point,
     edgeFork2: Point | undefined,
     edgeEnd2: Point,
-    bendingPoints: EdgePointMetadata[] | undefined
+    bendingPoints: PointMetadata[] | undefined
 ): [Point[], Point[]] {
     if (!bendingPoints) {
         const edgePoints1 = edgeFork1 ? [edgeStart1, edgeFork1, edgeEnd1] : [edgeStart1, edgeEnd1];
@@ -774,11 +774,11 @@ export function getHalfEdges(
         edgeFork2 = getEdgeFork(point2, svgParameters.getEdgesForkLength(), angleFork2);
     }
 
-    const edgeDirection1 = getEdgeDirection(point2, edgeFork1, edge.points?.at(0));
+    const edgeDirection1 = getEdgeDirection(point2, edgeFork1, edge.bendingPoints?.at(0));
     const nodeRadius1 = getNodeRadius(busNode1, node1, svgParameters);
     const edgeStart1 = getEdgeStart(edge.busNode1, point1, edgeDirection1, nodeRadius1[1], svgParameters);
 
-    const edgeDirection2 = getEdgeDirection(point1, edgeFork2, edge.points?.at(-1));
+    const edgeDirection2 = getEdgeDirection(point1, edgeFork2, edge.bendingPoints?.at(-1));
     const nodeRadius2 = getNodeRadius(busNode2, node2, svgParameters);
     const edgeStart2 = getEdgeStart(edge.busNode2, point2, edgeDirection2, nodeRadius2[1], svgParameters);
 
@@ -793,7 +793,7 @@ export function getHalfEdges(
         edgeEnd2 = getPointAtDistance(edgeMiddle, edgeFork2 ?? edgeStart2, endShift);
     }
 
-    const edgePoints = getEdgePoints(edgeStart1, edgeFork1, edgeEnd1, edgeStart2, edgeFork2, edgeEnd2, edge.points);
+    const edgePoints = getEdgePoints(edgeStart1, edgeFork1, edgeEnd1, edgeStart2, edgeFork2, edgeEnd2, edge.bendingPoints);
     const halfEdge1: HalfEdge = {
         side: '1',
         fork: nbGroupedEdges > 1,
@@ -840,7 +840,7 @@ function getEdgeStart(
 function getEdgeDirection(
     nodePoint: Point,
     edgeFork: Point | undefined,
-    firstBendingPoint: EdgePointMetadata | undefined
+    firstBendingPoint: PointMetadata | undefined
 ): Point {
     if (firstBendingPoint) return new Point(firstBendingPoint.x, firstBendingPoint.y);
     if (edgeFork) return edgeFork;

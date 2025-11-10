@@ -2042,12 +2042,12 @@ export class NetworkAreaDiagramViewer {
         linesPointsElement.classList.add('nad-line-points');
         const bendableEdges = DiagramUtils.getBendableLines(this.diagramMetadata?.edges);
         for (const edge of bendableEdges) {
-            if (edge.points) {
-                for (let index = 0; index < edge.points.length; index++) {
+            if (edge.bendingPoints) {
+                for (let index = 0; index < edge.bendingPoints.length; index++) {
                     this.addLinePoint(
                         edge.svgId,
                         index,
-                        new Point(edge.points[index].x, edge.points[index].y),
+                        new Point(edge.bendingPoints[index].x, edge.bendingPoints[index].y),
                         linesPointsElement
                     );
                 }
@@ -2103,7 +2103,7 @@ export class NetworkAreaDiagramViewer {
         }
         const edgeId = bendableElem.id ? this.linePointIndexMap.get(bendableElem.id)?.edgeId : '-1';
         const edge: EdgeMetadata | undefined = this.diagramMetadata?.edges.find((edge) => edge.svgId == edgeId);
-        if (edge?.points == undefined) {
+        if (edge?.bendingPoints == undefined) {
             return;
         }
         this.disablePanzoom(); // to avoid panning the whole SVG when straightening a line
@@ -2137,12 +2137,12 @@ export class NetworkAreaDiagramViewer {
             if (node1 && node2) {
                 // insert the point in the list of points
                 const linePoints = DiagramUtils.addPointToList(
-                    edge.points?.slice(),
+                    edge.bendingPoints?.slice(),
                     new Point(node1.x, node1.y),
                     new Point(node2.x, node2.y),
                     position
                 );
-                edge.points = linePoints.linePoints;
+                edge.bendingPoints = linePoints.linePoints;
                 this.linePointIndexMap.set(linePointElement.id, { edgeId: edge.svgId, index: linePoints.index });
 
                 for (const [key, value] of this.linePointIndexMap) {
@@ -2151,28 +2151,28 @@ export class NetworkAreaDiagramViewer {
                     }
                 }
             }
-        } else if (edge.points) {
+        } else if (edge.bendingPoints) {
             // update line point
-            edge.points[index!] = { x: DiagramUtils.round(position.x), y: DiagramUtils.round(position.y) };
+            edge.bendingPoints[index!] = { x: DiagramUtils.round(position.x), y: DiagramUtils.round(position.y) };
         } else {
             // it should not come here, anyway, add the new point
-            edge.points = [{ x: DiagramUtils.round(position.x), y: DiagramUtils.round(position.y) }];
+            edge.bendingPoints = [{ x: DiagramUtils.round(position.x), y: DiagramUtils.round(position.y) }];
         }
     }
 
     private updateEdgeMetadataWhenStraightening(edge: EdgeMetadata, linePointElement: SVGGraphicsElement) {
         const index = this.linePointIndexMap.get(linePointElement.id)?.index ?? -1;
 
-        if (edge.points) {
+        if (edge.bendingPoints) {
             for (const [key, value] of this.linePointIndexMap) {
                 if (key !== linePointElement.id && value.edgeId == edge.svgId && value.index >= index) {
                     value.index--;
                 }
             }
             // delete point
-            edge.points.splice(index, 1);
-            if (edge.points.length == 0) {
-                edge.points = undefined;
+            edge.bendingPoints.splice(index, 1);
+            if (edge.bendingPoints.length == 0) {
+                edge.bendingPoints = undefined;
             }
         }
     }
@@ -2184,7 +2184,7 @@ export class NetworkAreaDiagramViewer {
         // get edge data
         const edgeId = linePoint.id ? this.linePointIndexMap.get(linePoint.id)?.edgeId : '-1';
         const edge: EdgeMetadata | undefined = this.diagramMetadata?.edges.find((edge) => edge.svgId == edgeId);
-        if (!edge || (lineOperation == LineOperation.BEND && !edge.points)) return;
+        if (!edge || (lineOperation == LineOperation.BEND && !edge.bendingPoints)) return;
 
         const edgeNode: SVGGraphicsElement | null = this.svgDiv.querySelector("[id='" + edgeId + "']");
         if (!edgeNode) return;
@@ -2199,10 +2199,10 @@ export class NetworkAreaDiagramViewer {
         this.redrawOtherVoltageLevelNode(vlNode1);
         this.redrawOtherVoltageLevelNode(vlNode2);
 
-        if (edge.points && lineOperation == LineOperation.BEND) {
+        if (edge.bendingPoints && lineOperation == LineOperation.BEND) {
             // move line point
             const index = this.linePointIndexMap.get(linePoint.id)?.index ?? 0;
-            const position: Point = new Point(edge.points[index].x, edge.points[index].y);
+            const position: Point = new Point(edge.bendingPoints[index].x, edge.bendingPoints[index].y);
             this.updateNodePosition(linePoint, position);
         } else {
             linePoint.remove();
@@ -2235,8 +2235,8 @@ export class NetworkAreaDiagramViewer {
                 (edge) => edge.svgId == this.linePointIndexMap.get(linePointElement.id)?.edgeId
             );
             if (edge) {
-                const linePoints: Point[] | null = edge.points
-                    ? edge.points.map((point) => new Point(point.x, point.y))
+                const linePoints: Point[] | null = edge.bendingPoints
+                    ? edge.bendingPoints.map((point) => new Point(point.x, point.y))
                     : null;
                 this.onBendLineCallback(
                     edge.svgId,
@@ -2278,18 +2278,18 @@ export class NetworkAreaDiagramViewer {
 
         const midpoints: Point[] = [];
 
-        if (edge.points && edge.points.length > 0) {
+        if (edge.bendingPoints && edge.bendingPoints.length > 0) {
             const previousPoint = halfEdges[0].edgePoints[0];
 
-            midpoints.push(DiagramUtils.getMidPosition(previousPoint, new Point(edge.points[0].x, edge.points[0].y)));
+            midpoints.push(DiagramUtils.getMidPosition(previousPoint, new Point(edge.bendingPoints[0].x, edge.bendingPoints[0].y)));
 
-            for (let i = 0; i < edge.points.length - 1; i++) {
-                const current = new Point(edge.points[i].x, edge.points[i].y);
-                const next = new Point(edge.points[i + 1].x, edge.points[i + 1].y);
+            for (let i = 0; i < edge.bendingPoints.length - 1; i++) {
+                const current = new Point(edge.bendingPoints[i].x, edge.bendingPoints[i].y);
+                const next = new Point(edge.bendingPoints[i + 1].x, edge.bendingPoints[i + 1].y);
                 midpoints.push(DiagramUtils.getMidPosition(current, next));
             }
 
-            const lastPoint = new Point(edge.points.at(-1)!.x, edge.points.at(-1)!.y);
+            const lastPoint = new Point(edge.bendingPoints.at(-1)!.x, edge.bendingPoints.at(-1)!.y);
             midpoints.push(DiagramUtils.getMidPosition(lastPoint, halfEdges[1].edgePoints[0]));
         } else {
             midpoints.push(DiagramUtils.getMidPosition(halfEdges[0].edgePoints[0], halfEdges[1].edgePoints[0]));

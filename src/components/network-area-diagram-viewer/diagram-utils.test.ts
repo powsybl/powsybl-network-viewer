@@ -11,7 +11,7 @@ import {
     BusNodeMetadata,
     DiagramPaddingMetadata,
     EdgeMetadata,
-    EdgePointMetadata,
+    PointMetadata,
     NodeMetadata,
     SvgParametersMetadata,
     TextNodeMetadata,
@@ -810,15 +810,15 @@ test('addPointToList', () => {
         type: 'LineEdge',
     };
     let bendPoint = new Point(75, 75);
-    let linePoints = DiagramUtils.addPointToList(edge.points?.slice(), node1, node2, bendPoint);
+    let linePoints = DiagramUtils.addPointToList(edge.bendingPoints?.slice(), node1, node2, bendPoint);
     expect(linePoints.index).toBe(0);
     expect(linePoints.linePoints.length).toBe(1);
     expect(linePoints.linePoints[0].x).toBe(75);
     expect(linePoints.linePoints[0].y).toBe(75);
 
-    edge.points = [{ x: 75, y: 75 }];
+    edge.bendingPoints = [{ x: 75, y: 75 }];
     bendPoint = new Point(90, 90);
-    linePoints = DiagramUtils.addPointToList(edge.points.slice(), node1, node2, bendPoint);
+    linePoints = DiagramUtils.addPointToList(edge.bendingPoints.slice(), node1, node2, bendPoint);
     expect(linePoints.index).toBe(1);
     expect(linePoints.linePoints.length).toBe(2);
     expect(linePoints.linePoints[0].x).toBe(75);
@@ -826,9 +826,9 @@ test('addPointToList', () => {
     expect(linePoints.linePoints[1].x).toBe(90);
     expect(linePoints.linePoints[1].y).toBe(90);
 
-    edge.points.push({ x: 90, y: 90 });
+    edge.bendingPoints.push({ x: 90, y: 90 });
     bendPoint = new Point(80, 80);
-    linePoints = DiagramUtils.addPointToList(edge.points.slice(), node1, node2, bendPoint);
+    linePoints = DiagramUtils.addPointToList(edge.bendingPoints.slice(), node1, node2, bendPoint);
     expect(linePoints.index).toBe(1);
     expect(linePoints.linePoints.length).toBe(3);
     expect(linePoints.linePoints[0].x).toBe(75);
@@ -845,7 +845,7 @@ test('getEdgePoints', () => {
     const edgeEnd1 = new Point(0, 0);
     const edgeEnd2 = new Point(0, 0);
 
-    const pointsMetadata: EdgePointMetadata[] = [];
+    const pointsMetadata: PointMetadata[] = [];
     let edgePoints = DiagramUtils.getEdgePoints(
         edgeStart1,
         undefined,
