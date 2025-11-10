@@ -2258,7 +2258,9 @@ export class NetworkAreaDiagramViewer {
         if (this.isInArtificialHoverRange(this.getMousePosition(event))) {
             return;
         }
-        this.handleHoverExit();
+        if (this.hoveredElement) {
+            this.handleHoverExit();
+        }
     }
 
     private handleHoverExit() {

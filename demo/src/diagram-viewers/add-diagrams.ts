@@ -505,9 +505,10 @@ const handleNodeSelect: OnSelectNodeCallbackType = (equipmentId, nodeId, mousePo
 };
 
 const handleToggleNadHover: OnToggleNadHoverCallbackType = (hovered, mousePosition, equipmentId, equipmentType) => {
+    let msg = 'ToggleNadHoverCallback called';
     if (hovered) {
-        const msg =
-            'Hovers on equipment: ' +
+        msg +=
+            ' with hover on equipment: ' +
             equipmentId +
             ', equipmentType: ' +
             equipmentType +
@@ -515,8 +516,8 @@ const handleToggleNadHover: OnToggleNadHoverCallbackType = (hovered, mousePositi
             mousePosition?.x +
             ', y=' +
             mousePosition?.y;
-        console.log(msg);
     }
+    console.log(msg);
 };
 
 const handleRightClick: OnRightClickCallbackType = (svgId, equipmentId, equipmentType, mousePosition) => {
