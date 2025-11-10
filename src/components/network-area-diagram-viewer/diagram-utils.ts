@@ -793,7 +793,15 @@ export function getHalfEdges(
         edgeEnd2 = getPointAtDistance(edgeMiddle, edgeFork2 ?? edgeStart2, endShift);
     }
 
-    const edgePoints = getEdgePoints(edgeStart1, edgeFork1, edgeEnd1, edgeStart2, edgeFork2, edgeEnd2, edge.bendingPoints);
+    const edgePoints = getEdgePoints(
+        edgeStart1,
+        edgeFork1,
+        edgeEnd1,
+        edgeStart2,
+        edgeFork2,
+        edgeEnd2,
+        edge.bendingPoints
+    );
     const halfEdge1: HalfEdge = {
         side: '1',
         fork: nbGroupedEdges > 1,

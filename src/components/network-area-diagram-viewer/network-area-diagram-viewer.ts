@@ -2281,7 +2281,9 @@ export class NetworkAreaDiagramViewer {
         if (edge.bendingPoints && edge.bendingPoints.length > 0) {
             const previousPoint = halfEdges[0].edgePoints[0];
 
-            midpoints.push(DiagramUtils.getMidPosition(previousPoint, new Point(edge.bendingPoints[0].x, edge.bendingPoints[0].y)));
+            midpoints.push(
+                DiagramUtils.getMidPosition(previousPoint, new Point(edge.bendingPoints[0].x, edge.bendingPoints[0].y))
+            );
 
             for (let i = 0; i < edge.bendingPoints.length - 1; i++) {
                 const current = new Point(edge.bendingPoints[i].x, edge.bendingPoints[i].y);
