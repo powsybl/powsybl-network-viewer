@@ -74,7 +74,6 @@ const dynamicCssRulesUpdateThreshold = 0.01;
 
 export class NetworkAreaDiagramViewer {
     static readonly DEFAULT_PNG_BACKGROUND_COLOR = 'white';
-    static readonly ARTIFICIAL_HOVER_SIZE = 12;
 
     container: HTMLElement;
     svgDiv: HTMLElement;
@@ -114,6 +113,7 @@ export class NetworkAreaDiagramViewer {
     originalTextNodeConnectionShift: Point = new Point(0, 0);
     lastZoomLevel: number = 0;
     zoomLevels: number[] = [0, 1000, 2200, 2500, 3000, 4000, 9000, 12000, 20000];
+    hoverHelperSize: number = 0;
     bendLines: boolean = false;
     onBendLineCallback: OnBendLineCallbackType | null;
     straightenedElement: SVGGraphicsElement | null = null;
@@ -154,6 +154,7 @@ export class NetworkAreaDiagramViewer {
         this.onBendLineCallback = this.nadViewerParameters.getOnBendingLineCallback();
         this.zoomLevels = this.nadViewerParameters.getZoomLevels();
         this.zoomLevels.sort((a, b) => b - a);
+        this.hoverHelperSize = this.nadViewerParameters.getHoverHelperSize();
         this.init();
         this.svgParameters = new SvgParameters(this.diagramMetadata?.svgParameters);
         this.layoutParameters = new LayoutParameters(this.diagramMetadata?.layoutParameters);
@@ -754,14 +755,11 @@ export class NetworkAreaDiagramViewer {
         if (!this.hoveredElement) {
             return false;
         }
-        return (
-            DiagramUtils.getDistance(this.hoveredElementLastKnownPosition, mousePosition) <
-            NetworkAreaDiagramViewer.ARTIFICIAL_HOVER_SIZE
-        );
+        return DiagramUtils.getDistance(this.hoveredElementLastKnownPosition, mousePosition) < this.hoverHelperSize;
     }
 
     private updateHoveredElementLastKnownPosition(event: MouseEvent) {
-        if (this.hoveredElement) {
+        if (this.hoverHelperSize > 0 && this.hoveredElement) {
             // Check if we are over the hovered object
             const hoverableElem = DiagramUtils.getHoverableFrom(event.target as SVGElement);
             const mousePosition: Point = this.getMousePosition(event);
