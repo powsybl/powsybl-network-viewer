@@ -338,6 +338,15 @@ export const addNadToDemo = () => {
     fetch(NadSvgExample)
         .then((response) => response.text())
         .then((svgContent) => {
+            function getRandomColor() {
+                const letters = '0123456789ABCDEF';
+                let color = '#';
+                for (let i = 0; i < 6; i++) {
+                    color += letters[Math.floor(Math.random() * 16)];
+                }
+                return color + 'aa';
+            }
+
             const defaultHoverHelperSize: number = 12;
 
             const showHoveredEquipmentId: OnToggleNadHoverCallbackType = (
@@ -350,6 +359,28 @@ export const addNadToDemo = () => {
                 if (hoverDiv) {
                     hoverDiv.textContent = hovered ? 'Hovering over ' + equipmentId : 'No hover at the moment';
                 }
+
+                document.getElementById('hoverHelperPopup')?.remove();
+                if (hovered) {
+                    const hoverHelperPopup = document.createElement('div');
+                    hoverHelperPopup.id = 'hoverHelperPopup';
+                    hoverHelperPopup.style.display = 'block';
+                    hoverHelperPopup.style.position = 'fixed';
+                    hoverHelperPopup.style.left = (mousePosition?.x || 0) + 'px';
+                    hoverHelperPopup.style.top = (mousePosition?.y || 0) + 'px';
+                    hoverHelperPopup.style.backgroundColor = '#eeeeeeaa';
+                    hoverHelperPopup.style.margin = '10px';
+                    hoverHelperPopup.style.padding = '5px';
+                    hoverHelperPopup.style.border = 'solid 1px #ddd';
+                    hoverHelperPopup.style.borderRadius = '5px';
+                    hoverHelperPopup.textContent = 'Hover ' + equipmentId;
+                    const randomColor = document.createElement('div');
+                    randomColor.style.backgroundColor = getRandomColor();
+                    randomColor.innerHTML = '&nbsp;';
+                    hoverHelperPopup.appendChild(randomColor);
+                    document.getElementById('svg-container-nad-hoverCallback')?.appendChild(hoverHelperPopup);
+                }
+
                 handleToggleNadHover(hovered, mousePosition, equipmentId, equipmentType);
             };
 
