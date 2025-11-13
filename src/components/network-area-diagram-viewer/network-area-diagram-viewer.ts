@@ -780,6 +780,7 @@ export class NetworkAreaDiagramViewer {
                 this.onToggleHoverCallback?.(false, null, '', '');
             }
             this.clearHighlights();
+            this.hideEdgePreviewPoints();
             this.hoveredElement = null;
         }
     }
