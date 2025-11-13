@@ -347,7 +347,7 @@ export const addNadToDemo = () => {
                 return color + 'aa';
             }
 
-            const defaultHoverHelperSize: number = 12;
+            const defaultHoverHelperSize: number = 10;
 
             const showHoveredEquipmentId: OnToggleNadHoverCallbackType = (
                 hovered,
