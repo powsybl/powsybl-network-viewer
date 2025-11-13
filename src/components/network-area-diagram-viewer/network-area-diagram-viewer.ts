@@ -374,6 +374,10 @@ export class NetworkAreaDiagramViewer {
             this.svgDraw.on('mouseover', (e: Event) => {
                 this.onHover(e as MouseEvent);
             });
+
+            this.svgDraw.on('mouseout', () => {
+                this.handleHoverExit();
+            });
         }
         if (this.onRightClickCallback != null && hasMetadata) {
             this.svgDraw.on('mousedown', (e: Event) => {
@@ -734,28 +738,26 @@ export class NetworkAreaDiagramViewer {
         if (!this.hoveredElement) {
             return false;
         }
-        return DiagramUtils.getDistance(this.hoveredElementPosition, mousePosition) < this.hoverHelperSize;
+        return DiagramUtils.getDistance(this.hoveredElementPosition, mousePosition) <= this.hoverHelperSize;
     }
 
     private onHover(mouseEvent: MouseEvent) {
-        if (this.onToggleHoverCallback == null) {
-            return;
-        }
-
         const hoverableElem = DiagramUtils.getHoverableFrom(mouseEvent.target as SVGElement);
         if (!hoverableElem) {
             return;
         }
-
         this.hoveredElement = hoverableElem;
         this.hoveredElementPosition = this.getMousePosition(mouseEvent);
     }
 
     private handleHoverCallBack(mouseEvent: MouseEvent) {
-        if (this.hoveredElement == null) {
+        if (!this.hoveredElement) {
             return;
         }
+
+        this.clearHighlights();
         const mousePosition = this.getMousePosition(mouseEvent);
+
         // Check if we are over the hovered object
         const hoverableElem = DiagramUtils.getHoverableFrom(mouseEvent.target as SVGElement);
         if (hoverableElem && hoverableElem === this.hoveredElement) {
@@ -764,7 +766,6 @@ export class NetworkAreaDiagramViewer {
         }
 
         if (this.existsNearbyHoveredElement(mousePosition)) {
-            this.clearHighlights();
             if (DiagramUtils.isHighlightableElement(this.hoveredElement)) {
                 this.handleHighlightableElementHover(this.hoveredElement, mousePosition);
             } else if (DiagramUtils.isInjection(this.hoveredElement)) {
@@ -779,7 +780,6 @@ export class NetworkAreaDiagramViewer {
                 this.isHoverCallbackUsed = false;
                 this.onToggleHoverCallback?.(false, null, '', '');
             }
-            this.clearHighlights();
             this.hideEdgePreviewPoints();
             this.hoveredElement = null;
         }
@@ -2256,6 +2256,10 @@ export class NetworkAreaDiagramViewer {
         highlightedTextElements.forEach((element) => {
             element.classList.remove('nad-textnode-highlight');
         });
+    }
+
+    private handleHoverExit() {
+        this.hideEdgePreviewPoints();
     }
 
     private getEditButtonBar(): HTMLDivElement {

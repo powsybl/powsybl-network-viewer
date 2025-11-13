@@ -131,7 +131,7 @@ export const addNadToDemo = () => {
                 onMoveNodeCallback: handleNodeMove,
                 onMoveTextNodeCallback: handleTextNodeMove,
                 onSelectNodeCallback: handleNodeSelect,
-                onToggleHoverCallback: handleToggleNadHover,
+                //onToggleHoverCallback: handleToggleNadHover,
                 onRightClickCallback: handleRightClick,
                 onBendLineCallback: handleLineBending,
             };
