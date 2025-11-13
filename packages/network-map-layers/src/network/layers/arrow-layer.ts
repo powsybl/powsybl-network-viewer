@@ -131,9 +131,7 @@ export default class ArrowLayer extends Layer<Required<_ArrowLayerProps>> {
         return attributes;
     }
 
-    override initializeState() {
-        const { device } = this.context;
-
+    override initializeState({ device }: LayerContext) {
         const maxTextureSize = device.limits.maxTextureDimension2D;
         this.state = {
             maxTextureSize,
