@@ -116,7 +116,7 @@ export class NetworkAreaDiagramViewer {
     lastZoomLevel: number = 0;
     zoomLevels: number[] = [0, 1000, 2200, 2500, 3000, 4000, 9000, 12000, 20000];
     isHoverCallbackUsed: boolean = false;
-    hoverHelperSize: number = 0;
+    hoverPositionPrecision: number = 0;
     bendLines: boolean = false;
     onBendLineCallback: OnBendLineCallbackType | null;
     straightenedElement: SVGGraphicsElement | null = null;
@@ -158,7 +158,7 @@ export class NetworkAreaDiagramViewer {
         this.onBendLineCallback = this.nadViewerParameters.getOnBendingLineCallback();
         this.zoomLevels = this.nadViewerParameters.getZoomLevels();
         this.zoomLevels.sort((a, b) => b - a);
-        this.hoverHelperSize = this.nadViewerParameters.getHoverHelperSize();
+        this.hoverPositionPrecision = this.nadViewerParameters.getHoverPositionPrecision();
         this.init();
         this.svgParameters = new SvgParameters(this.diagramMetadata?.svgParameters);
         this.layoutParameters = new LayoutParameters(this.diagramMetadata?.layoutParameters);
@@ -376,7 +376,7 @@ export class NetworkAreaDiagramViewer {
             });
 
             this.svgDraw.on('mouseout', () => {
-                this.handleHoverExit();
+                this.hideEdgePreviewPoints();
             });
         }
         if (this.onRightClickCallback != null && hasMetadata) {
@@ -738,7 +738,7 @@ export class NetworkAreaDiagramViewer {
         if (!this.hoveredElement) {
             return false;
         }
-        return DiagramUtils.getDistance(this.hoveredElementPosition, mousePosition) <= this.hoverHelperSize;
+        return DiagramUtils.getDistance(this.hoveredElementPosition, mousePosition) <= this.hoverPositionPrecision;
     }
 
     private onHover(mouseEvent: MouseEvent) {
@@ -2256,10 +2256,6 @@ export class NetworkAreaDiagramViewer {
         highlightedTextElements.forEach((element) => {
             element.classList.remove('nad-textnode-highlight');
         });
-    }
-
-    private handleHoverExit() {
-        this.hideEdgePreviewPoints();
     }
 
     private getEditButtonBar(): HTMLDivElement {

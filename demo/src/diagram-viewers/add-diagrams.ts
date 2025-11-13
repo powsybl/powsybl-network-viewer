@@ -347,7 +347,7 @@ export const addNadToDemo = () => {
                 return color + 'aa';
             }
 
-            const defaultHoverHelperSize: number = 10;
+            const defaultHoverPositionPrecision: number = 10;
 
             const showHoveredEquipmentId: OnToggleNadHoverCallbackType = (
                 hovered,
@@ -360,25 +360,25 @@ export const addNadToDemo = () => {
                     hoverDiv.textContent = hovered ? 'Hovering over ' + equipmentId : 'No hover at the moment';
                 }
 
-                document.getElementById('hoverHelperPopup')?.remove();
+                document.getElementById('hoverPopup')?.remove();
                 if (hovered) {
-                    const hoverHelperPopup = document.createElement('div');
-                    hoverHelperPopup.id = 'hoverHelperPopup';
-                    hoverHelperPopup.style.display = 'block';
-                    hoverHelperPopup.style.position = 'fixed';
-                    hoverHelperPopup.style.left = (mousePosition?.x || 0) + 'px';
-                    hoverHelperPopup.style.top = (mousePosition?.y || 0) + 'px';
-                    hoverHelperPopup.style.backgroundColor = '#eeeeeeaa';
-                    hoverHelperPopup.style.margin = '10px';
-                    hoverHelperPopup.style.padding = '5px';
-                    hoverHelperPopup.style.border = 'solid 1px #ddd';
-                    hoverHelperPopup.style.borderRadius = '5px';
-                    hoverHelperPopup.textContent = 'Hover ' + equipmentId;
+                    const hoverPopup = document.createElement('div');
+                    hoverPopup.id = 'hoverPopup';
+                    hoverPopup.style.display = 'block';
+                    hoverPopup.style.position = 'fixed';
+                    hoverPopup.style.left = (mousePosition?.x || 0) + 'px';
+                    hoverPopup.style.top = (mousePosition?.y || 0) + 'px';
+                    hoverPopup.style.backgroundColor = '#eeeeeeaa';
+                    hoverPopup.style.margin = '10px';
+                    hoverPopup.style.padding = '5px';
+                    hoverPopup.style.border = 'solid 1px #ddd';
+                    hoverPopup.style.borderRadius = '5px';
+                    hoverPopup.textContent = 'Hover ' + equipmentId;
                     const randomColor = document.createElement('div');
                     randomColor.style.backgroundColor = getRandomColor();
                     randomColor.innerHTML = '&nbsp;';
-                    hoverHelperPopup.appendChild(randomColor);
-                    document.getElementById('svg-container-nad-hoverCallback')?.appendChild(hoverHelperPopup);
+                    hoverPopup.appendChild(randomColor);
+                    document.getElementById('svg-container-nad-hoverCallback')?.appendChild(hoverPopup);
                 }
 
                 handleToggleNadHover(hovered, mousePosition, equipmentId, equipmentType);
@@ -394,7 +394,7 @@ export const addNadToDemo = () => {
                 onToggleHoverCallback: showHoveredEquipmentId,
                 onBendLineCallback: handleLineBending,
                 onRightClickCallback: handleRightClick,
-                hoverHelperSize: defaultHoverHelperSize,
+                hoverPositionPrecision: defaultHoverPositionPrecision,
             };
 
             const nadViewer = new NetworkAreaDiagramViewer(
@@ -404,41 +404,41 @@ export const addNadToDemo = () => {
                 nadViewerParametersOptions
             );
 
-            // add range slider to update hover helper size
-            const hoverHelperSliderDiv = document.createElement('div');
-            hoverHelperSliderDiv.id = 'hoverHelperSliderDiv';
-            hoverHelperSliderDiv.style.display = 'flex';
-            hoverHelperSliderDiv.style.justifyContent = 'space-between';
-            document.getElementById('svg-container-nad-hoverCallback')?.appendChild(hoverHelperSliderDiv);
+            // add range slider to update hover position precision
+            const hoverSliderDiv = document.createElement('div');
+            hoverSliderDiv.id = 'hoverSliderDiv';
+            hoverSliderDiv.style.display = 'flex';
+            hoverSliderDiv.style.justifyContent = 'space-between';
+            document.getElementById('svg-container-nad-hoverCallback')?.appendChild(hoverSliderDiv);
 
-            const hoverHelperSlider = document.createElement('input');
-            hoverHelperSlider.id = 'hoverHelperSlider';
-            hoverHelperSlider.type = 'range';
-            hoverHelperSlider.min = '0';
-            hoverHelperSlider.max = '50';
-            hoverHelperSlider.value = defaultHoverHelperSize.toString();
-            hoverHelperSlider.step = '1';
-            hoverHelperSlider.style.display = 'flex';
-            hoverHelperSlider.style.flexGrow = '1';
-            hoverHelperSlider.style.padding = '0 5px';
+            const hoverSlider = document.createElement('input');
+            hoverSlider.id = 'hoverSlider';
+            hoverSlider.type = 'range';
+            hoverSlider.min = '0';
+            hoverSlider.max = '50';
+            hoverSlider.value = defaultHoverPositionPrecision.toString();
+            hoverSlider.step = '1';
+            hoverSlider.style.display = 'flex';
+            hoverSlider.style.flexGrow = '1';
+            hoverSlider.style.padding = '0 5px';
 
             // Create slider event listener
-            hoverHelperSlider.addEventListener('input', (e) => {
+            hoverSlider.addEventListener('input', (e) => {
                 const target = e.target as HTMLInputElement;
-                nadViewer.hoverHelperSize = Number(target.value);
-                const hoverHelperSliderValue = document.getElementById('hoverHelperSliderValue');
-                if (hoverHelperSliderValue) {
-                    hoverHelperSliderValue.textContent = target.value;
+                nadViewer.hoverPositionPrecision = Number(target.value);
+                const hoverSliderValueDisplay = document.getElementById('hoverSliderValueDisplay');
+                if (hoverSliderValueDisplay) {
+                    hoverSliderValueDisplay.textContent = target.value;
                 }
             });
-            hoverHelperSliderDiv.appendChild(hoverHelperSlider);
+            hoverSliderDiv.appendChild(hoverSlider);
 
-            const hoverHelperSliderValue = document.createElement('span');
-            hoverHelperSliderValue.id = 'hoverHelperSliderValue';
-            hoverHelperSliderValue.textContent = defaultHoverHelperSize.toString();
-            hoverHelperSliderValue.style.width = '20px';
-            hoverHelperSliderValue.style.padding = '0 5px';
-            hoverHelperSliderDiv.appendChild(hoverHelperSliderValue);
+            const hoverSliderValueDisplay = document.createElement('span');
+            hoverSliderValueDisplay.id = 'hoverSliderValueDisplay';
+            hoverSliderValueDisplay.textContent = defaultHoverPositionPrecision.toString();
+            hoverSliderValueDisplay.style.width = '20px';
+            hoverSliderValueDisplay.style.padding = '0 5px';
+            hoverSliderDiv.appendChild(hoverSliderValueDisplay);
 
             const hoverVisualizer = document.createElement('div');
             hoverVisualizer.id = 'hoverVisualizer';
