@@ -5,22 +5,22 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import type { DefaultProps } from '@deck.gl/core';
-import {
-    type Color,
-    CompositeLayer,
-    type CompositeLayerProps,
-    type Layer,
-    type LayerContext,
-    TextLayer,
-    type TextLayerProps,
-    type UpdateParameters,
-} from 'deck.gl';
 import { type MapSubstation, type MapVoltageLevel } from '../equipment-types';
 import { SUBSTATION_RADIUS, SUBSTATION_RADIUS_MAX_PIXEL, SUBSTATION_RADIUS_MIN_PIXEL } from './constants';
 import { type GeoData } from './geo-data';
 import ScatterplotLayerExt, { ScatterplotLayerExtProps } from './layers/scatterplot-layer-ext';
 import { type MapEquipments } from './map-equipments';
+import { CompositeData } from './line-layer';
+import { TextLayer, TextLayerProps } from '@deck.gl/layers';
+import {
+    type Color,
+    CompositeLayer,
+    type CompositeLayerProps,
+    DefaultProps,
+    type Layer,
+    type LayerContext,
+    type UpdateParameters,
+} from '@deck.gl/core';
 
 function voltageLevelNominalVoltageIndexer(map: Map<number, MapVoltageLevel[]>, voltageLevel: MapVoltageLevel) {
     let list = map.get(voltageLevel.nominalV);
@@ -70,7 +70,7 @@ export class SubstationLayer extends CompositeLayer<Required<_SubstationLayerPro
     };
 
     declare state: {
-        compositeData: unknown[];
+        compositeData: CompositeData[];
         substationsLabels: MapSubstation[];
         metaVoltageLevelsByNominalVoltage: MetaVoltageLevelsByNominalVoltage[];
     };
@@ -112,10 +112,7 @@ export class SubstationLayer extends CompositeLayer<Required<_SubstationLayerPro
                     ];
 
                     // add to global map of meta voltage levels indexed by nominal voltage
-                    Array.from(voltageLevelsByNominalVoltage.entries()).forEach((e) => {
-                        const nominalV = e[0];
-                        const voltageLevels = e[1];
-
+                    Array.from(voltageLevelsByNominalVoltage.entries()).forEach(([nominalV, voltageLevels]) => {
                         let metaVoltageLevels = metaVoltageLevelsByNominalVoltage.get(nominalV);
                         if (!metaVoltageLevels) {
                             metaVoltageLevels = [];

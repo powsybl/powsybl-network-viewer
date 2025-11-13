@@ -1,3 +1,6 @@
+#version 300 es
+#define SHADER_NAME "arrow-layer-vertex-shader"
+
 /**
  * Copyright (c) 2022, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
@@ -5,75 +8,61 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#define SHADER_NAME "arrow-layer-vertex-shader"
-
 precision highp float;
 
-attribute vec3 positions;
-
-attribute float instanceSize;
-attribute float instanceArrowDistance;
-attribute vec4 instanceColor;
-attribute float instanceSpeedFactor;
-attribute float instanceLinePositionsTextureOffset;
-attribute float instanceLineDistancesTextureOffset;
-attribute float instanceLinePointCount;
-attribute float instanceLineDistance;
-attribute float instanceArrowDirection;
-attribute float instanceLineParallelIndex;
-attribute vec3 instanceLineAngles;
-attribute vec2 instanceProximityFactors;
+in vec3 positions;
+in float instanceSize;
+in vec4 instanceColor;
+in float instanceSpeedFactor;
+in float instanceArrowDistance;
+in float instanceArrowDirection;
+in float instanceLineDistance;
+in int instanceLinePositionsTextureOffset;
+in int instanceLineDistancesTextureOffset;
+in int instanceLinePointCount;
+in float instanceLineParallelIndex;
+in vec3 instanceLineAngles;
+in vec2 instanceProximityFactors;
+in float instanceDistanceBetweenLines;
 
 uniform float sizeMinPixels;
 uniform float sizeMaxPixels;
 uniform float timestamp;
 uniform sampler2D linePositionsTexture;
 uniform sampler2D lineDistancesTexture;
-uniform ivec2 linePositionsTextureSize;
-uniform ivec2 lineDistancesTextureSize;
-uniform float webgl2;
-uniform float distanceBetweenLines;
 uniform float maxParallelOffset;
 uniform float minParallelOffset;
 uniform float opacity;
+uniform ivec2 linePositionsTextureSize;
 
-varying vec4 vFillColor;
-varying float shouldDiscard;
+uniform ivec2 lineDistancesTextureSize;
 
-vec4 texelFetch(sampler2D sampler, ivec2 index, ivec2 size) {
-    float x = (2.0 * float(index.x) + 1.0) / (2.0 * float(size.x));
-    float y = (2.0 * float(index.y) + 1.0) / (2.0 * float(size.y));
-    return texture2D(sampler, vec2(x, y));
-}
+flat out vec4 vFillColor;
+flat out float shouldDiscard;
 
 /**
  * Calculate 2 dimensions texture index from flat index.
  */
 ivec2 calculateTextureIndex(int flatIndex, ivec2 textureSize) {
-    int x = flatIndex - flatIndex / textureSize.x * textureSize.x;
-    int y = flatIndex / textureSize.y;
-    return ivec2(x, y);
+    return ivec2(flatIndex % textureSize.x, flatIndex / textureSize.x);
 }
 
 /**
  * Fetch WGS84 position from texture for a given point of the line.
  */
 vec3 fetchLinePosition(int point) {
-    int flatIndex = int(instanceLinePositionsTextureOffset) + point;
+    int flatIndex = instanceLinePositionsTextureOffset + point;
     ivec2 textureIndex = calculateTextureIndex(flatIndex, linePositionsTextureSize);
-    vec4 color = texelFetch(linePositionsTexture, textureIndex, linePositionsTextureSize);
-    float x = color.r;
-    float y = webgl2 > 0.5 ? color.g : color.a;
-    return vec3(x, y, 0);
+    return vec3(texelFetch(linePositionsTexture, textureIndex, 0).xy, 0);
 }
 
 /**
  * Fetch distance (in meters from the start of the line) from texture for a point of the line.
  */
 float fetchLineDistance(int point) {
-    int flatIndex = int(instanceLineDistancesTextureOffset) + point;
+    int flatIndex = instanceLineDistancesTextureOffset + point;
     ivec2 textureIndex = calculateTextureIndex(flatIndex, lineDistancesTextureSize);
-    return texelFetch(lineDistancesTexture, textureIndex, lineDistancesTextureSize).r;
+    return texelFetch(lineDistancesTexture, textureIndex, 0).x;
 }
 
 /**
@@ -93,25 +82,21 @@ float fetchLineDistance(int point) {
  */
 int findFirstLinePointAfterDistance(float distance) {
     int firstPoint = 0;
-    int lastPoint = int(instanceLinePointCount) - 1;
+    int lastPoint = instanceLinePointCount - 1;
 
-    // variable length loops are not supported in WebGL v1, it needs to be a constant and cannot be like in WebGL v2 an
-    // attribute, so we suppose here that we won't have more that 2^log2MaxPointCount points per line...
-    //
-    // WARNING!!!!
-    // also, we need to avoid break/return in the for loop even if search complete because with a WebGL1 browser
-    // it is not possible to call texture2D inside a non deterministic piece of code
-    // https://shadertoyunofficial.wordpress.com/2017/11/19/avoiding-compiler-crash-or-endless-compilation
-    const int log2MaxPointCount = 15;
-    for (int i = 0; i < log2MaxPointCount; i++) {
-        if (firstPoint + 1 != lastPoint) {
-            int middlePoint = (firstPoint + lastPoint) / 2;
-            float middlePointDistance = fetchLineDistance(middlePoint);
-            if (middlePointDistance <= distance) {
-                firstPoint = middlePoint;
-            } else {
-                lastPoint = middlePoint;
-            }
+    // variable length loops are now supported in GLSL with OpenGL ES 3.0+,
+    // instanceLinePointCount is an upper bound that
+    // will never be reached as binary search complexity is in O(log(instanceLinePointCount))
+    for (int i = 0; i < instanceLinePointCount; i++) {
+        if (firstPoint + 1 == lastPoint) {
+            return lastPoint;
+        }
+        int middlePoint = (firstPoint + lastPoint) / 2;
+        float middlePointDistance = fetchLineDistance(middlePoint);
+        if (middlePointDistance <= distance) {
+            firstPoint = middlePoint;
+        } else {
+            lastPoint = middlePoint;
         }
     }
     return lastPoint;
@@ -122,7 +107,7 @@ mat3 calculateRotation(vec3 commonPosition1, vec3 commonPosition2) {
     if (instanceArrowDirection < 2.0) {
         angle += radians(180.0);
     }
-    return mat3(cos(angle), sin(angle), 0, -sin(angle), cos(angle), 0, 0, 0, 0);
+    return mat3(cos(angle), sin(angle), 0.0, -sin(angle), cos(angle), 0.0, 0.0, 0.0, 1.0);
 }
 
 /**
@@ -154,16 +139,18 @@ float project_size_all_zoom_levels(float meters, float lat) {
 
 void main(void ) {
     if (instanceArrowDirection < 1.0) {
-        vFillColor = vec4(0, 0, 0, 0);
+        vFillColor = vec4(0.0);
         shouldDiscard = 1.0;
     } else {
         // arrow distance from the line start shifted with current timestamp
         // instanceArrowDistance: a float in interval [0,1] describing the initial position of the arrow along the full path between two substations (0: begin, 1.0 end)
-        float arrowDistance = mod(
+        float distanceAlong =
             instanceLineDistance * instanceArrowDistance +
-                (instanceArrowDirection < 2.0 ? 1.0 : -1.0) * timestamp * instanceSpeedFactor,
-            instanceLineDistance
-        );
+            (instanceArrowDirection < 2.0 ? 1.0 : -1.0) * timestamp * instanceSpeedFactor;
+        float arrowDistance = mod(distanceAlong, instanceLineDistance);
+        if (arrowDistance < 0.0) {
+            arrowDistance += instanceLineDistance;
+        }
 
         // look for first line point that is after arrow distance
         int linePoint = findFirstLinePointAfterDistance(arrowDistance);
@@ -171,7 +158,8 @@ void main(void ) {
         // Interpolate the 2 line points position
         float lineDistance1 = fetchLineDistance(linePoint - 1);
         float lineDistance2 = fetchLineDistance(linePoint);
-        float interpolationValue = (arrowDistance - lineDistance1) / (lineDistance2 - lineDistance1);
+        float denom = max(1e-6, lineDistance2 - lineDistance1);
+        float interpolationValue = clamp((arrowDistance - lineDistance1) / denom, 0.0, 1.0);
 
         // position for the line point just before the arrow
         vec3 linePosition1 = fetchLinePosition(linePoint - 1);
@@ -192,7 +180,7 @@ void main(void ) {
         // This hack does not seem necessary for parallel-path or fork-line layers.
         vec3 arrowPositionWorldSpace = mix(linePosition1, linePosition2, interpolationValue);
         float offsetCommonSpace = clamp(
-            project_size_all_zoom_levels(distanceBetweenLines, arrowPositionWorldSpace.y),
+            project_size_all_zoom_levels(instanceDistanceBetweenLines, arrowPositionWorldSpace.y),
             project_pixel_size(minParallelOffset),
             project_pixel_size(maxParallelOffset)
         );

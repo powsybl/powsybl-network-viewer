@@ -24,5 +24,7 @@ header:
     - '**/*.css'
     - '**/*.conf'
     - '**/*.properties'
+    - '**/*.vert'
+    - '**/*.frag'
 
   comment: on-failure

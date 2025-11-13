@@ -39,12 +39,12 @@
         "check:pack": "attw --pack"
     },
     "peerDependencies": {
-        "@deck.gl/core": "^8.0.0",
-        "@deck.gl/extensions": "^8.0.0",
-        "@deck.gl/layers": "^8.0.0",
-        "@luma.gl/constants": "^8.0.0",
-        "@luma.gl/core": "^8.0.0",
-        "@luma.gl/engine": "^8.0.0"
+        "@deck.gl/core": "~9.0.0",
+        "@deck.gl/extensions": "~9.0.0",
+        "@deck.gl/layers": "~9.0.0",
+        "@luma.gl/constants": "~9.0.0",
+        "@luma.gl/core": "~9.0.0",
+        "@luma.gl/engine": "~9.0.0"
     },
     "devDependencies": {
         "@arethetypeswrong/cli": "^0.17.4",
