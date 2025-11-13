@@ -335,7 +335,7 @@ export const addNadToDemo = () => {
             );
         });
 
-    fetch(NadSvgExample)
+    fetch(NadSvgMultibusVLNodes14Example)
         .then((response) => response.text())
         .then((svgContent) => {
             function getRandomColor() {
@@ -386,11 +386,13 @@ export const addNadToDemo = () => {
 
             const nadViewerParametersOptions: NadViewerParametersOptions = {
                 enableDragInteraction: true,
+                enableLevelOfDetail: true,
                 addButtons: true,
                 onMoveNodeCallback: handleNodeMove,
                 onMoveTextNodeCallback: handleTextNodeMove,
                 onSelectNodeCallback: handleNodeSelect,
                 onToggleHoverCallback: showHoveredEquipmentId,
+                onBendLineCallback: handleLineBending,
                 onRightClickCallback: handleRightClick,
                 hoverHelperSize: defaultHoverHelperSize,
             };
@@ -398,7 +400,7 @@ export const addNadToDemo = () => {
             const nadViewer = new NetworkAreaDiagramViewer(
                 document.getElementById('svg-container-nad-hoverCallback')!,
                 svgContent,
-                NadSvgExampleMeta,
+                NadSvgMultibusVLNodes14ExampleMeta,
                 nadViewerParametersOptions
             );
 
