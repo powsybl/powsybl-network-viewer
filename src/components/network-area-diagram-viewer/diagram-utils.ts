@@ -306,8 +306,8 @@ export function getFormattedPoint(point: Point): string {
 }
 
 // format points to polyline string
-export function getFormattedPolyline(startPolyline: Point, endPolyline: Point): string {
-    return getFormattedPoint(startPolyline) + ' ' + getFormattedPoint(endPolyline);
+export function getFormattedPolyline(points: Point[]): string {
+    return points.map((point) => getFormattedPoint(point)).join(' ');
 }
 
 // transform angle degrees to radians
@@ -473,7 +473,7 @@ export function getConverterStationPolyline(
         middlePoint,
         converterStationWidth
     );
-    return getFormattedPolyline(points[0], points[1]);
+    return getFormattedPolyline(points);
 }
 
 // get the draggable element, if present,

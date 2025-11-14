@@ -31,10 +31,10 @@ test('getFormattedPoint', () => {
 });
 
 test('getFormattedPolyline', () => {
-    expect(DiagramUtils.getFormattedPolyline(new Point(144, 34.836), new Point(213.892, 74))).toBe(
+    expect(DiagramUtils.getFormattedPolyline([new Point(144, 34.836), new Point(213.892, 74)])).toBe(
         '144.00,34.84 213.89,74.00'
     );
-    expect(DiagramUtils.getFormattedPolyline(new Point(144, 34.836), new Point(213.892, 74))).toBe(
+    expect(DiagramUtils.getFormattedPolyline([new Point(144, 34.836), new Point(213.892, 74)])).toBe(
         '144.00,34.84 213.89,74.00'
     );
 });

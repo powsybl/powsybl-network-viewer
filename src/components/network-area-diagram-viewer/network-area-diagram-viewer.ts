@@ -958,7 +958,7 @@ export class NetworkAreaDiagramViewer {
                 voltageLevelCircleRadius
             );
             // update text edge polyline
-            const polyline = DiagramUtils.getFormattedPolyline(startTextEdge, this.endTextEdge);
+            const polyline = DiagramUtils.getFormattedPolyline([startTextEdge, this.endTextEdge]);
             textEdge.setAttribute('points', polyline);
         }
     }
@@ -1234,8 +1234,7 @@ export class NetworkAreaDiagramViewer {
         const polyline: SVGGraphicsElement | null = edgeNode.querySelector(
             ':scope > polyline.nad-edge-path:nth-of-type(' + halfEdge.side + ')'
         );
-        const points: string = halfEdge.edgePoints.map((p) => DiagramUtils.getFormattedPoint(p)).join(' ');
-        polyline?.setAttribute('points', points);
+        polyline?.setAttribute('points', DiagramUtils.getFormattedPolyline(halfEdge.edgePoints));
 
         // redraw edge arrow and label
         this.redrawEdgeArrowAndLabel(halfEdge);
@@ -1513,11 +1512,7 @@ export class NetworkAreaDiagramViewer {
         if (!halfEdge) return;
 
         // move polyline
-        const polylinePoints: string = DiagramUtils.getFormattedPolyline(
-            halfEdge.edgePoints[0],
-            halfEdge.edgePoints[1]
-        );
-        twtEdge.setAttribute('points', polylinePoints);
+        twtEdge.setAttribute('points', DiagramUtils.getFormattedPolyline(halfEdge.edgePoints));
 
         // redraw edge arrow and label
         this.redrawEdgeArrowAndLabel(halfEdge);
