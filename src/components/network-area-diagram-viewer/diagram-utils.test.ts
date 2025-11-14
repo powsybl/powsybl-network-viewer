@@ -158,9 +158,9 @@ test('getEdgeType', () => {
 });
 
 test('getTransformerArrowMatrixString', () => {
-    expect(
-        DiagramUtils.getTransformerArrowMatrixString(new Point(10, 10), new Point(110, 110), new Point(60, 60), 20)
-    ).toBe('0.71,0.71,-0.71,0.71,60.00,17.57');
+    expect(DiagramUtils.getTransformerArrowMatrixString(Math.PI / 4, new Point(60, 60), 20)).toBe(
+        '0.71,0.71,-0.71,0.71,60.00,17.57'
+    );
 });
 
 test('getConverterStationPolyline', () => {
@@ -780,13 +780,6 @@ test('getBendableLines', () => {
     expect(lines[0].svgId).toBe('77');
 });
 
-test('getEdgeMidPoint', () => {
-    const midPoint = DiagramUtils.getEdgeMidPoint(getSvgHalfEdge());
-    expect(midPoint).not.toBeNull();
-    expect(midPoint?.x).toBe(-423.41);
-    expect(midPoint?.y).toBe(184.65);
-});
-
 test('getBendableLineFrom', () => {
     let bendableLine = DiagramUtils.getBendableLineFrom(getSvgNode(), ['14']);
     expect(bendableLine).toBeUndefined();
@@ -1004,18 +997,6 @@ function getSvgLinePointElement(): SVGGraphicsElement {
         '<g class="nad-line-points">' +
         '<g id="67-point" class="nad-line-point" transform="translate(-679.99,-11.42)"><circle r="10"></circle></g></g>';
     return <SVGGraphicsElement>SVG().svg(linePointSvg).node.firstElementChild?.firstElementChild;
-}
-
-function getSvgHalfEdge(): SVGGraphicsElement {
-    const halfEdgeSvg =
-        '<g id="77"><g id="77.1" class="nad-vl0to30-line">' +
-        '<polyline class="nad-edge-path nad-stretchable nad-glued-1" points="-208.75,170.93 -423.41,184.65"></polyline>' +
-        '<g class="nad-glued-1 nad-edge-infos" transform="translate(-271.12,174.92)">' +
-        '<g class="nad-active"><g transform="rotate(-93.66)">' +
-        '<path class="nad-arrow-in" transform="scale(10.00)" d="M-1 -1 H1 L0 1z"></path>' +
-        '<path class="nad-arrow-out" transform="scale(10.00)" d="M-1 1 H1 L0 -1z"></path></g>' +
-        '<text transform="rotate(-3.66)" x="-19.00" style="text-anchor:end"></text></g></g></g></g>';
-    return <SVGGraphicsElement>SVG().svg(halfEdgeSvg).node.firstElementChild?.firstElementChild;
 }
 
 function getSvgLineEdge(): SVGGraphicsElement {
