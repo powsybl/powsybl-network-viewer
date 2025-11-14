@@ -1222,7 +1222,7 @@ export class NetworkAreaDiagramViewer {
         }
         // if present, move edge name
         if (this.svgParameters.getEdgeNameDisplayed()) {
-            this.updateEdgeName(edgeNode, halfEdge1.edgePoints.at(-1)!, halfEdge2.edgePoints.at(-2)!);
+            this.updateEdgeName(edgeNode, halfEdge1, halfEdge2);
         }
         // store edge angles, to use them for bus node redrawing
         this.edgeAngles1.set(edgeNode.id, DiagramUtils.getEdgeStartAngle(halfEdge1));
@@ -1345,19 +1345,21 @@ export class NetworkAreaDiagramViewer {
         });
     }
 
-    private updateEdgeName(edgeNode: SVGGraphicsElement, anchorPoint: Point, edgeStart: Point) {
+    private updateEdgeName(edgeNode: SVGGraphicsElement, halfEdge1: HalfEdge, halfEdge2: HalfEdge) {
         const positionElement: SVGGraphicsElement | null = edgeNode.querySelector(
             '.nad-edge-label'
         ) as SVGGraphicsElement;
-        if (positionElement != null) {
-            // move edge name position
-            positionElement.setAttribute('transform', 'translate(' + DiagramUtils.getFormattedPoint(anchorPoint) + ')');
-            const angleElement: SVGGraphicsElement | null = positionElement.querySelector('text') as SVGGraphicsElement;
-            if (angleElement != null) {
-                // change edge name angle
-                const edgeNameAngle = DiagramUtils.getEdgeNameAngle(edgeStart, anchorPoint);
-                angleElement.setAttribute('transform', 'rotate(' + DiagramUtils.getFormattedValue(edgeNameAngle) + ')');
-            }
+        if (!positionElement) return;
+
+        const anchorPoint = DiagramUtils.getMidPosition(halfEdge1.edgePoints.at(-1)!, halfEdge2.edgePoints.at(-1)!);
+        const edgeNameAngle = DiagramUtils.getEdgeNameAngle(anchorPoint, halfEdge2.edgePoints.at(-2)!);
+
+        // move edge name position
+        positionElement.setAttribute('transform', 'translate(' + DiagramUtils.getFormattedPoint(anchorPoint) + ')');
+        const angleElement: SVGGraphicsElement | null = positionElement.querySelector('text') as SVGGraphicsElement;
+        if (angleElement != null) {
+            // change edge name angle
+            angleElement.setAttribute('transform', 'rotate(' + DiagramUtils.getFormattedValue(edgeNameAngle) + ')');
         }
     }
 
