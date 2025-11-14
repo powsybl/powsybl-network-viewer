@@ -782,7 +782,8 @@ export function getHalfEdges(
     const nodeRadius2 = getNodeRadius(busNode2, node2, svgParameters);
     const edgeStart2 = getEdgeStart(edge.busNode2, point2, edgeDirection2, nodeRadius2[1], svgParameters);
 
-    const edgeMiddle = edgeFork1 && edgeFork2 ? getMidPosition(edgeFork1, edgeFork2) : getMidPosition(point1, point2);
+    const edgeMiddle =
+        edgeFork1 && edgeFork2 ? getMidPosition(edgeFork1, edgeFork2) : getMidPosition(edgeStart1, edgeStart2);
 
     // if transformer edge, reduce edge polyline, leaving space for the transformer
     let edgeEnd1 = edgeMiddle;
