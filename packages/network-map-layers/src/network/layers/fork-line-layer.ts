@@ -5,10 +5,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import { type Accessor, LineLayer, type LineLayerProps } from 'deck.gl';
-import type { DefaultProps } from '@deck.gl/core';
-import GL from '@luma.gl/constants';
-import { type UniformValues } from 'maplibre-gl';
+import { LineLayer, type LineLayerProps } from '@deck.gl/layers';
+import type { Accessor, DefaultProps } from '@deck.gl/core';
+import type { UniformValue } from '@luma.gl/core';
 
 type _ForkLineLayerProps<DataT> = {
     /** real number representing the parallel translation, normalized to distanceBetweenLines */
@@ -33,8 +32,10 @@ type _ForkLineLayerProps<DataT> = {
     getSubstationRadius: Accessor<DataT, number>;
     getSubstationMaxPixel: Accessor<DataT, number>;
     getMinSubstationRadiusPixel: Accessor<DataT, number>;
+    getProximityFactor: Accessor<DataT, number>;
+    getSubstationOffset: Accessor<DataT, number>;
 };
-export type ForkLineLayerProps<DataT = unknown> = _ForkLineLayerProps<DataT> & LineLayerProps;
+export type ForkLineLayerProps<DataT = unknown> = _ForkLineLayerProps<DataT> & LineLayerProps<DataT>;
 
 const defaultProps: DefaultProps<ForkLineLayerProps> = {
     getLineParallelIndex: { type: 'accessor', value: 0 },
@@ -62,10 +63,10 @@ export default class ForkLineLayer<DataT = unknown> extends LineLayer<DataT, Req
         const shaders = super.getShaders();
         shaders.inject = {
             'vs:#decl': `
-attribute float instanceLineParallelIndex;
-attribute float instanceLineAngle;
-attribute float instanceOffsetStart;
-attribute float instanceProximityFactor;
+in float instanceLineParallelIndex;
+in float instanceLineAngle;
+in float instanceOffsetStart;
+in float instanceProximityFactor;
 uniform float distanceBetweenLines;
 uniform float maxParallelOffset;
 uniform float minParallelOffset;
@@ -98,33 +99,32 @@ uniform float minSubstationRadiusPixel;
 
     override initializeState() {
         super.initializeState();
-        const attributeManager = this.getAttributeManager();
-        attributeManager?.addInstanced({
+        this.getAttributeManager()?.addInstanced({
             instanceLineParallelIndex: {
                 size: 1,
-                type: GL.FLOAT,
+                type: 'float32',
                 accessor: 'getLineParallelIndex',
             },
             instanceLineAngle: {
                 size: 1,
-                type: GL.FLOAT,
+                type: 'float32',
                 accessor: 'getLineAngle',
             },
             instanceOffsetStart: {
                 size: 1,
-                type: GL.FLOAT,
+                type: 'float32',
                 accessor: 'getSubstationOffset',
             },
             instanceProximityFactor: {
                 size: 1,
-                type: GL.FLOAT,
+                type: 'float32',
                 accessor: 'getProximityFactor',
             },
         });
     }
 
     // TODO find the full type for record values
-    override draw({ uniforms }: { uniforms: Record<string, UniformValues<object>> }) {
+    override draw({ uniforms }: { uniforms: Record<string, UniformValue> }) {
         super.draw({
             uniforms: {
                 ...uniforms,
