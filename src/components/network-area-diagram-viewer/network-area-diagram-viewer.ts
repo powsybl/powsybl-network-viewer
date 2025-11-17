@@ -2307,6 +2307,10 @@ export class NetworkAreaDiagramViewer {
         // bend line
         // compute moved edge data: polyline points
         const halfEdges = this.getHalfEdges(edge, 0, 1);
+        if (!halfEdges[0] || !halfEdges[1]) {
+            edge.bendingPoints = undefined;
+            return;
+        }
         this.redrawBranchEdge(edge, halfEdges[0], halfEdges[1]);
 
         this.redrawBothVoltageLevelNodes(edge);
