@@ -81,13 +81,13 @@ export interface EdgeMetadata {
     busNode1: string;
     busNode2: string;
     type: string;
-    points?: EdgePointMetadata[];
+    bendingPoints?: PointMetadata[];
     label?: string;
     edgeInfo1?: EdgeInfoMetadata;
     edgeInfo2?: EdgeInfoMetadata;
 }
 
-export interface EdgePointMetadata {
+export interface PointMetadata {
     x: number;
     y: number;
 }
