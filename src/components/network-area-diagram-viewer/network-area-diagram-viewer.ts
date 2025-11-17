@@ -8,7 +8,7 @@
 import { Point, SVG, Svg, ViewBoxLike } from '@svgdotjs/svg.js';
 import '@svgdotjs/svg.panzoom.js';
 import * as DiagramUtils from './diagram-utils';
-import { ElementType, HalfEdge, isTextNode, isVoltageLevelElement } from './diagram-utils';
+import { ElementType, getGroupedEdgesIndexKey, HalfEdge, isTextNode, isVoltageLevelElement } from './diagram-utils';
 import { CssLocationEnum, EdgeInfoEnum, SvgParameters } from './svg-parameters';
 import { LayoutParameters } from './layout-parameters';
 import {
@@ -1058,7 +1058,7 @@ export class NetworkAreaDiagramViewer {
                 this.addBusNodeEdge(edge.busNode1, edge, busNodeEdges);
                 this.addBusNodeEdge(edge.busNode2, edge, busNodeEdges);
             } else {
-                const edgeGroupId = [edge.node1, edge.node2].sort((a, b) => a.localeCompare(b)).join('_');
+                const edgeGroupId = DiagramUtils.getGroupedEdgesIndexKey(edge);
                 if (groupedEdges.has(edgeGroupId)) {
                     edgeGroup = groupedEdges.get(edgeGroupId) ?? [];
                 }
