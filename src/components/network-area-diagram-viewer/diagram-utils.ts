@@ -758,6 +758,12 @@ export function getHalfVisibleHalfEdges(
     const vlNode = getNodeMetadata(visibleSide == '1' ? edgeMetadata.node1 : edgeMetadata.node2, diagramMetadata);
     const nodeRadius = getNodeRadius(busNode, vlNode, svgParameters);
 
+    // Updating the first point of the edge in case of bus connection change
+    const point = new Point(visibleNodeMetadata.x, visibleNodeMetadata.y);
+    const visibleBusNode = visibleSide == '1' ? edgeMetadata.busNode1 : edgeMetadata.busNode2;
+    const edgeStart = getEdgeStart(visibleBusNode, point, polylinePoints[1], nodeRadius[1], svgParameters);
+    polylinePoints[0] = edgeStart;
+
     // Create half edges
     const halfEdges: [HalfEdge | null, HalfEdge | null] = [null, null];
     const visibleHalfEdge: HalfEdge = {
