@@ -1628,8 +1628,12 @@ export class NetworkAreaDiagramViewer {
 
             this.setBranchSideLabel(edge, halfEdges[0], edge.edgeInfo1, '1', branchState.value1);
             this.setBranchSideLabel(edge, halfEdges[1], edge.edgeInfo2, '2', branchState.value2);
-            this.setBranchSideConnection(branchState.branchId, '1', edgeId, branchState.connected1);
-            this.setBranchSideConnection(branchState.branchId, '2', edgeId, branchState.connected2);
+            if (halfEdges[0]) {
+                this.setBranchSideConnection(branchState.branchId, '1', edgeId, branchState.connected1);
+            }
+            if (halfEdges[1]) {
+                this.setBranchSideConnection(branchState.branchId, '2', edgeId, branchState.connected2);
+            }
 
             this.setBranchBusConnection(edge, branchState.branchId, '1', branchState.connectedBus1);
             this.setBranchBusConnection(edge, branchState.branchId, '2', branchState.connectedBus2);
