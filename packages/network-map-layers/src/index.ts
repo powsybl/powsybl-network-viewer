@@ -19,6 +19,8 @@ export {
     type MapTieLine,
     type MapTieLineWithType,
     type MapVoltageLevel,
+    isMapLine,
+    isMapSubstation,
 } from './equipment-types';
 export { GeoData, type GeoDataEquipment, type GeoDataLine, type GeoDataSubstation } from './network/geo-data';
 export { LineFlowColorMode, LineFlowMode, LineLayer, type LineLayerProps } from './network/line-layer';

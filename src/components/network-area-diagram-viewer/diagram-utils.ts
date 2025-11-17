@@ -232,7 +232,7 @@ function getValue(param: number, firstValue: number, secondValue: number): numbe
     return param > 1 ? secondValue : firstValue + param * (secondValue - firstValue);
 }
 
-function getDistance(point1: Point, point2: Point): number {
+export function getDistance(point1: Point, point2: Point): number {
     const deltax = point1.x - point2.x;
     const deltay = point1.y - point2.y;
     return Math.hypot(deltax, deltay);
@@ -339,9 +339,7 @@ export function getMidPosition(point1: Point, point2: Point): Point {
 
 // get a point at a distance between two points
 export function getPointAtDistance(point1: Point, point2: Point, radius: number): Point {
-    const deltax = point1.x - point2.x;
-    const deltay = point1.y - point2.y;
-    const distance = Math.sqrt(deltax * deltax + deltay * deltay);
+    const distance = getDistance(point1, point2);
     const r = radius / distance;
     return new Point(point1.x + r * (point2.x - point1.x), point1.y + r * (point2.y - point1.y));
 }

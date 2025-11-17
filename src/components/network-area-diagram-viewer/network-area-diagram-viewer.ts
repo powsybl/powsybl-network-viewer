@@ -31,6 +31,7 @@ import {
     OnSelectNodeCallbackType,
     OnToggleNadHoverCallbackType,
 } from './nad-viewer-parameters';
+import { Cancelable } from '@mui/utils/debounce/debounce';
 
 export type BranchState = {
     branchId: string;
@@ -89,6 +90,8 @@ export class NetworkAreaDiagramViewer {
     ratio = 1;
     selectedElement: SVGGraphicsElement | null = null;
     draggedElement: SVGGraphicsElement | null = null;
+    hoveredElement: SVGElement | null = null;
+    hoveredElementPosition: Point = new Point(0, 0);
     transform: SVGTransform | undefined;
     ctm: DOMMatrix | null | undefined = null;
     initialPosition: Point | null = null;
@@ -105,6 +108,7 @@ export class NetworkAreaDiagramViewer {
     onMoveTextNodeCallback: OnMoveTextNodeCallbackType | null;
     onSelectNodeCallback: OnSelectNodeCallbackType | null;
     onToggleHoverCallback: OnToggleNadHoverCallbackType | null;
+    debounceToggleHoverCallback: (OnToggleNadHoverCallbackType | null) & Cancelable;
     previousMaxDisplayedSize: number;
     edgesMap: Map<string, EdgeMetadata> = new Map<string, EdgeMetadata>();
     onRightClickCallback: OnRightClickCallbackType | null;
@@ -113,6 +117,8 @@ export class NetworkAreaDiagramViewer {
     originalTextNodeConnectionShift: Point = new Point(0, 0);
     lastZoomLevel: number = 0;
     zoomLevels: number[] = [0, 1000, 2200, 2500, 3000, 4000, 9000, 12000, 20000];
+    isHoverCallbackUsed: boolean = false;
+    hoverPositionPrecision: number = 0;
     bendLines: boolean = false;
     onBendLineCallback: OnBendLineCallbackType | null;
     straightenedElement: SVGGraphicsElement | null = null;
@@ -152,9 +158,11 @@ export class NetworkAreaDiagramViewer {
         this.onRightClickCallback = this.nadViewerParameters.getOnRightClickCallback();
         this.onSelectNodeCallback = this.nadViewerParameters.getOnSelectNodeCallback();
         this.onToggleHoverCallback = this.nadViewerParameters.getOnToggleHoverCallback();
+        this.debounceToggleHoverCallback = this.initDebounceToggleHoverCallback();
         this.onBendLineCallback = this.nadViewerParameters.getOnBendingLineCallback();
         this.zoomLevels = this.nadViewerParameters.getZoomLevels();
         this.zoomLevels.sort((a, b) => b - a);
+        this.hoverPositionPrecision = this.nadViewerParameters.getHoverPositionPrecision();
         this.init();
         this.svgParameters = new SvgParameters(this.diagramMetadata?.svgParameters);
         this.layoutParameters = new LayoutParameters(this.diagramMetadata?.layoutParameters);
@@ -368,7 +376,7 @@ export class NetworkAreaDiagramViewer {
             });
 
             this.svgDraw.on('mouseout', () => {
-                this.handleHoverExit();
+                this.hideEdgePreviewPoints();
             });
         }
         if (this.onRightClickCallback != null && hasMetadata) {
@@ -443,6 +451,12 @@ export class NetworkAreaDiagramViewer {
                 emptyElement.style.fill = '#0000';
             });
         }
+    }
+
+    private initDebounceToggleHoverCallback() {
+        return debounce((hovered: boolean, mousePosition: Point | null, equipmentId: string, equipmentType: string) => {
+            this.onToggleHoverCallback?.(hovered, mousePosition, equipmentId, equipmentType);
+        }, 250);
     }
 
     private getZoomButtonsBar(): HTMLDivElement {
@@ -564,7 +578,10 @@ export class NetworkAreaDiagramViewer {
         });
     }
     private onMouseLeftDown(event: MouseEvent) {
-        const targetElement = event.target as SVGElement;
+        let targetElement = event.target as SVGElement;
+        if (this.hoveredElement && this.existsNearbyHoveredElement(this.getMousePosition(event))) {
+            targetElement = this.hoveredElement;
+        }
         const selectableElem = DiagramUtils.getSelectableFrom(targetElement);
         const draggableElem = DiagramUtils.getDraggableFrom(targetElement);
 
@@ -649,6 +666,7 @@ export class NetworkAreaDiagramViewer {
 
     private onMouseMove(event: MouseEvent) {
         if (!this.draggedElement) {
+            this.handleHoverCallBack(event);
             return;
         }
 
@@ -717,26 +735,54 @@ export class NetworkAreaDiagramViewer {
         }
     }
 
-    private onHover(mouseEvent: MouseEvent) {
-        if (this.onToggleHoverCallback == null) {
-            return;
+    private existsNearbyHoveredElement(mousePosition: Point): boolean {
+        if (!this.hoveredElement) {
+            return false;
         }
+        return DiagramUtils.getDistance(this.hoveredElementPosition, mousePosition) <= this.hoverPositionPrecision;
+    }
 
+    private onHover(mouseEvent: MouseEvent) {
         const hoverableElem = DiagramUtils.getHoverableFrom(mouseEvent.target as SVGElement);
         if (!hoverableElem) {
-            this.handleHoverExit();
+            return;
+        }
+        this.hoveredElement = hoverableElem;
+        this.hoveredElementPosition = this.getMousePosition(mouseEvent);
+    }
+
+    private handleHoverCallBack(mouseEvent: MouseEvent) {
+        if (!this.hoveredElement) {
             return;
         }
 
         this.clearHighlights();
         const mousePosition = this.getMousePosition(mouseEvent);
 
-        if (DiagramUtils.isHighlightableElement(hoverableElem)) {
-            this.handleHighlightableElementHover(hoverableElem, mousePosition);
-        } else if (DiagramUtils.isInjection(hoverableElem)) {
-            this.handleInjectionHover(hoverableElem, mousePosition);
+        // Check if we are over the hovered object
+        const hoverableElem = DiagramUtils.getHoverableFrom(mouseEvent.target as SVGElement);
+        if (hoverableElem && hoverableElem === this.hoveredElement) {
+            // We are still over the hoveredElement, we update the mouse position
+            this.hoveredElementPosition = mousePosition;
+        }
+
+        if (this.existsNearbyHoveredElement(mousePosition)) {
+            if (DiagramUtils.isHighlightableElement(this.hoveredElement)) {
+                this.handleHighlightableElementHover(this.hoveredElement, mousePosition);
+            } else if (DiagramUtils.isInjection(this.hoveredElement)) {
+                this.handleInjectionHover(this.hoveredElement, mousePosition);
+            } else {
+                this.handleEdgeHover(this.hoveredElement, mousePosition);
+            }
+            this.isHoverCallbackUsed = true;
         } else {
-            this.handleEdgeHover(hoverableElem, mousePosition);
+            this.debounceToggleHoverCallback.clear();
+            if (this.isHoverCallbackUsed) {
+                this.isHoverCallbackUsed = false;
+                this.onToggleHoverCallback?.(false, null, '', '');
+            }
+            this.hideEdgePreviewPoints();
+            this.hoveredElement = null;
         }
     }
 
@@ -1856,16 +1902,24 @@ export class NetworkAreaDiagramViewer {
     }
 
     private onMouseRightDown(event: MouseEvent) {
-        const elementData = DiagramUtils.getRightClickableElementData(
+        const mousePosition: Point = this.getMousePosition(event);
+        let elementData = DiagramUtils.getRightClickableElementData(
             event.target as SVGElement,
             this.diagramMetadata?.nodes,
             this.diagramMetadata?.textNodes,
             this.diagramMetadata?.edges
         );
+        if (!elementData && this.hoveredElement && this.existsNearbyHoveredElement(mousePosition)) {
+            elementData = DiagramUtils.getRightClickableElementData(
+                this.hoveredElement,
+                this.diagramMetadata?.nodes,
+                this.diagramMetadata?.textNodes,
+                this.diagramMetadata?.edges
+            );
+        }
         if (!elementData) {
             return;
         }
-        const mousePosition: Point = this.getMousePosition(event);
         this.onRightClickCallback?.(elementData.svgId, elementData.equipmentId, elementData.type, mousePosition);
     }
 
@@ -1990,7 +2044,7 @@ export class NetworkAreaDiagramViewer {
             const textNode = this.diagramMetadata?.textNodes.find((node) => node.svgId === element.id);
             if (textNode) {
                 this.highlightRelatedElements(textNode);
-                this.onToggleHoverCallback?.(
+                this.debounceToggleHoverCallback(
                     true,
                     mousePosition,
                     textNode.equipmentId,
@@ -2001,7 +2055,7 @@ export class NetworkAreaDiagramViewer {
             const vlNode = this.diagramMetadata?.nodes.find((node) => node.svgId === element.id);
             if (vlNode) {
                 this.highlightRelatedElements(vlNode);
-                this.onToggleHoverCallback?.(
+                this.debounceToggleHoverCallback(
                     true,
                     mousePosition,
                     vlNode.equipmentId,
@@ -2016,7 +2070,7 @@ export class NetworkAreaDiagramViewer {
         if (injection) {
             const equipmentId = injection.equipmentId ?? '';
             const equipmentType = injection.componentType ?? '';
-            this.onToggleHoverCallback?.(true, mousePosition, equipmentId, equipmentType);
+            this.debounceToggleHoverCallback(true, mousePosition, equipmentId, equipmentType);
         }
     }
 
@@ -2025,7 +2079,7 @@ export class NetworkAreaDiagramViewer {
         if (edge) {
             const equipmentId = edge.equipmentId ?? '';
             const edgeType = DiagramUtils.getStringEdgeType(edge) ?? '';
-            this.onToggleHoverCallback?.(true, mousePosition, equipmentId, edgeType);
+            this.debounceToggleHoverCallback(true, mousePosition, equipmentId, edgeType);
 
             // Show preview points for bending if bend lines is enabled and edge is bendable
             if (this.bendLines) {
@@ -2072,12 +2126,6 @@ export class NetworkAreaDiagramViewer {
         highlightedTextElements.forEach((element) => {
             element.classList.remove('nad-textnode-highlight');
         });
-    }
-
-    private handleHoverExit() {
-        this.onToggleHoverCallback?.(false, null, '', '');
-        this.clearHighlights();
-        this.hideEdgePreviewPoints();
     }
 
     private getEditButtonBar(): HTMLDivElement {

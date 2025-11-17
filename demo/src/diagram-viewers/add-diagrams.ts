@@ -25,22 +25,22 @@ import SldSvgSubExample from './data/sld-sub-example.svg';
 import SldSvgSubExampleMeta from './data/sld-sub-example_metadata.json';
 
 import {
+    BranchState,
+    NadViewerParametersOptions,
     NetworkAreaDiagramViewer,
-    SingleLineDiagramViewer,
-    OnToggleSldHoverCallbackType,
+    OnBendLineCallbackType,
     OnBreakerCallbackType,
     OnBusCallbackType,
     OnFeederCallbackType,
-    OnNextVoltageCallbackType,
     OnMoveNodeCallbackType,
     OnMoveTextNodeCallbackType,
+    OnNextVoltageCallbackType,
+    OnRightClickCallbackType,
     OnSelectNodeCallbackType,
     OnToggleNadHoverCallbackType,
-    BranchState,
-    OnRightClickCallbackType,
-    OnBendLineCallbackType,
+    OnToggleSldHoverCallbackType,
+    SingleLineDiagramViewer,
 } from '../../../src';
-import { NadViewerParametersOptions } from '../../../src';
 
 export const addNadToDemo = () => {
     fetch(NadSvgExample)
@@ -334,6 +334,117 @@ export const addNadToDemo = () => {
                 nadViewerParametersOptions
             );
         });
+
+    fetch(NadSvgMultibusVLNodes14Example)
+        .then((response) => response.text())
+        .then((svgContent) => {
+            function getRandomColor() {
+                const letters = '0123456789ABCDEF';
+                let color = '#';
+                for (let i = 0; i < 6; i++) {
+                    color += letters[Math.floor(Math.random() * 16)];
+                }
+                return color + 'aa';
+            }
+
+            const defaultHoverPositionPrecision: number = 10;
+
+            const showHoveredEquipmentId: OnToggleNadHoverCallbackType = (
+                hovered,
+                mousePosition,
+                equipmentId,
+                equipmentType
+            ) => {
+                const hoverDiv = document.getElementById('hoverVisualizer');
+                if (hoverDiv) {
+                    hoverDiv.textContent = hovered ? 'Hovering over ' + equipmentId : 'No hover at the moment';
+                }
+
+                document.getElementById('hoverPopup')?.remove();
+                if (hovered) {
+                    const hoverPopup = document.createElement('div');
+                    hoverPopup.id = 'hoverPopup';
+                    hoverPopup.style.display = 'block';
+                    hoverPopup.style.position = 'fixed';
+                    hoverPopup.style.left = (mousePosition?.x || 0) + 'px';
+                    hoverPopup.style.top = (mousePosition?.y || 0) + 'px';
+                    hoverPopup.style.backgroundColor = '#eeeeeeaa';
+                    hoverPopup.style.margin = '10px';
+                    hoverPopup.style.padding = '5px';
+                    hoverPopup.style.border = 'solid 1px #ddd';
+                    hoverPopup.style.borderRadius = '5px';
+                    hoverPopup.textContent = 'Hover ' + equipmentId;
+                    const randomColor = document.createElement('div');
+                    randomColor.style.backgroundColor = getRandomColor();
+                    randomColor.innerHTML = '&nbsp;';
+                    hoverPopup.appendChild(randomColor);
+                    document.getElementById('svg-container-nad-hoverCallback')?.appendChild(hoverPopup);
+                }
+
+                handleToggleNadHover(hovered, mousePosition, equipmentId, equipmentType);
+            };
+
+            const nadViewerParametersOptions: NadViewerParametersOptions = {
+                enableDragInteraction: true,
+                enableLevelOfDetail: true,
+                addButtons: true,
+                onMoveNodeCallback: handleNodeMove,
+                onMoveTextNodeCallback: handleTextNodeMove,
+                onSelectNodeCallback: handleNodeSelect,
+                onToggleHoverCallback: showHoveredEquipmentId,
+                onBendLineCallback: handleLineBending,
+                onRightClickCallback: handleRightClick,
+                hoverPositionPrecision: defaultHoverPositionPrecision,
+            };
+
+            const nadViewer = new NetworkAreaDiagramViewer(
+                document.getElementById('svg-container-nad-hoverCallback')!,
+                svgContent,
+                NadSvgMultibusVLNodes14ExampleMeta,
+                nadViewerParametersOptions
+            );
+
+            // add range slider to update hover position precision
+            const hoverSliderDiv = document.createElement('div');
+            hoverSliderDiv.id = 'hoverSliderDiv';
+            hoverSliderDiv.style.display = 'flex';
+            hoverSliderDiv.style.justifyContent = 'space-between';
+            document.getElementById('svg-container-nad-hoverCallback')?.appendChild(hoverSliderDiv);
+
+            const hoverSlider = document.createElement('input');
+            hoverSlider.id = 'hoverSlider';
+            hoverSlider.type = 'range';
+            hoverSlider.min = '0';
+            hoverSlider.max = '50';
+            hoverSlider.value = defaultHoverPositionPrecision.toString();
+            hoverSlider.step = '1';
+            hoverSlider.style.display = 'flex';
+            hoverSlider.style.flexGrow = '1';
+            hoverSlider.style.padding = '0 5px';
+
+            // Create slider event listener
+            hoverSlider.addEventListener('input', (e) => {
+                const target = e.target as HTMLInputElement;
+                nadViewer.hoverPositionPrecision = Number(target.value);
+                const hoverSliderValueDisplay = document.getElementById('hoverSliderValueDisplay');
+                if (hoverSliderValueDisplay) {
+                    hoverSliderValueDisplay.textContent = target.value;
+                }
+            });
+            hoverSliderDiv.appendChild(hoverSlider);
+
+            const hoverSliderValueDisplay = document.createElement('span');
+            hoverSliderValueDisplay.id = 'hoverSliderValueDisplay';
+            hoverSliderValueDisplay.textContent = defaultHoverPositionPrecision.toString();
+            hoverSliderValueDisplay.style.width = '20px';
+            hoverSliderValueDisplay.style.padding = '0 5px';
+            hoverSliderDiv.appendChild(hoverSliderValueDisplay);
+
+            const hoverVisualizer = document.createElement('div');
+            hoverVisualizer.id = 'hoverVisualizer';
+            hoverVisualizer.textContent = 'No hover at the moment';
+            document.getElementById('svg-container-nad-hoverCallback')?.appendChild(hoverVisualizer);
+        });
 };
 
 export const addSldToDemo = () => {
@@ -505,9 +616,10 @@ const handleNodeSelect: OnSelectNodeCallbackType = (equipmentId, nodeId, mousePo
 };
 
 const handleToggleNadHover: OnToggleNadHoverCallbackType = (hovered, mousePosition, equipmentId, equipmentType) => {
+    let msg = 'ToggleNadHoverCallback called';
     if (hovered) {
-        const msg =
-            'Hovers on equipment: ' +
+        msg +=
+            ' with hover on equipment: ' +
             equipmentId +
             ', equipmentType: ' +
             equipmentType +
@@ -515,8 +627,8 @@ const handleToggleNadHover: OnToggleNadHoverCallbackType = (hovered, mousePositi
             mousePosition?.x +
             ', y=' +
             mousePosition?.y;
-        console.log(msg);
     }
+    console.log(msg);
 };
 
 const handleRightClick: OnRightClickCallbackType = (svgId, equipmentId, equipmentType, mousePosition) => {
