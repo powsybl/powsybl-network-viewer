@@ -8,7 +8,7 @@
 import { Point, SVG, Svg, ViewBoxLike } from '@svgdotjs/svg.js';
 import '@svgdotjs/svg.panzoom.js';
 import * as DiagramUtils from './diagram-utils';
-import { ElementType, getGroupedEdgesIndexKey, HalfEdge, isTextNode, isVoltageLevelElement } from './diagram-utils';
+import { ElementType, HalfEdge, isTextNode, isVoltageLevelElement } from './diagram-utils';
 import { CssLocationEnum, EdgeInfoEnum, SvgParameters } from './svg-parameters';
 import { LayoutParameters } from './layout-parameters';
 import {
