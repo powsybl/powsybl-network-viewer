@@ -319,7 +319,6 @@ export class NetworkAreaDiagramViewer {
         if (this.nadViewerParameters.getAddButtons()) {
             nadViewerDiv.appendChild(this.getZoomButtonsBar());
             nadViewerDiv.appendChild(this.getActionButtonsBar());
-            nadViewerDiv.appendChild(this.getEditButtonBar());
         }
 
         // add svg div
@@ -498,19 +497,25 @@ export class NetworkAreaDiagramViewer {
         saveSvgButton.addEventListener('click', () => {
             this.saveSvg();
         });
+
         const savePngButton = DiagramUtils.getSavePngButton();
         buttonsDiv.appendChild(savePngButton);
         savePngButton.addEventListener('click', () => {
             this.savePng(NetworkAreaDiagramViewer.DEFAULT_PNG_BACKGROUND_COLOR);
         });
+
+        const screenshotButton = DiagramUtils.getDisabledScreenshotButton();
+        buttonsDiv.appendChild(screenshotButton);
+        screenshotButton.addEventListener('click', () => {
+            this.screenshot(NetworkAreaDiagramViewer.DEFAULT_PNG_BACKGROUND_COLOR);
+        });
         navigator.permissions
             .query({ name: 'clipboard-write' as PermissionName })
             .then((result) => {
                 if (result.state == 'granted' || result.state == 'prompt') {
-                    this.addScreenshotButton(buttonsDiv, true);
+                    DiagramUtils.enableButton(screenshotButton);
                 } else {
                     console.warn('Write access to clipboard not granted');
-                    this.addScreenshotButton(buttonsDiv, false);
                 }
             })
             .catch((err) => {
@@ -518,22 +523,30 @@ export class NetworkAreaDiagramViewer {
                 console.warn('clipboard-write permission not supported: ' + err);
                 // add button based on clipboard availability
                 if (navigator.clipboard) {
-                    this.addScreenshotButton(buttonsDiv, true);
+                    DiagramUtils.enableButton(screenshotButton);
                 } else {
                     console.warn('Navigator clipboard not available');
-                    this.addScreenshotButton(buttonsDiv, false);
                 }
             });
 
-        return buttonsDiv;
-    }
-
-    private addScreenshotButton(buttonsDiv: HTMLDivElement, enabled: boolean) {
-        const screenshotButton = DiagramUtils.getScreenshotButton(enabled);
-        buttonsDiv.appendChild(screenshotButton);
-        screenshotButton.addEventListener('click', () => {
-            this.screenshot(NetworkAreaDiagramViewer.DEFAULT_PNG_BACKGROUND_COLOR);
+        const bendLinesButton = DiagramUtils.getBendLinesButton();
+        buttonsDiv.appendChild(bendLinesButton);
+        bendLinesButton.addEventListener('click', () => {
+            if (this.bendLines) {
+                this.disableLineBending();
+                bendLinesButton.classList.remove('bend-lines-button-active');
+                bendLinesButton.classList.add('bend-lines-button-inactive');
+                bendLinesButton.title = 'Enable line bending';
+            } else {
+                this.enableLineBending();
+                if (this.bendLines) {
+                    bendLinesButton.classList.remove('bend-lines-button-inactive');
+                    bendLinesButton.classList.add('bend-lines-button-active');
+                    bendLinesButton.title = 'Disable line bending';
+                }
+            }
         });
+        return buttonsDiv;
     }
 
     public getSvg(): string | null {
@@ -2056,30 +2069,6 @@ export class NetworkAreaDiagramViewer {
         highlightedTextElements.forEach((element) => {
             element.classList.remove('nad-textnode-highlight');
         });
-    }
-
-    private getEditButtonBar(): HTMLDivElement {
-        const buttonsDiv = document.createElement('div');
-        buttonsDiv.id = 'edit-button-bar';
-
-        const bendLinesButton = DiagramUtils.getBendLinesButton();
-        buttonsDiv.appendChild(bendLinesButton);
-        bendLinesButton.addEventListener('click', () => {
-            if (this.bendLines) {
-                this.disableLineBending();
-                bendLinesButton.classList.remove('bend-lines-button-active');
-                bendLinesButton.classList.add('bend-lines-button-inactive');
-                bendLinesButton.title = 'Enable line bending';
-            } else {
-                this.enableLineBending();
-                if (this.bendLines) {
-                    bendLinesButton.classList.remove('bend-lines-button-inactive');
-                    bendLinesButton.classList.add('bend-lines-button-active');
-                    bendLinesButton.title = 'Disable line bending';
-                }
-            }
-        });
-        return buttonsDiv;
     }
 
     private enableLineBending() {
