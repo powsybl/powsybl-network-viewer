@@ -709,6 +709,11 @@ export function getEdgeNameAngle(point1: Point, point2: Point): number {
     return radToDeg(textFlipped ? angle - Math.PI : angle);
 }
 
+// create an index key that combine the edge's two nodes
+export function getGroupedEdgesIndexKey(edgeMetadata: EdgeMetadata): string {
+    return [edgeMetadata.node1, edgeMetadata.node2].sort((a, b) => a.localeCompare(b)).join('_');
+}
+
 export function getThreeWtHalfEdge(
     edge: HTMLElement,
     edgeMetadata: EdgeMetadata,

@@ -1058,7 +1058,7 @@ export class NetworkAreaDiagramViewer {
                 this.addBusNodeEdge(edge.busNode1, edge, busNodeEdges);
                 this.addBusNodeEdge(edge.busNode2, edge, busNodeEdges);
             } else {
-                const edgeGroupId = edge.node1.concat('_', edge.node2);
+                const edgeGroupId = DiagramUtils.getGroupedEdgesIndexKey(edge);
                 if (groupedEdges.has(edgeGroupId)) {
                     edgeGroup = groupedEdges.get(edgeGroupId) ?? [];
                 }
