@@ -1205,17 +1205,24 @@ export class NetworkAreaDiagramViewer {
         edgeAnglesCache.set(edgeNode.id, DiagramUtils.getEdgeStartAngle(halfEdge));
 
         // move edge polyline
-        const polyline: SVGGraphicsElement | null = edgeNode.querySelector(
-            ':scope > polyline.nad-edge-path:nth-of-type(' + halfEdge.side + ')'
-        );
+        const polyline = this.getHalfEdgeNodeFromEdgeNode(edgeNode, halfEdge.side);
         polyline?.setAttribute('points', DiagramUtils.getFormattedPolyline(halfEdge.edgePoints));
 
         // redraw edge arrow and label
         this.redrawEdgeArrowAndLabel(halfEdge);
     }
 
+    private getHalfEdgeNodeFromEdgeNode(edgeNode: SVGGraphicsElement, side: string): HTMLElement | null {
+        const allPath = edgeNode.querySelectorAll(':scope > polyline.nad-edge-path');
+        return this.getHalfEdgeNodeFromEdgePolylines(allPath, side);
+    }
+
     private getHalfEdgeNode(edgeId: string, side: string): HTMLElement | null {
-        const allPath = this.svgDiv.querySelectorAll("[id='" + edgeId + "'] > .nad-edge-path");
+        const allPath = this.svgDiv.querySelectorAll("[id='" + edgeId + "'] > polyline.nad-edge-path");
+        return this.getHalfEdgeNodeFromEdgePolylines(allPath, side);
+    }
+
+    private getHalfEdgeNodeFromEdgePolylines(allPath: NodeListOf<Element>, side: string) {
         if (!allPath) return null;
         if (allPath.length > 1) {
             return allPath.item(side == '1' ? 0 : 1) as HTMLElement;
