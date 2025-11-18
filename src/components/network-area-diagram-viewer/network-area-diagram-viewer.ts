@@ -1059,7 +1059,7 @@ export class NetworkAreaDiagramViewer {
                 edgeGroup.push(edge);
                 loopEdges.set(edge.node1, edgeGroup);
             } else {
-                const edgeGroupId = edge.node1.concat('_', edge.node2);
+                const edgeGroupId = DiagramUtils.getGroupedEdgesIndexKey(edge);
                 if (groupedEdges.has(edgeGroupId)) {
                     edgeGroup = groupedEdges.get(edgeGroupId) ?? [];
                 }

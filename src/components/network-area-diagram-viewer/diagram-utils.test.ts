@@ -392,6 +392,41 @@ test('getEdgeNameAngle', () => {
     expect(DiagramUtils.getEdgeNameAngle(new Point(60, 60), new Point(10, 110))).toBe(-45);
 });
 
+test('getGroupedEdgesIndexKey', () => {
+    const edges: EdgeMetadata[] = [
+        {
+            svgId: '4',
+            equipmentId: 'VL1L1VL2',
+            node1: '0',
+            node2: '2',
+            busNode1: '1',
+            busNode2: '3',
+            type: 'LineEdge',
+        },
+        {
+            svgId: '5',
+            equipmentId: 'VL1L2VL2',
+            node1: '2',
+            node2: '0',
+            busNode1: '3',
+            busNode2: '1',
+            type: 'LineEdge',
+        },
+        {
+            svgId: '11',
+            equipmentId: 'VL3L1VL4',
+            node1: '4',
+            node2: '0',
+            busNode1: '7',
+            busNode2: '5',
+            type: 'LineEdge',
+        },
+    ];
+    expect(DiagramUtils.getGroupedEdgesIndexKey(edges[0])).toBe('0_2');
+    expect(DiagramUtils.getGroupedEdgesIndexKey(edges[1])).toBe('0_2');
+    expect(DiagramUtils.getGroupedEdgesIndexKey(edges[2])).toBe('0_4');
+});
+
 test('isTextNode', () => {
     const isTextNode = DiagramUtils.isTextNode(getSvgTextNode());
     expect(isTextNode).toBe(true);
