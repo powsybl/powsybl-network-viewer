@@ -95,14 +95,14 @@ export function isBendable(element: SVGElement): boolean {
     return element.classList.contains('nad-line-point');
 }
 
-export function getBendableLines(edges: EdgeMetadata[] | undefined): EdgeMetadata[] {
+export function getBendableLines(edges: EdgeMetadata[] | undefined, svg: SVGElement | undefined): EdgeMetadata[] {
     // group edges by edge ends
     const groupedEdges: Map<string, EdgeMetadata[]> = new Map<string, EdgeMetadata[]>();
     for (const edge of edges ?? []) {
         let edgeGroup: EdgeMetadata[] = [];
         // filter out loop edges
         if (edge.node1 != edge.node2) {
-            const edgeGroupId = edge.node1.concat('_', edge.node2);
+            const edgeGroupId = getGroupedEdgesIndexKey(edge);
             if (groupedEdges.has(edgeGroupId)) {
                 edgeGroup = groupedEdges.get(edgeGroupId) ?? [];
             }
@@ -113,16 +113,32 @@ export function getBendableLines(edges: EdgeMetadata[] | undefined): EdgeMetadat
     const lines: EdgeMetadata[] = [];
     // filter edges
     for (const edgeGroup of groupedEdges.values()) {
-        // only non parallel edges
-        if (edgeGroup.length == 1) {
-            const edge = edgeGroup[0];
-            // only lines
-            if (getEdgeType(edge) == EdgeType.LINE) {
-                lines.push(edge);
-            }
-        }
+        const edge = edgeGroup[0];
+
+        // exclude parallel edges
+        if (edgeGroup.length > 1) continue;
+
+        // exclude edges that are not lines
+        if (getEdgeType(edge) != EdgeType.LINE) continue;
+
+        // exclude half-visible lines
+        if (getInvisibleSide(edge, svg)) continue;
+
+        lines.push(edge);
     }
     return lines;
+}
+
+export function getInvisibleSide(edge: EdgeMetadata, svg: SVGElement | undefined): string | undefined {
+    const node1Element = svg?.querySelector('[id="' + edge.node1 + '"]');
+    if (!node1Element) {
+        return '1';
+    }
+
+    const node2Element = svg?.querySelector('[id="' + edge.node2 + '"]');
+    if (!node2Element) {
+        return '2';
+    }
 }
 
 export function createLinePointElement(

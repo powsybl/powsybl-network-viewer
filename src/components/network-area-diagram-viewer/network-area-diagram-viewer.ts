@@ -2155,7 +2155,7 @@ export class NetworkAreaDiagramViewer {
     private enableLineBending() {
         const linesPointsElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
         linesPointsElement.classList.add('nad-line-points');
-        const bendableEdges = DiagramUtils.getBendableLines(this.diagramMetadata?.edges);
+        const bendableEdges = DiagramUtils.getBendableLines(this.diagramMetadata?.edges, this.innerSvg);
         for (const edge of bendableEdges) {
             if (edge.bendingPoints) {
                 for (let index = 0; index < edge.bendingPoints.length; index++) {
@@ -2328,16 +2328,12 @@ export class NetworkAreaDiagramViewer {
 
     private getHalfEdges(edge: EdgeMetadata, iEdge: number, groupedEdgesCount: number) {
         // Detect if the edge is linked to an invisible node (not in DOM)
-        const node1Element = this.svgDiv.querySelector('[id="' + edge.node1 + '"]');
-        const node2Element = this.svgDiv.querySelector('[id="' + edge.node2 + '"]');
+        const invisibleSide = DiagramUtils.getInvisibleSide(edge, this.innerSvg);
 
-        const node1Invisible = !node1Element;
-        const node2Invisible = !node2Element;
-
-        if (!node1Invisible && !node2Invisible) {
+        if (!invisibleSide) {
             return DiagramUtils.getHalfEdges(edge, iEdge, groupedEdgesCount, this.diagramMetadata, this.svgParameters);
         } else {
-            const visibleSide = node1Invisible ? '2' : '1';
+            const visibleSide = invisibleSide == '1' ? '2' : '1';
             const halfEdgeElement = this.getHalfEdgeNode(edge.svgId, visibleSide);
             return DiagramUtils.getHalfVisibleHalfEdges(
                 halfEdgeElement,
