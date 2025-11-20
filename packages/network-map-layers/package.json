@@ -1,6 +1,6 @@
 {
     "name": "@powsybl/network-map-layers",
-    "version": "2.1.0-dev.0",
+    "version": "3.1.0-dev.0",
     "description": "Deck.gl layers to integrate PowSyBl network viewers in a JavaScript project.",
     "author": "PowSyBl team",
     "homepage": "https://www.powsybl.org/",
