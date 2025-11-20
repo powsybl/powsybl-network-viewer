@@ -594,6 +594,22 @@ export function getFragmentedAnnulusPath(
     nodeHollowWidth: number
 ): string {
     let path: string = '';
+    if (angles.length == 0) {
+        path =
+            'M' +
+            getCirclePath(busNodeRadius[1], 0, Math.PI, true) +
+            ' M' +
+            getCirclePath(busNodeRadius[1], Math.PI, 0, true);
+        if (busNodeRadius[0] > 0) {
+            // going the other way around (counter-clockwise) to subtract the inner circle
+            path +=
+                ' M' +
+                getCirclePath(busNodeRadius[0], 0, Math.PI, false) +
+                ' M' +
+                getCirclePath(busNodeRadius[0], Math.PI, 0, false);
+        }
+        return path;
+    }
     const halfWidth = nodeHollowWidth / 2;
     const deltaAngle0 = halfWidth / busNodeRadius[1];
     const deltaAngle1 = halfWidth / busNodeRadius[0];
