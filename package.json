@@ -34,7 +34,6 @@
         "dist"
     ],
     "scripts": {
-        "postinstall": "rimraf -I -g ./node_modules/@types/deck.gl* ./node_modules/@types/luma.gl* ./node_modules/@types/math.gl* ./node_modules/@types/mapbox-gl",
         "prebuild": "tsc",
         "check": "tsc --noEmit",
         "check:pack": "attw --pack",
@@ -61,13 +60,19 @@
         }
     },
     "dependencies": {
+        "@deck.gl/core": "~9.0.0",
+        "@deck.gl/extensions": "~9.0.0",
+        "@deck.gl/layers": "~9.0.0",
+        "@deck.gl/mapbox": "~9.0.0",
+        "@luma.gl/constants": "~9.0.0",
+        "@luma.gl/core": "~9.0.0",
+        "@luma.gl/engine": "~9.0.0",
         "@mapbox/mapbox-gl-draw": "<1.5.0",
         "@powsybl/network-map-layers": "^2.0.0",
         "@svgdotjs/svg.js": "^3.2.4",
         "@svgdotjs/svg.panzoom.js": "^2.1.2",
         "@turf/boolean-point-in-polygon": "^7.2.0",
         "cheap-ruler": "^4.0.0",
-        "deck.gl": "^8.9.36",
         "geolib": "^3.3.4",
         "mapbox-gl": "^3.9.4",
         "maplibre-gl": "^4.7.1",
@@ -87,7 +92,6 @@
         "@babel/core": "^7.26.8",
         "@babel/preset-env": "^7.26.8",
         "@babel/preset-typescript": "^7.26.0",
-        "@danmarshall/deckgl-typings": "^4.9.28",
         "@types/eslint": "^8.0.0",
         "@types/eslint-config-prettier": "^6.11.3",
         "@types/eslint-plugin-prettier": "^3.1.3",

@@ -28,7 +28,7 @@ import {
     SubstationLayer,
 } from '@powsybl/network-map-layers';
 import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
-import { type Layer, type PickingInfo } from 'deck.gl';
+import { type Layer, type PickingInfo } from '@deck.gl/core';
 import type { Feature, Polygon } from 'geojson';
 import mapboxgl, { type MapLayerMouseEvent as MapBoxLayerMouseEvent } from 'mapbox-gl';
 import maplibregl, { type MapLayerMouseEvent as MapLibreLayerMouseEvent } from 'maplibre-gl';
