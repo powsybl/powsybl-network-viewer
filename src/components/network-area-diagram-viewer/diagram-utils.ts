@@ -192,12 +192,6 @@ function classIsContainerOfLines(element: SVGElement): boolean {
     return element.classList.contains('nad-branch-edges');
 }
 
-export function getBendLinesButton(): HTMLButtonElement {
-    const b = getButton(BendLinesSvg, 'Enable line bending', '25px');
-    b.style.borderRadius = '5px 5px 5px 5px';
-    return b;
-}
-
 // insert a point in the edge point list
 // it return the new list, and the index of the added point
 export function addPointToList(
@@ -1304,13 +1298,23 @@ export function getSavePngButton(): HTMLButtonElement {
     return b;
 }
 
-export function getScreenshotButton(enabled: boolean): HTMLButtonElement {
+export function getDisabledScreenshotButton(): HTMLButtonElement {
     const b = getButton(ScreenshotSvg, 'Screenshot', '30px');
     // button at the right: rounded right corners and no margin
     b.style.borderRadius = '0 5px 5px 0';
-    if (!enabled) {
-        b.disabled = true;
-        b.style.cursor = 'not-allowed';
-    }
+    b.style.marginRight = '5px';
+    b.disabled = true;
+    b.style.cursor = 'not-allowed';
+    return b;
+}
+
+export function enableButton(buttonElement: HTMLButtonElement) {
+    buttonElement.disabled = false;
+    buttonElement.style.cursor = '';
+}
+
+export function getBendLinesButton(): HTMLButtonElement {
+    const b = getButton(BendLinesSvg, 'Enable line bending', '30px');
+    b.style.borderRadius = '5px 5px 5px 5px';
     return b;
 }
