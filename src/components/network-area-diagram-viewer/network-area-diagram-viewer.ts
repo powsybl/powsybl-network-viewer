@@ -1641,7 +1641,11 @@ export class NetworkAreaDiagramViewer {
                     (edge) => edge.equipmentId == branchState.branchId
                 );
                 if (edge === undefined) {
-                    console.warn('Skipping updating branch ' + branchState.branchId + ' labels: branch not found');
+                    console.warn(`Skipping updating branch ${branchState.branchId} labels: branch not found`);
+                    return;
+                }
+                if (edge.node1 == edge.node2) {
+                    console.warn(`Skipping updating branch ${branchState.branchId} labels: not supported for loops`);
                     return;
                 }
                 this.edgesMap.set(branchState.branchId, edge);
@@ -1650,7 +1654,7 @@ export class NetworkAreaDiagramViewer {
             const edgeId = this.edgesMap.get(branchState.branchId)?.svgId ?? '-1';
             const edge: EdgeMetadata | undefined = this.diagramMetadata?.edges.find((edge) => edge.svgId == edgeId);
             if (!edge) {
-                console.warn('Skipping updating branch ' + branchState.branchId + ' label: edge metadata missing');
+                console.warn(`Skipping updating branch ${branchState.branchId} label: edge metadata missing`);
                 return;
             }
 
