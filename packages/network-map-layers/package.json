@@ -48,9 +48,9 @@
     },
     "devDependencies": {
         "@arethetypeswrong/cli": "^0.17.4",
-        "typescript": "~5.3.3",
-        "vite": "^5.4.14",
-        "vite-plugin-dts": "^3.9.1",
+        "typescript": "~5.6.3",
+        "vite": "^7.2.4",
+        "vite-plugin-dts": "^4.5.4",
         "vite-plugin-eslint": "^1.8.1",
         "vite-plugin-svgr": "^4.3.0"
     }
