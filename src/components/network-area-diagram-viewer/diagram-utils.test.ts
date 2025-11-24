@@ -7,9 +7,18 @@
  */
 
 import * as DiagramUtils from './diagram-utils';
-import { EdgeMetadata, BusNodeMetadata, NodeMetadata, TextNodeMetadata, EdgePointMetadata } from './diagram-metadata';
-import { SVG, Point } from '@svgdotjs/svg.js';
+import {
+    BusNodeMetadata,
+    DiagramPaddingMetadata,
+    EdgeMetadata,
+    PointMetadata,
+    NodeMetadata,
+    SvgParametersMetadata,
+    TextNodeMetadata,
+} from './diagram-metadata';
+import { Point, SVG } from '@svgdotjs/svg.js';
 import { SvgParameters } from './svg-parameters';
+import { HalfEdge } from './diagram-utils';
 
 test('getFormattedValue', () => {
     expect(DiagramUtils.getFormattedValue(12)).toBe('12.00');
@@ -22,12 +31,12 @@ test('getFormattedPoint', () => {
 });
 
 test('getFormattedPolyline', () => {
-    expect(DiagramUtils.getFormattedPolyline(new Point(144, 34.836), null, new Point(213.892, 74))).toBe(
+    expect(DiagramUtils.getFormattedPolyline([new Point(144, 34.836), new Point(213.892, 74)])).toBe(
         '144.00,34.84 213.89,74.00'
     );
-    expect(
-        DiagramUtils.getFormattedPolyline(new Point(144, 34.836), new Point(192.83, 55.1475), new Point(213.892, 74))
-    ).toBe('144.00,34.84 192.83,55.15 213.89,74.00');
+    expect(DiagramUtils.getFormattedPolyline([new Point(144, 34.836), new Point(213.892, 74)])).toBe(
+        '144.00,34.84 213.89,74.00'
+    );
 });
 
 test('degToRad', () => {
@@ -65,18 +74,64 @@ test('getAngle', () => {
 });
 
 test('getArrowAngle', () => {
-    expect(DiagramUtils.getArrowAngle(new Point(10, 10), new Point(50, 50))).toBe(135);
-    expect(DiagramUtils.getArrowAngle(new Point(10, 10), new Point(10, 50))).toBe(180);
-    expect(DiagramUtils.getArrowAngle(new Point(10, 10), new Point(50, 10))).toBe(90);
-    expect(DiagramUtils.getArrowAngle(new Point(50, 50), new Point(10, 10))).toBe(-45);
+    const halfEdge1: HalfEdge = {
+        side: '1',
+        fork: false,
+        busOuterRadius: 0,
+        voltageLevelRadius: 0,
+        edgePoints: [new Point(10, 10), new Point(50, 50)],
+    };
+    expect(DiagramUtils.getArrowRotation(halfEdge1)).toBe(135);
+
+    const halfEdge2: HalfEdge = {
+        side: '2',
+        fork: true,
+        busOuterRadius: 0,
+        voltageLevelRadius: 0,
+        edgePoints: [new Point(0, 0), new Point(10, 10), new Point(10, 50)],
+    };
+    expect(DiagramUtils.getArrowRotation(halfEdge2)).toBe(180);
+
+    const halfEdge3: HalfEdge = {
+        side: '2',
+        fork: false,
+        busOuterRadius: 0,
+        voltageLevelRadius: 0,
+        edgePoints: [new Point(10, 10), new Point(50, 10)],
+    };
+    expect(DiagramUtils.getArrowRotation(halfEdge3)).toBe(90);
+
+    const halfEdge4: HalfEdge = {
+        side: '1',
+        fork: true,
+        busOuterRadius: 0,
+        voltageLevelRadius: 0,
+        edgePoints: [new Point(0, 10), new Point(50, 50), new Point(10, 10)],
+    };
+    expect(DiagramUtils.getArrowRotation(halfEdge4)).toBe(-45);
 });
 
 test('getLabelData', () => {
-    const labelData = DiagramUtils.getLabelData(new Point(10, 10), new Point(50, 50), 19);
+    const halfEdge1: HalfEdge = {
+        side: '1',
+        fork: false,
+        busOuterRadius: 0,
+        voltageLevelRadius: 0,
+        edgePoints: [new Point(10, 10), new Point(50, 50)],
+    };
+    const labelData = DiagramUtils.getLabelData(halfEdge1, 19);
     expect(labelData[0]).toBe(45);
     expect(labelData[1]).toBe(19);
     expect(labelData[2]).toBeNull();
-    const flippedLabelData = DiagramUtils.getLabelData(new Point(10, 10), new Point(-30, 50), 19);
+
+    const halfEdge2: HalfEdge = {
+        side: '2',
+        fork: true,
+        busOuterRadius: 0,
+        voltageLevelRadius: 0,
+        edgePoints: [new Point(0, 0), new Point(10, 10), new Point(-30, 50)],
+    };
+    const flippedLabelData = DiagramUtils.getLabelData(halfEdge2, 19);
     expect(flippedLabelData[0]).toBe(-45);
     expect(flippedLabelData[1]).toBe(-19);
     expect(flippedLabelData[2]).toBe('text-anchor:end');
@@ -103,21 +158,27 @@ test('getEdgeType', () => {
 });
 
 test('getTransformerArrowMatrixString', () => {
-    expect(
-        DiagramUtils.getTransformerArrowMatrixString(new Point(10, 10), new Point(110, 110), new Point(60, 60), 20)
-    ).toBe('0.71,0.71,-0.71,0.71,60.00,17.57');
+    expect(DiagramUtils.getTransformerArrowMatrixString(Math.PI / 4, new Point(60, 60), 20)).toBe(
+        '0.71,0.71,-0.71,0.71,60.00,17.57'
+    );
 });
 
 test('getConverterStationPolyline', () => {
-    expect(
-        DiagramUtils.getConverterStationPolyline(
-            new Point(10, 10),
-            new Point(110, 110),
-            new Point(210, 210),
-            new Point(60, 60),
-            70
-        )
-    ).toBe('85.25,85.25 84.75,84.75');
+    const halfEdge1: HalfEdge = {
+        side: '1',
+        fork: false,
+        busOuterRadius: 0,
+        voltageLevelRadius: 0,
+        edgePoints: [new Point(10, 10), new Point(85, 85)],
+    };
+    const halfEdge2: HalfEdge = {
+        side: '1',
+        fork: false,
+        busOuterRadius: 0,
+        voltageLevelRadius: 0,
+        edgePoints: [new Point(160, 160), new Point(85, 85)],
+    };
+    expect(DiagramUtils.getConverterStationPolyline(halfEdge1, halfEdge2, 70)).toBe('60.25,60.25 109.75,109.75');
 });
 
 test('getDraggableFrom', () => {
@@ -143,33 +204,121 @@ test('getSelectableFrom', () => {
 });
 
 test('getVoltageLevelCircleRadius', () => {
-    expect(DiagramUtils.getVoltageLevelCircleRadius(0, 30)).toBe(30);
-    expect(DiagramUtils.getVoltageLevelCircleRadius(1, 30)).toBe(60);
-    expect(DiagramUtils.getVoltageLevelCircleRadius(2, 30)).toBe(60);
+    const diagramPaddingMetadata: DiagramPaddingMetadata = {
+        bottom: 0,
+        left: 0,
+        right: 0,
+        top: 0,
+    };
+    const svgParametersMetadata: SvgParametersMetadata = {
+        angleValuePrecision: 0,
+        arrowLabelShift: 0,
+        arrowPathIn: '',
+        arrowPathOut: '',
+        arrowShift: 0,
+        converterStationWidth: 0,
+        cssLocation: '',
+        currentValuePrecision: 0,
+        diagramPadding: diagramPaddingMetadata,
+        edgeInfoDisplayed: '',
+        edgeNameDisplayed: false,
+        edgesForkAperture: 0,
+        edgesForkLength: 0,
+        insertNameDesc: false,
+        interAnnulusSpace: 0,
+        nodeHollowWidth: 0,
+        powerValuePrecision: 0,
+        transformerCircleRadius: 0,
+        unknownBusNodeExtraRadius: 0,
+        voltageValuePrecision: 0,
+        voltageLevelCircleRadius: 30,
+        fictitiousVoltageLevelCircleRadius: 15,
+    };
+    const svgParameters = new SvgParameters(svgParametersMetadata);
+    expect(DiagramUtils.getVoltageLevelCircleRadius(0, true, svgParameters)).toBe(15);
+    expect(DiagramUtils.getVoltageLevelCircleRadius(0, false, svgParameters)).toBe(30);
+    expect(DiagramUtils.getVoltageLevelCircleRadius(1, false, svgParameters)).toBe(60);
+    expect(DiagramUtils.getVoltageLevelCircleRadius(2, false, svgParameters)).toBe(60);
 });
 
 test('getNodeRadius', () => {
-    let nodeRadius = DiagramUtils.getNodeRadius(0, 30, 0, 5);
+    const diagramPaddingMetadata: DiagramPaddingMetadata = {
+        bottom: 0,
+        left: 0,
+        right: 0,
+        top: 0,
+    };
+    const svgParametersMetadata: SvgParametersMetadata = {
+        angleValuePrecision: 0,
+        arrowLabelShift: 0,
+        arrowPathIn: '',
+        arrowPathOut: '',
+        arrowShift: 0,
+        converterStationWidth: 0,
+        cssLocation: '',
+        currentValuePrecision: 0,
+        diagramPadding: diagramPaddingMetadata,
+        edgeInfoDisplayed: '',
+        edgeNameDisplayed: false,
+        edgesForkAperture: 0,
+        edgesForkLength: 0,
+        insertNameDesc: false,
+        interAnnulusSpace: 5,
+        nodeHollowWidth: 0,
+        powerValuePrecision: 0,
+        transformerCircleRadius: 0,
+        unknownBusNodeExtraRadius: 0,
+        voltageValuePrecision: 0,
+        voltageLevelCircleRadius: 30,
+        fictitiousVoltageLevelCircleRadius: 15,
+    };
+    const svgParameters = new SvgParameters(svgParametersMetadata);
+
+    const busNode: BusNodeMetadata = {
+        equipmentId: '',
+        index: 0,
+        nbNeighbours: 0,
+        svgId: '',
+        vlNode: '',
+    };
+    const node: NodeMetadata = {
+        svgId: '4',
+        equipmentId: '',
+        x: 0,
+        y: 0,
+    };
+    let nodeRadius = DiagramUtils.getNodeRadius(busNode, node, svgParameters);
     expect(nodeRadius[0]).toBe(0);
     expect(nodeRadius[1]).toBe(27.5);
     expect(nodeRadius[2]).toBe(30);
-    nodeRadius = DiagramUtils.getNodeRadius(1, 30, 0, 5);
+
+    busNode.nbNeighbours = 1;
+    nodeRadius = DiagramUtils.getNodeRadius(busNode, node, svgParameters);
     expect(nodeRadius[0]).toBe(0);
     expect(nodeRadius[1]).toBe(27.5);
     expect(nodeRadius[2]).toBe(60);
-    nodeRadius = DiagramUtils.getNodeRadius(1, 30, 1, 5);
+
+    busNode.index = 1;
+    nodeRadius = DiagramUtils.getNodeRadius(busNode, node, svgParameters);
     expect(nodeRadius[0]).toBe(32.5);
     expect(nodeRadius[1]).toBe(57.5);
     expect(nodeRadius[2]).toBe(60);
-    nodeRadius = DiagramUtils.getNodeRadius(2, 30, 0, 5);
+
+    busNode.nbNeighbours = 2;
+    busNode.index = 0;
+    nodeRadius = DiagramUtils.getNodeRadius(busNode, node, svgParameters);
     expect(nodeRadius[0]).toBe(0);
     expect(nodeRadius[1]).toBe(17.5);
     expect(nodeRadius[2]).toBe(60);
-    nodeRadius = DiagramUtils.getNodeRadius(2, 30, 1, 5);
+
+    busNode.index = 1;
+    nodeRadius = DiagramUtils.getNodeRadius(busNode, node, svgParameters);
     expect(nodeRadius[0]).toBe(22.5);
     expect(nodeRadius[1]).toBe(37.5);
     expect(nodeRadius[2]).toBe(60);
-    nodeRadius = DiagramUtils.getNodeRadius(2, 30, 2, 5);
+
+    busNode.index = 2;
+    nodeRadius = DiagramUtils.getNodeRadius(busNode, node, svgParameters);
     expect(nodeRadius[0]).toBe(42.5);
     expect(nodeRadius[1]).toBe(57.5);
     expect(nodeRadius[2]).toBe(60);
@@ -178,6 +327,10 @@ test('getNodeRadius', () => {
 test('getFragmentedAnnulusPath', () => {
     expect(DiagramUtils.getFragmentedAnnulusPath([-2.38, 0.75, 1.4], [42.5, 57.5, 60], 15)).toBe(
         'M-36.101,-44.755 A57.500,57.500 164.389 0 1 46.813,33.389 L35.700,23.061 A42.500,42.500 -159.114 0 0 -25.132,-34.273 Z M36.617,44.333 A57.500,57.500 22.296 0 1 17.060,54.911 L14.464,39.963 A42.500,42.500 -17.020 0 0 25.528,33.979 Z '
+    );
+
+    expect(DiagramUtils.getFragmentedAnnulusPath([], [42.5, 57.5, 60], 15)).toBe(
+        'M57.500,0.000 A57.500,57.500 180.000 0 1 -57.500,0.000 M-57.500,0.000 A57.500,57.500 -180.000 0 1 57.500,0.000 M42.500,0.000 A42.500,42.500 180.000 0 0 -42.500,0.000 M-42.500,0.000 A42.500,42.500 -180.000 0 0 42.500,0.000'
     );
 });
 
@@ -243,21 +396,44 @@ test('getEdgeNameAngle', () => {
     expect(DiagramUtils.getEdgeNameAngle(new Point(60, 60), new Point(10, 110))).toBe(-45);
 });
 
+test('getGroupedEdgesIndexKey', () => {
+    const edges: EdgeMetadata[] = [
+        {
+            svgId: '4',
+            equipmentId: 'VL1L1VL2',
+            node1: '0',
+            node2: '2',
+            busNode1: '1',
+            busNode2: '3',
+            type: 'LineEdge',
+        },
+        {
+            svgId: '5',
+            equipmentId: 'VL1L2VL2',
+            node1: '2',
+            node2: '0',
+            busNode1: '3',
+            busNode2: '1',
+            type: 'LineEdge',
+        },
+        {
+            svgId: '11',
+            equipmentId: 'VL3L1VL4',
+            node1: '4',
+            node2: '0',
+            busNode1: '7',
+            busNode2: '5',
+            type: 'LineEdge',
+        },
+    ];
+    expect(DiagramUtils.getGroupedEdgesIndexKey(edges[0])).toBe('0_2');
+    expect(DiagramUtils.getGroupedEdgesIndexKey(edges[1])).toBe('0_2');
+    expect(DiagramUtils.getGroupedEdgesIndexKey(edges[2])).toBe('0_4');
+});
+
 test('isTextNode', () => {
     const isTextNode = DiagramUtils.isTextNode(getSvgTextNode());
     expect(isTextNode).toBe(true);
-});
-
-test('getTextNodeId', () => {
-    expect(DiagramUtils.getTextNodeId('1')).toBe('1-textnode');
-});
-
-test('getTextEdgeId', () => {
-    expect(DiagramUtils.getTextEdgeId('1')).toBe('1-textedge');
-});
-
-test('getVoltageLevelNodeId', () => {
-    expect(DiagramUtils.getVoltageLevelNodeId('1-textnode')).toBe('1');
 });
 
 test('getTextEdgeEnd', () => {
@@ -392,28 +568,41 @@ test('getTextNodeMoves', () => {
 });
 
 test('getArrowClass', () => {
-    expect(DiagramUtils.getArrowClass(12)).toBe('nad-state-out');
-    expect(DiagramUtils.getArrowClass(-12)).toBe('nad-state-in');
-});
-
-test('isVlNodeFictitious', () => {
-    const nodes: NodeMetadata[] = [
-        {
-            svgId: '0',
-            equipmentId: 'vl',
-            x: 189.53,
-            y: 123.47,
-        },
-        {
-            svgId: '2',
-            equipmentId: 'vl2',
-            x: -171.8,
-            y: 131.88,
-            fictitious: true,
-        },
-    ];
-    expect(DiagramUtils.isVlNodeFictitious('0', nodes)).toBe(false);
-    expect(DiagramUtils.isVlNodeFictitious('2', nodes)).toBe(true);
+    const diagramPaddingMetadata: DiagramPaddingMetadata = {
+        bottom: 0,
+        left: 0,
+        right: 0,
+        top: 0,
+    };
+    const arrowPathIn = 'M-10 -10 H10 L0 10z';
+    const arrowPathOut = 'M-10 10 H10 L0 -10z';
+    const svgParametersMetadata: SvgParametersMetadata = {
+        angleValuePrecision: 0,
+        arrowLabelShift: 0,
+        arrowPathIn: arrowPathIn,
+        arrowPathOut: arrowPathOut,
+        arrowShift: 0,
+        converterStationWidth: 0,
+        cssLocation: '',
+        currentValuePrecision: 0,
+        diagramPadding: diagramPaddingMetadata,
+        edgeInfoDisplayed: '',
+        edgeNameDisplayed: false,
+        edgesForkAperture: 0,
+        edgesForkLength: 0,
+        insertNameDesc: false,
+        interAnnulusSpace: 0,
+        nodeHollowWidth: 0,
+        powerValuePrecision: 0,
+        transformerCircleRadius: 0,
+        unknownBusNodeExtraRadius: 0,
+        voltageValuePrecision: 0,
+        voltageLevelCircleRadius: 30,
+        fictitiousVoltageLevelCircleRadius: 15,
+    };
+    const svgParameters = new SvgParameters(svgParametersMetadata);
+    expect(DiagramUtils.getArrowPath('IN', svgParameters)).toBe(arrowPathIn);
+    expect(DiagramUtils.getArrowPath('OUT', svgParameters)).toBe(arrowPathOut);
 });
 
 test('getRightClickableElementData', () => {
@@ -580,63 +769,47 @@ test('getBendableFrom', () => {
 test('getBendableLines', () => {
     const edges: EdgeMetadata[] = [
         {
-            svgId: '60',
-            equipmentId: 'T9001-9012-1',
-            node1: '0',
-            node2: '7',
-            busNode1: '2',
-            busNode2: '9',
-            type: 'TwoWtEdge',
-        },
-        {
-            svgId: '61',
-            equipmentId: 'L9012-9002-1',
-            node1: '7',
-            node2: '3',
-            busNode1: '9',
-            busNode2: '4',
-            type: 'LineEdge',
-        },
-        {
-            svgId: '62',
-            equipmentId: 'L9012-9002-2',
-            node1: '7',
-            node2: '3',
-            busNode1: '9',
-            busNode2: '4',
-            type: 'LineEdge',
-        },
-        {
-            svgId: '77',
-            equipmentId: 'L9006-9007-1',
-            node1: '7',
-            node2: '10',
-            busNode1: '8',
-            busNode2: '11',
-            type: 'LineEdge',
-        },
-        {
-            svgId: '58',
-            equipmentId: 'T37-9001-1',
-            node1: '0',
+            svgId: '100',
+            equipmentId: 'L15-37-1',
+            node1: '36',
             node2: '0',
-            busNode1: '1',
-            busNode2: '2',
+            busNode1: '39',
+            busNode2: '5',
+            type: 'LineEdge',
+        },
+        {
+            svgId: '103',
+            equipmentId: 'L37-38-1',
+            node1: '0',
+            node2: '41',
+            busNode1: '5',
+            busNode2: '44',
+            type: 'LineEdge',
+        },
+        {
+            svgId: '181',
+            equipmentId: 'L9006-9007-1',
+            node1: '21',
+            node2: '26',
+            busNode1: '24',
+            busNode2: '29',
+            type: 'LineEdge',
+        },
+        {
+            svgId: '178',
+            equipmentId: 'T9003-9038-1',
+            node1: '13',
+            node2: '77',
+            busNode1: '20',
+            busNode2: '86',
             type: 'TwoWtEdge',
         },
     ];
-    const lines = DiagramUtils.getBendableLines(edges);
-    expect(lines.length).toBe(4);
 
-    const containsEdge58 = lines.some((line) => line.svgId === '58');
-    expect(containsEdge58).toBe(false);
-});
-
-test('getEdgeMidPoint', () => {
-    const midPoint = DiagramUtils.getEdgeMidPoint(getSvgHalfEdge());
-    expect(midPoint).not.toBeNull();
-    expect(midPoint?.x).toBe(-423.41);
-    expect(midPoint?.y).toBe(184.65);
+    const svg = getSvgStraightLineEdge();
+    const lines = DiagramUtils.getBendableLines(edges, svg);
+    expect(lines.length).toBe(1);
+    expect(lines[0].svgId).toBe('181');
 });
 
 test('getBendableLineFrom', () => {
@@ -662,15 +835,15 @@ test('addPointToList', () => {
         type: 'LineEdge',
     };
     let bendPoint = new Point(75, 75);
-    let linePoints = DiagramUtils.addPointToList(edge.points?.slice(), node1, node2, bendPoint);
+    let linePoints = DiagramUtils.addPointToList(edge.bendingPoints?.slice(), node1, node2, bendPoint);
     expect(linePoints.index).toBe(0);
     expect(linePoints.linePoints.length).toBe(1);
     expect(linePoints.linePoints[0].x).toBe(75);
     expect(linePoints.linePoints[0].y).toBe(75);
 
-    edge.points = [{ x: 75, y: 75 }];
+    edge.bendingPoints = [{ x: 75, y: 75 }];
     bendPoint = new Point(90, 90);
-    linePoints = DiagramUtils.addPointToList(edge.points.slice(), node1, node2, bendPoint);
+    linePoints = DiagramUtils.addPointToList(edge.bendingPoints.slice(), node1, node2, bendPoint);
     expect(linePoints.index).toBe(1);
     expect(linePoints.linePoints.length).toBe(2);
     expect(linePoints.linePoints[0].x).toBe(75);
@@ -678,9 +851,9 @@ test('addPointToList', () => {
     expect(linePoints.linePoints[1].x).toBe(90);
     expect(linePoints.linePoints[1].y).toBe(90);
 
-    edge.points.push({ x: 90, y: 90 });
+    edge.bendingPoints.push({ x: 90, y: 90 });
     bendPoint = new Point(80, 80);
-    linePoints = DiagramUtils.addPointToList(edge.points.slice(), node1, node2, bendPoint);
+    linePoints = DiagramUtils.addPointToList(edge.bendingPoints.slice(), node1, node2, bendPoint);
     expect(linePoints.index).toBe(1);
     expect(linePoints.linePoints.length).toBe(3);
     expect(linePoints.linePoints[0].x).toBe(75);
@@ -694,9 +867,19 @@ test('addPointToList', () => {
 test('getEdgePoints', () => {
     const edgeStart1 = new Point(0, 0);
     const edgeStart2 = new Point(1000, 0);
+    const edgeEnd1 = new Point(0, 0);
+    const edgeEnd2 = new Point(0, 0);
 
-    const pointsMetadata: EdgePointMetadata[] = [];
-    let edgePoints = DiagramUtils.getEdgePoints(edgeStart1, edgeStart2, pointsMetadata.slice());
+    const pointsMetadata: PointMetadata[] = [];
+    let edgePoints = DiagramUtils.getEdgePoints(
+        edgeStart1,
+        undefined,
+        edgeEnd1,
+        edgeStart2,
+        undefined,
+        edgeEnd2,
+        pointsMetadata.slice()
+    );
     expect(edgePoints[0].length).toBe(2);
     expect(edgePoints[0][0].x).toBe(0);
     expect(edgePoints[0][0].y).toBe(0);
@@ -709,7 +892,15 @@ test('getEdgePoints', () => {
     expect(edgePoints[1][1].y).toBe(0);
 
     pointsMetadata.push({ x: 100, y: 0 });
-    edgePoints = DiagramUtils.getEdgePoints(edgeStart1, edgeStart2, pointsMetadata.slice());
+    edgePoints = DiagramUtils.getEdgePoints(
+        edgeStart1,
+        undefined,
+        edgeEnd1,
+        edgeStart2,
+        undefined,
+        edgeEnd2,
+        pointsMetadata.slice()
+    );
     expect(edgePoints[0].length).toBe(3);
     expect(edgePoints[0][0].x).toBe(0);
     expect(edgePoints[0][0].y).toBe(0);
@@ -724,7 +915,15 @@ test('getEdgePoints', () => {
     expect(edgePoints[1][1].y).toBe(0);
 
     pointsMetadata.push({ x: 300, y: 0 });
-    edgePoints = DiagramUtils.getEdgePoints(edgeStart1, edgeStart2, pointsMetadata.slice());
+    edgePoints = DiagramUtils.getEdgePoints(
+        edgeStart1,
+        undefined,
+        edgeEnd1,
+        edgeStart2,
+        undefined,
+        edgeEnd2,
+        pointsMetadata.slice()
+    );
     expect(edgePoints[0].length).toBe(4);
     expect(edgePoints[0][0].x).toBe(0);
     expect(edgePoints[0][0].y).toBe(0);
@@ -741,7 +940,15 @@ test('getEdgePoints', () => {
     expect(edgePoints[1][1].y).toBe(0);
 
     pointsMetadata.push({ x: 600, y: 0 });
-    edgePoints = DiagramUtils.getEdgePoints(edgeStart1, edgeStart2, pointsMetadata.slice());
+    edgePoints = DiagramUtils.getEdgePoints(
+        edgeStart1,
+        undefined,
+        edgeEnd1,
+        edgeStart2,
+        undefined,
+        edgeEnd2,
+        pointsMetadata.slice()
+    );
     expect(edgePoints[0].length).toBe(4);
     expect(edgePoints[0][0].x).toBe(0);
     expect(edgePoints[0][0].y).toBe(0);
@@ -824,18 +1031,6 @@ function getSvgLinePointElement(): SVGGraphicsElement {
     return <SVGGraphicsElement>SVG().svg(linePointSvg).node.firstElementChild?.firstElementChild;
 }
 
-function getSvgHalfEdge(): SVGGraphicsElement {
-    const halfEdgeSvg =
-        '<g id="77"><g id="77.1" class="nad-vl0to30-line">' +
-        '<polyline class="nad-edge-path nad-stretchable nad-glued-1" points="-208.75,170.93 -423.41,184.65"></polyline>' +
-        '<g class="nad-glued-1 nad-edge-infos" transform="translate(-271.12,174.92)">' +
-        '<g class="nad-active"><g transform="rotate(-93.66)">' +
-        '<path class="nad-arrow-in" transform="scale(10.00)" d="M-1 -1 H1 L0 1z"></path>' +
-        '<path class="nad-arrow-out" transform="scale(10.00)" d="M-1 1 H1 L0 -1z"></path></g>' +
-        '<text transform="rotate(-3.66)" x="-19.00" style="text-anchor:end"></text></g></g></g></g>';
-    return <SVGGraphicsElement>SVG().svg(halfEdgeSvg).node.firstElementChild?.firstElementChild;
-}
-
 function getSvgLineEdge(): SVGGraphicsElement {
     const halfEdgeSvg =
         '<g class="nad-branch-edges">' +
@@ -855,5 +1050,42 @@ function getSvgLineEdge(): SVGGraphicsElement {
         '</g><text transform="rotate(-320.67)" x="-19.00" style="text-anchor:end"></text></g></g></g>' +
         '<g><g class="nad-edge-label" transform="translate(150.61,-256.79)">' +
         '<text transform="rotate(39.33)" x="0.00" style="text-anchor:middle">L5-4-0</text></g></g></g></g>';
+    return <SVGGraphicsElement>SVG().svg(halfEdgeSvg).node.firstElementChild?.firstElementChild;
+}
+
+function getSvgStraightLineEdge(): SVGGraphicsElement {
+    const halfEdgeSvg = `
+<svg>
+    <g class='nad-vl-nodes'>
+        <g transform='translate(640.93,-338.93)' id='0' class='nad-vl70to120'>
+            <circle r='27.50' id='6' class='nad-bus-1 nad-busnode'></circle>
+            <path
+                d='M32.270,-47.591 A57.500,57.500 166.672 0 1 -20.431,53.748 L-8.447,31.383 A32.500,32.500 -155.175 0 0 20.842,-24.937 Z M-33.602,46.660 A57.500,57.500 42.107 0 1 -56.216,12.086 L-30.930,9.979 A32.500,32.500 -30.610 0 0 -21.539,24.338 Z M-57.210,-5.770 A57.500,57.500 103.434 0 1 18.904,-54.304 L7.557,-31.609 A32.500,32.500 -91.937 0 0 -31.847,-6.484 Z '
+                id='5' class='nad-bus-0 nad-busnode'></path>
+        </g>
+        <g transform='translate(-181.31,169.17)' id='21' class='nad-vl0to30'>
+            <circle r='27.50' id='24' class='nad-bus-0 nad-busnode'></circle>
+            <path
+                d='M-55.577,-14.744 A57.500,57.500 45.053 0 1 -28.827,-49.752 L-19.028,-26.347 A32.500,32.500 -33.556 0 0 -30.421,-11.438 Z M-15.020,-55.504 A57.500,57.500 35.955 0 1 20.431,-53.748 L8.447,-31.383 A32.500,32.500 -24.457 0 0 -5.304,-32.064 Z M33.602,-46.660 A57.500,57.500 223.110 1 1 -56.418,11.100 L-31.100,9.437 A32.500,32.500 -211.613 1 0 21.539,-24.338 Z '
+                id='25' class='nad-bus-1 nad-busnode'></path>
+        </g>
+        <g transform='translate(-665.51,200.12)' id='26' class='nad-vl0to30'>
+            <circle r='27.50' id='29' class='nad-bus-0 nad-busnode'></circle>
+        </g>
+    </g>
+    <g class='nad-branch-edges'>
+        <g id='100'>
+            <polyline class='nad-vl70to120 nad-edge-path' points='697.43,-328.22 907.50,-288.39'></polyline>
+        </g>
+        <g id='103'>
+            <polyline class='nad-vl70to120 nad-edge-path' points='690.34,-368.34 919.41,-504.71'></polyline>
+        </g>
+        <g id='181'>
+            <polyline class='nad-vl0to30 nad-edge-path' points='-208.75,170.93 -423.41,184.65'></polyline>
+            <polyline class='nad-vl0to30 nad-edge-path' points='-638.07,198.37 -423.41,184.65'></polyline>
+        </g>
+    </g>
+</svg>
+    `;
     return <SVGGraphicsElement>SVG().svg(halfEdgeSvg).node.firstElementChild?.firstElementChild;
 }

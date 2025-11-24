@@ -62,6 +62,8 @@ export class SvgParameters {
     static readonly DIAGRAM_PADDING_RIGHT_DEFAULT = 200.0;
     static readonly DIAGRAM_PADDING_BOTTON_DEFAULT = 200.0;
     static readonly CSS_LOCATION_DEFAULT = CssLocationEnum.EXTERNAL_NO_IMPORT;
+    static readonly ARROW_PATH_IN_DEFAULT = 'M-10 -10 H10 L0 10z';
+    static readonly ARROW_PATH_OUT_DEFAULT = 'M-10 10 H10 L0 -10z';
 
     svgParametersMetadata: SvgParametersMetadata | undefined;
 
@@ -97,6 +99,14 @@ export class SvgParameters {
 
     public getArrowLabelShift(): number {
         return this.svgParametersMetadata?.arrowLabelShift ?? SvgParameters.ARROW_LABEL_SHIFT_DEFAULT;
+    }
+
+    public getArrowPathIn(): string {
+        return this.svgParametersMetadata?.arrowPathIn ?? SvgParameters.ARROW_PATH_IN_DEFAULT;
+    }
+
+    public getArrowPathOut(): string {
+        return this.svgParametersMetadata?.arrowPathOut ?? SvgParameters.ARROW_PATH_OUT_DEFAULT;
     }
 
     public getConverterStationWidth(): number {
