@@ -392,9 +392,14 @@ export class NetworkAreaDiagramViewer {
                 drawnSvg.parentElement.style.cursor = 'move';
             }
         });
-        this.svgDraw.on('panEnd', function () {
+        this.svgDraw.on('panEnd', () => {
             if (drawnSvg.parentElement != undefined) {
                 drawnSvg.parentElement.style.removeProperty('cursor');
+
+                //if the adaptive zoom feature is enabled, updates the diagram
+                if (this.nadViewerParameters.getEnableAdaptiveZoom()) {
+                    this.adaptiveZoomViewboxUpdate(this.getCurrentlyMaxDisplayedSize());
+                }
             }
         });
 
@@ -411,6 +416,11 @@ export class NetworkAreaDiagramViewer {
         firstChild.removeAttribute('height');
 
         if (this.nadViewerParameters.getEnableLevelOfDetail()) {
+            //parameters enableLevelOfDetail and enableAdaptiveZoom are alternative
+            if (this.nadViewerParameters.getEnableAdaptiveZoom()) {
+                console.error('conflicting enableAdaptiveZoom parameter was set');
+                return;
+            }
             this.svgDraw.fire('zoom'); // Forces a new dynamic zoom check to correctly update the dynamic CSS
 
             // We add an observer to track when the SVG's viewBox is updated by panzoom
@@ -421,6 +431,34 @@ export class NetworkAreaDiagramViewer {
                 for (const mutation of mutationList) {
                     if (mutation.attributeName === 'viewBox') {
                         this.checkAndUpdateLevelOfDetail();
+                    }
+                }
+            };
+
+            // Create a debounced version of the observer callback to limit the frequency of calls when the 'viewBox' attribute changes,
+            // particularly during zooming operations, improving performance and avoiding redundant updates.
+            const debouncedObserverCallback = debounce(observerCallback, 50);
+            const observer = new MutationObserver(debouncedObserverCallback);
+            observer.observe(this.svgDraw.node, { attributeFilter: ['viewBox'] });
+        }
+
+        if (this.nadViewerParameters.getEnableAdaptiveZoom()) {
+            //parameters enableLevelOfDetail and enableAdaptiveZoom are alternative
+            if (this.nadViewerParameters.getEnableLevelOfDetail()) {
+                console.error('conflicting enableLevelOfDetail parameter was set');
+                return;
+            }
+
+            this.svgDraw.fire('zoom'); // Forces a new dynamic zoom check
+
+            // We add an observer to track when the SVG's viewBox is updated by panzoom
+            // (we have to do this instead of using panzoom's 'zoom' event to have accurate viewBox updates)
+            this.adaptiveZoomUpdate();
+            // Callback function to execute when mutations are observed
+            const observerCallback = (mutationList: MutationRecord[]) => {
+                for (const mutation of mutationList) {
+                    if (mutation.attributeName === 'viewBox') {
+                        this.adaptiveZoomUpdate();
                     }
                 }
             };
@@ -1622,6 +1660,183 @@ export class NetworkAreaDiagramViewer {
             }
         }
         return 0;
+    }
+
+    public getNodesInViewbox(viewBox: ViewBoxLike, tolerance: number = 0): NodeMetadata[] {
+        const x = viewBox?.x ?? 0;
+        const y = viewBox?.y ?? 0;
+        const width = viewBox?.width ?? 0;
+        const height = viewBox?.height ?? 0;
+        const minX = x - tolerance;
+        const maxX = x + width + tolerance;
+        const minY = y - tolerance;
+        const maxY = y + height + tolerance;
+
+        //This is a simple linear search; A more efficient approach could be investigated.
+        return (
+            this.diagramMetadata?.nodes.filter(
+                (node) => node.x >= minX && node.x <= maxX && node.y >= minY && node.y <= maxY
+            ) ?? []
+        );
+    }
+
+    private getOrCreateLegendBox(
+        textNode: TextNodeMetadata,
+        busNodes: BusNodeMetadata[],
+        node: NodeMetadata
+    ): HTMLElement {
+        const textNodeElement: HTMLElement | null = this.svgDiv.querySelector("[id='" + textNode.svgId + "']");
+        if (textNodeElement) {
+            return textNodeElement;
+        }
+
+        let textNodesSection = this.svgDiv.querySelector('foreignObject.nad-text-nodes');
+        if (!textNodesSection) {
+            textNodesSection = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject');
+            textNodesSection.setAttribute('height', '1');
+            textNodesSection.setAttribute('width', '1');
+            textNodesSection.classList.add('nad-text-nodes');
+            this.innerSvg?.appendChild(textNodesSection);
+        }
+        let textNodesDiv = textNodesSection?.children[0] as HTMLElement | undefined;
+        if (!textNodesDiv) {
+            textNodesDiv = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
+            textNodesSection.appendChild(textNodesDiv);
+        }
+
+        const newTextElement = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
+        newTextElement.style.position = 'absolute';
+        newTextElement.style.top = node.y + textNode.shiftY + 'px';
+        newTextElement.style.left = node.x + textNode.shiftX + 'px';
+        newTextElement.id = textNode.svgId;
+
+        //Retrieve the bus' node class from SVG, if it exist.
+        //This logic should be replaced once the class name will be in the metadata.
+        const nodeElement: HTMLElement | null = this.svgDiv.querySelector("[id='" + textNode.vlNode + "']");
+        const busElementClass: string | null = nodeElement ? nodeElement.getAttribute('class') : null;
+        if (busElementClass?.startsWith('nad-vl')) {
+            newTextElement.classList.add(busElementClass);
+        }
+        newTextElement.classList.add('nad-label-box');
+
+        textNodesDiv?.appendChild(newTextElement);
+
+        const newVlNameElement = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
+        newVlNameElement.textContent = textNode.equipmentId;
+        newTextElement?.appendChild(newVlNameElement);
+
+        for (const busNode of busNodes) {
+            const newBusDivElement = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
+            newBusDivElement.classList.add('nad-bus-descr');
+            const newBusLegendElement = document.createElementNS('http://www.w3.org/1999/xhtml', 'span');
+            //Per-bus class e.g. nad-bus-0
+            //The numeric suffix is currently taken from the bus' index attribute (is this always the case, for svg generated by powsybl-diagram?)
+            newBusLegendElement.classList.add('nad-bus-' + busNode.index, 'nad-legend-square');
+            const textNode = document.createTextNode(busNode.legend ?? '');
+            newBusDivElement?.appendChild(newBusLegendElement);
+            newBusDivElement?.appendChild(textNode);
+            newTextElement?.appendChild(newBusDivElement);
+        }
+        return newTextElement;
+    }
+
+    private getOrCreateLegendEdge(
+        textNode: TextNodeMetadata,
+        busNodes: BusNodeMetadata[],
+        node: NodeMetadata
+    ): SVGPolylineElement {
+        const legendEdgeElement: SVGPolylineElement | null = this.svgDiv.querySelector(
+            "[id='" + node.legendEdgeSvgId + "']"
+        );
+        if (legendEdgeElement) {
+            return legendEdgeElement;
+        }
+        let legendEdgesSection = this.svgDiv.querySelector('g.nad-text-edges');
+        if (!legendEdgesSection) {
+            legendEdgesSection = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+            legendEdgesSection.classList.add('nad-text-edges');
+            this.innerSvg?.appendChild(legendEdgesSection);
+        }
+
+        // compute legend edge start and end oints
+        const nodePoint = new Point(node.x, node.y);
+        const endTextEdge = new Point(node.x + textNode.connectionShiftX, node.y + textNode.connectionShiftY);
+        const nbNeighbours = busNodes !== undefined && busNodes.length > 1 ? busNodes.length - 1 : 0;
+        const voltageLevelCircleRadius = DiagramUtils.getVoltageLevelCircleRadius(
+            nbNeighbours,
+            node?.fictitious,
+            this.svgParameters
+        );
+        const startTextEdge = DiagramUtils.getPointAtDistance(nodePoint, endTextEdge, voltageLevelCircleRadius);
+
+        //create the legend edge element in the DOM
+        const newLegendEdgeElement = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+        newLegendEdgeElement.id = node?.legendEdgeSvgId ?? '';
+        const polyline = DiagramUtils.getFormattedPolyline([startTextEdge, endTextEdge]);
+        newLegendEdgeElement.setAttribute('points', polyline);
+
+        legendEdgesSection.appendChild(newLegendEdgeElement);
+        return newLegendEdgeElement;
+    }
+
+    private adaptiveZoomViewboxUpdate(maxDisplayedSize: number) {
+        const viewBox = this.getViewBox();
+        if (!viewBox) {
+            console.warn('undefined viewbox');
+            return;
+        }
+        console.log(
+            `zoomlevel: ${maxDisplayedSize}. Current viewBox: ${viewBox.x}, ${viewBox.y}, ${viewBox.width}, ${viewBox.height}`
+        );
+
+        if (maxDisplayedSize > this.nadViewerParameters.getThresholdAdaptiveZoom()) {
+            const groupElement = this.svgDiv.querySelector('g.nad-edge-infos') as SVGGElement;
+            if (groupElement) {
+                groupElement.replaceChildren();
+            }
+
+            const groupElement1 = this.svgDiv.querySelector('g.nad-text-edges') as SVGGElement;
+            if (groupElement1) {
+                groupElement1.replaceChildren();
+            }
+
+            const groupElement2 = this.svgDiv.querySelector('foreignObject.nad-text-nodes') as SVGGElement;
+            if (groupElement2) {
+                groupElement2.replaceChildren();
+            }
+        } else {
+            let start = performance.now();
+            const containedList = this.getNodesInViewbox(viewBox, 50);
+            console.log('number of nodes in the current viewbox: ' + containedList.length);
+            console.log(`number of nodes in the current viewbox computing time: ${performance.now() - start} ms`);
+            start = performance.now();
+            for (const node of containedList) {
+                const textNode = this.diagramMetadata?.textNodes.find((tNode) => tNode.svgId === node.legendSvgId);
+                if (textNode) {
+                    const busNodes: BusNodeMetadata[] =
+                        this.diagramMetadata?.busNodes.filter((busNode) => busNode.vlNode == node.svgId) ?? [];
+
+                    this.getOrCreateLegendBox(textNode, busNodes, node);
+                    this.getOrCreateLegendEdge(textNode, busNodes, node);
+                }
+            }
+            console.log(`adaptive zoom mode adding elements time: ${performance.now() - start} ms`);
+        }
+    }
+
+    private adaptiveZoomUpdate() {
+        const maxDisplayedSize = this.getCurrentlyMaxDisplayedSize();
+        const previousMaxDisplayedSize = this.getPreviousMaxDisplayedSize();
+        // in case of bad or unset values NaN or Infinity, this condition is skipped and the function behaves as if zoom changed
+        if (
+            Math.abs(previousMaxDisplayedSize - maxDisplayedSize) / previousMaxDisplayedSize <
+            dynamicCssRulesUpdateThreshold
+        ) {
+            return;
+        }
+        this.adaptiveZoomViewboxUpdate(maxDisplayedSize);
+
+        this.setPreviousMaxDisplayedSize(maxDisplayedSize);
     }
 
     public setJsonBranchStates(branchStates: string) {

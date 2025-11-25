@@ -335,6 +335,31 @@ export const addNadToDemo = () => {
             );
         });
 
+    fetch(NadSvgPegaseNetworkExample)
+        .then((response) => response.text())
+        .then((svgContent) => {
+            const nadViewerParametersOptions: NadViewerParametersOptions = {
+                enableDragInteraction: true,
+                addButtons: true,
+                onMoveNodeCallback: handleNodeMove,
+                onMoveTextNodeCallback: handleTextNodeMove,
+                onSelectNodeCallback: handleNodeSelect,
+                onToggleHoverCallback: handleToggleNadHover,
+                onRightClickCallback: handleRightClick,
+                onBendLineCallback: handleLineBending,
+
+                enableAdaptiveZoom: true,
+                adaptiveZoomThreshold: 3000,
+            };
+            const svgContainerNadPegase = document.getElementById('svg-container-nad-pegase-network-adaptive-zoom');
+            new NetworkAreaDiagramViewer(
+                svgContainerNadPegase!,
+                svgContent,
+                NadSvgPegaseNetworkExampleMeta,
+                nadViewerParametersOptions
+            );
+        });
+
     fetch(NadSvgMultibusVLNodes14Example)
         .then((response) => response.text())
         .then((svgContent) => {
