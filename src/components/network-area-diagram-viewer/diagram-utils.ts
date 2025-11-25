@@ -127,7 +127,12 @@ export function getEdgeMidPoint(halfEdge: SVGGraphicsElement | null): Point | nu
 }
 
 export function getParallelEdgeGroupId(edge: EdgeMetadata): string {
-    return edge.node1.concat('_', edge.node2);
+    // Normalize the order of nodes to ensure edges connecting the same nodes
+    // in different directions are identified as part of the same parallel group
+    const [first, second] = edge.node1 < edge.node2
+        ? [edge.node1, edge.node2]
+        : [edge.node2, edge.node1];
+    return first.concat('_', second);
 }
 
 export function getParallelEdgeGroup(edgeId: string, edges: EdgeMetadata[] | undefined): EdgeMetadata[] | undefined {
@@ -138,7 +143,8 @@ export function getParallelEdgeGroup(edgeId: string, edges: EdgeMetadata[] | und
 
     const groupId = getParallelEdgeGroupId(edge);
     const group = edges?.filter((e) => {
-        if (e.node1 == edge.node2) return false;
+        // Filter out loop edges (where node1 == node2)
+        if (e.node1 === e.node2) return false;
         return getParallelEdgeGroupId(e) === groupId;
     });
     return group && group.length > 1 ? group : undefined;
@@ -179,13 +185,6 @@ export function calculateLineIntersection(
 /**
  * Calculate the parallel bend point position for a slave line.
  * The slave point must maintain parallelism with the master line segments.
- *
- * @param masterPrevPoint - Point before the master bend point
- * @param masterBendPoint - The master bend point (new position)
- * @param masterNextPoint - Point after the master bend point
- * @param slavePrevPoint - Point before the slave bend point (on slave line)
- * @param slaveNextPoint - Point after the slave bend point (on slave line)
- * @returns The new position for the slave bend point, or null if calculation fails
  */
 export function calculateParallelBendPoint(
     masterPrevPoint: Point,
@@ -206,8 +205,17 @@ export function calculateParallelBendPoint(
         masterNextPoint.y - masterBendPoint.y
     );
 
-    // The slave bend point is at the intersection of L1 and L2
-    return calculateLineIntersection(slavePrevPoint, dir1, slaveNextPoint, dir2);
+    // Try to find the intersection normally
+    const intersection = calculateLineIntersection(slavePrevPoint, dir1, slaveNextPoint, dir2);
+
+    if (intersection) {
+        return intersection;
+    }
+
+    const offsetX = slavePrevPoint.x - masterPrevPoint.x;
+    const offsetY = slavePrevPoint.y - masterPrevPoint.y;
+
+    return new Point(masterBendPoint.x + offsetX, masterBendPoint.y + offsetY);
 }
 
 export function getEdgeMidPointPosition(edgeId: string, svgContainer: HTMLElement): Point | null {

@@ -721,9 +721,19 @@ export class NetworkAreaDiagramViewer {
             this.updateNodeMetadata(this.draggedElement, mousePosition);
             this.updateElement(this.draggedElement);
         } else if (this.draggedElementType === DraggedElementType.BENT_SQUARE) {
+            // Update metadata for the dragged (master) element
             this.updateEdgeMetadata(this.draggedElement, mousePosition, LineOperation.BEND);
-            this.redrawBentLine(this.draggedElement, LineOperation.BEND);
-            this.updateParallelElements(mousePosition, LineOperation.BEND);
+            // Update visual position of the master bend point
+            this.updateNodePosition(this.draggedElement, mousePosition);
+
+            // Check if this is part of a parallel group
+            if (this.parallelBentElements.length > 0) {
+                // Update parallel elements and redraw the entire group
+                this.updateParallelElements(mousePosition, LineOperation.BEND);
+            } else {
+                // Single line, just redraw it
+                this.redrawBentLine(this.draggedElement, LineOperation.BEND);
+            }
         }
     }
 
@@ -1187,148 +1197,35 @@ export class NetworkAreaDiagramViewer {
         return edgeNodes[0]?.id == vlNode.id ? edgeNodes[1] : edgeNodes[0];
     }
 
-    private getNodeRadius(busNodeId: string, vlNodeId: string): [number, number, number] {
-        const busNode: BusNodeMetadata | undefined = this.diagramMetadata?.busNodes.find(
-            (busNode) => busNode.svgId == busNodeId
-        );
-        return DiagramUtils.getNodeRadius(
-            busNode?.nbNeighbours ?? 0,
-            DiagramUtils.isVlNodeFictitious(vlNodeId, this.diagramMetadata?.nodes)
-                ? this.svgParameters.getFictitiousVoltageLevelCircleRadius()
-                : this.svgParameters.getVoltageLevelCircleRadius(),
-            busNode?.index ?? 0,
-            this.svgParameters.getInterAnnulusSpace()
-        );
-    }
-
     private redrawForkEdge(edges: EdgeMetadata[]) {
-        const position: Point = DiagramUtils.getPosition(vlNode);
-        const edgeNodes = this.getEdgeNodes(edges[0], vlNode);
-        const point1 = DiagramUtils.getPosition(edgeNodes[0]);
-        const point2 = DiagramUtils.getPosition(edgeNodes[1]);
-
-        // Calculate reference angles based on the centroid of all parallel edges' bend points
-        let angle1: number;
-        let angle2: number;
-        if (edges[0].points && edges[0].points.length > 0) {
-            // Fork should point towards the center of all parallel lines at bend point level
-            let sumFirstX = 0,
-                sumFirstY = 0;
-            let sumLastX = 0,
-                sumLastY = 0;
-            let count = 0;
-
-            edges.forEach((edge) => {
-                if (edge.points && edge.points.length > 0) {
-                    sumFirstX += edge.points[0].x;
-                    sumFirstY += edge.points[0].y;
-                    sumLastX += edge.points[edge.points.length - 1].x;
-                    sumLastY += edge.points[edge.points.length - 1].y;
-                    count++;
-                }
-            });
-
-            if (count > 0) {
-                const centerFirstBendPoint = new Point(sumFirstX / count, sumFirstY / count);
-                const centerLastBendPoint = new Point(sumLastX / count, sumLastY / count);
-                angle1 = DiagramUtils.getAngle(point1, centerFirstBendPoint);
-                angle2 = DiagramUtils.getAngle(point2, centerLastBendPoint);
+        for (let iEdge = 0; iEdge < edges.length; iEdge++) {
+            if (2 * iEdge + 1 == edges.length) {
+                this.redrawStraightEdge(edges[iEdge]); // central edge, if present -> straight line
             } else {
-                // Fallback to traditional angle if no bend points found
-                const angle = DiagramUtils.getAngle(point1, point2);
-                angle1 = angle;
-                angle2 = angle + Math.PI;
+                this.redrawEdge(edges[iEdge], iEdge, edges.length);
             }
-        } else {
-            // No bend points: use traditional node-to-node angle
-            const angle = DiagramUtils.getAngle(point1, point2);
-            angle1 = angle;
-            angle2 = angle + Math.PI;
         }
-
-        const nbForks = edges.length;
-        const angleStep = this.svgParameters.getEdgesForkAperture() / (nbForks - 1);
-        let i = 0;
-        edges.forEach((edge) => {
-            if (2 * i + 1 == nbForks) {
-                this.redrawStraightEdge(edge); // central edge, if present -> straight line
-            } else {
-                // get edge type
-                const edgeType = DiagramUtils.getEdgeType(edge);
-                if (edgeType == DiagramUtils.EdgeType.UNKNOWN) {
-                    return;
-                }
-                if (edgeNodes[0] == null || edgeNodes[1] == null) {
-                    // only 1 side of the edge is in the SVG
-                    this.updateSvgElementPosition(edge.svgId, this.getTranslation(position));
-                    return;
-                }
-                // get edge element
-                const edgeNode: SVGGraphicsElement | null = this.svgDiv.querySelector("[id='" + edge.svgId + "']");
-                if (!edgeNode) {
-                    return;
-                }
-                // compute moved edge data: polyline points
-                const alpha = -this.svgParameters.getEdgesForkAperture() / 2 + i * angleStep;
-                const angleFork1 = angle1 - alpha;
-                const angleFork2 = angle2 + alpha;
-                const edgeFork1 = DiagramUtils.getEdgeFork(point1, this.svgParameters.getEdgesForkLength(), angleFork1);
-                const edgeFork2 = DiagramUtils.getEdgeFork(point2, this.svgParameters.getEdgesForkLength(), angleFork2);
-                const unknownBusNode1 = edge.busNode1 != null && edge.busNode1.length == 0;
-                const nodeRadius1 = this.getNodeRadius(edge.busNode1 ?? '-1', edge.node1 ?? '-1');
-                const edgeStart1 = DiagramUtils.getPointAtDistance(
-                    DiagramUtils.getPosition(edgeNodes[0]),
-                    edgeFork1,
-                    unknownBusNode1
-                        ? nodeRadius1[1] + this.svgParameters.getUnknownBusNodeExtraRadius()
-                        : nodeRadius1[1]
-                );
-                const unknownBusNode2 = edge.busNode2 != null && edge.busNode2.length == 0;
-                const nodeRadius2 = this.getNodeRadius(edge.busNode2 ?? '-1', edge.node2 ?? '-1');
-                const edgeStart2 = DiagramUtils.getPointAtDistance(
-                    DiagramUtils.getPosition(edgeNodes[1]),
-                    edgeFork2,
-                    unknownBusNode2
-                        ? nodeRadius2[1] + this.svgParameters.getUnknownBusNodeExtraRadius()
-                        : nodeRadius2[1]
-                );
-
-                let halfEdgePoints1: Point[];
-                let halfEdgePoints2: Point[];
-
-                if (edge.points && edge.points?.length > 0) {
-                    const [forkToMiddle1, forkToMiddle2] = DiagramUtils.getEdgePoints(
-                        edgeFork1,
-                        edgeFork2,
-                        edge.points.slice()
-                    );
-                    halfEdgePoints1 = [edgeStart1, ...forkToMiddle1];
-                    halfEdgePoints2 = [edgeStart2, ...forkToMiddle2];
-                } else {
-                    const edgeMiddle = DiagramUtils.getMidPosition(edgeFork1, edgeFork2);
-                    halfEdgePoints1 = [edgeStart1, edgeFork1, edgeMiddle];
-                    halfEdgePoints2 = [edgeStart2, edgeFork2, edgeMiddle];
-                }
-
-                // redraw edge
-                this.redrawEdge(
-                    edgeNode,
-                    halfEdgePoints1,
-                    halfEdgePoints2,
-                    nodeRadius1,
-                    nodeRadius2,
-                    edgeType,
-                    edge.points != undefined
-                );
-            }
-            i++;
-        });
-        // redraw other voltage level node
-        const otherNode: SVGGraphicsElement | null = this.getOtherNode(edgeNodes, vlNode);
-        this.redrawOtherVoltageLevelNode(otherNode);
     }
 
+    private getHalfEdgeNodeFromEdgeNode(edgeNode: SVGGraphicsElement, side: string): HTMLElement | null {
+        const allPath = edgeNode.querySelectorAll(':scope > polyline.nad-edge-path');
+        return this.getHalfEdgeNodeFromEdgePolylines(allPath, side);
+    }
 
+    private getHalfEdgeNode(edgeId: string, side: string): HTMLElement | null {
+        const allPath = this.svgDiv.querySelectorAll("[id='" + edgeId + "'] > polyline.nad-edge-path");
+        return this.getHalfEdgeNodeFromEdgePolylines(allPath, side);
+    }
+
+    private getHalfEdgeNodeFromEdgePolylines(allPath: NodeListOf<Element>, side: string) {
+        if (!allPath) return null;
+        if (allPath.length > 1) {
+            return allPath.item(side == '1' ? 0 : 1) as HTMLElement;
+        } else {
+            // only one path: half-visible edge, assuming the asked side is the visible one!
+            return allPath.item(0) as HTMLElement;
+        }
+    }
 
     private isThreeWtEdge(edgeType: DiagramUtils.EdgeType, edgeId: string) {
         if (edgeType == DiagramUtils.EdgeType.THREE_WINDINGS_TRANSFORMER) {
@@ -1341,20 +1238,6 @@ export class NetworkAreaDiagramViewer {
             return pst3wtEdge ?? false;
         }
         return false;
-    }
-
-    private getEdgeStart(
-        busNodeId: string | null,
-        outerRadius: number,
-        point1: SVGGraphicsElement | null,
-        point2: SVGGraphicsElement | null
-    ): Point {
-        const unknownBusNode = busNodeId != null && busNodeId.length == 0;
-        return DiagramUtils.getPointAtDistance(
-            DiagramUtils.getPosition(point1),
-            DiagramUtils.getPosition(point2),
-            unknownBusNode ? outerRadius + this.svgParameters.getUnknownBusNodeExtraRadius() : outerRadius
-        );
     }
 
     private redrawStraightEdge(edge: EdgeMetadata) {
@@ -1376,6 +1259,29 @@ export class NetworkAreaDiagramViewer {
         }
     }
 
+    private redrawBranchEdge(edge: EdgeMetadata, halfEdge1: HalfEdge | null, halfEdge2: HalfEdge | null) {
+        const edgeNode: SVGGraphicsElement | null = this.svgDiv.querySelector("[id='" + edge.svgId + "']");
+        if (!edgeNode) return;
+
+        this.redrawHalfEdge(edgeNode, halfEdge1);
+        this.redrawHalfEdge(edgeNode, halfEdge2);
+
+        const edgeType = DiagramUtils.getEdgeType(edge);
+        const isTransformerEdge = DiagramUtils.isTransformerEdge(edgeType);
+        const isHVDCLineEdge =
+            edgeType == DiagramUtils.EdgeType.HVDC_LINE_LCC || edgeType == DiagramUtils.EdgeType.HVDC_LINE_VSC;
+        if (isTransformerEdge) {
+            this.redrawTransformer(edgeNode, halfEdge1, halfEdge2, edgeType);
+        } else if (isHVDCLineEdge) {
+            this.redrawConverterStation(edgeNode, halfEdge1, halfEdge2);
+        }
+
+        // if present, move edge name
+        if (this.svgParameters.getEdgeNameDisplayed()) {
+            this.updateEdgeName(edgeNode, halfEdge1, halfEdge2);
+        }
+    }
+
     private redrawHalfEdge(edgeNode: SVGGraphicsElement, halfEdge: HalfEdge | null) {
         if (!halfEdge) return;
 
@@ -1391,10 +1297,6 @@ export class NetworkAreaDiagramViewer {
         this.redrawEdgeArrowAndLabel(halfEdge);
     }
 
-    private getHalfEdgeNodeFromEdgeNode(edgeNode: SVGGraphicsElement, side: string): HTMLElement | null {
-        const allPath = edgeNode.querySelectorAll(':scope > polyline.nad-edge-path');
-        return this.getHalfEdgeNodeFromEdgePolylines(allPath, side);
-    }
 
     private redrawEdgeArrowAndLabel(halfEdge: HalfEdge) {
         if (!halfEdge.edgeInfoId) {
@@ -2299,7 +2201,7 @@ export class NetworkAreaDiagramViewer {
     private enableLineBending() {
         const linesPointsElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
         linesPointsElement.classList.add('nad-line-points');
-        const bendableEdges = DiagramUtils.getBendableLines(this.diagramMetadata?.edges, this.innerSvg);
+        const bendableEdges = DiagramUtils.getBendableLines(this.diagramMetadata?.edges);
         for (const edge of bendableEdges) {
             if (edge.bendingPoints) {
                 for (let index = 0; index < edge.bendingPoints.length; index++) {
@@ -2346,10 +2248,12 @@ export class NetworkAreaDiagramViewer {
             return;
         }
 
-        this.ctm = this.svgDraw?.node.getScreenCTM(); // used to compute mouse movement
+
+        this.ctm = this.svgDraw?.node.getScreenCTM();
         const mousePosition = this.getMousePosition(event);
 
         const parallelGroup = DiagramUtils.getParallelEdgeGroup(bendableElem.id, this.diagramMetadata?.edges);
+
         if (parallelGroup) {
             this.createParallelEdgeBendPoints(bendableElem, parallelGroup, mousePosition);
         } else {
@@ -2360,90 +2264,13 @@ export class NetworkAreaDiagramViewer {
         }
     }
 
-    private createParallelEdgeBendPoints(
-        bendableElem: SVGElement,
-        parallelGroup: EdgeMetadata[],
-        mousePosition: Point
-    ) {
-        const selectedEdge = parallelGroup.find((e) => e.svgId === bendableElem.id);
-        if (!selectedEdge) {
-            return;
-        }
-
-        this.parallelBentElements = [];
-        this.parallelOffsets.clear();
-
-        // Create the bend point on the master edge at mouse position
-        const pointElement1 = this.addLinePoint(selectedEdge.svgId, -1, mousePosition);
-        this.updateEdgeMetadata(pointElement1 as SVGGraphicsElement, mousePosition, LineOperation.BEND);
-
-        // Get the index of the newly created bend point
-        const masterPointData = this.linePointIndexMap.get(pointElement1.id);
-        if (!masterPointData) {
-            this.initDrag(pointElement1);
-            this.onDragStart();
-            return;
-        }
-
-        // Get adjacent points for the master edge
-        const masterAdjacentPoints = this.getAdjacentPoints(selectedEdge, masterPointData.index);
-        if (!masterAdjacentPoints) {
-            this.initDrag(pointElement1);
-            this.onDragStart();
-            return;
-        }
-
-        // Create parallel bend points on slave edges using line intersection
-        for (const parallelEdge of parallelGroup) {
-            if (parallelEdge.svgId === selectedEdge.svgId) {
-                continue;
-            }
-
-            const pointElement = this.addLinePoint(parallelEdge.svgId, -1, mousePosition);
-            this.updateEdgeMetadata(pointElement as SVGGraphicsElement, mousePosition, LineOperation.BEND);
-
-            const slavePointData = this.linePointIndexMap.get(pointElement.id);
-            if (!slavePointData) {
-                continue;
-            }
-
-            const slaveAdjacentPoints = this.getAdjacentPoints(parallelEdge, slavePointData.index);
-            if (!slaveAdjacentPoints) {
-                continue;
-            }
-
-            const parallelPosition = DiagramUtils.calculateParallelBendPoint(
-                masterAdjacentPoints.prevPoint,
-                mousePosition,
-                masterAdjacentPoints.nextPoint,
-                slaveAdjacentPoints.prevPoint,
-                slaveAdjacentPoints.nextPoint
-            );
-
-            if (!parallelPosition) {
-                continue;
-            }
-
-            this.updateEdgeMetadata(pointElement as SVGGraphicsElement, parallelPosition, LineOperation.BEND);
-
-            this.redrawBentLine(pointElement as SVGGraphicsElement, LineOperation.BEND);
-
-            pointElement.setAttribute('transform', 'translate(' + DiagramUtils.getFormattedPoint(parallelPosition) + ')');
-
-            this.parallelBentElements.push(pointElement as SVGGraphicsElement);
-        }
-
-        this.initDrag(pointElement1);
-        this.onDragStart();
-    }
-
     private onStraightenStart(bendableElem: SVGElement | undefined) {
         if (!bendableElem) {
             return;
         }
         const edgeId = bendableElem.id ? this.linePointIndexMap.get(bendableElem.id)?.edgeId : '-1';
         const edge: EdgeMetadata | undefined = this.diagramMetadata?.edges.find((edge) => edge.svgId == edgeId);
-        if (edge?.points == undefined) {
+        if (edge?.bendingPoints == undefined) {
             return;
         }
         this.disablePanzoom();
@@ -2481,12 +2308,12 @@ export class NetworkAreaDiagramViewer {
             if (node1 && node2) {
                 // insert the point in the list of points
                 const linePoints = DiagramUtils.addPointToList(
-                    edge.points?.slice(),
+                    edge.bendingPoints?.slice(),
                     new Point(node1.x, node1.y),
                     new Point(node2.x, node2.y),
                     position
                 );
-                edge.points = linePoints.linePoints;
+                edge.bendingPoints = linePoints.linePoints;
                 this.linePointIndexMap.set(linePointElement.id, { edgeId: edge.svgId, index: linePoints.index });
 
                 for (const [key, value] of this.linePointIndexMap) {
@@ -2495,28 +2322,28 @@ export class NetworkAreaDiagramViewer {
                     }
                 }
             }
-        } else if (edge.points) {
+        } else if (edge.bendingPoints) {
             // update line point
-            edge.points[index!] = { x: DiagramUtils.round(position.x), y: DiagramUtils.round(position.y) };
+            edge.bendingPoints[index!] = { x: DiagramUtils.round(position.x), y: DiagramUtils.round(position.y) };
         } else {
             // it should not come here, anyway, add the new point
-            edge.points = [{ x: DiagramUtils.round(position.x), y: DiagramUtils.round(position.y) }];
+            edge.bendingPoints = [{ x: DiagramUtils.round(position.x), y: DiagramUtils.round(position.y) }];
         }
     }
 
     private updateEdgeMetadataWhenStraightening(edge: EdgeMetadata, linePointElement: SVGGraphicsElement) {
         const index = this.linePointIndexMap.get(linePointElement.id)?.index ?? -1;
 
-        if (edge.points) {
+        if (edge.bendingPoints) {
             for (const [key, value] of this.linePointIndexMap) {
                 if (key !== linePointElement.id && value.edgeId == edge.svgId && value.index >= index) {
                     value.index--;
                 }
             }
             // delete point
-            edge.points.splice(index, 1);
-            if (edge.points.length == 0) {
-                edge.points = undefined;
+            edge.bendingPoints.splice(index, 1);
+            if (edge.bendingPoints.length == 0) {
+                edge.bendingPoints = undefined;
             }
         }
     }
@@ -2528,47 +2355,26 @@ export class NetworkAreaDiagramViewer {
         // get edge data
         const edgeId = linePoint.id ? this.linePointIndexMap.get(linePoint.id)?.edgeId : '-1';
         const edge: EdgeMetadata | undefined = this.diagramMetadata?.edges.find((edge) => edge.svgId == edgeId);
-        if (!edge || (lineOperation == LineOperation.BEND && !edge.points)) {
-            return;
-        }
+        if (!edge || (lineOperation == LineOperation.BEND && !edge.bendingPoints)) return;
 
         const edgeNode: SVGGraphicsElement | null = this.svgDiv.querySelector("[id='" + edgeId + "']");
-        if (!edgeNode) {
-            return;
-        }
-        const vlNode1: SVGGraphicsElement | null = this.svgDiv.querySelector("[id='" + edge?.node1 + "']");
-        const vlNode2: SVGGraphicsElement | null = this.svgDiv.querySelector("[id='" + edge?.node2 + "']");
-        const edgeType = DiagramUtils.getEdgeType(edge);
-
-        const edgeData = this.getEdgeData(edge);
+        if (!edgeNode) return;
 
         const parallelGroup = DiagramUtils.getParallelEdgeGroup(edge.svgId, this.diagramMetadata?.edges);
 
         if (parallelGroup) {
-            this.redrawForkEdge(parallelGroup, vlNode1 ?? vlNode2!);
+            this.redrawEdgeGroup(parallelGroup);
         } else {
-            // bend line
-            this.redrawEdge(
-                edgeNode,
-                edgeData.edgePoints
-                    ? edgeData.edgePoints[0]
-                    : [edgeData.edgeStartPoints[0], edgeData.edgeMiddle],
-                edgeData.edgePoints
-                    ? edgeData.edgePoints[1]
-                    : [edgeData.edgeStartPoints[1], edgeData.edgeMiddle],
-                edgeData.nodeRadius1,
-                edgeData.nodeRadius2,
-                edgeType,
-                edge.points != undefined
-            );
+            const halfEdges = this.getHalfEdges(edge, 0, 1);
+            this.redrawBranchEdge(edge, halfEdges[0], halfEdges[1]);
         }
 
-        this.redrawOtherVoltageLevelNode(vlNode1);
-        this.redrawOtherVoltageLevelNode(vlNode2);
-        if (edge.points && lineOperation == LineOperation.BEND) {
+        this.redrawBothVoltageLevelNodes(edge);
+
+        if (edge.bendingPoints && lineOperation == LineOperation.BEND) {
             // move line point
             const index = this.linePointIndexMap.get(linePoint.id)?.index ?? 0;
-            const position: Point = new Point(edge.points[index].x, edge.points[index].y);
+            const position: Point = new Point(edge.bendingPoints[index].x, edge.bendingPoints[index].y);
             this.updateNodePosition(linePoint, position);
         } else {
             linePoint.remove();
@@ -2591,6 +2397,27 @@ export class NetworkAreaDiagramViewer {
         this.enablePanzoom();
     }
 
+    private getHalfEdges(edge: EdgeMetadata, iEdge: number, groupedEdgesCount: number) {
+        // Detect if the edge is linked to an invisible node (not in DOM)
+        const invisibleSide = DiagramUtils.getInvisibleSide(edge, this.innerSvg);
+
+        if (!invisibleSide) {
+            return DiagramUtils.getHalfEdges(edge, iEdge, groupedEdgesCount, this.diagramMetadata, this.svgParameters);
+        } else {
+            const visibleSide = invisibleSide == '1' ? '2' : '1';
+            const halfEdgeElement = this.getHalfEdgeNode(edge.svgId, visibleSide);
+            return DiagramUtils.getHalfVisibleHalfEdges(
+                halfEdgeElement,
+                edge,
+                visibleSide,
+                groupedEdgesCount > 1,
+                this.diagramMetadata,
+                this.initialPosition,
+                this.svgParameters
+            );
+        }
+    }
+
     private straightEndUpdateLines(
         element: SVGGraphicsElement,
         position: Point | null,
@@ -2601,139 +2428,14 @@ export class NetworkAreaDiagramViewer {
         this.callBendLineCallback(element, operation);
     }
 
-    private updateParallelElements(mousePosition: Point, operation: LineOperation): void {
-        // Get master edge data
-        if (!this.draggedElement) {
-            return;
-        }
-
-        const masterPointData = this.linePointIndexMap.get(this.draggedElement.id);
-        if (!masterPointData) {
-            return;
-        }
-
-        const masterEdge = this.diagramMetadata?.edges.find(
-            (edge) => edge.svgId === masterPointData.edgeId
-        );
-
-        if (!masterEdge || masterPointData.index === undefined) {
-            return;
-        }
-
-        // Get adjacent points for master edge
-        const masterAdjacentPoints = this.getAdjacentPoints(masterEdge, masterPointData.index);
-        if (!masterAdjacentPoints) {
-            return;
-        }
-
-        // Update each parallel element
-        for (const parallelElement of this.parallelBentElements) {
-            const slavePointData = this.linePointIndexMap.get(parallelElement.id);
-            if (!slavePointData) {
-                continue;
-            }
-
-            const slaveEdge = this.diagramMetadata?.edges.find(
-                (edge) => edge.svgId === slavePointData.edgeId
-            );
-
-            if (!slaveEdge || slavePointData.index === undefined) {
-                continue;
-            }
-
-            // Get adjacent points for slave edge
-            const slaveAdjacentPoints = this.getAdjacentPoints(slaveEdge, slavePointData.index);
-            if (!slaveAdjacentPoints) {
-                continue;
-            }
-
-            // Calculate parallel bend point using line intersection
-            const parallelPosition = DiagramUtils.calculateParallelBendPoint(
-                masterAdjacentPoints.prevPoint,
-                mousePosition,
-                masterAdjacentPoints.nextPoint,
-                slaveAdjacentPoints.prevPoint,
-                slaveAdjacentPoints.nextPoint
-            );
-
-            if (parallelPosition) {
-                this.updateEdgeMetadata(parallelElement, parallelPosition, operation);
-                this.redrawBentLine(parallelElement, operation);
-            }
-        }
-    }
-
-    private getAdjacentPoints(
-        edge: EdgeMetadata,
-        bendPointIndex: number
-    ): { prevPoint: Point; nextPoint: Point } | null {
-        const halfEdge1 = this.svgDiv.querySelector(`[id='${edge.svgId}.1']`);
-        const halfEdge2 = this.svgDiv.querySelector(`[id='${edge.svgId}.2']`);
-
-        if (!halfEdge1 || !halfEdge2) {
-            return null;
-        }
-
-        const polyline1 = halfEdge1.querySelector('polyline');
-        const polyline2 = halfEdge2.querySelector('polyline');
-
-        if (!polyline1 || !polyline2) {
-            return null;
-        }
-
-        const points1 = DiagramUtils.getPolylinePoints(<HTMLElement>(<unknown>polyline1));
-        const points2 = DiagramUtils.getPolylinePoints(<HTMLElement>(<unknown>polyline2));
-
-        if (!points1 || !points2 || points1.length < 2 || points2.length < 2) {
-            return null;
-        }
-
-        // Structure: [edgeStart, edgeFork, ...bendPoints, middle]
-        // We skip edgeStart (index 0) and start from edgeFork (index 1)
-        // For side 1: [edgeStart1, edgeFork1, bend1, bend2, ..., middle]
-        // For side 2: [edgeStart2, edgeFork2, bendN, bendN-1, ..., middle] (reversed)
-
-        const forkPoint1 = points1[1];
-        const forkPoint2 = points2[1];
-
-        if (!edge.points || edge.points.length === 0) {
-            return { prevPoint: forkPoint1, nextPoint: forkPoint2 };
-        }
-
-        // Calculate which polyline points correspond to which bend points
-        // Side 1 goes: fork -> bend[0] -> bend[1] -> ... -> middle
-        // Side 2 goes: fork -> bend[N-1] -> bend[N-2] -> ... -> middle
-
-        let prevPoint: Point;
-        let nextPoint: Point;
-
-        if (bendPointIndex === 0) {
-            // First bend point: previous is fork point from side 1
-            prevPoint = forkPoint1;
-        } else {
-            // Previous is the bend point before
-            prevPoint = new Point(edge.points[bendPointIndex - 1].x, edge.points[bendPointIndex - 1].y);
-        }
-
-        if (bendPointIndex >= edge.points.length - 1) {
-            // Last bend point: next is fork point from side 2
-            nextPoint = forkPoint2;
-        } else {
-            // Next is the bend point after
-            nextPoint = new Point(edge.points[bendPointIndex + 1].x, edge.points[bendPointIndex + 1].y);
-        }
-
-        return { prevPoint, nextPoint };
-    }
-
     private callBendLineCallback(linePointElement: SVGGraphicsElement, lineOperation: LineOperation) {
         if (this.onBendLineCallback) {
             const edge: EdgeMetadata | undefined = this.diagramMetadata?.edges.find(
                 (edge) => edge.svgId == this.linePointIndexMap.get(linePointElement.id)?.edgeId
             );
             if (edge) {
-                const linePoints: Point[] | null = edge.points
-                    ? edge.points.map((point) => new Point(point.x, point.y))
+                const linePoints: Point[] | null = edge.bendingPoints
+                    ? edge.bendingPoints.map((point) => new Point(point.x, point.y))
                     : null;
                 this.onBendLineCallback(
                     edge.svgId,
@@ -2780,113 +2482,288 @@ export class NetworkAreaDiagramViewer {
         }
     }
 
-    private getEdgeData(edge: EdgeMetadata): {
-        edgeStartPoints: Point[];
-        edgeMiddle: Point;
-        nodeRadius1: [number, number, number];
-        nodeRadius2: [number, number, number];
-        edgePoints: Point[][] | undefined;
-    } {
-        const edgeStartPoints = this.getEdgeStartPoints(edge);
-        if (!edgeStartPoints) {
-            return {
-                edgeStartPoints: [],
-                edgeMiddle: new Point(0, 0),
-                nodeRadius1: [0, 0, 0],
-                nodeRadius2: [0, 0, 0],
-                edgePoints: undefined,
-            };
-        }
-
-        const edgeMiddle = DiagramUtils.getMidPosition(edgeStartPoints[0], edgeStartPoints[1]);
-        const nodeRadius1 = this.getNodeRadius(edge.busNode1 ?? '-1', edge.node1 ?? '-1');
-        const nodeRadius2 = this.getNodeRadius(edge.busNode2 ?? '-1', edge.node2 ?? '-1');
-        const edgePoints = edge.points
-            ? DiagramUtils.getEdgePoints(edgeStartPoints[0], edgeStartPoints[1], edge.points.slice())
-            : undefined;
-
-        return {
-            edgeStartPoints,
-            edgeMiddle,
-            nodeRadius1,
-            nodeRadius2,
-            edgePoints,
-        };
-    }
-
-    private getEdgeEndpoints(edge: EdgeMetadata): [Point, Point] | null {
-        const parallelGroup = DiagramUtils.getParallelEdgeGroup(edge.svgId, this.diagramMetadata?.edges);
-
-        if (parallelGroup) {
-            // Fork edge: read fork points from rendered SVG
-            const halfEdge1 = this.svgDiv.querySelector(`[id='${edge.svgId}.1']`);
-            const halfEdge2 = this.svgDiv.querySelector(`[id='${edge.svgId}.2']`);
-
-            if (!halfEdge1 || !halfEdge2) {
-                return null;
-            }
-
-            const polyline1 = halfEdge1.querySelector('polyline');
-            const polyline2 = halfEdge2.querySelector('polyline');
-
-            if (!polyline1 || !polyline2) {
-                return null;
-            }
-
-            const points1 = DiagramUtils.getPolylinePoints(<HTMLElement>(<unknown>polyline1));
-            const points2 = DiagramUtils.getPolylinePoints(<HTMLElement>(<unknown>polyline2));
-
-            if (!points1 || !points2 || points1.length < 2 || points2.length < 2) {
-                return null;
-            }
-
-            const forkPoint1 = points1[1];
-            const forkPoint2 = points2[1];
-
-            return [forkPoint1, forkPoint2];
-        } else {
-            // Non-fork edge: use voltage level centers
-            const node1 = this.diagramMetadata?.nodes.find((node) => node.svgId == edge.node1);
-            const node2 = this.diagramMetadata?.nodes.find((node) => node.svgId == edge.node2);
-
-            if (!node1 || !node2) {
-                return null;
-            }
-
-            return [new Point(node1.x, node1.y), new Point(node2.x, node2.y)];
-        }
-    }
 
     private calculateEdgeSegmentMidpoints(edge: EdgeMetadata): Point[] {
+        // Sécurité de base
         if (!edge.node1 || !edge.node2) return [];
 
-        const endpoints = this.getEdgeEndpoints(edge);
-        if (!endpoints) return [];
+        let iEdge = 0;
+        let nbGroupedEdges = 1;
+        const parallelGroup = DiagramUtils.getParallelEdgeGroup(edge.svgId, this.diagramMetadata?.edges);
 
-        const [startPoint, endPoint] = endpoints;
+        if (parallelGroup && parallelGroup.length > 1) {
+            nbGroupedEdges = parallelGroup.length;
+            const sortedGroup = parallelGroup.sort((a, b) => a.svgId.localeCompare(b.svgId));
+            iEdge = sortedGroup.findIndex(e => e.svgId === edge.svgId);
+        }
+
+        const halfEdges = this.getHalfEdges(edge, iEdge, nbGroupedEdges);
+
+        if (!halfEdges[0] || !halfEdges[1]) return [];
+
+
+        const startPoint = (nbGroupedEdges > 1 && halfEdges[0].edgePoints.length > 1)
+            ? halfEdges[0].edgePoints[1]
+            : halfEdges[0].edgePoints[0];
+
+        const endPoint = (nbGroupedEdges > 1 && halfEdges[1].edgePoints.length > 1)
+            ? halfEdges[1].edgePoints[1]
+            : halfEdges[1].edgePoints[0];
+
         const midpoints: Point[] = [];
 
-        if (edge.points && edge.points.length > 0) {
-            // First segment: startPoint -> first bend point
-            midpoints.push(DiagramUtils.getMidPosition(startPoint, new Point(edge.points[0].x, edge.points[0].y)));
+        if (edge.bendingPoints && edge.bendingPoints.length > 0) {
+            midpoints.push(
+                DiagramUtils.getMidPosition(startPoint, new Point(edge.bendingPoints[0].x, edge.bendingPoints[0].y))
+            );
 
-            // Segments between bend points
-            for (let i = 0; i < edge.points.length - 1; i++) {
-                const current = new Point(edge.points[i].x, edge.points[i].y);
-                const next = new Point(edge.points[i + 1].x, edge.points[i + 1].y);
+            for (let i = 0; i < edge.bendingPoints.length - 1; i++) {
+                const current = new Point(edge.bendingPoints[i].x, edge.bendingPoints[i].y);
+                const next = new Point(edge.bendingPoints[i + 1].x, edge.bendingPoints[i + 1].y);
                 midpoints.push(DiagramUtils.getMidPosition(current, next));
             }
 
-            // Last segment: last bend point -> endPoint
-            const lastBend = new Point(edge.points.at(-1)!.x, edge.points.at(-1)!.y);
+            const lastBend = new Point(edge.bendingPoints.at(-1)!.x, edge.bendingPoints.at(-1)!.y);
             midpoints.push(DiagramUtils.getMidPosition(lastBend, endPoint));
         } else {
-            // No bend points: single segment from start to end
+
             midpoints.push(DiagramUtils.getMidPosition(startPoint, endPoint));
         }
 
         return midpoints;
     }
+
+
+
+    private createParallelEdgeBendPoints(
+        bendableElem: SVGElement,
+        parallelGroup: EdgeMetadata[],
+        mousePosition: Point
+    ) {
+        console.log('[DEBUG] createParallelEdgeBendPoints: Starting with', parallelGroup.length, 'edges in group');
+
+        const selectedEdge = parallelGroup.find((e) => e.svgId === bendableElem.id);
+        if (!selectedEdge) {
+            console.log('[DEBUG] createParallelEdgeBendPoints: Selected edge not found in group!');
+            return;
+        }
+
+        this.parallelBentElements = [];
+        this.parallelOffsets.clear();
+
+        // Create the master bend point
+        const pointElement1 = this.addLinePoint(selectedEdge.svgId, -1, mousePosition);
+        this.updateEdgeMetadata(pointElement1 as SVGGraphicsElement, mousePosition, LineOperation.BEND);
+
+        const masterPointData = this.linePointIndexMap.get(pointElement1.id);
+        if (!masterPointData) {
+            this.initDrag(pointElement1);
+            this.onDragStart();
+            return;
+        }
+
+        const masterAdjacentPoints = this.getAdjacentPoints(selectedEdge, masterPointData.index);
+        if (!masterAdjacentPoints) {
+            this.initDrag(pointElement1);
+            this.onDragStart();
+            return;
+        }
+
+        // Create bend points for all parallel lines
+        let parallelCount = 0;
+        for (const parallelEdge of parallelGroup) {
+            if (parallelEdge.svgId === selectedEdge.svgId) {
+                continue;
+            }
+
+            const pointElement = this.addLinePoint(parallelEdge.svgId, -1, mousePosition);
+            this.updateEdgeMetadata(pointElement as SVGGraphicsElement, mousePosition, LineOperation.BEND);
+
+            const slavePointData = this.linePointIndexMap.get(pointElement.id);
+            if (!slavePointData) {
+                continue;
+            }
+
+            const slaveAdjacentPoints = this.getAdjacentPoints(parallelEdge, slavePointData.index);
+            if (!slaveAdjacentPoints) {
+                continue;
+            }
+
+            // Calculate the parallel position
+            const parallelPosition = DiagramUtils.calculateParallelBendPoint(
+                masterAdjacentPoints.prevPoint,
+                mousePosition,
+                masterAdjacentPoints.nextPoint,
+                slaveAdjacentPoints.prevPoint,
+                slaveAdjacentPoints.nextPoint
+            );
+
+            if (parallelPosition) {
+                // Update metadata with the calculated position
+                this.updateEdgeMetadata(pointElement as SVGGraphicsElement, parallelPosition, LineOperation.BEND);
+                // Update visual position
+                pointElement.setAttribute('transform', 'translate(' + DiagramUtils.getFormattedPoint(parallelPosition) + ')');
+                // Add to parallel elements for drag tracking
+                this.parallelBentElements.push(pointElement as SVGGraphicsElement);
+                parallelCount++;
+            }
+        }
+
+
+        // Redraw all parallel lines together (single redraw for the entire group)
+        this.redrawEdgeGroup(parallelGroup);
+
+        // Initialize drag for the master element
+        this.initDrag(pointElement1);
+        this.onDragStart();
+    }
+
+    private updateParallelElements(mousePosition: Point, operation: LineOperation): void {
+        if (!this.draggedElement) {
+            return;
+        }
+
+        const masterPointData = this.linePointIndexMap.get(this.draggedElement.id);
+        if (!masterPointData) {
+            return;
+        }
+
+        const masterEdge = this.diagramMetadata?.edges.find(
+            (edge) => edge.svgId === masterPointData.edgeId
+        );
+
+        if (!masterEdge || masterPointData.index === undefined) {
+            return;
+        }
+
+        // Recalculate master adjacent points (they may have moved if other bend points exist)
+        const masterAdjacentPoints = this.getAdjacentPoints(masterEdge, masterPointData.index);
+        if (!masterAdjacentPoints) {
+            return;
+        }
+
+        const parallelGroup = DiagramUtils.getParallelEdgeGroup(masterEdge.svgId, this.diagramMetadata?.edges);
+        const updatedEdges: EdgeMetadata[] = [];
+
+        // Update metadata for all parallel elements
+        for (const parallelElement of this.parallelBentElements) {
+            const slavePointData = this.linePointIndexMap.get(parallelElement.id);
+            if (!slavePointData) {
+                continue;
+            }
+
+            const slaveEdge = this.diagramMetadata?.edges.find(
+                (edge) => edge.svgId === slavePointData.edgeId
+            );
+
+            if (!slaveEdge || slavePointData.index === undefined) {
+                continue;
+            }
+
+            const slaveAdjacentPoints = this.getAdjacentPoints(slaveEdge, slavePointData.index);
+            if (!slaveAdjacentPoints) {
+                continue;
+            }
+
+            // Calculate the ideal position for the slave point
+            const parallelPosition = DiagramUtils.calculateParallelBendPoint(
+                masterAdjacentPoints.prevPoint,
+                mousePosition,
+                masterAdjacentPoints.nextPoint,
+                slaveAdjacentPoints.prevPoint,
+                slaveAdjacentPoints.nextPoint
+            );
+
+            if (parallelPosition) {
+                // Update metadata
+                this.updateEdgeMetadata(parallelElement, parallelPosition, operation);
+                // Update visual position of the bend point element
+                this.updateNodePosition(parallelElement, parallelPosition);
+
+                if (!updatedEdges.includes(slaveEdge)) {
+                    updatedEdges.push(slaveEdge);
+                }
+            }
+        }
+
+        // Redraw the entire parallel group once instead of redrawing each line individually
+        if (parallelGroup) {
+            this.redrawEdgeGroup(parallelGroup);
+            // Redraw voltage level nodes at both ends
+            if (masterEdge) {
+                this.redrawBothVoltageLevelNodes(masterEdge);
+            }
+        }
+    }
+
+  private getAdjacentPoints(
+    edge: EdgeMetadata,
+    bendPointIndex: number
+  ): { prevPoint: Point; nextPoint: Point } | null {
+    const edgeGroup = this.svgDiv.querySelector(`[id='${edge.svgId}']`);
+    if (!edgeGroup) {
+      return null;
+    }
+
+    const polylines = edgeGroup.querySelectorAll('polyline');
+
+    if (polylines.length < 2) {
+      return null;
+    }
+
+    const points1 = DiagramUtils.getPolylinePoints(<HTMLElement><unknown>polylines[0]);
+    const points2 = DiagramUtils.getPolylinePoints(<HTMLElement><unknown>polylines[1]);
+
+    if (!points1 || !points2 || points1.length < 2 || points2.length < 2) {
+      return null;
+    }
+
+    let anchor1 = points1[1];
+    let anchor2 = points2[1];
+
+    const isCollapsed = Math.abs(anchor1.x - anchor2.x) < 0.1 && Math.abs(anchor1.y - anchor2.y) < 0.1;
+
+    if (isCollapsed) {
+      const tempEdge = { ...edge, bendingPoints: undefined };
+
+      let iEdge = 0;
+      let nbGroupedEdges = 1;
+      const parallelGroup = DiagramUtils.getParallelEdgeGroup(edge.svgId, this.diagramMetadata?.edges);
+      if (parallelGroup && parallelGroup.length > 1) {
+        nbGroupedEdges = parallelGroup.length;
+        const sortedGroup = parallelGroup.sort((a, b) => a.svgId.localeCompare(b.svgId));
+        iEdge = sortedGroup.findIndex(e => e.svgId === edge.svgId);
+      }
+
+      const halfEdges = this.getHalfEdges(tempEdge, iEdge, nbGroupedEdges);
+
+      if (halfEdges[0] && halfEdges[1]) {
+        anchor1 = halfEdges[0].edgePoints.length > 1 ? halfEdges[0].edgePoints[1] : halfEdges[0].edgePoints[0];
+        anchor2 = halfEdges[1].edgePoints.length > 1 ? halfEdges[1].edgePoints[1] : halfEdges[1].edgePoints[0];
+      }
+    }
+
+    if (!edge.bendingPoints || edge.bendingPoints.length === 0) {
+      return { prevPoint: anchor1, nextPoint: anchor2 };
+    }
+
+    let prevPoint: Point;
+    let nextPoint: Point;
+
+    if (bendPointIndex === 0) {
+      prevPoint = anchor1;
+    } else {
+      prevPoint = new Point(edge.bendingPoints[bendPointIndex - 1].x, edge.bendingPoints[bendPointIndex - 1].y);
+    }
+
+    if (bendPointIndex >= edge.bendingPoints.length - 1) {
+      nextPoint = anchor2;
+    } else {
+      nextPoint = new Point(edge.bendingPoints[bendPointIndex + 1].x, edge.bendingPoints[bendPointIndex + 1].y);
+    }
+
+    return { prevPoint, nextPoint };
+  }
 
     private getParallelPointElements(pointElement: SVGGraphicsElement, edgeId: string): SVGGraphicsElement[] {
         const parallelElements: SVGGraphicsElement[] = [];
