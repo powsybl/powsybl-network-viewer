@@ -95,7 +95,7 @@ export function isBendable(element: SVGElement): boolean {
     return element.classList.contains('nad-line-point');
 }
 
-export function getBendableLines(edges: EdgeMetadata[] | undefined, svg: SVGElement | undefined): EdgeMetadata[] {
+export function getBendableLines(edges: EdgeMetadata[] | undefined): EdgeMetadata[] {
     // group edges by edge ends
     const groupedEdges: Map<string, EdgeMetadata[]> = new Map<string, EdgeMetadata[]>();
     for (const edge of edges ?? []) {
@@ -111,20 +111,8 @@ export function getBendableLines(edges: EdgeMetadata[] | undefined, svg: SVGElem
         }
     }
     const lines: EdgeMetadata[] = [];
-    // filter edges
     for (const edgeGroup of groupedEdges.values()) {
-        const edge = edgeGroup[0];
-
-        // exclude parallel edges
-        if (edgeGroup.length > 1) continue;
-
-        // exclude edges that are not lines
-        if (getEdgeType(edge) != EdgeType.LINE) continue;
-
-        // exclude half-visible lines
-        if (getInvisibleSide(edge, svg)) continue;
-
-        lines.push(edge);
+        lines.push(...edgeGroup);
     }
     return lines;
 }
@@ -169,6 +157,100 @@ export function createLinePointElement(
         linePointIndexMap.set(linePointElement.id, { edgeId: edgeId, index: index });
     }
     return linePointElement;
+}
+
+export function getParallelEdgeGroup(edgeId: string, edges: EdgeMetadata[] | undefined): EdgeMetadata[] | undefined {
+    const edge = edges?.find((e) => e.svgId === edgeId);
+    if (!edge || edge.node1 === edge.node2) {
+        return undefined;
+    }
+
+    const groupId = getGroupedEdgesIndexKey(edge);
+    const group = edges?.filter((e) => {
+        if (e.node1 === e.node2) return false; // Exclude loops
+        return getGroupedEdgesIndexKey(e) === groupId;
+    });
+    return group && group.length > 1 ? group : undefined;
+}
+
+/**
+ * Calculate the intersection point of two lines defined by point + direction.
+ * Line 1: passes through p1 with direction dir1
+ * Line 2: passes through p2 with direction dir2
+ * @returns The intersection point, or null if lines are parallel
+ */
+export function calculateLineIntersection(p1: Point, dir1: Point, p2: Point, dir2: Point): Point | null {
+    const denominator = dir1.x * dir2.y - dir1.y * dir2.x;
+
+    // If denominator is 0, lines are parallel
+    if (Math.abs(denominator) < 1e-10) {
+        return null;
+    }
+
+    const dx = p2.x - p1.x;
+    const dy = p2.y - p1.y;
+
+    const t = (dx * dir2.y - dy * dir2.x) / denominator;
+
+    return new Point(p1.x + t * dir1.x, p1.y + t * dir1.y);
+}
+
+/**
+ * Calculate the parallel bend point position for a slave line.
+ * The slave point must maintain parallelism with the master line segments.
+ */
+export function calculateParallelBendPoint(
+    masterPrevPoint: Point,
+    masterBendPoint: Point,
+    masterNextPoint: Point,
+    slavePrevPoint: Point,
+    slaveNextPoint: Point
+): Point | null {
+    // Direction from master prev to master bend (Vector 1)
+    const dir1 = new Point(masterBendPoint.x - masterPrevPoint.x, masterBendPoint.y - masterPrevPoint.y);
+
+    // Direction from master bend to master next (Vector 2)
+    const dir2 = new Point(masterNextPoint.x - masterBendPoint.x, masterNextPoint.y - masterBendPoint.y);
+
+    const intersection = calculateLineIntersection(slavePrevPoint, dir1, slaveNextPoint, dir2);
+
+    if (!intersection) {
+        return calculateOffset(masterBendPoint, slavePrevPoint, masterPrevPoint);
+    }
+
+    if (!isValidParallelPoint(intersection, masterBendPoint, slavePrevPoint, masterPrevPoint)) {
+        return calculateOffset(masterBendPoint, slavePrevPoint, masterPrevPoint);
+    }
+
+    return intersection;
+}
+
+function isValidParallelPoint(
+    calculatedPoint: Point,
+    masterBendPoint: Point,
+    slavePrevPoint: Point,
+    masterPrevPoint: Point
+): boolean {
+    // 1. Check that the point is not too far from master bend point
+    // The distance should be similar to the distance between slave and master reference points
+    const referenceDistance = getDistance(slavePrevPoint, masterPrevPoint);
+    const calculatedDistance = getDistance(calculatedPoint, masterBendPoint);
+
+    const maxAllowedDistance = Math.max(referenceDistance * 3, 500);
+    if (calculatedDistance > maxAllowedDistance) {
+        return false;
+    }
+    // 3. Check for NaN or Infinity values
+    return !(!isFinite(calculatedPoint.x) || !isFinite(calculatedPoint.y));
+}
+
+function calculateOffset(masterPoint: Point, slaveReferencePoint: Point, masterReferencePoint: Point): Point {
+    // Calculate offset between slave and master at reference points
+    const offsetX = slaveReferencePoint.x - masterReferencePoint.x;
+    const offsetY = slaveReferencePoint.y - masterReferencePoint.y;
+
+    // Apply same offset to master bend point
+    return new Point(masterPoint.x + offsetX, masterPoint.y + offsetY);
 }
 
 export function getBendableLineFrom(element: SVGElement, bendableIds: string[]): SVGElement | undefined {
@@ -263,36 +345,63 @@ export function getEdgePoints(
         return [edgePoints1, edgePoints2];
     }
 
-    const pointsMetadata = bendingPoints.slice();
-    pointsMetadata.splice(0, 0, { x: edgeStart1.x, y: edgeStart1.y });
-    pointsMetadata.push({ x: edgeStart2.x, y: edgeStart2.y });
-    let distance = 0;
-    for (let i = 0; i < pointsMetadata.length - 1; i++) {
-        distance += getDistance(
-            new Point(pointsMetadata[i].x, pointsMetadata[i].y),
-            new Point(pointsMetadata[i + 1].x, pointsMetadata[i + 1].y)
-        );
+    // Build the full list of points including fork points and bending points
+    const allPoints: Point[] = [];
+
+    // Start with edgeStart1
+    allPoints.push(edgeStart1);
+
+    // Add fork point 1 if present
+    if (edgeFork1) {
+        allPoints.push(edgeFork1);
     }
-    const halfEdgePoints1: Point[] = [new Point(pointsMetadata[0].x, pointsMetadata[0].y)];
+
+    // Add all bending points
+    for (const bp of bendingPoints) {
+        allPoints.push(new Point(bp.x, bp.y));
+    }
+
+    // Add fork point 2 if present
+    if (edgeFork2) {
+        allPoints.push(edgeFork2);
+    }
+
+    // End with edgeStart2
+    allPoints.push(edgeStart2);
+
+    // Calculate total distance
+    let totalDistance = 0;
+    for (let i = 0; i < allPoints.length - 1; i++) {
+        totalDistance += getDistance(allPoints[i], allPoints[i + 1]);
+    }
+
+    // Split at midpoint
+    const halfEdgePoints1: Point[] = [allPoints[0]];
     const halfEdgePoints2: Point[] = [];
     let partialDistance = 0;
-    let middleAdded: boolean = false;
-    for (let i = 0; i < pointsMetadata.length - 1; i++) {
-        const point = new Point(pointsMetadata[i].x, pointsMetadata[i].y);
-        const nextPoint = new Point(pointsMetadata[i + 1].x, pointsMetadata[i + 1].y);
-        partialDistance += getDistance(point, nextPoint);
-        if (partialDistance < distance / 2) {
-            halfEdgePoints1.push(nextPoint);
+    let middleAdded = false;
+
+    for (let i = 0; i < allPoints.length - 1; i++) {
+        const segmentDistance = getDistance(allPoints[i], allPoints[i + 1]);
+        partialDistance += segmentDistance;
+
+        if (partialDistance < totalDistance / 2) {
+            halfEdgePoints1.push(allPoints[i + 1]);
         } else {
             if (!middleAdded) {
-                const edgeMiddle = getPointAtDistance(nextPoint, point, partialDistance - distance / 2);
+                const edgeMiddle = getPointAtDistance(
+                    allPoints[i + 1],
+                    allPoints[i],
+                    partialDistance - totalDistance / 2
+                );
                 halfEdgePoints1.push(edgeMiddle);
                 halfEdgePoints2.push(edgeMiddle);
                 middleAdded = true;
             }
-            halfEdgePoints2.push(nextPoint);
+            halfEdgePoints2.push(allPoints[i + 1]);
         }
     }
+
     return [halfEdgePoints1, halfEdgePoints2.reverse()];
 }
 
@@ -594,22 +703,6 @@ export function getFragmentedAnnulusPath(
     nodeHollowWidth: number
 ): string {
     let path: string = '';
-    if (angles.length == 0) {
-        path =
-            'M' +
-            getCirclePath(busNodeRadius[1], 0, Math.PI, true) +
-            ' M' +
-            getCirclePath(busNodeRadius[1], Math.PI, 0, true);
-        if (busNodeRadius[0] > 0) {
-            // going the other way around (counter-clockwise) to subtract the inner circle
-            path +=
-                ' M' +
-                getCirclePath(busNodeRadius[0], 0, Math.PI, false) +
-                ' M' +
-                getCirclePath(busNodeRadius[0], Math.PI, 0, false);
-        }
-        return path;
-    }
     const halfWidth = nodeHollowWidth / 2;
     const deltaAngle0 = halfWidth / busNodeRadius[1];
     const deltaAngle1 = halfWidth / busNodeRadius[0];
@@ -822,7 +915,8 @@ export function getHalfEdges(
     iEdge: number,
     groupedEdgesCount: number,
     diagramMetadata: DiagramMetadata | null,
-    svgParameters: SvgParameters
+    svgParameters: SvgParameters,
+    parallelEdges?: EdgeMetadata[]
 ): HalfEdge[] | null[] {
     const edgeType = getEdgeType(edge);
     const busNode1 = getBusNodeMetadata(edge.busNode1, diagramMetadata);
@@ -838,11 +932,43 @@ export function getHalfEdges(
     let edgeFork1: Point | undefined;
     let edgeFork2: Point | undefined;
     if (groupedEdgesCount > 1) {
-        const angle = getAngle(point1, point2);
+        // Calculate reference angles for forks
+        let referenceAngle1: number;
+        let referenceAngle2: number;
+
+        // Check if any parallel edge has bending points
+        const edgesWithBendPoints = parallelEdges?.filter((e) => e.bendingPoints && e.bendingPoints.length > 0);
+
+        if (edgesWithBendPoints && edgesWithBendPoints.length > 0) {
+            // Calculate centroid of first bend points
+            let sumFirstX = 0,
+                sumFirstY = 0;
+            let sumLastX = 0,
+                sumLastY = 0;
+
+            for (const e of edgesWithBendPoints) {
+                sumFirstX += e.bendingPoints![0].x;
+                sumFirstY += e.bendingPoints![0].y;
+                sumLastX += e.bendingPoints![e.bendingPoints!.length - 1].x;
+                sumLastY += e.bendingPoints![e.bendingPoints!.length - 1].y;
+            }
+
+            const count = edgesWithBendPoints.length;
+            const centerFirstBendPoint = new Point(sumFirstX / count, sumFirstY / count);
+            const centerLastBendPoint = new Point(sumLastX / count, sumLastY / count);
+
+            referenceAngle1 = getAngle(point1, centerFirstBendPoint);
+            referenceAngle2 = getAngle(point2, centerLastBendPoint);
+        } else {
+            // No bending points - use voltage level to voltage level angle
+            referenceAngle1 = getAngle(point1, point2);
+            referenceAngle2 = referenceAngle1 + Math.PI;
+        }
+
         const angleStep = svgParameters.getEdgesForkAperture() / (groupedEdgesCount - 1);
         const alpha = -svgParameters.getEdgesForkAperture() / 2 + iEdge * angleStep;
-        const angleFork1 = angle - alpha;
-        const angleFork2 = angle + Math.PI + alpha;
+        const angleFork1 = referenceAngle1 - alpha;
+        const angleFork2 = referenceAngle2 + alpha;
         edgeFork1 = getEdgeFork(point1, svgParameters.getEdgesForkLength(), angleFork1);
         edgeFork2 = getEdgeFork(point2, svgParameters.getEdgesForkLength(), angleFork2);
     }
