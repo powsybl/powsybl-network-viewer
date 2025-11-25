@@ -102,6 +102,12 @@ export interface NadViewerParametersOptions {
 
     // Size in pixel of the margin that is added to hoverable objects to help the user stay over them.
     hoverPositionPrecision?: number | null;
+
+    // Whether enabling adaptive zoom
+    enableAdaptiveZoom?: boolean;
+
+    // Threshold for the adaptiveZoom.
+    adaptiveZoomThreshold?: number;
 }
 
 export class NadViewerParameters {
@@ -114,6 +120,8 @@ export class NadViewerParameters {
     static readonly ZOOM_LEVELS_DEFAULT = [0, 1000, 2200, 2500, 3000, 4000, 9000, 12000, 20000];
     static readonly ADD_BUTTONS_DEFAULT = false;
     static readonly HOVER_POSITION_PRECISION_DEFAULT = 10;
+    static readonly ENABLE_ADAPTIVE_ZOOM_DEFAULT = false;
+    static readonly THRESHOLD_ADAPTIVE_ZOOM_DEFAULT = 3000;
 
     nadViewerParametersOptions: NadViewerParametersOptions | undefined;
 
@@ -175,6 +183,17 @@ export class NadViewerParameters {
         return (
             this.nadViewerParametersOptions?.hoverPositionPrecision ??
             NadViewerParameters.HOVER_POSITION_PRECISION_DEFAULT
+        );
+    }
+
+    public getEnableAdaptiveZoom(): boolean {
+        return this.nadViewerParametersOptions?.enableAdaptiveZoom ?? NadViewerParameters.ENABLE_ADAPTIVE_ZOOM_DEFAULT;
+    }
+
+    public getThresholdAdaptiveZoom(): number {
+        return (
+            this.nadViewerParametersOptions?.adaptiveZoomThreshold ??
+            NadViewerParameters.THRESHOLD_ADAPTIVE_ZOOM_DEFAULT
         );
     }
 }
