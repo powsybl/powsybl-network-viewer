@@ -1231,7 +1231,9 @@ export class NetworkAreaDiagramViewer {
     }
 
     private getHalfEdgeNode(edgeId: string, side: string): HTMLElement | null {
-        const allPath = this.svgDiv.querySelectorAll("[id='" + edgeId + "'] > polyline.nad-edge-path");
+        const allPath = this.svgDiv.querySelectorAll(
+            "[id='" + edgeId + "'] > polyline.nad-edge-path, [id='" + edgeId + "'] > path.nad-edge-path"
+        );
         return this.getHalfEdgeNodeFromEdgePolylines(allPath, side);
     }
 
