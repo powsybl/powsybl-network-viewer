@@ -1227,17 +1227,15 @@ export class NetworkAreaDiagramViewer {
 
     private getHalfEdgeNodeFromEdgeNode(edgeNode: SVGGraphicsElement, side: string): HTMLElement | null {
         const allPath = edgeNode.querySelectorAll(':scope > polyline.nad-edge-path');
-        return this.getHalfEdgeNodeFromEdgePolylines(allPath, side);
+        return this.getHalfEdgeNodeFromEdgeElements(allPath, side);
     }
 
     private getHalfEdgeNode(edgeId: string, side: string): HTMLElement | null {
-        const allPath = this.svgDiv.querySelectorAll(
-            "[id='" + edgeId + "'] > polyline.nad-edge-path, [id='" + edgeId + "'] > path.nad-edge-path"
-        );
-        return this.getHalfEdgeNodeFromEdgePolylines(allPath, side);
+        const allPath = this.svgDiv.querySelectorAll("[id='" + edgeId + "'] > .nad-edge-path");
+        return this.getHalfEdgeNodeFromEdgeElements(allPath, side);
     }
 
-    private getHalfEdgeNodeFromEdgePolylines(allPath: NodeListOf<Element>, side: string) {
+    private getHalfEdgeNodeFromEdgeElements(allPath: NodeListOf<Element>, side: string) {
         if (!allPath) return null;
         if (allPath.length > 1) {
             return allPath.item(side == '1' ? 0 : 1) as HTMLElement;
