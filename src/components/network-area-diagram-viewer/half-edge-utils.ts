@@ -15,11 +15,11 @@ import {
     getMidPosition,
     getPointAtDistance,
     getFormattedPolyline,
-    HalfEdge,
     isTransformerEdge,
     radToDeg,
 } from './diagram-utils';
 import { getBusNodeMetadata, getEdgePoints, getEdgeType, getNodeMetadata, getNodeRadius } from './metadata-utils';
+import { HalfEdge } from './diagram-types';
 
 // get the angle between first two points of a halfEdge
 export function getEdgeStartAngle(halfEdge: HalfEdge): number {
@@ -104,7 +104,7 @@ export function getThreeWtHalfEdge(
     const pointVl = new Point(vlNode.x, vlNode.y);
     const pointTwt = new Point(twtNode.x, twtNode.y);
     const nodeRadius = getNodeRadius(busNode, vlNode, svgParameters);
-    const edgeStart = getEdgeStart(edgeMetadata.busNode1, pointVl, pointTwt, nodeRadius[1], svgParameters);
+    const edgeStart = getEdgeStart(edgeMetadata.busNode1, pointVl, pointTwt, nodeRadius.busOuterRadius, svgParameters);
     const edgeEnd =
         threeWtMoved && initialPosition
             ? new Point(
@@ -115,8 +115,8 @@ export function getThreeWtHalfEdge(
     return {
         side: '1',
         fork: false,
-        busOuterRadius: nodeRadius[1],
-        voltageLevelRadius: nodeRadius[2],
+        busOuterRadius: nodeRadius.busOuterRadius,
+        voltageLevelRadius: nodeRadius.voltageLevelRadius,
         edgeInfoId: edgeMetadata.edgeInfo1?.svgId,
         edgePoints: [edgeStart, edgeEnd],
     };
@@ -153,15 +153,21 @@ export function getHalfVisibleHalfEdges(
     // Updating the first point of the edge in case of bus connection change
     const point = new Point(visibleNodeMetadata.x, visibleNodeMetadata.y);
     const visibleBusNode = visibleSide == '1' ? edgeMetadata.busNode1 : edgeMetadata.busNode2;
-    polylinePoints[0] = getEdgeStart(visibleBusNode, point, polylinePoints[1], nodeRadius[1], svgParameters);
+    polylinePoints[0] = getEdgeStart(
+        visibleBusNode,
+        point,
+        polylinePoints[1],
+        nodeRadius.busOuterRadius,
+        svgParameters
+    );
 
     // Create half edges
     const halfEdges: [HalfEdge | null, HalfEdge | null] = [null, null];
     const visibleHalfEdge: HalfEdge = {
         side: visibleSide,
         fork: fork,
-        busOuterRadius: nodeRadius[1],
-        voltageLevelRadius: nodeRadius[2],
+        busOuterRadius: nodeRadius.busOuterRadius,
+        voltageLevelRadius: nodeRadius.voltageLevelRadius,
         edgePoints: polylinePoints,
     };
     if (visibleSide == '1') {
@@ -207,11 +213,11 @@ export function getHalfEdges(
 
     const edgeDirection1 = getEdgeDirection(point2, edgeFork1, edge.bendingPoints?.at(0));
     const nodeRadius1 = getNodeRadius(busNode1, node1, svgParameters);
-    const edgeStart1 = getEdgeStart(edge.busNode1, point1, edgeDirection1, nodeRadius1[1], svgParameters);
+    const edgeStart1 = getEdgeStart(edge.busNode1, point1, edgeDirection1, nodeRadius1.busOuterRadius, svgParameters);
 
     const edgeDirection2 = getEdgeDirection(point1, edgeFork2, edge.bendingPoints?.at(-1));
     const nodeRadius2 = getNodeRadius(busNode2, node2, svgParameters);
-    const edgeStart2 = getEdgeStart(edge.busNode2, point2, edgeDirection2, nodeRadius2[1], svgParameters);
+    const edgeStart2 = getEdgeStart(edge.busNode2, point2, edgeDirection2, nodeRadius2.busOuterRadius, svgParameters);
 
     const edgeMiddle =
         edgeFork1 && edgeFork2 ? getMidPosition(edgeFork1, edgeFork2) : getMidPosition(edgeStart1, edgeStart2);
@@ -237,16 +243,16 @@ export function getHalfEdges(
     const halfEdge1: HalfEdge = {
         side: '1',
         fork: groupedEdgesCount > 1,
-        busOuterRadius: nodeRadius1[1],
-        voltageLevelRadius: nodeRadius1[2],
+        busOuterRadius: nodeRadius1.busOuterRadius,
+        voltageLevelRadius: nodeRadius1.voltageLevelRadius,
         edgeInfoId: edge.edgeInfo1?.svgId,
         edgePoints: edgePoints[0],
     };
     const halfEdge2: HalfEdge = {
         side: '2',
         fork: groupedEdgesCount > 1,
-        busOuterRadius: nodeRadius2[1],
-        voltageLevelRadius: nodeRadius2[2],
+        busOuterRadius: nodeRadius2.busOuterRadius,
+        voltageLevelRadius: nodeRadius2.voltageLevelRadius,
         edgeInfoId: edge.edgeInfo2?.svgId,
         edgePoints: edgePoints[1],
     };

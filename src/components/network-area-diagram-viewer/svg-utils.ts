@@ -7,7 +7,8 @@
  */
 
 import { Point } from '@svgdotjs/svg.js';
-import { ElementType, getAngle, getFormattedPoint } from './diagram-utils';
+import { getAngle, getFormattedPoint } from './diagram-utils';
+import { ElementType } from './diagram-types';
 
 // get the draggable element, if present,
 // from the element selected using the mouse

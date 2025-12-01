@@ -18,7 +18,7 @@ import {
 } from './diagram-metadata';
 import * as MetadataUtils from './metadata-utils';
 import { SvgParameters } from './svg-parameters';
-import { EdgeType, ElementType } from './diagram-utils';
+import { EdgeType, ElementType } from './diagram-types';
 
 test('getNodeRadius', () => {
     const diagramPaddingMetadata: DiagramPaddingMetadata = {
@@ -67,40 +67,40 @@ test('getNodeRadius', () => {
         y: 0,
     };
     let nodeRadius = MetadataUtils.getNodeRadius(busNode, node, svgParameters);
-    expect(nodeRadius[0]).toBe(0);
-    expect(nodeRadius[1]).toBe(27.5);
-    expect(nodeRadius[2]).toBe(30);
+    expect(nodeRadius.busInnerRadius).toBe(0);
+    expect(nodeRadius.busOuterRadius).toBe(27.5);
+    expect(nodeRadius.voltageLevelRadius).toBe(30);
 
     busNode.nbNeighbours = 1;
     nodeRadius = MetadataUtils.getNodeRadius(busNode, node, svgParameters);
-    expect(nodeRadius[0]).toBe(0);
-    expect(nodeRadius[1]).toBe(27.5);
-    expect(nodeRadius[2]).toBe(60);
+    expect(nodeRadius.busInnerRadius).toBe(0);
+    expect(nodeRadius.busOuterRadius).toBe(27.5);
+    expect(nodeRadius.voltageLevelRadius).toBe(60);
 
     busNode.index = 1;
     nodeRadius = MetadataUtils.getNodeRadius(busNode, node, svgParameters);
-    expect(nodeRadius[0]).toBe(32.5);
-    expect(nodeRadius[1]).toBe(57.5);
-    expect(nodeRadius[2]).toBe(60);
+    expect(nodeRadius.busInnerRadius).toBe(32.5);
+    expect(nodeRadius.busOuterRadius).toBe(57.5);
+    expect(nodeRadius.voltageLevelRadius).toBe(60);
 
     busNode.nbNeighbours = 2;
     busNode.index = 0;
     nodeRadius = MetadataUtils.getNodeRadius(busNode, node, svgParameters);
-    expect(nodeRadius[0]).toBe(0);
-    expect(nodeRadius[1]).toBe(17.5);
-    expect(nodeRadius[2]).toBe(60);
+    expect(nodeRadius.busInnerRadius).toBe(0);
+    expect(nodeRadius.busOuterRadius).toBe(17.5);
+    expect(nodeRadius.voltageLevelRadius).toBe(60);
 
     busNode.index = 1;
     nodeRadius = MetadataUtils.getNodeRadius(busNode, node, svgParameters);
-    expect(nodeRadius[0]).toBe(22.5);
-    expect(nodeRadius[1]).toBe(37.5);
-    expect(nodeRadius[2]).toBe(60);
+    expect(nodeRadius.busInnerRadius).toBe(22.5);
+    expect(nodeRadius.busOuterRadius).toBe(37.5);
+    expect(nodeRadius.voltageLevelRadius).toBe(60);
 
     busNode.index = 2;
     nodeRadius = MetadataUtils.getNodeRadius(busNode, node, svgParameters);
-    expect(nodeRadius[0]).toBe(42.5);
-    expect(nodeRadius[1]).toBe(57.5);
-    expect(nodeRadius[2]).toBe(60);
+    expect(nodeRadius.busInnerRadius).toBe(42.5);
+    expect(nodeRadius.busOuterRadius).toBe(57.5);
+    expect(nodeRadius.voltageLevelRadius).toBe(60);
 });
 
 test('getSortedBusNodes', () => {

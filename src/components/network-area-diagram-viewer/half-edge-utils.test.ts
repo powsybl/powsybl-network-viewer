@@ -7,7 +7,7 @@
  */
 
 import { Point } from '@svgdotjs/svg.js';
-import { HalfEdge } from './diagram-utils';
+import { HalfEdge } from './diagram-types';
 import * as HalfEdgeUtils from './half-edge-utils';
 
 test('getArrowAngle', () => {

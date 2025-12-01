@@ -16,17 +16,8 @@ import {
     TextNodeMetadata,
 } from './diagram-metadata';
 import { SvgParameters } from './svg-parameters';
-import {
-    EdgeType,
-    ElementData,
-    ElementType,
-    getDistance,
-    getPointAtDistance,
-    getVoltageLevelCircleRadius,
-    ViewBox,
-    NODEMOVE,
-    round,
-} from './diagram-utils';
+import { getDistance, getPointAtDistance, getVoltageLevelCircleRadius, round } from './diagram-utils';
+import { EdgeType, ElementData, ElementType, NodeMove, NodeRadius, ViewBox } from './diagram-types';
 
 const TEXT_BOX_WIDTH_DEFAULT = 200.0;
 const TEXT_BOX_HEIGHT_DEFAULT = 100.0;
@@ -169,7 +160,7 @@ export function getNodeMetadata(nodeId: string, diagramMetadata: DiagramMetadata
 }
 
 // get node move (original and new position)
-export function getNodeMove(node: NodeMetadata, nodePosition: Point): NODEMOVE {
+export function getNodeMove(node: NodeMetadata, nodePosition: Point): NodeMove {
     const xNew = round(nodePosition.x);
     const yNew = round(nodePosition.y);
     return { xOrig: node.x, yOrig: node.y, xNew: xNew, yNew: yNew };
@@ -181,7 +172,7 @@ export function getTextNodeMoves(
     vlNode: NodeMetadata,
     textPosition: Point,
     connectionPosition: Point
-): [NODEMOVE, NODEMOVE] {
+): [NodeMove, NodeMove] {
     const xNew = round(textPosition.x - vlNode.x);
     const yNew = round(textPosition.y - vlNode.y);
     const connXNew = round(connectionPosition.x - vlNode.x);
@@ -270,17 +261,17 @@ export function getNodeRadius(
     busNode: BusNodeMetadata | undefined,
     node: NodeMetadata | undefined,
     svgParameters: SvgParameters
-): [number, number, number] {
+): NodeRadius {
     const nbNeighbours = busNode?.nbNeighbours ?? 0;
     const busIndex = busNode?.index ?? 0;
     const vlCircleRadius: number = getVoltageLevelCircleRadius(nbNeighbours, node?.fictitious, svgParameters);
     const interAnnulusSpace = svgParameters.getInterAnnulusSpace();
     const unitaryRadius = vlCircleRadius / (nbNeighbours + 1);
-    return [
-        busIndex == 0 ? 0 : busIndex * unitaryRadius + interAnnulusSpace / 2,
-        (busIndex + 1) * unitaryRadius - interAnnulusSpace / 2,
-        vlCircleRadius,
-    ];
+    return {
+        busInnerRadius: busIndex == 0 ? 0 : busIndex * unitaryRadius + interAnnulusSpace / 2,
+        busOuterRadius: (busIndex + 1) * unitaryRadius - interAnnulusSpace / 2,
+        voltageLevelRadius: vlCircleRadius,
+    };
 }
 
 export function getEdgePoints(

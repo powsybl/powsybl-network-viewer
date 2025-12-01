@@ -7,52 +7,7 @@
 
 import { Point } from '@svgdotjs/svg.js';
 import { SvgParameters } from './svg-parameters';
-
-export type Dimensions = { width: number; height: number; viewbox: ViewBox };
-export type ViewBox = { x: number; y: number; width: number; height: number };
-
-// node move: original and new position
-export type NODEMOVE = {
-    xOrig: number;
-    yOrig: number;
-    xNew: number;
-    yNew: number;
-};
-
-export enum EdgeType {
-    LINE,
-    TWO_WINDINGS_TRANSFORMER,
-    PHASE_SHIFT_TRANSFORMER,
-    HVDC_LINE_VSC,
-    HVDC_LINE_LCC,
-    DANGLING_LINE,
-    TIE_LINE,
-    THREE_WINDINGS_TRANSFORMER,
-    UNKNOWN,
-}
-
-export enum ElementType {
-    VOLTAGE_LEVEL,
-    THREE_WINDINGS_TRANSFORMER,
-    TEXT_NODE,
-    BRANCH,
-    UNKNOWN,
-}
-
-export type ElementData = {
-    svgId: string;
-    equipmentId: string;
-    type: string;
-};
-
-export type HalfEdge = {
-    side: string;
-    fork: boolean;
-    busOuterRadius: number;
-    voltageLevelRadius: number;
-    edgeInfoId?: string;
-    edgePoints: Point[];
-};
+import { EdgeType, NodeRadius } from './diagram-types';
 
 export function getDistance(point1: Point, point2: Point): number {
     const deltax = point1.x - point2.x;
@@ -179,31 +134,27 @@ function getCirclePath(radius: number, angleStart: number, angleEnd: number, clo
 }
 
 // get path for bus annulus
-export function getFragmentedAnnulusPath(
-    angles: number[],
-    busNodeRadius: [number, number, number],
-    nodeHollowWidth: number
-): string {
+export function getFragmentedAnnulusPath(angles: number[], nodeRadius: NodeRadius, nodeHollowWidth: number): string {
     let path: string = '';
     if (angles.length == 0) {
         path =
             'M' +
-            getCirclePath(busNodeRadius[1], 0, Math.PI, true) +
+            getCirclePath(nodeRadius.busOuterRadius, 0, Math.PI, true) +
             ' M' +
-            getCirclePath(busNodeRadius[1], Math.PI, 0, true);
-        if (busNodeRadius[0] > 0) {
+            getCirclePath(nodeRadius.busOuterRadius, Math.PI, 0, true);
+        if (nodeRadius.busInnerRadius > 0) {
             // going the other way around (counter-clockwise) to subtract the inner circle
             path +=
                 ' M' +
-                getCirclePath(busNodeRadius[0], 0, Math.PI, false) +
+                getCirclePath(nodeRadius.busInnerRadius, 0, Math.PI, false) +
                 ' M' +
-                getCirclePath(busNodeRadius[0], Math.PI, 0, false);
+                getCirclePath(nodeRadius.busInnerRadius, Math.PI, 0, false);
         }
         return path;
     }
     const halfWidth = nodeHollowWidth / 2;
-    const deltaAngle0 = halfWidth / busNodeRadius[1];
-    const deltaAngle1 = halfWidth / busNodeRadius[0];
+    const deltaAngle0 = halfWidth / nodeRadius.busOuterRadius;
+    const deltaAngle1 = halfWidth / nodeRadius.busInnerRadius;
     for (let index = 0; index < angles.length; index++) {
         const outerArcStart = angles[index] + deltaAngle0;
         const outerArcEnd = angles[index + 1] - deltaAngle0;
@@ -213,9 +164,9 @@ export function getFragmentedAnnulusPath(
             path =
                 path +
                 'M' +
-                getCirclePath(busNodeRadius[1], outerArcStart, outerArcEnd, true) +
+                getCirclePath(nodeRadius.busOuterRadius, outerArcStart, outerArcEnd, true) +
                 ' L' +
-                getCirclePath(busNodeRadius[0], innerArcStart, innerArcEnd, false) +
+                getCirclePath(nodeRadius.busInnerRadius, innerArcStart, innerArcEnd, false) +
                 ' Z ';
         }
     }

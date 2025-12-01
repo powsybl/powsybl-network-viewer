@@ -8,7 +8,6 @@
 import { Point, SVG, Svg, ViewBoxLike } from '@svgdotjs/svg.js';
 import '@svgdotjs/svg.panzoom.js';
 import * as DiagramUtils from './diagram-utils';
-import { ElementType, HalfEdge } from './diagram-utils';
 import { CssLocationEnum, EdgeInfoEnum, SvgParameters } from './svg-parameters';
 import { LayoutParameters } from './layout-parameters';
 import {
@@ -36,6 +35,7 @@ import * as ViewerButtons from './viewer-buttons';
 import * as SvgUtils from './svg-utils';
 import * as MetadataUtils from './metadata-utils';
 import * as HalfEdgeUtils from './half-edge-utils';
+import { Dimensions, EdgeType, ElementType, HalfEdge, ViewBox } from './diagram-types';
 
 export type BranchState = {
     branchId: string;
@@ -310,7 +310,7 @@ export class NetworkAreaDiagramViewer {
     public init() {
         if (!this.container || !this.svgContent) return;
 
-        const dimensions: DiagramUtils.Dimensions | null = this.getDimensionsFromSvg();
+        const dimensions: Dimensions | null = this.getDimensionsFromSvg();
         if (!dimensions) return;
 
         // clear the previous svg in div element before replacing
@@ -564,7 +564,7 @@ export class NetworkAreaDiagramViewer {
         return JSON.stringify(this.diagramMetadata);
     }
 
-    public getDimensionsFromSvg(): DiagramUtils.Dimensions | null {
+    public getDimensionsFromSvg(): Dimensions | null {
         // Dimensions are set in the main svg tag attributes. We want to parse those data without loading the whole svg in the DOM.
         const result = this.svgContent.match('<svg[^>]*>');
         if (result === null || result.length === 0) {
@@ -576,7 +576,7 @@ export class NetworkAreaDiagramViewer {
             .getElementsByTagName('svg')[0];
         const width = Number(svg.getAttribute('width'));
         const height = Number(svg.getAttribute('height'));
-        const viewbox: DiagramUtils.ViewBox = svg.viewBox.baseVal;
+        const viewbox: ViewBox = svg.viewBox.baseVal;
         return { width: width, height: height, viewbox: viewbox };
     }
 
@@ -1166,7 +1166,7 @@ export class NetworkAreaDiagramViewer {
     private redrawEdge(edge: EdgeMetadata, iEdge: number, groupedEdgesCount: number) {
         // get edge type
         const edgeType = MetadataUtils.getEdgeType(edge);
-        if (edgeType == DiagramUtils.EdgeType.UNKNOWN) {
+        if (edgeType == EdgeType.UNKNOWN) {
             return;
         }
 
@@ -1178,11 +1178,11 @@ export class NetworkAreaDiagramViewer {
         }
     }
 
-    private isThreeWtEdge(edgeType: DiagramUtils.EdgeType, edgeId: string) {
-        if (edgeType == DiagramUtils.EdgeType.THREE_WINDINGS_TRANSFORMER) {
+    private isThreeWtEdge(edgeType: EdgeType, edgeId: string) {
+        if (edgeType == EdgeType.THREE_WINDINGS_TRANSFORMER) {
             return true;
         }
-        if (edgeType == DiagramUtils.EdgeType.PHASE_SHIFT_TRANSFORMER) {
+        if (edgeType == EdgeType.PHASE_SHIFT_TRANSFORMER) {
             // get edge element
             const edgeNode: SVGGraphicsElement | null = this.svgDiv.querySelector("[id='" + edgeId + "']");
             const pst3wtEdge = edgeNode?.parentElement?.classList.contains('nad-3wt-edges');
@@ -1200,8 +1200,7 @@ export class NetworkAreaDiagramViewer {
 
         const edgeType = MetadataUtils.getEdgeType(edge);
         const isTransformerEdge = DiagramUtils.isTransformerEdge(edgeType);
-        const isHVDCLineEdge =
-            edgeType == DiagramUtils.EdgeType.HVDC_LINE_LCC || edgeType == DiagramUtils.EdgeType.HVDC_LINE_VSC;
+        const isHVDCLineEdge = edgeType == EdgeType.HVDC_LINE_LCC || edgeType == EdgeType.HVDC_LINE_VSC;
         if (isTransformerEdge) {
             this.redrawTransformer(edgeNode, halfEdge1, halfEdge2, edgeType);
         } else if (isHVDCLineEdge) {
@@ -1281,7 +1280,7 @@ export class NetworkAreaDiagramViewer {
         edgeNode: SVGGraphicsElement,
         halfEdge1: HalfEdge | null,
         halfEdge2: HalfEdge | null,
-        edgeType: DiagramUtils.EdgeType
+        edgeType: EdgeType
     ) {
         if (!halfEdge1 && !halfEdge2) return;
 
@@ -1293,7 +1292,7 @@ export class NetworkAreaDiagramViewer {
         this.redrawTransformerCircle(transformerCircles.item(1), halfEdge2, halfEdge1);
 
         // if phase shifting transformer move transformer arrow
-        const isPSTransformerEdge = edgeType == DiagramUtils.EdgeType.PHASE_SHIFT_TRANSFORMER;
+        const isPSTransformerEdge = edgeType == EdgeType.PHASE_SHIFT_TRANSFORMER;
         if (isPSTransformerEdge) {
             this.redrawTransformerArrow(transformerElement, halfEdge1, halfEdge2);
         }
@@ -1969,7 +1968,7 @@ export class NetworkAreaDiagramViewer {
 
     public saveSvg() {
         this.addStyle();
-        const userViewBox: DiagramUtils.ViewBox = {
+        const userViewBox: ViewBox = {
             x: this.svgDraw?.viewbox().x ?? 0,
             y: this.svgDraw?.viewbox().y ?? 0,
             width: this.svgDraw?.viewbox().width ?? 0,

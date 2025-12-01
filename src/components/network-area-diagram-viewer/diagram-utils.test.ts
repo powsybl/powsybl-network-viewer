@@ -115,11 +115,23 @@ test('getVoltageLevelCircleRadius', () => {
 });
 
 test('getFragmentedAnnulusPath', () => {
-    expect(DiagramUtils.getFragmentedAnnulusPath([-2.38, 0.75, 1.4], [42.5, 57.5, 60], 15)).toBe(
+    expect(
+        DiagramUtils.getFragmentedAnnulusPath(
+            [-2.38, 0.75, 1.4],
+            { busInnerRadius: 42.5, busOuterRadius: 57.5, voltageLevelRadius: 60 },
+            15
+        )
+    ).toBe(
         'M-36.101,-44.755 A57.500,57.500 164.389 0 1 46.813,33.389 L35.700,23.061 A42.500,42.500 -159.114 0 0 -25.132,-34.273 Z M36.617,44.333 A57.500,57.500 22.296 0 1 17.060,54.911 L14.464,39.963 A42.500,42.500 -17.020 0 0 25.528,33.979 Z '
     );
 
-    expect(DiagramUtils.getFragmentedAnnulusPath([], [42.5, 57.5, 60], 15)).toBe(
+    expect(
+        DiagramUtils.getFragmentedAnnulusPath(
+            [],
+            { busInnerRadius: 42.5, busOuterRadius: 57.5, voltageLevelRadius: 60 },
+            15
+        )
+    ).toBe(
         'M57.500,0.000 A57.500,57.500 180.000 0 1 -57.500,0.000 M-57.500,0.000 A57.500,57.500 -180.000 0 1 57.500,0.000 M42.500,0.000 A42.500,42.500 180.000 0 0 -42.500,0.000 M-42.500,0.000 A42.500,42.500 -180.000 0 0 42.500,0.000'
     );
 });
