@@ -1075,6 +1075,10 @@ export function isTransformerEdge(edgeType: EdgeType): boolean {
     return edgeType == EdgeType.TWO_WINDINGS_TRANSFORMER || edgeType == EdgeType.PHASE_SHIFT_TRANSFORMER;
 }
 
+export function isConverterStationEdge(edgeType: EdgeType): boolean {
+    return edgeType === EdgeType.HVDC_LINE_VSC || edgeType === EdgeType.HVDC_LINE_LCC;
+}
+
 function getTranslatedPolyline(polylinePoints: Point[], nodeMetadata: NodeMetadata, initialPosition: Point): Point[] {
     const translation = new Point(nodeMetadata.x - initialPosition.x, nodeMetadata.y - initialPosition.y);
 
