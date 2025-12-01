@@ -993,11 +993,19 @@ export function getHalfEdges(
         edgeFork2 = getEdgeFork(point2, svgParameters.getEdgesForkLength(), angleFork2);
     }
 
-    const edgeDirection1 = getEdgeDirection(point2, edgeFork1, edge.bendingPoints?.at(0));
+    const edgeDirection1 = getEdgeDirection(
+        point2,
+        edgeFork1,
+        groupedEdgesCount > 1 ? undefined : edge.bendingPoints?.at(0)
+    );
     const nodeRadius1 = getNodeRadius(busNode1, node1, svgParameters);
     const edgeStart1 = getEdgeStart(edge.busNode1, point1, edgeDirection1, nodeRadius1[1], svgParameters);
 
-    const edgeDirection2 = getEdgeDirection(point1, edgeFork2, edge.bendingPoints?.at(-1));
+    const edgeDirection2 = getEdgeDirection(
+        point1,
+        edgeFork2,
+        groupedEdgesCount > 1 ? undefined : edge.bendingPoints?.at(-1)
+    );
     const nodeRadius2 = getNodeRadius(busNode2, node2, svgParameters);
     const edgeStart2 = getEdgeStart(edge.busNode2, point2, edgeDirection2, nodeRadius2[1], svgParameters);
 
