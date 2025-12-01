@@ -32,6 +32,7 @@ import {
     OnToggleNadHoverCallbackType,
 } from './nad-viewer-parameters';
 import { Cancelable } from '@mui/utils/debounce/debounce';
+import * as ViewerButtons from './viewer-buttons';
 
 export type BranchState = {
     branchId: string;
@@ -467,17 +468,17 @@ export class NetworkAreaDiagramViewer {
         buttonsDiv.style.left = '6px';
         buttonsDiv.style.bottom = '6px';
 
-        const zoomInButton = DiagramUtils.getZoomInButton();
+        const zoomInButton = ViewerButtons.getZoomInButton();
         buttonsDiv.appendChild(zoomInButton);
         zoomInButton.addEventListener('click', () => {
             this.zoomIn();
         });
-        const zoomOutButton = DiagramUtils.getZoomOutButton();
+        const zoomOutButton = ViewerButtons.getZoomOutButton();
         buttonsDiv.appendChild(zoomOutButton);
         zoomOutButton.addEventListener('click', () => {
             this.zoomOut();
         });
-        const zoomToFitButton = DiagramUtils.getZoomToFitButton();
+        const zoomToFitButton = ViewerButtons.getZoomToFitButton();
         buttonsDiv.appendChild(zoomToFitButton);
         zoomToFitButton.addEventListener('click', () => {
             this.zoomToFit();
@@ -495,19 +496,19 @@ export class NetworkAreaDiagramViewer {
         buttonsDiv.style.left = '6px';
         buttonsDiv.style.top = '6px';
 
-        const saveSvgButton = DiagramUtils.getSaveSvgButton();
+        const saveSvgButton = ViewerButtons.getSaveSvgButton();
         buttonsDiv.appendChild(saveSvgButton);
         saveSvgButton.addEventListener('click', () => {
             this.saveSvg();
         });
 
-        const savePngButton = DiagramUtils.getSavePngButton();
+        const savePngButton = ViewerButtons.getSavePngButton();
         buttonsDiv.appendChild(savePngButton);
         savePngButton.addEventListener('click', () => {
             this.savePng(NetworkAreaDiagramViewer.DEFAULT_PNG_BACKGROUND_COLOR);
         });
 
-        const screenshotButton = DiagramUtils.getDisabledScreenshotButton();
+        const screenshotButton = ViewerButtons.getDisabledScreenshotButton();
         buttonsDiv.appendChild(screenshotButton);
         screenshotButton.addEventListener('click', () => {
             this.screenshot(NetworkAreaDiagramViewer.DEFAULT_PNG_BACKGROUND_COLOR);
@@ -516,7 +517,7 @@ export class NetworkAreaDiagramViewer {
             .query({ name: 'clipboard-write' as PermissionName })
             .then((result) => {
                 if (result.state == 'granted' || result.state == 'prompt') {
-                    DiagramUtils.enableButton(screenshotButton);
+                    ViewerButtons.enableButton(screenshotButton);
                 } else {
                     console.warn('Write access to clipboard not granted');
                 }
@@ -526,13 +527,13 @@ export class NetworkAreaDiagramViewer {
                 console.warn('clipboard-write permission not supported: ' + err);
                 // add button based on clipboard availability
                 if (navigator.clipboard) {
-                    DiagramUtils.enableButton(screenshotButton);
+                    ViewerButtons.enableButton(screenshotButton);
                 } else {
                     console.warn('Navigator clipboard not available');
                 }
             });
 
-        const bendLinesButton = DiagramUtils.getBendLinesButton();
+        const bendLinesButton = ViewerButtons.getBendLinesButton();
         buttonsDiv.appendChild(bendLinesButton);
         bendLinesButton.addEventListener('click', () => {
             if (this.bendLines) {
