@@ -2683,29 +2683,37 @@ export class NetworkAreaDiagramViewer {
     }
 
     private getParallelPointElements(pointElement: SVGGraphicsElement, edgeId: string): SVGGraphicsElement[] {
-        const parallelElements: SVGGraphicsElement[] = [];
         const parallelGroup = DiagramUtils.getParallelEdgeGroup(edgeId, this.diagramMetadata?.edges);
+        if (!parallelGroup) {
+            return [];
+        }
 
-        if (parallelGroup) {
-            const pointElementData = this.linePointIndexMap.get(pointElement.id);
-            if (pointElementData) {
-                const targetIndex = pointElementData.index;
+        const pointElementData = this.linePointIndexMap.get(pointElement.id);
+        if (!pointElementData) {
+            return [];
+        }
 
-                const parallelEdgeIds = parallelGroup
-                    .map((edge) => edge.svgId)
-                    .filter((id) => id !== pointElementData.edgeId);
+        const parallelEdgeIds = this.getOtherParallelEdgeIds(parallelGroup, pointElementData.edgeId);
+        return this.findPointElementsAtIndex(parallelEdgeIds, pointElementData.index);
+    }
 
-                for (const [pointId, data] of this.linePointIndexMap.entries()) {
-                    if (parallelEdgeIds.includes(data.edgeId) && data.index === targetIndex) {
-                        const parallelElement = this.svgDiv.querySelector(`[id='${pointId}']`) as SVGGraphicsElement;
-                        if (parallelElement) {
-                            parallelElements.push(parallelElement);
-                        }
-                    }
+    private getOtherParallelEdgeIds(parallelGroup: EdgeMetadata[], excludeEdgeId: string): string[] {
+        return parallelGroup.map((edge) => edge.svgId).filter((id) => id !== excludeEdgeId);
+    }
+
+    private findPointElementsAtIndex(edgeIds: string[], targetIndex: number): SVGGraphicsElement[] {
+        const elements: SVGGraphicsElement[] = [];
+
+        for (const [pointId, data] of this.linePointIndexMap.entries()) {
+            if (edgeIds.includes(data.edgeId) && data.index === targetIndex) {
+                const element = this.svgDiv.querySelector(`[id='${pointId}']`) as SVGGraphicsElement;
+                if (element) {
+                    elements.push(element);
                 }
             }
         }
-        return parallelElements;
+
+        return elements;
     }
 
     private updateParallelBentElements(mousePosition: Point) {
@@ -2764,64 +2772,90 @@ export class NetworkAreaDiagramViewer {
     }
 
     private updateParallelEdgesBendPointsOnNodeMove(vlNodeId: string) {
-        // Find all edges connected to this voltage level
         const connectedEdges = this.diagramMetadata?.edges.filter(
             (edge) => edge.node1 === vlNodeId || edge.node2 === vlNodeId
         );
 
         if (!connectedEdges) return;
 
+        const processedGroups = new Set<string>();
+
         for (const edge of connectedEdges) {
-            const parallelGroup = DiagramUtils.getParallelEdgeGroup(edge.svgId, this.diagramMetadata?.edges);
-            if (!parallelGroup || parallelGroup.length <= 1) continue;
+            const groupKey = DiagramUtils.getGroupedEdgesIndexKey(edge);
+            if (processedGroups.has(groupKey)) continue;
+            processedGroups.add(groupKey);
 
-            // Find master edge (first one with bend points)
-            const masterEdge = parallelGroup.find((e) => e.bendingPoints && e.bendingPoints.length > 0);
-            if (!masterEdge?.bendingPoints) continue;
+            this.updateParallelGroupOnNodeMove(edge, vlNodeId);
+        }
+    }
 
-            // Determine which bend point index to update based on moved VL side
-            const movedSide = masterEdge.node1 === vlNodeId ? '1' : '2';
-            const bendPointIndex = movedSide === '1' ? 0 : masterEdge.bendingPoints.length - 1;
+    private updateParallelGroupOnNodeMove(edge: EdgeMetadata, vlNodeId: string) {
+        const parallelGroup = DiagramUtils.getParallelEdgeGroup(edge.svgId, this.diagramMetadata?.edges);
+        if (!parallelGroup || parallelGroup.length <= 1) return;
 
-            // Get master adjacent points and current position
-            const masterAdjacent = this.getAdjacentPointsForBend(masterEdge, bendPointIndex);
-            if (!masterAdjacent) continue;
+        const masterEdge = parallelGroup.find((e) => e.bendingPoints && e.bendingPoints.length > 0);
+        if (!masterEdge?.bendingPoints) return;
 
-            const masterCurrent = new Point(
-                masterEdge.bendingPoints[bendPointIndex].x,
-                masterEdge.bendingPoints[bendPointIndex].y
-            );
+        const movedSide = masterEdge.node1 === vlNodeId ? '1' : '2';
+        const bendPointIndex = movedSide === '1' ? 0 : masterEdge.bendingPoints.length - 1;
 
-            // Update slave edges
-            for (const slaveEdge of parallelGroup) {
-                if (slaveEdge.svgId === masterEdge.svgId) continue;
-                if (!slaveEdge.bendingPoints?.length) continue;
+        const masterAdjacent = this.getAdjacentPointsForBend(masterEdge, bendPointIndex);
+        if (!masterAdjacent) return;
 
-                const slaveBendIndex = movedSide === '1' ? 0 : slaveEdge.bendingPoints.length - 1;
-                const slaveAdjacent = this.getAdjacentPointsForBend(slaveEdge, slaveBendIndex);
-                if (!slaveAdjacent) continue;
+        const masterCurrent = new Point(
+            masterEdge.bendingPoints[bendPointIndex].x,
+            masterEdge.bendingPoints[bendPointIndex].y
+        );
 
-                const newPosition = DiagramUtils.calculateParallelBendPoint(
-                    masterAdjacent.prevPoint,
-                    masterCurrent,
-                    masterAdjacent.nextPoint,
-                    slaveAdjacent.prevPoint,
-                    slaveAdjacent.nextPoint
-                );
+        this.updateSlaveEdgesOnNodeMove(parallelGroup, masterEdge, masterAdjacent, masterCurrent, movedSide);
+    }
 
-                if (newPosition) {
-                    this.updateEdgeMetadataPosition(slaveEdge, slaveBendIndex, newPosition);
+    private updateSlaveEdgesOnNodeMove(
+        parallelGroup: EdgeMetadata[],
+        masterEdge: EdgeMetadata,
+        masterAdjacent: { prevPoint: Point; nextPoint: Point },
+        masterCurrent: Point,
+        movedSide: string
+    ) {
+        for (const slaveEdge of parallelGroup) {
+            if (slaveEdge.svgId === masterEdge.svgId) continue;
+            if (!slaveEdge.bendingPoints?.length) continue;
 
-                    // Update visual element if exists
-                    const pointId = this.findLinePointId(slaveEdge.svgId, slaveBendIndex);
-                    if (pointId) {
-                        const pointElement = this.svgDiv.querySelector(`[id='${pointId}']`) as SVGGraphicsElement;
-                        if (pointElement) {
-                            this.updateNodePosition(pointElement, newPosition);
-                        }
-                    }
-                }
-            }
+            this.updateSlaveEdgeBendPoint(slaveEdge, masterAdjacent, masterCurrent, movedSide);
+        }
+    }
+
+    private updateSlaveEdgeBendPoint(
+        slaveEdge: EdgeMetadata,
+        masterAdjacent: { prevPoint: Point; nextPoint: Point },
+        masterCurrent: Point,
+        movedSide: string
+    ) {
+        const slaveBendIndex = movedSide === '1' ? 0 : slaveEdge.bendingPoints!.length - 1;
+        const slaveAdjacent = this.getAdjacentPointsForBend(slaveEdge, slaveBendIndex);
+        if (!slaveAdjacent) return;
+
+        const newPosition = DiagramUtils.calculateParallelBendPoint(
+            masterAdjacent.prevPoint,
+            masterCurrent,
+            masterAdjacent.nextPoint,
+            slaveAdjacent.prevPoint,
+            slaveAdjacent.nextPoint
+        );
+
+        if (newPosition) {
+            this.updateEdgeMetadataPosition(slaveEdge, slaveBendIndex, newPosition);
+            this.updateVisualPointElement(slaveEdge.svgId, slaveBendIndex, newPosition);
+        }
+    }
+
+    private updateVisualPointElement(edgeId: string, index: number, position: Point) {
+        const pointId = this.findLinePointId(edgeId, index);
+        if (!pointId) return;
+
+        const pointElement = this.svgDiv.querySelector(`[id='${pointId}']`) as SVGGraphicsElement;
+        if (pointElement) {
+            this.updateNodePosition(pointElement, position);
         }
     }
 

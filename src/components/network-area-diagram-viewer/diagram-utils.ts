@@ -80,6 +80,17 @@ const EdgeTypeMapping: { [key: string]: EdgeType } = {
     ThreeWtEdge: EdgeType.THREE_WINDINGS_TRANSFORMER,
 };
 
+export type EdgePointsParams = {
+    edgeStart1: Point;
+    edgeFork1: Point | undefined;
+    edgeEnd1: Point;
+    edgeStart2: Point;
+    edgeFork2: Point | undefined;
+    edgeEnd2: Point;
+    bendingPoints: PointMetadata[] | undefined;
+    transformerShift?: number;
+};
+
 const TEXT_BOX_WIDTH_DEFAULT = 200.0;
 const TEXT_BOX_HEIGHT_DEFAULT = 100.0;
 
@@ -245,7 +256,7 @@ function isValidParallelPoint(
         return false;
     }
     // 3. Check for NaN or Infinity values
-    return !(!isFinite(calculatedPoint.x) || !isFinite(calculatedPoint.y));
+    return !(!Number.isFinite(calculatedPoint.x) || !Number.isFinite(calculatedPoint.y));
 }
 
 function calculateOffset(masterPoint: Point, slaveReferencePoint: Point, masterReferencePoint: Point): Point {
@@ -334,53 +345,76 @@ export function getDistance(point1: Point, point2: Point): number {
     return Math.hypot(deltax, deltay);
 }
 
-export function getEdgePoints(
+export function getEdgePoints(params: EdgePointsParams): [Point[], Point[]] {
+    const {
+        edgeStart1,
+        edgeFork1,
+        edgeEnd1,
+        edgeStart2,
+        edgeFork2,
+        edgeEnd2,
+        bendingPoints,
+        transformerShift = 0,
+    } = params;
+
+    if (!bendingPoints) {
+        return getEdgePointsWithoutBending(edgeStart1, edgeFork1, edgeEnd1, edgeStart2, edgeFork2, edgeEnd2);
+    }
+
+    const allPoints = buildAllPoints(edgeStart1, edgeFork1, edgeStart2, edgeFork2, bendingPoints);
+    const totalDistance = calculateTotalDistance(allPoints);
+
+    return splitAtMidpoint(allPoints, totalDistance, transformerShift);
+}
+
+function getEdgePointsWithoutBending(
     edgeStart1: Point,
     edgeFork1: Point | undefined,
     edgeEnd1: Point,
     edgeStart2: Point,
     edgeFork2: Point | undefined,
-    edgeEnd2: Point,
-    bendingPoints: PointMetadata[] | undefined,
-    transformerShift: number = 0
+    edgeEnd2: Point
 ): [Point[], Point[]] {
-    if (!bendingPoints) {
-        const edgePoints1 = edgeFork1 ? [edgeStart1, edgeFork1, edgeEnd1] : [edgeStart1, edgeEnd1];
-        const edgePoints2 = edgeFork2 ? [edgeStart2, edgeFork2, edgeEnd2] : [edgeStart2, edgeEnd2];
-        return [edgePoints1, edgePoints2];
-    }
+    const edgePoints1 = edgeFork1 ? [edgeStart1, edgeFork1, edgeEnd1] : [edgeStart1, edgeEnd1];
+    const edgePoints2 = edgeFork2 ? [edgeStart2, edgeFork2, edgeEnd2] : [edgeStart2, edgeEnd2];
+    return [edgePoints1, edgePoints2];
+}
 
-    // Build the full list of points including fork points and bending points
-    const allPoints: Point[] = [];
+function buildAllPoints(
+    edgeStart1: Point,
+    edgeFork1: Point | undefined,
+    edgeStart2: Point,
+    edgeFork2: Point | undefined,
+    bendingPoints: PointMetadata[]
+): Point[] {
+    const allPoints: Point[] = [edgeStart1];
 
-    // Start with edgeStart1
-    allPoints.push(edgeStart1);
-
-    // Add fork point 1 if present
     if (edgeFork1) {
         allPoints.push(edgeFork1);
     }
 
-    // Add all bending points
     for (const bp of bendingPoints) {
         allPoints.push(new Point(bp.x, bp.y));
     }
 
-    // Add fork point 2 if present
     if (edgeFork2) {
         allPoints.push(edgeFork2);
     }
 
-    // End with edgeStart2
     allPoints.push(edgeStart2);
 
-    // Calculate total distance
-    let totalDistance = 0;
-    for (let i = 0; i < allPoints.length - 1; i++) {
-        totalDistance += getDistance(allPoints[i], allPoints[i + 1]);
-    }
+    return allPoints;
+}
 
-    // Split at midpoint
+function calculateTotalDistance(points: Point[]): number {
+    let totalDistance = 0;
+    for (let i = 0; i < points.length - 1; i++) {
+        totalDistance += getDistance(points[i], points[i + 1]);
+    }
+    return totalDistance;
+}
+
+function splitAtMidpoint(allPoints: Point[], totalDistance: number, transformerShift: number): [Point[], Point[]] {
     const halfEdgePoints1: Point[] = [allPoints[0]];
     const halfEdgePoints2: Point[] = [];
     let partialDistance = 0;
@@ -394,24 +428,15 @@ export function getEdgePoints(
             halfEdgePoints1.push(allPoints[i + 1]);
         } else {
             if (!middleAdded) {
-                const edgeMiddle = getPointAtDistance(
-                    allPoints[i + 1],
-                    allPoints[i],
-                    partialDistance - totalDistance / 2
+                addMiddlePoints(
+                    halfEdgePoints1,
+                    halfEdgePoints2,
+                    allPoints,
+                    i,
+                    partialDistance,
+                    totalDistance,
+                    transformerShift
                 );
-
-                if (transformerShift > 0) {
-                    // Apply transformer shift from the true middle
-                    const prevPoint = halfEdgePoints1.at(-1) ?? allPoints[i];
-                    const nextPoint = allPoints[i + 1];
-                    const shiftedEnd1 = getPointAtDistance(edgeMiddle, prevPoint, transformerShift);
-                    const shiftedEnd2 = getPointAtDistance(edgeMiddle, nextPoint, transformerShift);
-                    halfEdgePoints1.push(shiftedEnd1);
-                    halfEdgePoints2.push(shiftedEnd2);
-                } else {
-                    halfEdgePoints1.push(edgeMiddle);
-                    halfEdgePoints2.push(edgeMiddle);
-                }
                 middleAdded = true;
             }
             halfEdgePoints2.push(allPoints[i + 1]);
@@ -419,6 +444,28 @@ export function getEdgePoints(
     }
 
     return [halfEdgePoints1, halfEdgePoints2.reverse()];
+}
+
+function addMiddlePoints(
+    halfEdgePoints1: Point[],
+    halfEdgePoints2: Point[],
+    allPoints: Point[],
+    index: number,
+    partialDistance: number,
+    totalDistance: number,
+    transformerShift: number
+): void {
+    const edgeMiddle = getPointAtDistance(allPoints[index + 1], allPoints[index], partialDistance - totalDistance / 2);
+
+    if (transformerShift > 0) {
+        const prevPoint = halfEdgePoints1.at(-1) ?? allPoints[index];
+        const nextPoint = allPoints[index + 1];
+        halfEdgePoints1.push(getPointAtDistance(edgeMiddle, prevPoint, transformerShift));
+        halfEdgePoints2.push(getPointAtDistance(edgeMiddle, nextPoint, transformerShift));
+    } else {
+        halfEdgePoints1.push(edgeMiddle);
+        halfEdgePoints2.push(edgeMiddle);
+    }
 }
 
 // format number to string
@@ -1027,23 +1074,24 @@ export function getHalfEdges(
     // if transformer edge, reduce edge polyline, leaving space for the transformer
     let edgeEnd1 = edgeMiddle;
     let edgeEnd2 = edgeMiddle;
-    let endShift = 0;
+    let transformerShift = 0;
     if (isTransformerEdge(edgeType)) {
-        endShift = 1.5 * svgParameters.getTransformerCircleRadius();
-        edgeEnd1 = getPointAtDistance(edgeMiddle, edgeFork1 ?? edgeStart1, endShift);
-        edgeEnd2 = getPointAtDistance(edgeMiddle, edgeFork2 ?? edgeStart2, endShift);
+        transformerShift = 1.5 * svgParameters.getTransformerCircleRadius();
+        edgeEnd1 = getPointAtDistance(edgeMiddle, edgeFork1 ?? edgeStart1, transformerShift);
+        edgeEnd2 = getPointAtDistance(edgeMiddle, edgeFork2 ?? edgeStart2, transformerShift);
     }
 
-    const edgePoints = getEdgePoints(
+    const edgePoints = getEdgePoints({
         edgeStart1,
         edgeFork1,
         edgeEnd1,
         edgeStart2,
         edgeFork2,
         edgeEnd2,
-        edge.bendingPoints,
-        endShift
-    );
+        bendingPoints: edge.bendingPoints,
+        transformerShift,
+    });
+
     const halfEdge1: HalfEdge = {
         side: '1',
         fork: groupedEdgesCount > 1,
