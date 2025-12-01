@@ -341,7 +341,8 @@ export function getEdgePoints(
     edgeStart2: Point,
     edgeFork2: Point | undefined,
     edgeEnd2: Point,
-    bendingPoints: PointMetadata[] | undefined
+    bendingPoints: PointMetadata[] | undefined,
+    transformerShift: number = 0
 ): [Point[], Point[]] {
     if (!bendingPoints) {
         const edgePoints1 = edgeFork1 ? [edgeStart1, edgeFork1, edgeEnd1] : [edgeStart1, edgeEnd1];
@@ -398,8 +399,19 @@ export function getEdgePoints(
                     allPoints[i],
                     partialDistance - totalDistance / 2
                 );
-                halfEdgePoints1.push(edgeMiddle);
-                halfEdgePoints2.push(edgeMiddle);
+
+                if (transformerShift > 0) {
+                    // Apply transformer shift from the true middle
+                    const prevPoint = halfEdgePoints1.at(-1) ?? allPoints[i];
+                    const nextPoint = allPoints[i + 1];
+                    const shiftedEnd1 = getPointAtDistance(edgeMiddle, prevPoint, transformerShift);
+                    const shiftedEnd2 = getPointAtDistance(edgeMiddle, nextPoint, transformerShift);
+                    halfEdgePoints1.push(shiftedEnd1);
+                    halfEdgePoints2.push(shiftedEnd2);
+                } else {
+                    halfEdgePoints1.push(edgeMiddle);
+                    halfEdgePoints2.push(edgeMiddle);
+                }
                 middleAdded = true;
             }
             halfEdgePoints2.push(allPoints[i + 1]);
@@ -1015,8 +1027,9 @@ export function getHalfEdges(
     // if transformer edge, reduce edge polyline, leaving space for the transformer
     let edgeEnd1 = edgeMiddle;
     let edgeEnd2 = edgeMiddle;
+    let endShift = 0;
     if (isTransformerEdge(edgeType)) {
-        const endShift = 1.5 * svgParameters.getTransformerCircleRadius();
+        endShift = 1.5 * svgParameters.getTransformerCircleRadius();
         edgeEnd1 = getPointAtDistance(edgeMiddle, edgeFork1 ?? edgeStart1, endShift);
         edgeEnd2 = getPointAtDistance(edgeMiddle, edgeFork2 ?? edgeStart2, endShift);
     }
@@ -1028,7 +1041,8 @@ export function getHalfEdges(
         edgeStart2,
         edgeFork2,
         edgeEnd2,
-        edge.bendingPoints
+        edge.bendingPoints,
+        endShift
     );
     const halfEdge1: HalfEdge = {
         side: '1',
