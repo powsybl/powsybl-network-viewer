@@ -2168,7 +2168,7 @@ export class NetworkAreaDiagramViewer {
     private enableLineBending() {
         const linesPointsElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
         linesPointsElement.classList.add('nad-line-points');
-        const bendableEdges = DiagramUtils.getBendableLines(this.diagramMetadata?.edges);
+        const bendableEdges = DiagramUtils.getBendableLines(this.diagramMetadata?.edges, this.innerSvg);
         for (const edge of bendableEdges) {
             if (edge.bendingPoints) {
                 for (let index = 0; index < edge.bendingPoints.length; index++) {

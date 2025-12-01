@@ -95,7 +95,7 @@ export function isBendable(element: SVGElement): boolean {
     return element.classList.contains('nad-line-point');
 }
 
-export function getBendableLines(edges: EdgeMetadata[] | undefined): EdgeMetadata[] {
+export function getBendableLines(edges: EdgeMetadata[] | undefined, svg: SVGElement | undefined): EdgeMetadata[] {
     // group edges by edge ends
     const groupedEdges: Map<string, EdgeMetadata[]> = new Map<string, EdgeMetadata[]>();
     for (const edge of edges ?? []) {
@@ -112,7 +112,11 @@ export function getBendableLines(edges: EdgeMetadata[] | undefined): EdgeMetadat
     }
     const lines: EdgeMetadata[] = [];
     for (const edgeGroup of groupedEdges.values()) {
-        lines.push(...edgeGroup);
+        for (const edge of edgeGroup) {
+            if (!getInvisibleSide(edge, svg)) {
+                lines.push(edge);
+            }
+        }
     }
     return lines;
 }
@@ -703,6 +707,22 @@ export function getFragmentedAnnulusPath(
     nodeHollowWidth: number
 ): string {
     let path: string = '';
+    if (angles.length == 0) {
+        path =
+            'M' +
+            getCirclePath(busNodeRadius[1], 0, Math.PI, true) +
+            ' M' +
+            getCirclePath(busNodeRadius[1], Math.PI, 0, true);
+        if (busNodeRadius[0] > 0) {
+            // going the other way around (counter-clockwise) to subtract the inner circle
+            path +=
+                ' M' +
+                getCirclePath(busNodeRadius[0], 0, Math.PI, false) +
+                ' M' +
+                getCirclePath(busNodeRadius[0], Math.PI, 0, false);
+        }
+        return path;
+    }
     const halfWidth = nodeHollowWidth / 2;
     const deltaAngle0 = halfWidth / busNodeRadius[1];
     const deltaAngle1 = halfWidth / busNodeRadius[0];
