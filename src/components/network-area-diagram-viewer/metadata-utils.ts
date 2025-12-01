@@ -19,8 +19,8 @@ import { SvgParameters } from './svg-parameters';
 import { getDistance, getPointAtDistance, getVoltageLevelCircleRadius, round } from './diagram-utils';
 import { EdgeType, ElementData, ElementType, NodeMove, NodeRadius, ViewBox } from './diagram-types';
 
-const TEXT_BOX_WIDTH_DEFAULT = 200.0;
-const TEXT_BOX_HEIGHT_DEFAULT = 100.0;
+const TEXT_BOX_WIDTH_DEFAULT = 200;
+const TEXT_BOX_HEIGHT_DEFAULT = 100;
 
 const EdgeTypeMapping: { [key: string]: EdgeType } = {
     LineEdge: EdgeType.LINE,
@@ -198,21 +198,21 @@ export function getRightClickableElementData(
         case ElementType.VOLTAGE_LEVEL:
         case ElementType.THREE_WINDINGS_TRANSFORMER: {
             const node: NodeMetadata | undefined = nodes?.find((node) => node.svgId == elementId);
-            return node != null
-                ? { svgId: node.svgId, equipmentId: node.equipmentId, type: ElementType[elementType] }
-                : undefined;
+            return node == null
+                ? undefined
+                : { svgId: node.svgId, equipmentId: node.equipmentId, type: ElementType[elementType] };
         }
         case ElementType.TEXT_NODE: {
             const textNode: TextNodeMetadata | undefined = textNodes?.find((textNode) => textNode.svgId == elementId);
-            return textNode != null
-                ? { svgId: textNode.svgId, equipmentId: textNode.equipmentId, type: ElementType[elementType] }
-                : undefined;
+            return textNode == null
+                ? undefined
+                : { svgId: textNode.svgId, equipmentId: textNode.equipmentId, type: ElementType[elementType] };
         }
         case ElementType.BRANCH: {
             const edge: EdgeMetadata | undefined = edges?.find((edge) => edge.svgId == elementId);
-            return edge != null
-                ? { svgId: edge.svgId, equipmentId: edge.equipmentId, type: getStringEdgeType(edge) }
-                : undefined;
+            return edge == null
+                ? undefined
+                : { svgId: edge.svgId, equipmentId: edge.equipmentId, type: getStringEdgeType(edge) };
         }
         default:
             return undefined;

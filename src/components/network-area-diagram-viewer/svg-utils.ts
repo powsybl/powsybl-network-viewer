@@ -49,7 +49,7 @@ function isSelectable(element: SVGElement): boolean {
 }
 
 function hasId(element: SVGElement): boolean {
-    return typeof element.id != 'undefined' && element.id != '';
+    return element.id != undefined && element.id != '';
 }
 
 function classIsContainerOfDraggables(element: SVGElement): boolean {
@@ -355,7 +355,7 @@ export function getSvgXml(svg: string | null): string {
         '<?xml version="1.0" standalone="no"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd" [<!ENTITY nbsp "&#160;">]>';
     const bytes = new TextEncoder().encode(doctype + svg);
     const encodedSvg = Array.from(bytes, (byte) => String.fromCodePoint(byte)).join('');
-    return `data:image/svg+xml;base64,${window.btoa(encodedSvg)}`;
+    return `data:image/svg+xml;base64,${globalThis.btoa(encodedSvg)}`;
 }
 
 export function getPngFromImage(image: HTMLImageElement): string {
@@ -372,7 +372,7 @@ export function getPngFromImage(image: HTMLImageElement): string {
 }
 
 export function getBlobFromPng(png: string): Blob {
-    const byteString = window.atob(png.split(',')[1]);
+    const byteString = globalThis.atob(png.split(',')[1]);
     const mimeString = png.split(',')[0].split(':')[1].split(';')[0];
     const buffer = new ArrayBuffer(byteString.length);
     const intArray = new Uint8Array(buffer);
