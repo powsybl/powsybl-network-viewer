@@ -34,6 +34,7 @@ import {
 import { Cancelable } from '@mui/utils/debounce/debounce';
 import * as ViewerButtons from './viewer-buttons';
 import * as SvgUtils from './svg-utils';
+import * as MetadataUtils from './metadata-utils';
 
 export type BranchState = {
     branchId: string;
@@ -712,7 +713,7 @@ export class NetworkAreaDiagramViewer {
     private updateNodeMetadata(vlNode: SVGGraphicsElement, position: Point) {
         const node: NodeMetadata | undefined = this.diagramMetadata?.nodes.find((node) => node.svgId == vlNode.id);
         if (node != null) {
-            const nodeMove = DiagramUtils.getNodeMove(node, position);
+            const nodeMove = MetadataUtils.getNodeMove(node, position);
             node.x = nodeMove.xNew;
             node.y = nodeMove.yNew;
         }
@@ -733,7 +734,7 @@ export class NetworkAreaDiagramViewer {
             return;
         }
 
-        const textNodeMoves = DiagramUtils.getTextNodeMoves(textNode, node, position, this.endTextEdge);
+        const textNodeMoves = MetadataUtils.getTextNodeMoves(textNode, node, position, this.endTextEdge);
         textNode.shiftX = textNodeMoves[0].xNew;
         textNode.shiftY = textNodeMoves[0].yNew;
         textNode.connectionShiftX = textNodeMoves[1].xNew;
@@ -1074,7 +1075,7 @@ export class NetworkAreaDiagramViewer {
                 edgeGroup.push(edge);
                 loopEdges.set(edge.node1, edgeGroup);
             } else {
-                const edgeGroupId = DiagramUtils.getGroupedEdgesIndexKey(edge);
+                const edgeGroupId = MetadataUtils.getGroupedEdgesIndexKey(edge);
                 if (groupedEdges.has(edgeGroupId)) {
                     edgeGroup = groupedEdges.get(edgeGroupId) ?? [];
                 }
@@ -1163,7 +1164,7 @@ export class NetworkAreaDiagramViewer {
 
     private redrawEdge(edge: EdgeMetadata, iEdge: number, groupedEdgesCount: number) {
         // get edge type
-        const edgeType = DiagramUtils.getEdgeType(edge);
+        const edgeType = MetadataUtils.getEdgeType(edge);
         if (edgeType == DiagramUtils.EdgeType.UNKNOWN) {
             return;
         }
@@ -1196,7 +1197,7 @@ export class NetworkAreaDiagramViewer {
         this.redrawHalfEdge(edgeNode, halfEdge1);
         this.redrawHalfEdge(edgeNode, halfEdge2);
 
-        const edgeType = DiagramUtils.getEdgeType(edge);
+        const edgeType = MetadataUtils.getEdgeType(edge);
         const isTransformerEdge = DiagramUtils.isTransformerEdge(edgeType);
         const isHVDCLineEdge =
             edgeType == DiagramUtils.EdgeType.HVDC_LINE_LCC || edgeType == DiagramUtils.EdgeType.HVDC_LINE_VSC;
@@ -1429,9 +1430,9 @@ export class NetworkAreaDiagramViewer {
         }
 
         // sort buses by index
-        const sortedBusNodes: BusNodeMetadata[] = DiagramUtils.getSortedBusNodes(busNodes);
+        const sortedBusNodes: BusNodeMetadata[] = MetadataUtils.getSortedBusNodes(busNodes);
         const traversingBusEdgesAngles: number[] = [];
-        const nodeMetadata: NodeMetadata | undefined = DiagramUtils.getNodeMetadata(node.id, this.diagramMetadata);
+        const nodeMetadata: NodeMetadata | undefined = MetadataUtils.getNodeMetadata(node.id, this.diagramMetadata);
         for (let index = 0; index < sortedBusNodes.length; index++) {
             const busNode = sortedBusNodes[index];
             // skip redrawing of first bus or if there are no traversing bus edges
@@ -1490,7 +1491,7 @@ export class NetworkAreaDiagramViewer {
         nodeMetadata: NodeMetadata | undefined,
         traversingBusEdgesAngles: number[]
     ) {
-        const busNodeRadius = DiagramUtils.getNodeRadius(busNode, nodeMetadata, this.svgParameters);
+        const busNodeRadius = MetadataUtils.getNodeRadius(busNode, nodeMetadata, this.svgParameters);
         const edgeAngles = Object.assign(
             [],
             traversingBusEdgesAngles.sort(function (a, b) {
@@ -1637,7 +1638,7 @@ export class NetworkAreaDiagramViewer {
 
             for (const edge of this.diagramMetadata?.edges ?? []) {
                 if (edge.node1 !== edge.node2) {
-                    const key = DiagramUtils.getGroupedEdgesIndexKey(edge);
+                    const key = MetadataUtils.getGroupedEdgesIndexKey(edge);
                     const group = this.groupedEdgesIndexMap.get(key) ?? [];
                     group.push(edge.equipmentId);
                     this.groupedEdgesIndexMap.set(key, group);
@@ -1680,7 +1681,7 @@ export class NetworkAreaDiagramViewer {
             // detect if edge has parallel edges and call this.getHalfEdge, with the correct iEdge and nbGroupedEdges
             let iEdge = 0;
             let nbGroupedEdges = 1;
-            const groupedEdges = groupedEdgesIndex.get(DiagramUtils.getGroupedEdgesIndexKey(edge));
+            const groupedEdges = groupedEdgesIndex.get(MetadataUtils.getGroupedEdgesIndexKey(edge));
             if (groupedEdges && groupedEdges.length > 0) {
                 const i = groupedEdges.indexOf(edge.equipmentId);
                 if (i !== -1) {
@@ -1923,7 +1924,7 @@ export class NetworkAreaDiagramViewer {
     private onMouseRightDown(event: MouseEvent) {
         const mousePosition: Point = this.getMousePosition(event);
         const element = SvgUtils.getRightClickableFrom(event.target as SVGElement) ?? null;
-        let elementData = DiagramUtils.getRightClickableElementData(
+        let elementData = MetadataUtils.getRightClickableElementData(
             element?.id,
             SvgUtils.getElementType(element),
             this.diagramMetadata?.nodes,
@@ -1932,7 +1933,7 @@ export class NetworkAreaDiagramViewer {
         );
         if (!elementData && this.hoveredElement && this.existsNearbyHoveredElement(mousePosition)) {
             const hoverElement = SvgUtils.getRightClickableFrom(this.hoveredElement) ?? null;
-            elementData = DiagramUtils.getRightClickableElementData(
+            elementData = MetadataUtils.getRightClickableElementData(
                 hoverElement?.id,
                 SvgUtils.getElementType(hoverElement),
                 this.diagramMetadata?.nodes,
@@ -1947,7 +1948,7 @@ export class NetworkAreaDiagramViewer {
     }
 
     public zoomToFit() {
-        const viewBox = DiagramUtils.getViewBox(
+        const viewBox = MetadataUtils.getViewBox(
             this.diagramMetadata?.nodes,
             this.diagramMetadata?.textNodes,
             this.svgParameters
@@ -2101,7 +2102,7 @@ export class NetworkAreaDiagramViewer {
         const edge = this.diagramMetadata?.edges.find((edge) => edge.svgId === element.id);
         if (edge) {
             const equipmentId = edge.equipmentId ?? '';
-            const edgeType = DiagramUtils.getStringEdgeType(edge) ?? '';
+            const edgeType = MetadataUtils.getStringEdgeType(edge) ?? '';
             this.debounceToggleHoverCallback(true, mousePosition, equipmentId, edgeType);
 
             // Show preview points for bending if bend lines is enabled and edge is bendable
@@ -2154,7 +2155,7 @@ export class NetworkAreaDiagramViewer {
     private enableLineBending() {
         const linesPointsElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
         linesPointsElement.classList.add('nad-line-points');
-        const bendableEdges = DiagramUtils.getBendableLines(this.diagramMetadata?.edges, this.innerSvg);
+        const bendableEdges = MetadataUtils.getBendableLines(this.diagramMetadata?.edges, this.innerSvg);
         for (const edge of bendableEdges) {
             if (edge.bendingPoints) {
                 for (let index = 0; index < edge.bendingPoints.length; index++) {
@@ -2250,7 +2251,7 @@ export class NetworkAreaDiagramViewer {
             const node2 = this.diagramMetadata?.nodes.find((node) => node.svgId == edge.node2);
             if (node1 && node2) {
                 // insert the point in the list of points
-                const linePoints = DiagramUtils.addPointToList(
+                const linePoints = MetadataUtils.addPointToList(
                     edge.bendingPoints?.slice(),
                     new Point(node1.x, node1.y),
                     new Point(node2.x, node2.y),
@@ -2323,7 +2324,7 @@ export class NetworkAreaDiagramViewer {
 
     private getHalfEdges(edge: EdgeMetadata, iEdge: number, groupedEdgesCount: number) {
         // Detect if the edge is linked to an invisible node (not in DOM)
-        const invisibleSide = DiagramUtils.getInvisibleSide(edge, this.innerSvg);
+        const invisibleSide = MetadataUtils.getInvisibleSide(edge, this.innerSvg);
 
         if (!invisibleSide) {
             return DiagramUtils.getHalfEdges(edge, iEdge, groupedEdgesCount, this.diagramMetadata, this.svgParameters);
@@ -2369,7 +2370,7 @@ export class NetworkAreaDiagramViewer {
                 this.onBendLineCallback(
                     edge.svgId,
                     edge.equipmentId,
-                    DiagramUtils.getStringEdgeType(edge),
+                    MetadataUtils.getStringEdgeType(edge),
                     linePoints,
                     LineOperation[lineOperation]
                 );
