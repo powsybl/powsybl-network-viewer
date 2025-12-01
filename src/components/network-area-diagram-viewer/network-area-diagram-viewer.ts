@@ -804,10 +804,12 @@ export class NetworkAreaDiagramViewer {
         if (this.isDragging) {
             // moving element
             this.onDragEnd();
+            this.enablePanzoom();
         } else if (this.selectedElement) {
             // selecting element
             const mousePosition = this.getMousePosition(mouseEvent);
             this.onSelectEnd(mousePosition);
+            this.enablePanzoom();
         } else if (this.straightenedElement) {
             // straightening line
             this.onStraightenEnd();
@@ -829,8 +831,6 @@ export class NetworkAreaDiagramViewer {
         // change cursor style back to normal
         const svg: HTMLElement = <HTMLElement>this.svgDraw?.node.firstElementChild?.parentElement;
         svg.style.removeProperty('cursor');
-
-        this.enablePanzoom();
     }
 
     private onDragEnd() {
