@@ -10,7 +10,6 @@ import * as DiagramUtils from './diagram-utils';
 import { DiagramPaddingMetadata, SvgParametersMetadata } from './diagram-metadata';
 import { Point } from '@svgdotjs/svg.js';
 import { SvgParameters } from './svg-parameters';
-import { EdgeType, ElementType, HalfEdge } from './diagram-utils';
 
 test('getFormattedValue', () => {
     expect(DiagramUtils.getFormattedValue(12)).toBe('12.00');
@@ -65,70 +64,6 @@ test('getAngle', () => {
     expect(DiagramUtils.getAngle(new Point(50, 50), new Point(10, 10))).toBe(-2.356194490192345);
 });
 
-test('getArrowAngle', () => {
-    const halfEdge1: HalfEdge = {
-        side: '1',
-        fork: false,
-        busOuterRadius: 0,
-        voltageLevelRadius: 0,
-        edgePoints: [new Point(10, 10), new Point(50, 50)],
-    };
-    expect(DiagramUtils.getArrowRotation(halfEdge1)).toBe(135);
-
-    const halfEdge2: HalfEdge = {
-        side: '2',
-        fork: true,
-        busOuterRadius: 0,
-        voltageLevelRadius: 0,
-        edgePoints: [new Point(0, 0), new Point(10, 10), new Point(10, 50)],
-    };
-    expect(DiagramUtils.getArrowRotation(halfEdge2)).toBe(180);
-
-    const halfEdge3: HalfEdge = {
-        side: '2',
-        fork: false,
-        busOuterRadius: 0,
-        voltageLevelRadius: 0,
-        edgePoints: [new Point(10, 10), new Point(50, 10)],
-    };
-    expect(DiagramUtils.getArrowRotation(halfEdge3)).toBe(90);
-
-    const halfEdge4: HalfEdge = {
-        side: '1',
-        fork: true,
-        busOuterRadius: 0,
-        voltageLevelRadius: 0,
-        edgePoints: [new Point(0, 10), new Point(50, 50), new Point(10, 10)],
-    };
-    expect(DiagramUtils.getArrowRotation(halfEdge4)).toBe(-45);
-});
-
-test('getLabelData', () => {
-    const halfEdge1: HalfEdge = {
-        side: '1',
-        fork: false,
-        busOuterRadius: 0,
-        voltageLevelRadius: 0,
-        edgePoints: [new Point(10, 10), new Point(50, 50)],
-    };
-    const labelData = DiagramUtils.getLabelData(halfEdge1, 19);
-    expect(labelData[0]).toBe(45);
-    expect(labelData[1]).toBe(19);
-    expect(labelData[2]).toBeNull();
-
-    const halfEdge2: HalfEdge = {
-        side: '2',
-        fork: true,
-        busOuterRadius: 0,
-        voltageLevelRadius: 0,
-        edgePoints: [new Point(0, 0), new Point(10, 10), new Point(-30, 50)],
-    };
-    const flippedLabelData = DiagramUtils.getLabelData(halfEdge2, 19);
-    expect(flippedLabelData[0]).toBe(-45);
-    expect(flippedLabelData[1]).toBe(-19);
-    expect(flippedLabelData[2]).toBe('text-anchor:end');
-});
-
 test('getEdgeFork', () => {
     const edgeFork = DiagramUtils.getEdgeFork(new Point(10, 10), 80, 0.2618);
     expect(edgeFork.x).toBeCloseTo(87.274, 3);
@@ -139,24 +74,6 @@ test('getTransformerArrowMatrixString', () => {
     expect(DiagramUtils.getTransformerArrowMatrixString(Math.PI / 4, new Point(60, 60), 20)).toBe(
         '0.71,0.71,-0.71,0.71,60.00,17.57'
     );
-});
-
-test('getConverterStationPolyline', () => {
-    const halfEdge1: HalfEdge = {
-        side: '1',
-        fork: false,
-        busOuterRadius: 0,
-        voltageLevelRadius: 0,
-        edgePoints: [new Point(10, 10), new Point(85, 85)],
-    };
-    const halfEdge2: HalfEdge = {
-        side: '1',
-        fork: false,
-        busOuterRadius: 0,
-        voltageLevelRadius: 0,
-        edgePoints: [new Point(160, 160), new Point(85, 85)],
-    };
-    expect(DiagramUtils.getConverterStationPolyline(halfEdge1, halfEdge2, 70)).toBe('60.25,60.25 109.75,109.75');
 });
 
 test('getVoltageLevelCircleRadius', () => {

@@ -35,6 +35,7 @@ import { Cancelable } from '@mui/utils/debounce/debounce';
 import * as ViewerButtons from './viewer-buttons';
 import * as SvgUtils from './svg-utils';
 import * as MetadataUtils from './metadata-utils';
+import * as HalfEdgeUtils from './half-edge-utils';
 
 export type BranchState = {
     branchId: string;
@@ -1218,7 +1219,7 @@ export class NetworkAreaDiagramViewer {
 
         // store edge angle, to use them for bus node redrawing
         const edgeAnglesCache = halfEdge.side == '1' ? this.edgeAngles1 : this.edgeAngles2;
-        edgeAnglesCache.set(edgeNode.id, DiagramUtils.getEdgeStartAngle(halfEdge));
+        edgeAnglesCache.set(edgeNode.id, HalfEdgeUtils.getEdgeStartAngle(halfEdge));
 
         // move edge polyline
         const polyline = this.getHalfEdgeNodeFromEdgeNode(edgeNode, halfEdge.side);
@@ -1258,14 +1259,14 @@ export class NetworkAreaDiagramViewer {
         }
 
         // move edge arrow
-        const arrowCenter = DiagramUtils.getArrowCenter(halfEdge, this.svgParameters);
+        const arrowCenter = HalfEdgeUtils.getArrowCenter(halfEdge, this.svgParameters);
         edgeInfo.setAttribute('transform', 'translate(' + DiagramUtils.getFormattedPoint(arrowCenter) + ')');
-        const arrowAngle = DiagramUtils.getArrowRotation(halfEdge);
+        const arrowAngle = HalfEdgeUtils.getArrowRotation(halfEdge);
         const arrowRotationElement = edgeInfo.firstElementChild as SVGGraphicsElement;
         arrowRotationElement.setAttribute('transform', 'rotate(' + DiagramUtils.getFormattedValue(arrowAngle) + ')');
 
         // move edge label
-        const labelData = DiagramUtils.getLabelData(halfEdge, this.svgParameters.getArrowLabelShift());
+        const labelData = HalfEdgeUtils.getLabelData(halfEdge, this.svgParameters.getArrowLabelShift());
         const labelRotationElement = edgeInfo.lastElementChild as SVGGraphicsElement;
         labelRotationElement.setAttribute('transform', 'rotate(' + DiagramUtils.getFormattedValue(labelData[0]) + ')');
         labelRotationElement.setAttribute('x', DiagramUtils.getFormattedValue(labelData[1]));
@@ -1357,7 +1358,7 @@ export class NetworkAreaDiagramViewer {
         halfEdge2: HalfEdge | null
     ) {
         const converterStationElement: SVGGraphicsElement = edgeNode.lastElementChild as SVGGraphicsElement;
-        const polylinePoints: string = DiagramUtils.getConverterStationPolyline(
+        const polylinePoints: string = HalfEdgeUtils.getConverterStationPolyline(
             halfEdge1,
             halfEdge2,
             this.svgParameters.getConverterStationWidth()
@@ -1545,7 +1546,7 @@ export class NetworkAreaDiagramViewer {
 
         // compute polyline points
         const threeWtMoved = edge.node1 != this.draggedElement?.id;
-        const halfEdge = DiagramUtils.getThreeWtHalfEdge(
+        const halfEdge = HalfEdgeUtils.getThreeWtHalfEdge(
             SvgUtils.getPolylinePoints(twtEdge),
             edge,
             threeWtMoved,
@@ -1562,7 +1563,7 @@ export class NetworkAreaDiagramViewer {
         this.redrawEdgeArrowAndLabel(halfEdge);
 
         // store edge angles, to use them for bus node redrawing
-        this.edgeAngles1.set(edge.svgId, DiagramUtils.getEdgeStartAngle(halfEdge));
+        this.edgeAngles1.set(edge.svgId, HalfEdgeUtils.getEdgeStartAngle(halfEdge));
     }
 
     private redrawBoundaryNode(node: SVGGraphicsElement | null, halfEdge: HalfEdge | null) {
@@ -2327,11 +2328,11 @@ export class NetworkAreaDiagramViewer {
         const invisibleSide = MetadataUtils.getInvisibleSide(edge, this.innerSvg);
 
         if (!invisibleSide) {
-            return DiagramUtils.getHalfEdges(edge, iEdge, groupedEdgesCount, this.diagramMetadata, this.svgParameters);
+            return HalfEdgeUtils.getHalfEdges(edge, iEdge, groupedEdgesCount, this.diagramMetadata, this.svgParameters);
         } else {
             const visibleSide = invisibleSide == '1' ? '2' : '1';
             const halfEdgeElement = this.getHalfEdgeNode(edge.svgId, visibleSide);
-            return DiagramUtils.getHalfVisibleHalfEdges(
+            return HalfEdgeUtils.getHalfVisibleHalfEdges(
                 SvgUtils.getPolylinePoints(halfEdgeElement),
                 edge,
                 visibleSide,
