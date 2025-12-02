@@ -808,10 +808,12 @@ export class NetworkAreaDiagramViewer {
         if (this.isDragging) {
             // moving element
             this.onDragEnd();
+            this.enablePanzoom();
         } else if (this.selectedElement) {
             // selecting element
             const mousePosition = this.getMousePosition(mouseEvent);
             this.onSelectEnd(mousePosition);
+            this.enablePanzoom();
         } else if (this.straightenedElement) {
             // straightening line
             this.onStraightenEnd();
@@ -833,8 +835,6 @@ export class NetworkAreaDiagramViewer {
         // change cursor style back to normal
         const svg: HTMLElement = <HTMLElement>this.svgDraw?.node.firstElementChild?.parentElement;
         svg.style.removeProperty('cursor');
-
-        this.enablePanzoom();
     }
 
     private onDragEnd() {
@@ -1230,15 +1230,15 @@ export class NetworkAreaDiagramViewer {
 
     private getHalfEdgeNodeFromEdgeNode(edgeNode: SVGGraphicsElement, side: string): HTMLElement | null {
         const allPath = edgeNode.querySelectorAll(':scope > polyline.nad-edge-path');
-        return this.getHalfEdgeNodeFromEdgePolylines(allPath, side);
+        return this.getHalfEdgeNodeFromEdgeElements(allPath, side);
     }
 
     private getHalfEdgeNode(edgeId: string, side: string): HTMLElement | null {
-        const allPath = this.svgDiv.querySelectorAll("[id='" + edgeId + "'] > polyline.nad-edge-path");
-        return this.getHalfEdgeNodeFromEdgePolylines(allPath, side);
+        const allPath = this.svgDiv.querySelectorAll("[id='" + edgeId + "'] > .nad-edge-path");
+        return this.getHalfEdgeNodeFromEdgeElements(allPath, side);
     }
 
-    private getHalfEdgeNodeFromEdgePolylines(allPath: NodeListOf<Element>, side: string) {
+    private getHalfEdgeNodeFromEdgeElements(allPath: NodeListOf<Element>, side: string) {
         if (!allPath) return null;
         if (allPath.length > 1) {
             return allPath.item(side == '1' ? 0 : 1) as HTMLElement;
