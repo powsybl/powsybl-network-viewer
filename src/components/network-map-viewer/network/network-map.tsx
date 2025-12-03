@@ -32,7 +32,6 @@ import { type Layer, type PickingInfo } from '@deck.gl/core';
 import type { Feature, Polygon } from 'geojson';
 import mapboxgl, { type MapLayerMouseEvent as MapBoxLayerMouseEvent } from 'mapbox-gl';
 import maplibregl, { type MapLayerMouseEvent as MapLibreLayerMouseEvent } from 'maplibre-gl';
-import PropTypes from 'prop-types';
 import {
     forwardRef,
     memo,
@@ -173,7 +172,7 @@ export type NetworkMapProps = {
     lineFlowMode?: LineFlowMode;
     lineFullPath?: boolean;
     lineParallelPath?: boolean;
-    renderPopover?: (equipmentId: string, divRef: RefObject<HTMLDivElement>) => ReactNode;
+    renderPopover?: (equipmentId: string, divRef: RefObject<HTMLDivElement | null>) => ReactNode;
     tooltipZoomThreshold?: number;
     // With mapboxgl v2 (not a problem with maplibre), we need to call
     // map.resize() when the parent size has changed, otherwise the map is not
@@ -263,7 +262,7 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
     const mapRef = useRef<MapRef>(null); //TODO replaced since v7.? by https://visgl.github.io/react-map-gl/docs/api-reference/mapbox/use-map
     const deckRef = useRef<MapboxOverlay>(null);
     const [centered, setCentered] = useState(INITIAL_CENTERED);
-    const lastViewStateRef = useRef<ViewState>();
+    const lastViewStateRef = useRef<ViewState>(undefined);
     const [tooltip, setTooltip] = useState<TooltipType | null>(null);
     const theme = useTheme();
     const foregroundNeutralColor = useMemo(() => {
@@ -875,56 +874,6 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
         )
     );
 });
-
-NetworkMap.propTypes = {
-    disabled: PropTypes.bool,
-    geoData: PropTypes.instanceOf(GeoData),
-    mapBoxToken: PropTypes.string,
-    mapEquipments: PropTypes.instanceOf(MapEquipments),
-    mapLibrary: PropTypes.oneOf([CARTO, CARTO_NOLABEL, MAPBOX, ETALAB]),
-    mapTheme: PropTypes.oneOf([LIGHT, DARK]),
-
-    areFlowsValid: PropTypes.bool,
-    arrowsZoomThreshold: PropTypes.number,
-    centerOnSubstation: PropTypes.any,
-    displayOverlayLoader: PropTypes.bool,
-    filteredNominalVoltages: PropTypes.array,
-    initialPosition: PropTypes.any,
-    initialZoom: PropTypes.number,
-    isManualRefreshBackdropDisplayed: PropTypes.bool,
-    labelsZoomThreshold: PropTypes.number,
-    lineFlowAlertThreshold: PropTypes.number,
-    lineFlowColorMode: PropTypes.oneOf(Object.values(LineFlowColorMode)),
-    lineFlowMode: PropTypes.oneOf(Object.values(LineFlowMode)),
-    lineFullPath: PropTypes.bool,
-    lineParallelPath: PropTypes.bool,
-    renderPopover: PropTypes.func,
-    tooltipZoomThreshold: PropTypes.number,
-    // With mapboxgl v2 (not a problem with maplibre), we need to call
-    // map.resize() when the parent size has changed, otherwise the map is not
-    // redrawn. It seems like this is autodetected when the browser window is
-    // resized, but not for programmatic resizes of the parent. For now in our
-    // app, only study display mode resizes programmatically
-    // use this prop to make the map resize when needed, each time this prop changes, map.resize() is trigged
-    triggerMapResizeOnChange: PropTypes.any,
-    updatedLines: PropTypes.array,
-    useName: PropTypes.bool,
-    visible: PropTypes.bool,
-    shouldDisableToolTip: PropTypes.bool,
-    locateSubStationZoomLevel: PropTypes.number,
-    enablePitchAndRotate: PropTypes.bool,
-    onHvdcLineMenuClick: PropTypes.func,
-    onLineMenuClick: PropTypes.func,
-    onTieLineMenuClick: PropTypes.func,
-    onManualRefreshClick: PropTypes.func,
-    onSubstationClick: PropTypes.func,
-    onSubstationClickChooseVoltageLevel: PropTypes.func,
-    onSubstationMenuClick: PropTypes.func,
-    onVoltageLevelMenuClick: PropTypes.func,
-    onDrawPolygonModeActive: PropTypes.func,
-    onPolygonChanged: PropTypes.func,
-    onDrawEvent: PropTypes.func,
-};
 
 //TODO why is the FunctionComponent memoized?! It never change and useMemo!=useCallback
 export default memo(NetworkMap);
