@@ -2169,10 +2169,10 @@ export class NetworkAreaDiagramViewer {
                 this.bendableLines.push(edge.svgId);
             } else {
                 this.bendableLines.push(edge.svgId);
-                this.bendLines = true;
             }
         }
-        if (this.bendLines) {
+        if (this.bendableLines.length > 0) {
+            this.bendLines = true;
             this.svgDraw?.node.firstElementChild?.appendChild(linesPointsElement);
         }
     }
