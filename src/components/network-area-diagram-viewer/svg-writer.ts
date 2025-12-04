@@ -9,20 +9,18 @@
 import { Point } from '@svgdotjs/svg.js';
 import { BusNodeMetadata, DiagramMetadata, NodeMetadata } from './diagram-metadata';
 import * as DiagramUtils from './diagram-utils';
-import { LayoutParameters } from './layout-parameters';
 import { SvgParameters } from './svg-parameters';
+import * as MetadataUtils from './metadata-utils';
 
 export class SvgWriter {
     static readonly NODES_CLASS = 'nad-vl-nodes';
 
     diagramMetadata: DiagramMetadata;
     svgParameters: SvgParameters;
-    layoutParameters: LayoutParameters;
 
     constructor(diagramMetadata: DiagramMetadata) {
         this.diagramMetadata = diagramMetadata;
         this.svgParameters = new SvgParameters(this.diagramMetadata.svgParameters);
-        this.layoutParameters = new LayoutParameters(this.diagramMetadata.layoutParameters);
     }
 
     public getSvg(): string {
@@ -46,7 +44,7 @@ export class SvgWriter {
 
     private getSvgRootElement(): SVGSVGElement {
         const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        const viewBox = DiagramUtils.getViewBox(
+        const viewBox = MetadataUtils.getViewBox(
             this.diagramMetadata.nodes,
             this.diagramMetadata.textNodes,
             this.svgParameters
@@ -76,20 +74,19 @@ export class SvgWriter {
             'translate(' + DiagramUtils.getFormattedPoint(new Point(node.x, node.y)) + ')'
         );
         // add buses
-        const busNodes = this.diagramMetadata?.busNodes.filter((bus) => bus.vlNode === node.svgId);
-        const sortedBusNodes: BusNodeMetadata[] = DiagramUtils.getSortedBusNodes(busNodes);
-        sortedBusNodes.forEach((busNode) => {
+        const busNodes = MetadataUtils.getBusNodesMetadata(node.svgId, this.diagramMetadata.busNodes);
+        busNodes.forEach((busNode) => {
             gNodeElement.appendChild(this.getBusNode(busNode, node));
         });
         return gNodeElement;
     }
 
     private getBusNode(busNode: BusNodeMetadata, node: NodeMetadata): SVGElement {
-        const nodeRadius = DiagramUtils.getNodeRadius(busNode, node, this.svgParameters);
+        const nodeRadius = MetadataUtils.getNodeRadius(busNode, node, this.svgParameters);
         if (busNode.index == 0) {
             const circleElement = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
             circleElement.id = busNode.svgId;
-            circleElement.setAttribute('r', DiagramUtils.getFormattedValue(nodeRadius[1]));
+            circleElement.setAttribute('r', DiagramUtils.getFormattedValue(nodeRadius.busOuterRadius));
             return circleElement;
         } else {
             const pathElement = document.createElementNS('http://www.w3.org/2000/svg', 'path');
