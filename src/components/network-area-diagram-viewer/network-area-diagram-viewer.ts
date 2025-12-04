@@ -36,6 +36,7 @@ import * as SvgUtils from './svg-utils';
 import * as MetadataUtils from './metadata-utils';
 import * as HalfEdgeUtils from './half-edge-utils';
 import { Dimensions, EdgeType, ElementType, HalfEdge, ViewBox } from './diagram-types';
+import { SvgWriter } from './svg-writer';
 
 export type BranchState = {
     branchId: string;
@@ -151,6 +152,10 @@ export class NetworkAreaDiagramViewer {
         this.svgDiv.id = 'svg-container';
         this.svgContent = this.fixSvgContent(svgContent);
         this.diagramMetadata = diagramMetadata;
+        if (this.diagramMetadata != null && this.svgContent.length == 0) {
+            const createdSvg = new SvgWriter(this.diagramMetadata).getSvg();
+            this.svgContent = createdSvg;
+        }
         this.nadViewerParameters = new NadViewerParameters(nadViewerParametersOptions ?? undefined);
         this.width = 0;
         this.height = 0;

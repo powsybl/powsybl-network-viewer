@@ -333,3 +333,8 @@ export function getEdgeType(edge: EdgeMetadata): EdgeType {
 export function getStringEdgeType(edge: EdgeMetadata): string {
     return EdgeType[getEdgeType(edge)];
 }
+
+export function getBusNodesMetadata(nodeId: string, busNodes: BusNodeMetadata[]): BusNodeMetadata[] {
+    const buses = busNodes.filter((bus) => bus.vlNode === nodeId);
+    return getSortedBusNodes(buses);
+}
