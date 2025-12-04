@@ -895,6 +895,72 @@ export function getHalfEdges(
     return [halfEdge1, halfEdge2];
 }
 
+export function getHalfEdgesLoop(
+    edge: EdgeMetadata,
+    diagramMetadata: DiagramMetadata | null,
+    element: SVGGraphicsElement | null,
+    svgParameters: SvgParameters
+): HalfEdge[] | null[] {
+    if (!element) {
+        return [null, null];
+    }
+
+    const node1 = getNodeMetadata(edge.node1, diagramMetadata);
+    const node2 = getNodeMetadata(edge.node2, diagramMetadata);
+
+    if (node1 != node2) {
+        return [null, null];
+    }
+
+    const busNode1 = getBusNodeMetadata(edge.busNode1, diagramMetadata);
+    const busNode2 = getBusNodeMetadata(edge.busNode2, diagramMetadata);
+    const nodeRadius1 = getNodeRadius(busNode1, node1, svgParameters);
+    const nodeRadius2 = getNodeRadius(busNode2, node2, svgParameters);
+
+    const paths = element.getElementsByTagName('path');
+    const path1 = paths.length > 0 ? paths[0].getAttribute('d') : null;
+    const path2 = paths.length > 1 ? paths[1].getAttribute('d') : null;
+
+    const parsePathPoints = (d: string | null) => (d == null ? [] : (getPathPoints(d) ?? []));
+
+    const pathPoints1 = parsePathPoints(path1);
+    const pathPoints2 = parsePathPoints(path2);
+
+    //translates the points, if a transform exists in the SVG edge's element
+    const transform = getTransform(element);
+    if (transform) {
+        const { e: dx, f: dy } = transform.matrix;
+
+        const translatePoints = (points: Point[]) => {
+            for (const point of points) {
+                point.x += dx;
+                point.y += dy;
+            }
+        };
+
+        translatePoints(pathPoints1);
+        translatePoints(pathPoints2);
+    }
+
+    const halfEdge1: HalfEdge = {
+        side: '1',
+        fork: false,
+        busOuterRadius: nodeRadius1[1],
+        voltageLevelRadius: nodeRadius1[2],
+        edgeInfoId: edge.edgeInfo1?.svgId,
+        edgePoints: pathPoints1,
+    };
+    const halfEdge2: HalfEdge = {
+        side: '2',
+        fork: false,
+        busOuterRadius: nodeRadius2[1],
+        voltageLevelRadius: nodeRadius2[2],
+        edgeInfoId: edge.edgeInfo2?.svgId,
+        edgePoints: pathPoints2,
+    };
+    return [halfEdge1, halfEdge2];
+}
+
 function getBusNodeMetadata(busNodeId: string, diagramMetadata: DiagramMetadata | null): BusNodeMetadata | undefined {
     return diagramMetadata?.busNodes.find((busNode) => busNode.svgId == busNodeId);
 }

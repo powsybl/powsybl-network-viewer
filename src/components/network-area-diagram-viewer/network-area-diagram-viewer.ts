@@ -128,6 +128,8 @@ export class NetworkAreaDiagramViewer {
 
     groupedEdgesIndexMap: Map<string, string[]> | null = null;
 
+    nodeMap: Map<string, NodeMetadata> | null = null;
+
     static readonly ZOOM_CLASS_PREFIX = 'nad-zoom-';
 
     /**
@@ -163,8 +165,8 @@ export class NetworkAreaDiagramViewer {
         this.zoomLevels = this.nadViewerParameters.getZoomLevels();
         this.zoomLevels.sort((a, b) => b - a);
         this.hoverPositionPrecision = this.nadViewerParameters.getHoverPositionPrecision();
-        this.init();
         this.svgParameters = new SvgParameters(this.diagramMetadata?.svgParameters);
+        this.init();
         this.layoutParameters = new LayoutParameters(this.diagramMetadata?.layoutParameters);
         this.previousMaxDisplayedSize = 0;
     }
@@ -415,12 +417,7 @@ export class NetworkAreaDiagramViewer {
         firstChild.removeAttribute('width');
         firstChild.removeAttribute('height');
 
-        if (this.nadViewerParameters.getEnableLevelOfDetail()) {
-            //parameters enableLevelOfDetail and enableAdaptiveZoom are alternative
-            if (this.nadViewerParameters.getEnableAdaptiveZoom()) {
-                console.error('conflicting enableAdaptiveZoom parameter was set');
-                return;
-            }
+        if (this.nadViewerParameters.getEnableLevelOfDetail() || this.nadViewerParameters.getEnableAdaptiveZoom()) {
             this.svgDraw.fire('zoom'); // Forces a new dynamic zoom check to correctly update the dynamic CSS
 
             // We add an observer to track when the SVG's viewBox is updated by panzoom
@@ -431,34 +428,6 @@ export class NetworkAreaDiagramViewer {
                 for (const mutation of mutationList) {
                     if (mutation.attributeName === 'viewBox') {
                         this.checkAndUpdateLevelOfDetail();
-                    }
-                }
-            };
-
-            // Create a debounced version of the observer callback to limit the frequency of calls when the 'viewBox' attribute changes,
-            // particularly during zooming operations, improving performance and avoiding redundant updates.
-            const debouncedObserverCallback = debounce(observerCallback, 50);
-            const observer = new MutationObserver(debouncedObserverCallback);
-            observer.observe(this.svgDraw.node, { attributeFilter: ['viewBox'] });
-        }
-
-        if (this.nadViewerParameters.getEnableAdaptiveZoom()) {
-            //parameters enableLevelOfDetail and enableAdaptiveZoom are alternative
-            if (this.nadViewerParameters.getEnableLevelOfDetail()) {
-                console.error('conflicting enableLevelOfDetail parameter was set');
-                return;
-            }
-
-            this.svgDraw.fire('zoom'); // Forces a new dynamic zoom check
-
-            // We add an observer to track when the SVG's viewBox is updated by panzoom
-            // (we have to do this instead of using panzoom's 'zoom' event to have accurate viewBox updates)
-            this.adaptiveZoomUpdate();
-            // Callback function to execute when mutations are observed
-            const observerCallback = (mutationList: MutationRecord[]) => {
-                for (const mutation of mutationList) {
-                    if (mutation.attributeName === 'viewBox') {
-                        this.adaptiveZoomUpdate();
                     }
                 }
             };
@@ -1641,7 +1610,11 @@ export class NetworkAreaDiagramViewer {
         }
         this.setPreviousMaxDisplayedSize(maxDisplayedSize);
 
-        if (this.innerSvg) {
+        if (this.nadViewerParameters.getEnableAdaptiveZoom()) {
+            this.adaptiveZoomViewboxUpdate(maxDisplayedSize);
+        }
+
+        if (this.nadViewerParameters.getEnableLevelOfDetail() && this.innerSvg) {
             const zoomLevel = this.getZoomLevel(maxDisplayedSize);
             const isZoomLevelClassDefined = [...this.innerSvg.classList].some((c) =>
                 c.startsWith(NetworkAreaDiagramViewer.ZOOM_CLASS_PREFIX)
@@ -1662,22 +1635,60 @@ export class NetworkAreaDiagramViewer {
         return 0;
     }
 
-    public getNodesInViewbox(viewBox: ViewBoxLike, tolerance: number = 0): NodeMetadata[] {
+    private buildNodeMap(): Map<string, NodeMetadata> {
+        if (this.nodeMap) return this.nodeMap;
+
+        const map = new Map<string, NodeMetadata>();
+        const nodes = this.diagramMetadata?.nodes ?? [];
+        for (const n of nodes) {
+            map.set(n.svgId, n);
+        }
+        this.nodeMap = map;
+        return map;
+    }
+
+    private getElementsInViewbox(viewBox: ViewBoxLike, tolerance = 0) {
+        const metadata = this.diagramMetadata;
+        if (!metadata) {
+            return { nodes: [], edges: [] };
+        }
+
+        const { nodes = [], edges = [] } = metadata;
+
         const x = viewBox?.x ?? 0;
         const y = viewBox?.y ?? 0;
         const width = viewBox?.width ?? 0;
         const height = viewBox?.height ?? 0;
+
         const minX = x - tolerance;
         const maxX = x + width + tolerance;
         const minY = y - tolerance;
         const maxY = y + height + tolerance;
 
-        //This is a simple linear search; A more efficient approach could be investigated.
-        return (
-            this.diagramMetadata?.nodes.filter(
-                (node) => node.x >= minX && node.x <= maxX && node.y >= minY && node.y <= maxY
-            ) ?? []
-        );
+        const nodeMap = this.buildNodeMap();
+
+        const visibleNodes: NodeMetadata[] = [];
+        const visibleNodeIds = new Set<string>();
+
+        for (const node of nodes) {
+            if (node.x >= minX && node.x <= maxX && node.y >= minY && node.y <= maxY) {
+                visibleNodes.push(node);
+                visibleNodeIds.add(node.svgId);
+            }
+        }
+
+        const visibleEdges = [];
+        for (const edge of edges) {
+            const s1 = nodeMap.get(edge.node1);
+            const s2 = nodeMap.get(edge.node2);
+            if (!s1 || !s2) continue;
+
+            if (visibleNodeIds.has(s1.svgId) || visibleNodeIds.has(s2.svgId)) {
+                visibleEdges.push(edge);
+            }
+        }
+
+        return { nodes: visibleNodes, edges: visibleEdges };
     }
 
     private getOrCreateLegendBox(
@@ -1779,6 +1790,91 @@ export class NetworkAreaDiagramViewer {
         return newLegendEdgeElement;
     }
 
+    private getHalfEdgesForEdgeInfos(edge: EdgeMetadata) {
+        let halfEdges;
+
+        //detect a loop
+        if (edge.node1 == edge.node2) {
+            const edgeElement: SVGGraphicsElement | null = this.svgDiv.querySelector("[id='" + edge.svgId + "']");
+
+            halfEdges = DiagramUtils.getHalfEdgesLoop(edge, this.diagramMetadata, edgeElement, this.svgParameters);
+        } else {
+            const groupedEdgesIndex = this.buildGroupedEdgesIndexMap();
+
+            let iEdge = 0;
+            let nbGroupedEdges = 1;
+            const groupedEdges = groupedEdgesIndex.get(DiagramUtils.getGroupedEdgesIndexKey(edge));
+            if (groupedEdges && groupedEdges.length > 0) {
+                const i = groupedEdges.indexOf(edge.equipmentId);
+                if (i !== -1) {
+                    iEdge = i;
+                    nbGroupedEdges = groupedEdges.length;
+                }
+            }
+            halfEdges = this.getHalfEdges(edge, iEdge, nbGroupedEdges);
+        }
+        return halfEdges;
+    }
+
+    private createEdgeInfos(edge: EdgeMetadata): void {
+        let edgesInfoSection = this.svgDiv.querySelector('g.nad-edge-infos');
+        if (!edgesInfoSection) {
+            edgesInfoSection = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+            edgesInfoSection.classList.add('nad-edge-infos');
+            this.innerSvg?.appendChild(edgesInfoSection);
+        }
+
+        const halfEdges = this.getHalfEdgesForEdgeInfos(edge);
+
+        if (edge.edgeInfo1 && halfEdges[0]) {
+            // temporary fix for fork's middle straight line, where the edgePoints are expected to be 3
+            if (halfEdges[0].fork && halfEdges[0].edgePoints.length < 3) {
+                halfEdges[0].fork = false;
+            }
+
+            const edgeValue1 = Number(edge.edgeInfo1?.externalLabel);
+            this.setBranchSideLabel(
+                edge,
+                halfEdges[0],
+                edge.edgeInfo1,
+                '1',
+                Number.isNaN(edgeValue1) ? (edge.edgeInfo1?.externalLabel ?? '') : edgeValue1
+            );
+        }
+
+        if (edge.edgeInfo2 && halfEdges[1]) {
+            // temporary fix for fork's middle straight line, where the edgePoints are expected to be 3
+            if (halfEdges[1].fork && halfEdges[1].edgePoints.length < 3) {
+                halfEdges[1].fork = false;
+            }
+
+            const edgeValue2 = Number(edge.edgeInfo2?.externalLabel);
+            this.setBranchSideLabel(
+                edge,
+                halfEdges[1],
+                edge.edgeInfo2,
+                '2',
+                Number.isNaN(edgeValue2) ? (edge.edgeInfo2?.externalLabel ?? '') : edgeValue2
+            );
+        }
+    }
+
+    private createEdgesInfos(edges: EdgeMetadata[]): void {
+        for (const edge of edges) {
+            const edgeInfo = edge.edgeInfo1 ?? edge.edgeInfo2;
+            if (!edgeInfo) {
+                continue;
+            }
+
+            const edgeInfoElement: HTMLElement | null = this.svgDiv.querySelector("[id='" + edgeInfo.svgId + "']");
+            if (edgeInfoElement) {
+                continue;
+            }
+
+            this.createEdgeInfos(edge);
+        }
+    }
+
     private adaptiveZoomViewboxUpdate(maxDisplayedSize: number) {
         const viewBox = this.getViewBox();
         if (!viewBox) {
@@ -1806,11 +1902,15 @@ export class NetworkAreaDiagramViewer {
             }
         } else {
             let start = performance.now();
-            const containedList = this.getNodesInViewbox(viewBox, 50);
-            console.log('number of nodes in the current viewbox: ' + containedList.length);
-            console.log(`number of nodes in the current viewbox computing time: ${performance.now() - start} ms`);
+            const containedElementList = this.getElementsInViewbox(viewBox, 50);
+            const containedNodeList = containedElementList.nodes;
+            const containedEdgeList = containedElementList.edges;
+
+            console.log('number of nodes in the current viewbox: ' + containedNodeList.length);
+            console.log('number of edges in the current viewbox: ' + containedEdgeList.length);
+            console.log(`number of elements in the current viewbox computing time: ${performance.now() - start} ms`);
             start = performance.now();
-            for (const node of containedList) {
+            for (const node of containedNodeList) {
                 const textNode = this.diagramMetadata?.textNodes.find((tNode) => tNode.svgId === node.legendSvgId);
                 if (textNode) {
                     const busNodes: BusNodeMetadata[] =
@@ -1820,23 +1920,11 @@ export class NetworkAreaDiagramViewer {
                     this.getOrCreateLegendEdge(textNode, busNodes, node);
                 }
             }
-            console.log(`adaptive zoom mode adding elements time: ${performance.now() - start} ms`);
+            console.log(`adaptive zoom mode adding legends elements time: ${performance.now() - start} ms`);
+            start = performance.now();
+            this.createEdgesInfos(containedEdgeList);
+            console.log(`adaptive zoom mode adding edges info elements time: ${performance.now() - start} ms`);
         }
-    }
-
-    private adaptiveZoomUpdate() {
-        const maxDisplayedSize = this.getCurrentlyMaxDisplayedSize();
-        const previousMaxDisplayedSize = this.getPreviousMaxDisplayedSize();
-        // in case of bad or unset values NaN or Infinity, this condition is skipped and the function behaves as if zoom changed
-        if (
-            Math.abs(previousMaxDisplayedSize - maxDisplayedSize) / previousMaxDisplayedSize <
-            dynamicCssRulesUpdateThreshold
-        ) {
-            return;
-        }
-        this.adaptiveZoomViewboxUpdate(maxDisplayedSize);
-
-        this.setPreviousMaxDisplayedSize(maxDisplayedSize);
     }
 
     public setJsonBranchStates(branchStates: string) {
