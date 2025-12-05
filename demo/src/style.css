@@ -54,8 +54,8 @@ button:hover:not(:disabled) {
     stroke-width: 5;
     fill: none;
 }
-.nad-text-edges {
-}
+
+.nad-text-edges {stroke: black; stroke-width: 3; stroke-dasharray: 6,7; fill: none}
 .nad-disconnected.nad-edge-path {
     stroke-dasharray: 10, 10;
 }

@@ -240,7 +240,7 @@ export function getPathAngle(path: HTMLElement): number | null {
     return getAngle(points[0], points[1]);
 }
 
-function getPathPoints(pathPoints: string): Point[] | null {
+export function getPathPoints(pathPoints: string): Point[] | null {
     const stringPoints: string[] = pathPoints.split(' ');
     if (stringPoints.length < 2) {
         return null;
