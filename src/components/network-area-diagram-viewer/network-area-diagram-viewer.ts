@@ -1193,25 +1193,9 @@ export class NetworkAreaDiagramViewer {
     }
 
     private redrawEdgeGroup(edges: EdgeMetadata[]) {
-        if (edges.length == 1) {
-            this.redrawStraightEdge(edges[0]); // 1 edge in the group -> straight line
-        } else {
-            this.redrawForkEdge(edges);
-        }
-    }
-
-    private redrawForkEdge(edges: EdgeMetadata[]) {
         for (let iEdge = 0; iEdge < edges.length; iEdge++) {
-            if (2 * iEdge + 1 == edges.length) {
-                this.redrawStraightEdge(edges[iEdge]); // central edge, if present -> straight line
-            } else {
-                this.redrawEdge(edges[iEdge], iEdge, edges.length);
-            }
+            this.redrawEdge(edges[iEdge], iEdge, edges.length);
         }
-    }
-
-    private redrawStraightEdge(edge: EdgeMetadata) {
-        this.redrawEdge(edge, 0, 1);
     }
 
     private redrawEdge(edge: EdgeMetadata, iEdge: number, groupedEdgesCount: number) {
