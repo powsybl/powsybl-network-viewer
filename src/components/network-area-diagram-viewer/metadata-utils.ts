@@ -31,6 +31,7 @@ const EdgeTypeMapping: { [key: string]: EdgeType } = {
     DanglingLineEdge: EdgeType.DANGLING_LINE,
     TieLineEdge: EdgeType.TIE_LINE,
     ThreeWtEdge: EdgeType.THREE_WINDINGS_TRANSFORMER,
+    ThreeWtPstEdge: EdgeType.THREE_WINDINGS_PHASE_SHIFT_TRANSFORMER,
 };
 
 export function getBendableLines(edges: EdgeMetadata[] | undefined, svg: SVGElement | undefined): EdgeMetadata[] {

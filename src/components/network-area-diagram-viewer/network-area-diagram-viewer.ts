@@ -1205,7 +1205,7 @@ export class NetworkAreaDiagramViewer {
             return;
         }
 
-        if (this.isThreeWtEdge(edgeType, edge.svgId)) {
+        if (this.isThreeWtEdge(edgeType)) {
             this.redrawThreeWtEdge(edge);
         } else {
             const halfEdges = this.getHalfEdges(edge, iEdge, groupedEdgesCount);
@@ -1213,17 +1213,11 @@ export class NetworkAreaDiagramViewer {
         }
     }
 
-    private isThreeWtEdge(edgeType: EdgeType, edgeId: string) {
-        if (edgeType == EdgeType.THREE_WINDINGS_TRANSFORMER) {
-            return true;
-        }
-        if (edgeType == EdgeType.PHASE_SHIFT_TRANSFORMER) {
-            // get edge element
-            const edgeNode: SVGGraphicsElement | null = this.svgDiv.querySelector("[id='" + edgeId + "']");
-            const pst3wtEdge = edgeNode?.parentElement?.classList.contains('nad-3wt-edges');
-            return pst3wtEdge ?? false;
-        }
-        return false;
+    private isThreeWtEdge(edgeType: EdgeType) {
+        return (
+            edgeType == EdgeType.THREE_WINDINGS_TRANSFORMER ||
+            edgeType == EdgeType.THREE_WINDINGS_PHASE_SHIFT_TRANSFORMER
+        );
     }
 
     private redrawBranchEdge(edge: EdgeMetadata, halfEdge1: HalfEdge | null, halfEdge2: HalfEdge | null) {
