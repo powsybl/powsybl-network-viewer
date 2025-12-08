@@ -1694,9 +1694,10 @@ export class NetworkAreaDiagramViewer {
         return map;
     }
 
-    private getElementsInViewbox(viewBox: ViewBoxLike, tolerance = 0) {
+    private getElementsInViewbox(tolerance = 0) {
+        const viewBox = this.getViewBox();
         const metadata = this.diagramMetadata;
-        if (!metadata) {
+        if (!viewBox || !metadata) {
             return { nodes: [], edges: [] };
         }
 
@@ -1893,22 +1894,13 @@ export class NetworkAreaDiagramViewer {
     }
 
     private adaptiveZoomViewboxUpdate(maxDisplayedSize: number) {
-        const viewBox = this.getViewBox();
-        if (!viewBox) {
-            console.warn('undefined viewbox');
-            return;
-        }
-        console.log(
-            `zoomlevel: ${maxDisplayedSize}. Current viewBox: ${viewBox.x}, ${viewBox.y}, ${viewBox.width}, ${viewBox.height}`
-        );
-
         if (maxDisplayedSize > this.nadViewerParameters.getThresholdAdaptiveZoom()) {
             this.edgeInfosSection?.replaceChildren();
             this.textEdgesSection?.replaceChildren();
             this.textNodesSection?.replaceChildren();
         } else {
             let start = performance.now();
-            const containedElementList = this.getElementsInViewbox(viewBox, 50);
+            const containedElementList = this.getElementsInViewbox(50);
             const containedNodeList = containedElementList.nodes;
             const containedEdgeList = containedElementList.edges;
 
