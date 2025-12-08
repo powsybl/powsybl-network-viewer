@@ -1304,7 +1304,7 @@ export class NetworkAreaDiagramViewer {
             return;
         }
         if (!edgeInfo) {
-            edgeInfo = this.getEdgeInfo(halfEdge.edgeInfoId)
+            edgeInfo = this.getEdgeInfo(halfEdge.edgeInfoId);
             if (!edgeInfo) return;
         }
 
