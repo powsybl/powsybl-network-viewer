@@ -1299,13 +1299,13 @@ export class NetworkAreaDiagramViewer {
         }
     }
 
-    private redrawEdgeArrowAndLabel(halfEdge: HalfEdge) {
+    private redrawEdgeArrowAndLabel(halfEdge: HalfEdge, edgeInfo: SVGElement | null = null) {
         if (!halfEdge.edgeInfoId) {
             return;
         }
-        const edgeInfo: SVGGraphicsElement | null = this.svgDiv.querySelector("[id='" + halfEdge.edgeInfoId + "']");
         if (!edgeInfo) {
-            return;
+            edgeInfo = this.getEdgeInfo(halfEdge.edgeInfoId)
+            if (!edgeInfo) return;
         }
 
         // move edge arrow
@@ -1807,7 +1807,11 @@ export class NetworkAreaDiagramViewer {
     }
 
     private hasEdgeInfo(edgeInfo: EdgeInfoMetadata): boolean {
-        return !!this.edgeInfosSection?.querySelector(":scope > [id='" + edgeInfo.svgId + "']");
+        return !!this.getEdgeInfo(edgeInfo.svgId);
+    }
+
+    private getEdgeInfo(edgeInfoSvgId: string): SVGElement | null {
+        return <SVGElement>this.edgeInfosSection?.querySelector(":scope > [id='" + edgeInfoSvgId + "']") ?? null;
     }
 
     private hasTextNode(textNode: TextNodeMetadata) {
@@ -2111,13 +2115,11 @@ export class NetworkAreaDiagramViewer {
         const branchLabelElement = this.getOrCreateEdgeInfoText(edgeInfo);
         branchLabelElement.innerHTML = edgeInfoMetadata.externalLabel;
 
-        this.redrawEdgeArrowAndLabel(halfEdge);
+        this.redrawEdgeArrowAndLabel(halfEdge, edgeInfo);
     }
 
     private getOrCreateEdgeInfo(edgeInfoMetadata: EdgeInfoMetadata): SVGElement {
-        const edgeInfo = <SVGElement>(
-            this.edgeInfosSection?.querySelector(":scope > [id='" + edgeInfoMetadata.svgId + "']")
-        );
+        const edgeInfo = this.getEdgeInfo(edgeInfoMetadata.svgId);
         if (edgeInfo) {
             return edgeInfo;
         }
