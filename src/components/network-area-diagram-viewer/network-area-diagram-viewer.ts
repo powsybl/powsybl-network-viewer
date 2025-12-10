@@ -1682,7 +1682,7 @@ export class NetworkAreaDiagramViewer {
         return 0;
     }
 
-    private buildNodeMap(): Map<string, NodeMetadata> {
+    private getNodeMap(): Map<string, NodeMetadata> {
         if (this.nodeMap) return this.nodeMap;
 
         const map = new Map<string, NodeMetadata>();
@@ -1713,7 +1713,7 @@ export class NetworkAreaDiagramViewer {
         const minY = y - tolerance;
         const maxY = y + height + tolerance;
 
-        const nodeMap = this.buildNodeMap();
+        const nodeMap = this.getNodeMap();
 
         const visibleNodes: NodeMetadata[] = [];
         const visibleNodeIds = new Set<string>();
@@ -1750,12 +1750,12 @@ export class NetworkAreaDiagramViewer {
         newTextElement.style.left = node.x + textNode.shiftX + 'px';
         newTextElement.id = textNode.svgId;
 
-        //Retrieve the bus' node class from SVG, if it exist.
+        //Retrieve the voltage level's node class from SVG, if it exist.
         //This logic should be replaced once the class name will be in the metadata.
         const nodeElement: HTMLElement | null = this.svgDiv.querySelector("[id='" + textNode.vlNode + "']");
-        const busElementClass: string | null = nodeElement ? nodeElement.getAttribute('class') : null;
-        if (busElementClass?.startsWith('nad-vl')) {
-            newTextElement.classList.add(busElementClass);
+        const nodeElementClass: string | null = nodeElement ? nodeElement.getAttribute('class') : null;
+        if (nodeElementClass?.startsWith('nad-vl')) {
+            newTextElement.classList.add(nodeElementClass);
         }
         newTextElement.classList.add('nad-label-box');
 
