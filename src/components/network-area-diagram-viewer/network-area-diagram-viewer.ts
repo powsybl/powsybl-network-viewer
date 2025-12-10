@@ -541,14 +541,12 @@ export class NetworkAreaDiagramViewer {
         bendLinesButton.addEventListener('click', () => {
             if (this.bendLines) {
                 this.disableLineBending();
-                bendLinesButton.classList.remove('bend-lines-button-active');
-                bendLinesButton.classList.add('bend-lines-button-inactive');
+                bendLinesButton.classList.remove('button-active');
                 bendLinesButton.title = 'Enable line bending';
             } else {
                 this.enableLineBending();
                 if (this.bendLines) {
-                    bendLinesButton.classList.remove('bend-lines-button-inactive');
-                    bendLinesButton.classList.add('bend-lines-button-active');
+                    bendLinesButton.classList.add('button-active');
                     bendLinesButton.title = 'Disable line bending';
                 }
             }
