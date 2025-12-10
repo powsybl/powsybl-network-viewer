@@ -230,9 +230,6 @@ export function getPolylineAngle(polyline: HTMLElement): number | null {
 // get angle of first 2 points of a path
 export function getPathAngle(path: HTMLElement): number | null {
     const pathPoints = getAttribute(path, 'path', 'd');
-    if (pathPoints == null) {
-        return null;
-    }
     const points: Point[] | null = getPathPoints(pathPoints);
     if (points == null) {
         return null;
@@ -240,7 +237,11 @@ export function getPathAngle(path: HTMLElement): number | null {
     return getAngle(points[0], points[1]);
 }
 
-export function getPathPoints(pathPoints: string): Point[] | null {
+export function getPathPoints(pathPoints: string | null): Point[] | null {
+    if (pathPoints == null) {
+        return null;
+    }
+
     const stringPoints: string[] = pathPoints.split(' ');
     if (stringPoints.length < 2) {
         return null;

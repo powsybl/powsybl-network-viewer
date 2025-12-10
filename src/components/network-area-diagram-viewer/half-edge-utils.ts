@@ -6,7 +6,7 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 
-import { Point } from '@svgdotjs/svg.js';
+import { Point, Matrix } from '@svgdotjs/svg.js';
 import { SvgParameters } from './svg-parameters';
 import { DiagramMetadata, EdgeMetadata, NodeMetadata, PointMetadata } from './diagram-metadata';
 import {
@@ -286,25 +286,18 @@ export function getHalfEdgesLoop(
     const path1 = paths.length > 0 ? paths[0].getAttribute('d') : null;
     const path2 = paths.length > 1 ? paths[1].getAttribute('d') : null;
 
-    const parsePathPoints = (d: string | null) => (d == null ? [] : (getPathPoints(d) ?? []));
+    const pathPoints1 = getPathPoints(path1) ?? [];
+    const pathPoints2 = getPathPoints(path2) ?? [];
 
-    const pathPoints1 = parsePathPoints(path1);
-    const pathPoints2 = parsePathPoints(path2);
-
-    //translates the points, if a transform exists in the SVG edge's element
+    // if a transform exists in the SVG edge's element, apply it to the path's points, too.
     const transform = getTransform(element);
     if (transform) {
-        const { e: dx, f: dy } = transform.matrix;
-
-        const translatePoints = (points: Point[]) => {
-            for (const point of points) {
-                point.x += dx;
-                point.y += dy;
+        const svgTransformMatrix = new Matrix(transform.matrix);
+        for (const points of [pathPoints1, pathPoints2]) {
+            for (let i = 0; i < points.length; i++) {
+                points[i] = points[i].transform(svgTransformMatrix);
             }
-        };
-
-        translatePoints(pathPoints1);
-        translatePoints(pathPoints2);
+        }
     }
 
     const halfEdge1: HalfEdge = {
