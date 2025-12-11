@@ -154,7 +154,7 @@ export class NetworkAreaDiagramViewer {
         this.container = container;
         this.svgDiv = document.createElement('div');
         this.svgDiv.id = 'svg-container';
-        this.svgContent = this.fixSvgContent(svgContent);
+        this.svgContent = svgContent;
         this.diagramMetadata = diagramMetadata;
         this.nadViewerParameters = new NadViewerParameters(nadViewerParametersOptions ?? undefined);
         this.width = 0;
@@ -178,11 +178,6 @@ export class NetworkAreaDiagramViewer {
         this.previousMaxDisplayedSize = 0;
     }
 
-    private fixSvgContent(svgContent: string): string {
-        // fix span in text boxes, for avoiding to include the following text
-        return svgContent.replace(/(<span class=".*")(\/>)/g, '$1></span>');
-    }
-
     public setWidth(width: number): void {
         this.width = width;
     }
@@ -204,7 +199,7 @@ export class NetworkAreaDiagramViewer {
     }
 
     public setSvgContent(svgContent: string): void {
-        this.svgContent = this.fixSvgContent(svgContent);
+        this.svgContent = svgContent;
     }
 
     public getWidth(): number {
