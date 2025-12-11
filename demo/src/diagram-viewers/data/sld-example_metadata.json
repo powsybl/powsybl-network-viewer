@@ -667,9 +667,6 @@
     "side" : "THREE",
     "componentType" : "ARROW_ACTIVE"
   } ],
-  "busLegendInfos" : [ {
-    "id" : "idNODE_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_0"
-  } ],
   "busInfos" : [ ],
   "layoutParams" : {
     "verticalSpaceBus" : 25.0,
@@ -713,6 +710,7 @@
     "powerValuePrecision" : 0,
     "angleValuePrecision" : 1,
     "currentValuePrecision" : 0,
+    "percentageValuePrecision" : 0,
     "activePowerUnit" : "",
     "reactivePowerUnit" : "",
     "currentUnit" : "",
@@ -733,7 +731,6 @@
     "drawStraightWires" : false,
     "showGrid" : false,
     "showInternalNodes" : false,
-    "displayCurrentFeederInfo" : false,
     "displayEquipmentNodesLabel" : false,
     "displayConnectivityNodesId" : false,
     "unifyVoltageLevelColors" : false
