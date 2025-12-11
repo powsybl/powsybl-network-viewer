@@ -91,6 +91,9 @@ export class NetworkAreaDiagramViewer {
     originalHeight: number;
     svgDraw: Svg | undefined;
     innerSvg: SVGElement | undefined;
+    textNodesSection: HTMLElement | undefined;
+    textEdgesSection: SVGElement | undefined;
+    edgeInfosSection: SVGElement | undefined;
     ratio = 1;
     selectedElement: SVGGraphicsElement | null = null;
     draggedElement: SVGGraphicsElement | null = null;
@@ -132,6 +135,8 @@ export class NetworkAreaDiagramViewer {
 
     groupedEdgesIndexMap: Map<string, string[]> | null = null;
 
+    nodeMap: Map<string, NodeMetadata> | null = null;
+
     static readonly ZOOM_CLASS_PREFIX = 'nad-zoom-';
 
     /**
@@ -167,8 +172,8 @@ export class NetworkAreaDiagramViewer {
         this.zoomLevels = this.nadViewerParameters.getZoomLevels();
         this.zoomLevels.sort((a, b) => b - a);
         this.hoverPositionPrecision = this.nadViewerParameters.getHoverPositionPrecision();
-        this.init();
         this.svgParameters = new SvgParameters(this.diagramMetadata?.svgParameters);
+        this.init();
         this.layoutParameters = new LayoutParameters(this.diagramMetadata?.layoutParameters);
         this.previousMaxDisplayedSize = 0;
     }
@@ -356,6 +361,10 @@ export class NetworkAreaDiagramViewer {
         this.innerSvg = <SVGElement>this.svgDraw.svg(this.svgContent).node.firstElementChild;
         this.innerSvg.style.overflow = 'visible';
 
+        this.textNodesSection = this.getOrCreateTextNodesSection();
+        this.textEdgesSection = this.getOrCreateTextEdgesSection();
+        this.edgeInfosSection = this.getOrCreateEdgeInfosSection();
+
         // add events
         const hasMetadata = this.diagramMetadata !== null;
         if (this.hasNodeInteraction() && hasMetadata) {
@@ -396,9 +405,14 @@ export class NetworkAreaDiagramViewer {
                 drawnSvg.parentElement.style.cursor = 'move';
             }
         });
-        this.svgDraw.on('panEnd', function () {
+        this.svgDraw.on('panEnd', () => {
             if (drawnSvg.parentElement != undefined) {
                 drawnSvg.parentElement.style.removeProperty('cursor');
+
+                //if the adaptive zoom feature is enabled, updates the diagram
+                if (this.nadViewerParameters.getEnableAdaptiveTextZoom()) {
+                    this.adaptiveZoomViewboxUpdate(this.getCurrentlyMaxDisplayedSize());
+                }
             }
         });
 
@@ -414,7 +428,7 @@ export class NetworkAreaDiagramViewer {
         firstChild.removeAttribute('width');
         firstChild.removeAttribute('height');
 
-        if (this.nadViewerParameters.getEnableLevelOfDetail()) {
+        if (this.nadViewerParameters.getEnableLevelOfDetail() || this.nadViewerParameters.getEnableAdaptiveTextZoom()) {
             this.svgDraw.fire('zoom'); // Forces a new dynamic zoom check to correctly update the dynamic CSS
 
             // We add an observer to track when the SVG's viewBox is updated by panzoom
@@ -454,6 +468,43 @@ export class NetworkAreaDiagramViewer {
                 emptyElement.style.fill = '#0000';
             });
         }
+    }
+
+    private getOrCreateTextNodesSection(): HTMLElement {
+        let textNodesForeignObject = this.innerSvg?.querySelector(':scope > foreignObject.nad-text-nodes');
+        if (!textNodesForeignObject) {
+            textNodesForeignObject = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject');
+            textNodesForeignObject.setAttribute('height', '1');
+            textNodesForeignObject.setAttribute('width', '1');
+            textNodesForeignObject.classList.add('nad-text-nodes');
+            this.innerSvg?.appendChild(textNodesForeignObject);
+        }
+        let textNodesDiv = textNodesForeignObject?.children[0] as HTMLElement | undefined;
+        if (!textNodesDiv) {
+            textNodesDiv = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
+            textNodesForeignObject?.appendChild(textNodesDiv);
+        }
+        return textNodesDiv;
+    }
+
+    private getOrCreateTextEdgesSection(): SVGElement {
+        let legendEdgesSection = <SVGElement>this.innerSvg?.querySelector(':scope > g.nad-text-edges');
+        if (!legendEdgesSection) {
+            legendEdgesSection = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+            legendEdgesSection.classList.add('nad-text-edges');
+            this.innerSvg?.appendChild(legendEdgesSection);
+        }
+        return legendEdgesSection;
+    }
+
+    private getOrCreateEdgeInfosSection(): SVGElement {
+        let edgeInfos = <SVGElement>this.innerSvg?.querySelector(':scope > g.nad-edge-infos');
+        if (!edgeInfos) {
+            edgeInfos = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+            edgeInfos.classList.add('nad-edge-infos');
+            this.innerSvg?.appendChild(edgeInfos);
+        }
+        return edgeInfos;
     }
 
     private initDebounceToggleHoverCallback() {
@@ -1248,13 +1299,13 @@ export class NetworkAreaDiagramViewer {
         }
     }
 
-    private redrawEdgeArrowAndLabel(halfEdge: HalfEdge) {
+    private redrawEdgeArrowAndLabel(halfEdge: HalfEdge, edgeInfo: SVGElement | null = null) {
         if (!halfEdge.edgeInfoId) {
             return;
         }
-        const edgeInfo: SVGGraphicsElement | null = this.svgDiv.querySelector("[id='" + halfEdge.edgeInfoId + "']");
         if (!edgeInfo) {
-            return;
+            edgeInfo = this.getEdgeInfo(halfEdge.edgeInfoId);
+            if (!edgeInfo) return;
         }
 
         // move edge arrow
@@ -1606,7 +1657,11 @@ export class NetworkAreaDiagramViewer {
         }
         this.setPreviousMaxDisplayedSize(maxDisplayedSize);
 
-        if (this.innerSvg) {
+        if (this.nadViewerParameters.getEnableAdaptiveTextZoom()) {
+            this.adaptiveZoomViewboxUpdate(maxDisplayedSize);
+        }
+
+        if (this.nadViewerParameters.getEnableLevelOfDetail() && this.innerSvg) {
             const zoomLevel = this.getZoomLevel(maxDisplayedSize);
             const isZoomLevelClassDefined = [...this.innerSvg.classList].some((c) =>
                 c.startsWith(NetworkAreaDiagramViewer.ZOOM_CLASS_PREFIX)
@@ -1625,6 +1680,273 @@ export class NetworkAreaDiagramViewer {
             }
         }
         return 0;
+    }
+
+    private getNodeMap(): Map<string, NodeMetadata> {
+        if (this.nodeMap) return this.nodeMap;
+
+        const map = new Map<string, NodeMetadata>();
+        const nodes = this.diagramMetadata?.nodes ?? [];
+        for (const n of nodes) {
+            map.set(n.svgId, n);
+        }
+        this.nodeMap = map;
+        return map;
+    }
+
+    private getElementsInViewbox(tolerance = 0) {
+        const viewBox = this.getViewBox();
+        const metadata = this.diagramMetadata;
+        if (!viewBox || !metadata) {
+            return { nodes: [], edges: [] };
+        }
+
+        const { nodes = [], edges = [] } = metadata;
+
+        const x = viewBox?.x ?? 0;
+        const y = viewBox?.y ?? 0;
+        const width = viewBox?.width ?? 0;
+        const height = viewBox?.height ?? 0;
+
+        const minX = x - tolerance;
+        const maxX = x + width + tolerance;
+        const minY = y - tolerance;
+        const maxY = y + height + tolerance;
+
+        const nodeMap = this.getNodeMap();
+
+        const visibleNodes: NodeMetadata[] = [];
+        const visibleNodeIds = new Set<string>();
+
+        for (const node of nodes) {
+            if (node.x >= minX && node.x <= maxX && node.y >= minY && node.y <= maxY) {
+                visibleNodes.push(node);
+                visibleNodeIds.add(node.svgId);
+            }
+        }
+
+        const visibleEdges = [];
+        for (const edge of edges) {
+            const s1 = nodeMap.get(edge.node1);
+            const s2 = nodeMap.get(edge.node2);
+            if (!s1 || !s2) continue;
+
+            if (visibleNodeIds.has(s1.svgId) || visibleNodeIds.has(s2.svgId)) {
+                visibleEdges.push(edge);
+            }
+        }
+
+        return { nodes: visibleNodes, edges: visibleEdges };
+    }
+
+    private createLegendBox(textNode: TextNodeMetadata, busNodes: BusNodeMetadata[], node: NodeMetadata) {
+        if (this.hasTextNode(textNode)) {
+            return;
+        }
+
+        const getClassNameWithPrefix = (el: HTMLElement | null | undefined, prefix: string): string | null => {
+            if (!el) return null;
+            for (const cls of el.classList) {
+                if (cls.startsWith(prefix)) {
+                    return cls;
+                }
+            }
+            return null;
+        };
+
+        const newTextElement = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
+        newTextElement.style.position = 'absolute';
+        newTextElement.style.top = node.y + textNode.shiftY + 'px';
+        newTextElement.style.left = node.x + textNode.shiftX + 'px';
+        newTextElement.id = textNode.svgId;
+
+        //Retrieve the voltage level's node class from SVG, if it exist.
+        //This logic should be replaced once the class name will be in the metadata.
+        const nodeElement: HTMLElement | null = this.svgDiv.querySelector("[id='" + textNode.vlNode + "']");
+        const nodeElementClass = getClassNameWithPrefix(nodeElement, 'nad-vl');
+        if (nodeElementClass) {
+            newTextElement.classList.add(nodeElementClass);
+        }
+        newTextElement.classList.add('nad-label-box');
+
+        this.textNodesSection?.appendChild(newTextElement);
+
+        const newVlNameElement = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
+        newVlNameElement.textContent = textNode.equipmentId;
+        newTextElement?.appendChild(newVlNameElement);
+
+        for (const busNode of busNodes) {
+            const newBusDivElement = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
+            newBusDivElement.classList.add('nad-bus-descr');
+            const newBusLegendElement = document.createElementNS('http://www.w3.org/1999/xhtml', 'span');
+
+            //Per-bus class name (e.g. nad-bus-0) is currently inferred from SVG, from the element representing the bus.
+            const busElement: HTMLElement | null | undefined = nodeElement?.querySelector(
+                "[id='" + busNode.svgId + "']"
+            );
+            const busElementClass = getClassNameWithPrefix(busElement, 'nad-bus-');
+            if (busElementClass) {
+                newBusLegendElement.classList.add(busElementClass);
+            }
+            newBusLegendElement.classList.add('nad-legend-square');
+
+            const textNode = document.createTextNode(busNode.legend ?? '');
+            newBusDivElement?.appendChild(newBusLegendElement);
+            newBusDivElement?.appendChild(textNode);
+            newTextElement?.appendChild(newBusDivElement);
+        }
+        return newTextElement;
+    }
+
+    private createLegendEdge(textNode: TextNodeMetadata, busNodes: BusNodeMetadata[], node: NodeMetadata) {
+        if (this.hasTextEdge(node)) {
+            return;
+        }
+
+        // compute legend edge start and end oints
+        const nodePoint = new Point(node.x, node.y);
+        const endTextEdge = new Point(node.x + textNode.connectionShiftX, node.y + textNode.connectionShiftY);
+        const nbNeighbours = busNodes !== undefined && busNodes.length > 1 ? busNodes.length - 1 : 0;
+        const voltageLevelCircleRadius = DiagramUtils.getVoltageLevelCircleRadius(
+            nbNeighbours,
+            node?.fictitious,
+            this.svgParameters
+        );
+        const startTextEdge = DiagramUtils.getPointAtDistance(nodePoint, endTextEdge, voltageLevelCircleRadius);
+
+        //create the legend edge element in the DOM
+        const newLegendEdgeElement = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+        newLegendEdgeElement.id = node?.legendEdgeSvgId ?? '';
+        const polyline = DiagramUtils.getFormattedPolyline([startTextEdge, endTextEdge]);
+        newLegendEdgeElement.setAttribute('points', polyline);
+
+        this.textEdgesSection?.appendChild(newLegendEdgeElement);
+        return newLegendEdgeElement;
+    }
+
+    private hasEdgeInfo(edgeInfo: EdgeInfoMetadata): boolean {
+        return !!this.getEdgeInfo(edgeInfo.svgId);
+    }
+
+    private getEdgeInfo(edgeInfoSvgId: string): SVGElement | null {
+        return <SVGElement>this.edgeInfosSection?.querySelector(":scope > [id='" + edgeInfoSvgId + "']") ?? null;
+    }
+
+    private hasTextNode(textNode: TextNodeMetadata) {
+        return !!this.textNodesSection?.querySelector(":scope > [id='" + textNode.svgId + "']");
+    }
+
+    private hasTextEdge(node: NodeMetadata): boolean {
+        return !!this.textEdgesSection?.querySelector(":scope > [id='" + node.legendEdgeSvgId + "']");
+    }
+
+    private getHalfEdgesForEdgeInfos(edge: EdgeMetadata) {
+        let halfEdges;
+
+        //detect a loop
+        if (edge.node1 == edge.node2) {
+            const edgeElement: SVGGraphicsElement | null = this.svgDiv.querySelector("[id='" + edge.svgId + "']");
+
+            halfEdges = HalfEdgeUtils.getHalfEdgesLoop(edge, this.diagramMetadata, edgeElement, this.svgParameters);
+        } else {
+            const groupedEdgesIndex = this.buildGroupedEdgesIndexMap();
+
+            let iEdge = 0;
+            let nbGroupedEdges = 1;
+            const groupedEdges = groupedEdgesIndex.get(MetadataUtils.getGroupedEdgesIndexKey(edge));
+            if (groupedEdges && groupedEdges.length > 0) {
+                const i = groupedEdges.indexOf(edge.equipmentId);
+                if (i !== -1) {
+                    iEdge = i;
+                    nbGroupedEdges = groupedEdges.length;
+                }
+            }
+            halfEdges = this.getHalfEdges(edge, iEdge, nbGroupedEdges);
+        }
+        return halfEdges;
+    }
+
+    private createEdgeInfos(edge: EdgeMetadata): void {
+        const halfEdges = this.getHalfEdgesForEdgeInfos(edge);
+
+        if (edge.edgeInfo1 && halfEdges[0]) {
+            // temporary fix for fork's middle straight line, where the edgePoints are expected to be 3
+            if (halfEdges[0].fork && halfEdges[0].edgePoints.length < 3) {
+                halfEdges[0].fork = false;
+            }
+
+            const edgeValue1 = Number(edge.edgeInfo1?.externalLabel);
+            this.setBranchSideLabel(
+                edge,
+                halfEdges[0],
+                edge.edgeInfo1,
+                '1',
+                Number.isNaN(edgeValue1) ? (edge.edgeInfo1?.externalLabel ?? '') : edgeValue1
+            );
+        }
+
+        if (edge.edgeInfo2 && halfEdges[1]) {
+            // temporary fix for fork's middle straight line, where the edgePoints are expected to be 3
+            if (halfEdges[1].fork && halfEdges[1].edgePoints.length < 3) {
+                halfEdges[1].fork = false;
+            }
+
+            const edgeValue2 = Number(edge.edgeInfo2?.externalLabel);
+            this.setBranchSideLabel(
+                edge,
+                halfEdges[1],
+                edge.edgeInfo2,
+                '2',
+                Number.isNaN(edgeValue2) ? (edge.edgeInfo2?.externalLabel ?? '') : edgeValue2
+            );
+        }
+    }
+
+    private createEdgesInfos(edges: EdgeMetadata[]): void {
+        for (const edge of edges) {
+            const edgeInfo = edge.edgeInfo1 ?? edge.edgeInfo2;
+            if (!edgeInfo) {
+                continue;
+            }
+
+            if (!this.hasEdgeInfo(edgeInfo)) {
+                this.createEdgeInfos(edge);
+            }
+        }
+    }
+
+    private adaptiveZoomViewboxUpdate(maxDisplayedSize: number) {
+        if (maxDisplayedSize > this.nadViewerParameters.getThresholdAdaptiveTextZoom()) {
+            this.edgeInfosSection?.replaceChildren();
+            this.textEdgesSection?.replaceChildren();
+            this.textNodesSection?.replaceChildren();
+        } else {
+            let start = performance.now();
+            const containedElementList = this.getElementsInViewbox(50);
+            const containedNodeList = containedElementList.nodes;
+            const containedEdgeList = containedElementList.edges;
+
+            console.log('number of nodes in the current viewbox: ' + containedNodeList.length);
+            console.log('number of edges in the current viewbox: ' + containedEdgeList.length);
+            console.log(`number of elements in the current viewbox computing time: ${performance.now() - start} ms`);
+
+            start = performance.now();
+            for (const node of containedNodeList) {
+                const textNode = this.diagramMetadata?.textNodes.find((tNode) => tNode.svgId === node.legendSvgId);
+                if (textNode) {
+                    const busNodes: BusNodeMetadata[] =
+                        this.diagramMetadata?.busNodes.filter((busNode) => busNode.vlNode == node.svgId) ?? [];
+
+                    this.createLegendBox(textNode, busNodes, node);
+                    this.createLegendEdge(textNode, busNodes, node);
+                }
+            }
+            console.log(`adaptive zoom mode adding legends elements time: ${performance.now() - start} ms`);
+
+            start = performance.now();
+            this.createEdgesInfos(containedEdgeList);
+            console.log(`adaptive zoom mode adding edges info elements time: ${performance.now() - start} ms`);
+        }
     }
 
     public setJsonBranchStates(branchStates: string) {
@@ -1811,24 +2133,18 @@ export class NetworkAreaDiagramViewer {
         const branchLabelElement = this.getOrCreateEdgeInfoText(edgeInfo);
         branchLabelElement.innerHTML = edgeInfoMetadata.externalLabel;
 
-        this.redrawEdgeArrowAndLabel(halfEdge);
+        this.redrawEdgeArrowAndLabel(halfEdge, edgeInfo);
     }
 
     private getOrCreateEdgeInfo(edgeInfoMetadata: EdgeInfoMetadata): SVGElement {
-        const edgeInfo: SVGElement | null = this.svgDiv.querySelector("[id='" + edgeInfoMetadata.svgId + "']");
+        const edgeInfo = this.getEdgeInfo(edgeInfoMetadata.svgId);
         if (edgeInfo) {
             return edgeInfo;
         }
 
-        let edgeInfos = this.svgDiv.querySelector('g.nad-edge-infos');
-        if (!edgeInfos) {
-            edgeInfos = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-            this.innerSvg?.appendChild(edgeInfos);
-        }
-
         const newEdgeInfo = document.createElementNS('http://www.w3.org/2000/svg', 'g');
         newEdgeInfo.id = edgeInfoMetadata.svgId;
-        edgeInfos.appendChild(newEdgeInfo);
+        this.edgeInfosSection?.appendChild(newEdgeInfo);
 
         return newEdgeInfo;
     }
