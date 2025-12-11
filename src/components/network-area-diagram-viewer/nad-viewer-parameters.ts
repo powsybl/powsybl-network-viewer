@@ -108,10 +108,10 @@ export interface NadViewerParametersOptions {
     // from the SVG, to speed-up panning and zooming.
     // When the zoom level is below a threshold, edge infos and legends for the NAD elements that are
     // inside the viewbox are created in the SVG, on the fly, from the NAD metadata.
-    enableAdaptiveZoom?: boolean;
+    enableAdaptiveTextZoom?: boolean;
 
     // Threshold for the adaptiveZoom.
-    adaptiveZoomThreshold?: number;
+    adaptiveTextZoomThreshold?: number;
 }
 
 export class NadViewerParameters {
@@ -190,13 +190,15 @@ export class NadViewerParameters {
         );
     }
 
-    public getEnableAdaptiveZoom(): boolean {
-        return this.nadViewerParametersOptions?.enableAdaptiveZoom ?? NadViewerParameters.ENABLE_ADAPTIVE_ZOOM_DEFAULT;
+    public getEnableAdaptiveTextZoom(): boolean {
+        return (
+            this.nadViewerParametersOptions?.enableAdaptiveTextZoom ?? NadViewerParameters.ENABLE_ADAPTIVE_ZOOM_DEFAULT
+        );
     }
 
-    public getThresholdAdaptiveZoom(): number {
+    public getThresholdAdaptiveTextZoom(): number {
         return (
-            this.nadViewerParametersOptions?.adaptiveZoomThreshold ??
+            this.nadViewerParametersOptions?.adaptiveTextZoomThreshold ??
             NadViewerParameters.THRESHOLD_ADAPTIVE_ZOOM_DEFAULT
         );
     }

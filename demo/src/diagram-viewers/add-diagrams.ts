@@ -348,8 +348,8 @@ export const addNadToDemo = () => {
                 onRightClickCallback: handleRightClick,
                 onBendLineCallback: handleLineBending,
 
-                enableAdaptiveZoom: true,
-                adaptiveZoomThreshold: 3000,
+                enableAdaptiveTextZoom: true,
+                adaptiveTextZoomThreshold: 3000,
             };
             const svgContainerNadPegase = document.getElementById('svg-container-nad-pegase-network-adaptive-zoom');
             new NetworkAreaDiagramViewer(
@@ -373,8 +373,8 @@ export const addNadToDemo = () => {
                 onRightClickCallback: handleRightClick,
                 onBendLineCallback: handleLineBending,
 
-                enableAdaptiveZoom: true,
-                adaptiveZoomThreshold: 1100,
+                enableAdaptiveTextZoom: true,
+                adaptiveTextZoomThreshold: 1100,
             };
             new NetworkAreaDiagramViewer(
                 document.getElementById('svg-container-nad-partial-network-adaptive-zoom')!,

@@ -410,7 +410,7 @@ export class NetworkAreaDiagramViewer {
                 drawnSvg.parentElement.style.removeProperty('cursor');
 
                 //if the adaptive zoom feature is enabled, updates the diagram
-                if (this.nadViewerParameters.getEnableAdaptiveZoom()) {
+                if (this.nadViewerParameters.getEnableAdaptiveTextZoom()) {
                     this.adaptiveZoomViewboxUpdate(this.getCurrentlyMaxDisplayedSize());
                 }
             }
@@ -428,7 +428,7 @@ export class NetworkAreaDiagramViewer {
         firstChild.removeAttribute('width');
         firstChild.removeAttribute('height');
 
-        if (this.nadViewerParameters.getEnableLevelOfDetail() || this.nadViewerParameters.getEnableAdaptiveZoom()) {
+        if (this.nadViewerParameters.getEnableLevelOfDetail() || this.nadViewerParameters.getEnableAdaptiveTextZoom()) {
             this.svgDraw.fire('zoom'); // Forces a new dynamic zoom check to correctly update the dynamic CSS
 
             // We add an observer to track when the SVG's viewBox is updated by panzoom
@@ -1657,7 +1657,7 @@ export class NetworkAreaDiagramViewer {
         }
         this.setPreviousMaxDisplayedSize(maxDisplayedSize);
 
-        if (this.nadViewerParameters.getEnableAdaptiveZoom()) {
+        if (this.nadViewerParameters.getEnableAdaptiveTextZoom()) {
             this.adaptiveZoomViewboxUpdate(maxDisplayedSize);
         }
 
@@ -1916,7 +1916,7 @@ export class NetworkAreaDiagramViewer {
     }
 
     private adaptiveZoomViewboxUpdate(maxDisplayedSize: number) {
-        if (maxDisplayedSize > this.nadViewerParameters.getThresholdAdaptiveZoom()) {
+        if (maxDisplayedSize > this.nadViewerParameters.getThresholdAdaptiveTextZoom()) {
             this.edgeInfosSection?.replaceChildren();
             this.textEdgesSection?.replaceChildren();
             this.textNodesSection?.replaceChildren();
