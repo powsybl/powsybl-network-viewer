@@ -6,17 +6,18 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 
-import { Point, Matrix } from '@svgdotjs/svg.js';
+import { Matrix, Point } from '@svgdotjs/svg.js';
 import { SvgParameters } from './svg-parameters';
 import { DiagramMetadata, EdgeMetadata, NodeMetadata, PointMetadata } from './diagram-metadata';
 import {
     getAngle,
     getEdgeFork,
+    getFormattedPolyline,
     getMidPosition,
     getPointAtDistance,
-    getFormattedPolyline,
+    getPointOnSegmentAtMaxDistance,
     isTransformerEdge,
-    radToDeg,
+    radToDeg
 } from './diagram-utils';
 import { getBusNodeMetadata, getEdgePoints, getEdgeType, getNodeMetadata, getNodeRadius } from './metadata-utils';
 import { HalfEdge } from './diagram-types';
@@ -228,8 +229,8 @@ export function getHalfEdges(
     let edgeEnd2 = edgeMiddle;
     if (isTransformerEdge(edgeType)) {
         const endShift = 1.5 * svgParameters.getTransformerCircleRadius();
-        edgeEnd1 = getPointAtDistance(edgeMiddle, edgeFork1 ?? edgeStart1, endShift);
-        edgeEnd2 = getPointAtDistance(edgeMiddle, edgeFork2 ?? edgeStart2, endShift);
+        edgeEnd1 = getPointOnSegmentAtMaxDistance(edgeMiddle, edgeFork1 ?? edgeStart1, endShift);
+        edgeEnd2 = getPointOnSegmentAtMaxDistance(edgeMiddle, edgeFork2 ?? edgeStart2, endShift);
     }
 
     const edgePoints = getEdgePoints(

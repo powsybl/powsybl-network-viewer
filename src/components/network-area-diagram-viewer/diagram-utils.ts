@@ -57,6 +57,14 @@ export function getPointAtDistance(point1: Point, point2: Point, radius: number)
     return new Point(point1.x + r * (point2.x - point1.x), point1.y + r * (point2.y - point1.y));
 }
 
+// get a point on the segment [AB] defined by the given two points at the given distance from A, truncated to the segment length
+export function getPointOnSegmentAtMaxDistance(segmentA: Point, segmentB: Point, maxDistance: number): Point {
+    const distance = getDistance(segmentA, segmentB);
+    const truncatedDistance = Math.min(distance - 1e-3, maxDistance);
+    const r = truncatedDistance / distance;
+    return new Point(segmentA.x + r * (segmentB.x - segmentA.x), segmentA.y + r * (segmentB.y - segmentA.y));
+}
+
 // get the angle between two points
 export function getAngle(point1: Point, point2: Point): number {
     return Math.atan2(point2.y - point1.y, point2.x - point1.x);

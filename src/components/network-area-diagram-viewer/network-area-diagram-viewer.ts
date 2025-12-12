@@ -36,6 +36,7 @@ import * as SvgUtils from './svg-utils';
 import * as MetadataUtils from './metadata-utils';
 import * as HalfEdgeUtils from './half-edge-utils';
 import { Dimensions, EdgeType, ElementType, HalfEdge, ViewBox } from './diagram-types';
+import { getDistance } from './diagram-utils';
 
 export type BranchState = {
     branchId: string;
@@ -1355,18 +1356,15 @@ export class NetworkAreaDiagramViewer {
         oppositeHalfEdge: HalfEdge | null
     ) {
         let circleCenter: Point = new Point(0, 0);
+        const radius = this.svgParameters.getTransformerCircleRadius();
         if (halfEdge) {
-            circleCenter = DiagramUtils.getPointAtDistance(
-                halfEdge.edgePoints.at(-1)!,
-                halfEdge.edgePoints.at(-2)!,
-                -this.svgParameters.getTransformerCircleRadius()
-            );
+            const anchorPoint = halfEdge.edgePoints.at(-1)!;
+            const lastLineStart = halfEdge.edgePoints.at(-2)!;
+            circleCenter = DiagramUtils.getPointAtDistance(anchorPoint, lastLineStart, -radius);
         } else if (oppositeHalfEdge) {
-            circleCenter = DiagramUtils.getPointAtDistance(
-                oppositeHalfEdge.edgePoints.at(-1)!,
-                oppositeHalfEdge.edgePoints.at(-2)!,
-                -2 * this.svgParameters.getTransformerCircleRadius()
-            );
+            const oppositeAnchorPoint = oppositeHalfEdge.edgePoints.at(-1)!;
+            const oppositeLastLineStart = oppositeHalfEdge.edgePoints.at(-2)!;
+            circleCenter = DiagramUtils.getPointAtDistance(oppositeAnchorPoint, oppositeLastLineStart, -2 * radius);
         }
         transformerCircle.setAttribute('cx', DiagramUtils.getFormattedValue(circleCenter.x));
         transformerCircle.setAttribute('cy', DiagramUtils.getFormattedValue(circleCenter.y));
@@ -1379,7 +1377,12 @@ export class NetworkAreaDiagramViewer {
     ) {
         let rotationAngle = 0;
         let transformerCenter = new Point(0, 0);
-        if (halfEdge1) {
+        if (halfEdge1 && halfEdge2) {
+            const start = halfEdge1.edgePoints.at(-2)!;
+            const end = halfEdge2.edgePoints.at(-2)!;
+            rotationAngle = DiagramUtils.getAngle(start, end);
+            transformerCenter = DiagramUtils.getMidPosition(start, end);
+        } else if (halfEdge1) {
             const start = halfEdge1.edgePoints.at(-2)!;
             const end = halfEdge1.edgePoints.at(-1)!;
             const shiftEnd = -1.5 * this.svgParameters.getTransformerCircleRadius();
