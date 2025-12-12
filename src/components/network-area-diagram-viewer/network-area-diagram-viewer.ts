@@ -1152,11 +1152,9 @@ export class NetworkAreaDiagramViewer {
                 this.redrawStraightEdge(edges[iEdge]); // central edge, if present -> straight line
             } else {
                 const edge = edges[iEdge];
-                if (edge.node1 == edgeReference.node1) {
-                    this.redrawEdge(edges[iEdge], iEdge, edges.length);
-                } else {
-                    this.redrawEdge(edges[iEdge], edges.length - iEdge - 1, edges.length);
-                }
+                // If the fork comes form the opposite side, we inverse it
+                const index = edge.node1 == edgeReference.node1 ? iEdge : edges.length - iEdge - 1;
+                this.redrawEdge(edge, index, edges.length);
             }
         }
     }
