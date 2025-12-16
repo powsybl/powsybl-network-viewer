@@ -425,22 +425,10 @@ foreignObject.nad-text-nodes {
 .nad-disconnected .nad-svc {stroke: lightgrey}
 .nad-unknown {stroke: none; fill: black}
 
-/* Edit button bar styles */
-#edit-button-bar {
-    display: flex;
-    align-items: center;
-    position: absolute;
-    right: 6px;
-    top: 6px;
+#action-buttons-bars button {
+    border: none;
 }
 
-.bend-lines-button-active {
-    border: 2px solid orange !important;
+#action-buttons-bars button.button-active {
+    border: 2px solid orange;
 }
-
-.bend-lines-button-inactive {
-    border: none !important;
-}
-
-
-

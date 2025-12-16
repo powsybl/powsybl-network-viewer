@@ -146,10 +146,10 @@
   }, {
     "svgId" : "18",
     "equipmentId" : "NHV1_NHV2_2",
-    "node1" : "4",
-    "node2" : "8",
-    "busNode1" : "7",
-    "busNode2" : "11",
+    "node1" : "8",
+    "node2" : "4",
+    "busNode1" : "11",
+    "busNode2" : "7",
     "type" : "LineEdge",
     "label" : "NHV1_NHV2_2"
   }, {
