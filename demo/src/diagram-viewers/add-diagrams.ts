@@ -19,6 +19,8 @@ import NadSvgPartialNetworkExample from './data/nad-ieee300cdf-VL9006.svg';
 import NadSvgPartialNetworkExampleMeta from './data/nad-ieee300cdf-VL9006_metadata.json';
 import NadSvgPegaseNetworkExample from './data/case1354pegase.svg';
 import NadSvgPegaseNetworkExampleMeta from './data/case1354pegase_metadata.json';
+import NadSvgBentLinesNetworkExample from './data/bent_lines.svg';
+import NadSvgBentLinesNetworkExampleMeta from './data/bent_lines_metadata.json';
 import SldSvgExample from './data/sld-example.svg';
 import SldSvgExampleMeta from './data/sld-example_metadata.json';
 import SldSvgSubExample from './data/sld-sub-example.svg';
@@ -280,6 +282,27 @@ export const addNadToDemo = () => {
                 document.getElementById('svg-container-nad-partial-network')!,
                 svgContent,
                 NadSvgPartialNetworkExampleMeta,
+                nadViewerParametersOptions
+            );
+        });
+
+    fetch(NadSvgBentLinesNetworkExample)
+        .then((response) => response.text())
+        .then((svgContent) => {
+            const nadViewerParametersOptions: NadViewerParametersOptions = {
+                enableDragInteraction: true,
+                addButtons: true,
+                onMoveNodeCallback: handleNodeMove,
+                onMoveTextNodeCallback: handleTextNodeMove,
+                onSelectNodeCallback: handleNodeSelect,
+                onToggleHoverCallback: handleToggleNadHover,
+                onRightClickCallback: handleRightClick,
+                onBendLineCallback: handleLineBending,
+            };
+            new NetworkAreaDiagramViewer(
+                document.getElementById('svg-container-nad-bent-lines-network')!,
+                svgContent,
+                NadSvgBentLinesNetworkExampleMeta,
                 nadViewerParametersOptions
             );
         });
