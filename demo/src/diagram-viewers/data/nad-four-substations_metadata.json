@@ -6,6 +6,7 @@
       "y" : -40.0
     },
     "maxSteps" : 1000,
+    "timeoutSeconds" : 15.0,
     "textNodeEdgeConnectionYShift" : 25.0,
     "injectionsAdded" : false
   },
@@ -38,22 +39,16 @@
     "loopEdgesAperture" : 60.0,
     "loopControlDistance" : 40.0,
     "edgeInfoAlongEdge" : true,
-    "edgeNameDisplayed" : false,
     "interAnnulusSpace" : 5.0,
     "svgPrefix" : "",
-    "idDisplayed" : false,
-    "substationDescriptionDisplayed" : false,
     "arrowPathIn" : "M-10 -10 H10 L0 10z",
     "arrowPathOut" : "M-10 10 H10 L0 -10z",
-    "busLegend" : true,
-    "voltageLevelDetails" : false,
     "languageTag" : "en",
     "voltageValuePrecision" : 1,
     "powerValuePrecision" : 0,
     "angleValuePrecision" : 1,
     "currentValuePrecision" : 0,
     "percentageValuePrecision" : 0,
-    "edgeInfoDisplayed" : "ACTIVE_POWER",
     "pstArrowHeadSize" : 8.0,
     "undefinedValueSymbol" : "",
     "highlightGraph" : false,
@@ -150,15 +145,15 @@
     "type" : "PstEdge",
     "edgeInfo1" : {
       "svgId" : "21",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "IN",
-      "externalLabel" : "-80"
+      "labelB" : "-80"
     },
     "edgeInfo2" : {
       "svgId" : "22",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "OUT",
-      "externalLabel" : "80"
+      "labelB" : "80"
     }
   }, {
     "svgId" : "23",
@@ -170,15 +165,15 @@
     "type" : "HvdcLineLccEdge",
     "edgeInfo1" : {
       "svgId" : "24",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "OUT",
-      "externalLabel" : "81"
+      "labelB" : "81"
     },
     "edgeInfo2" : {
       "svgId" : "25",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "IN",
-      "externalLabel" : "-79"
+      "labelB" : "-79"
     }
   }, {
     "svgId" : "26",
@@ -190,15 +185,15 @@
     "type" : "HvdcLineVscEdge",
     "edgeInfo1" : {
       "svgId" : "27",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "OUT",
-      "externalLabel" : "10"
+      "labelB" : "10"
     },
     "edgeInfo2" : {
       "svgId" : "28",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "IN",
-      "externalLabel" : "-10"
+      "labelB" : "-10"
     }
   }, {
     "svgId" : "29",
@@ -210,15 +205,15 @@
     "type" : "LineEdge",
     "edgeInfo1" : {
       "svgId" : "30",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "OUT",
-      "externalLabel" : "110"
+      "labelB" : "110"
     },
     "edgeInfo2" : {
       "svgId" : "31",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "IN",
-      "externalLabel" : "-110"
+      "labelB" : "-110"
     }
   }, {
     "svgId" : "32",
@@ -230,15 +225,15 @@
     "type" : "LineEdge",
     "edgeInfo1" : {
       "svgId" : "33",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "OUT",
-      "externalLabel" : "240"
+      "labelB" : "240"
     },
     "edgeInfo2" : {
       "svgId" : "34",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "IN",
-      "externalLabel" : "-240"
+      "labelB" : "-240"
     }
   } ],
   "textNodes" : [ {
