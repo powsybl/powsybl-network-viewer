@@ -842,13 +842,17 @@ export class NetworkAreaDiagramViewer {
             }
             this.isHoverCallbackUsed = true;
         } else {
-            this.debounceToggleHoverCallback.clear();
-            if (this.isHoverCallbackUsed) {
-                this.isHoverCallbackUsed = false;
-                this.onToggleHoverCallback?.(false, null, '', '');
-            }
+            this.resetHoverCallback();
             this.hideEdgePreviewPoints();
             this.hoveredElement = null;
+        }
+    }
+
+    private resetHoverCallback(): void {
+        this.debounceToggleHoverCallback.clear();
+        if (this.isHoverCallbackUsed) {
+            this.isHoverCallbackUsed = false;
+            this.onToggleHoverCallback?.(false, null, '', '');
         }
     }
 
@@ -2262,6 +2266,7 @@ export class NetworkAreaDiagramViewer {
         if (!elementData) {
             return;
         }
+        this.resetHoverCallback();
         this.onRightClickCallback?.(elementData.svgId, elementData.equipmentId, elementData.type, mousePosition);
     }
 
