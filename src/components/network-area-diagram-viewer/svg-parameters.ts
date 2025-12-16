@@ -64,9 +64,9 @@ export class SvgParameters {
     static readonly CSS_LOCATION_DEFAULT = CssLocationEnum.EXTERNAL_NO_IMPORT;
     static readonly ARROW_PATH_IN_DEFAULT = 'M-10 -10 H10 L0 10z';
     static readonly ARROW_PATH_OUT_DEFAULT = 'M-10 10 H10 L0 -10z';
-    static readonly LOOP_EDGE_APERTURE_DEFAULT = 60.0;
-    static readonly LOOP_DISTANCE_DEFAULT = 120.0;
-    static readonly LOOP_CONTROL_DISTANCE_DEFAULT = 40.0;
+    static readonly LOOP_EDGE_APERTURE_DEFAULT = 60;
+    static readonly LOOP_DISTANCE_DEFAULT = 120;
+    static readonly LOOP_CONTROL_DISTANCE_DEFAULT = 40;
 
     svgParametersMetadata: SvgParametersMetadata | undefined;
 

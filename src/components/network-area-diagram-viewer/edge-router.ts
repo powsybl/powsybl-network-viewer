@@ -119,7 +119,7 @@ export class EdgeRouter {
         let availableAngles: number[] = [];
         const slotAperture = this.svgParameters.getLoopEdgesAperture() * 1.2;
         if (anglesOtherEdges.length == 0) {
-            Array.from(Array(nbAngles).keys())
+            Array.from(new Array(nbAngles).keys())
                 .map((index) => (index * 2 * Math.PI) / nbAngles)
                 .forEach((angle) => {
                     availableAngles.push(angle);
@@ -136,7 +136,7 @@ export class EdgeRouter {
                     totalDeltaAvailable += deltaAngles[index];
                 }
             }
-            if (nbAngles <= nbAvailableSlots.reduce((a, b) => a + b) && totalDeltaAvailable > 0) {
+            if (nbAngles <= nbAvailableSlots.reduce((a, b) => a + b, 0) && totalDeltaAvailable > 0) {
                 const nbInsertedAngles: number[] = this.computeAnglesInsertedNumber(
                     nbAngles,
                     nbAvailableSlots,
@@ -156,7 +156,7 @@ export class EdgeRouter {
                     0
                 );
                 const startAngle = (anglesOtherEdges[iMaxDelta] + anglesOtherEdges[iMaxDelta + 1]) / 2;
-                Array.from(Array(nbAngles).keys())
+                Array.from(new Array(nbAngles).keys())
                     .map((index) => startAngle + (index * 2 * Math.PI) / nbAngles)
                     .forEach((angle) => {
                         availableAngles.push(angle);
@@ -183,10 +183,10 @@ export class EdgeRouter {
                 nbInsertedAngles[index] = nbSlotsCeil - 1;
             }
         }
-        const totalInsertedAngles = nbInsertedAngles.reduce((a, b) => a + b);
+        const totalInsertedAngles = nbInsertedAngles.reduce((a, b) => a + b, 0);
         if (totalInsertedAngles > nbAngles) {
             // Too many slots found: remove slots taken starting from the smallest sliced intervals
-            const sortedIndices: number[] = Array.from(Array(deltaAngles.length).keys()).sort(function (a, b) {
+            const sortedIndices: number[] = Array.from(new Array(deltaAngles.length).keys()).sort(function (a, b) {
                 return deltaAngles[a] / nbInsertedAngles[a] - deltaAngles[b] / nbInsertedAngles[b];
             });
             let nbExcessiveAngles = totalInsertedAngles - nbAngles;
@@ -216,7 +216,7 @@ export class EdgeRouter {
             const intraSpace = extraSpace / (nbAnglesInDelta + 1);
             const angleStep = intraSpace + DiagramUtils.degToRad(slotAperture);
             const startAngle = anglesOtherEdges[index] + intraSpace + DiagramUtils.degToRad(slotAperture) / 2;
-            Array.from(Array(nbAnglesInDelta).keys())
+            Array.from(new Array(nbAnglesInDelta).keys())
                 .map((iLoop) => startAngle + iLoop * angleStep)
                 .forEach((angle) => {
                     insertedAngles.push(angle);
