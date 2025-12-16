@@ -253,10 +253,12 @@ export function completeEdgeAngles(traversingBusEdgesAngles: number[]): number[]
     if (traversingBusEdgesAngles.length == 0) {
         return [];
     }
-    const sortedTraversingBusEdgesAngles = traversingBusEdgesAngles.sort(function (a, b) {
-        return a - b;
-    });
-    const edgeAngles = Object.assign([], sortedTraversingBusEdgesAngles);
+    const edgeAngles = Object.assign(
+        [],
+        traversingBusEdgesAngles.slice().sort(function (a, b) {
+            return a - b;
+        })
+    );
     edgeAngles.push(edgeAngles[0] + 2 * Math.PI);
     return edgeAngles;
 }
