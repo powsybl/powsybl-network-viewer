@@ -63,8 +63,8 @@ export function getAngle(point1: Point, point2: Point): number {
 }
 
 // get fork position of a multibranch edge
-export function getEdgeFork(point: Point, edgeForkLength: number, angleFork: number) {
-    return new Point(point.x + edgeForkLength * Math.cos(angleFork), point.y + edgeForkLength * Math.sin(angleFork));
+export function getPointAtDistanceWithAngle(point: Point, distance: number, angle: number) {
+    return new Point(point.x + distance * Math.cos(angle), point.y + distance * Math.sin(angle));
 }
 
 // get the matrix used for the position of the arrow drawn in a PS transformer
@@ -247,4 +247,18 @@ export function getArrowClass(direction: string | undefined): string | undefined
         default:
             return undefined;
     }
+}
+
+export function completeEdgeAngles(traversingBusEdgesAngles: number[]): number[] {
+    if (traversingBusEdgesAngles.length == 0) {
+        return [];
+    }
+    const edgeAngles = Object.assign(
+        [],
+        traversingBusEdgesAngles.sort(function (a, b) {
+            return a - b;
+        })
+    );
+    edgeAngles.push(edgeAngles[0] + 2 * Math.PI);
+    return edgeAngles;
 }

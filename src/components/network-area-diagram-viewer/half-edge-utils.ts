@@ -8,12 +8,13 @@
 
 import { Point } from '@svgdotjs/svg.js';
 import { SvgParameters } from './svg-parameters';
-import { DiagramMetadata, EdgeMetadata, NodeMetadata, PointMetadata } from './diagram-metadata';
+import { BusNodeMetadata, DiagramMetadata, EdgeMetadata, NodeMetadata, PointMetadata } from './diagram-metadata';
 import {
+    degToRad,
     getAngle,
-    getEdgeFork,
     getMidPosition,
     getPointAtDistance,
+    getPointAtDistanceWithAngle,
     getFormattedPolyline,
     isTransformerEdge,
     radToDeg,
@@ -207,8 +208,8 @@ export function getHalfEdges(
         const alpha = -svgParameters.getEdgesForkAperture() / 2 + iEdge * angleStep;
         const angleFork1 = angle - alpha;
         const angleFork2 = angle + Math.PI + alpha;
-        edgeFork1 = getEdgeFork(point1, svgParameters.getEdgesForkLength(), angleFork1);
-        edgeFork2 = getEdgeFork(point2, svgParameters.getEdgesForkLength(), angleFork2);
+        edgeFork1 = getPointAtDistanceWithAngle(point1, svgParameters.getEdgesForkLength(), angleFork1);
+        edgeFork2 = getPointAtDistanceWithAngle(point2, svgParameters.getEdgesForkLength(), angleFork2);
     }
 
     const edgeDirection1 = getEdgeDirection(point2, edgeFork1, edge.bendingPoints?.at(0));
@@ -286,4 +287,60 @@ function getEdgeDirection(
     if (firstBendingPoint) return new Point(firstBendingPoint.x, firstBendingPoint.y);
     if (edgeFork) return edgeFork;
     return nodePoint;
+}
+
+export function getLoopHalfEdges(
+    edge: EdgeMetadata,
+    angle: number,
+    diagramMetadata: DiagramMetadata | null,
+    svgParameters: SvgParameters
+): HalfEdge[] | null[] {
+    const node = getNodeMetadata(edge.node1, diagramMetadata);
+    const busNode1 = getBusNodeMetadata(edge.busNode1, diagramMetadata);
+    const busNode2 = getBusNodeMetadata(edge.busNode2, diagramMetadata);
+    if (!node || !busNode1 || !busNode2) {
+        return [null, null];
+    }
+    const middle = getPointAtDistanceWithAngle(new Point(node.x, node.y), svgParameters.getLoopDistance(), angle);
+    const halfEdge1: HalfEdge = getLoopHalfEdge(edge, node, busNode1, angle, middle, svgParameters, '1');
+    const halfEdge2: HalfEdge = getLoopHalfEdge(edge, node, busNode2, angle, middle, svgParameters, '2');
+    return [halfEdge1, halfEdge2];
+}
+
+function getLoopHalfEdge(
+    edge: EdgeMetadata,
+    node: NodeMetadata,
+    busNode: BusNodeMetadata,
+    angle: number,
+    middle: Point,
+    svgParameters: SvgParameters,
+    side: string
+): HalfEdge {
+    const sideSign = side == '1' ? -1 : 1;
+    const isTransformer = isTransformerEdge(getEdgeType(edge));
+    const nodeRadius = getNodeRadius(busNode, node, svgParameters);
+    const startAngle = angle + sideSign * degToRad(svgParameters.getLoopEdgesAperture() / 2);
+    const endAngle = angle + (sideSign * Math.PI) / 2;
+    const fork = getPointAtDistanceWithAngle(new Point(node.x, node.y), svgParameters.getEdgesForkLength(), startAngle);
+    const edgeStart = getPointAtDistance(new Point(node.x, node.y), fork, nodeRadius.busOuterRadius);
+    const control1a = getPointAtDistanceWithAngle(fork, svgParameters.getLoopControlDistance(), startAngle);
+    const middle1 = isTransformer
+        ? getPointAtDistanceWithAngle(middle, 1.5 * svgParameters.getTransformerCircleRadius(), endAngle)
+        : middle;
+    const control1b = getPointAtDistanceWithAngle(
+        middle1,
+        isTransformer
+            ? Math.max(0, svgParameters.getLoopControlDistance() - 1.5 * svgParameters.getTransformerCircleRadius())
+            : svgParameters.getLoopControlDistance(),
+        endAngle
+    );
+    const halfEdge: HalfEdge = {
+        side: side,
+        fork: false,
+        busOuterRadius: nodeRadius.busOuterRadius,
+        voltageLevelRadius: nodeRadius.voltageLevelRadius,
+        edgeInfoId: edge.edgeInfo1?.svgId,
+        edgePoints: [edgeStart, fork, control1a, control1b, middle1],
+    };
+    return halfEdge;
 }

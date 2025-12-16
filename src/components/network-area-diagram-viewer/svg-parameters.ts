@@ -64,6 +64,9 @@ export class SvgParameters {
     static readonly CSS_LOCATION_DEFAULT = CssLocationEnum.EXTERNAL_NO_IMPORT;
     static readonly ARROW_PATH_IN_DEFAULT = 'M-10 -10 H10 L0 10z';
     static readonly ARROW_PATH_OUT_DEFAULT = 'M-10 10 H10 L0 -10z';
+    static readonly LOOP_EDGE_APERTURE_DEFAULT = 60.0;
+    static readonly LOOP_DISTANCE_DEFAULT = 120.0;
+    static readonly LOOP_CONTROL_DISTANCE_DEFAULT = 40.0;
 
     svgParametersMetadata: SvgParametersMetadata | undefined;
 
@@ -169,5 +172,17 @@ export class SvgParameters {
         return this.svgParametersMetadata?.cssLocation
             ? CssLocationEnumMapping[this.svgParametersMetadata?.cssLocation]
             : SvgParameters.CSS_LOCATION_DEFAULT;
+    }
+
+    public getLoopEdgesAperture(): number {
+        return this.svgParametersMetadata?.loopEdgesAperture ?? SvgParameters.LOOP_EDGE_APERTURE_DEFAULT;
+    }
+
+    public getLoopDistance(): number {
+        return this.svgParametersMetadata?.loopDistance ?? SvgParameters.LOOP_DISTANCE_DEFAULT;
+    }
+
+    public getLoopControlDistance(): number {
+        return this.svgParametersMetadata?.loopControlDistance ?? SvgParameters.LOOP_CONTROL_DISTANCE_DEFAULT;
     }
 }

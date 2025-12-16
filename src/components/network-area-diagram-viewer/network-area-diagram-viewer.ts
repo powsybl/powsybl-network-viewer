@@ -1497,13 +1497,7 @@ export class NetworkAreaDiagramViewer {
         traversingBusEdgesAngles: number[]
     ) {
         const busNodeRadius = MetadataUtils.getNodeRadius(busNode, nodeMetadata, this.svgParameters);
-        const edgeAngles = Object.assign(
-            [],
-            traversingBusEdgesAngles.sort(function (a, b) {
-                return a - b;
-            })
-        );
-        edgeAngles.push(edgeAngles[0] + 2 * Math.PI);
+        const edgeAngles = DiagramUtils.completeEdgeAngles(traversingBusEdgesAngles);
         const path: string = DiagramUtils.getFragmentedAnnulusPath(
             edgeAngles,
             busNodeRadius,

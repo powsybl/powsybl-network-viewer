@@ -50,6 +50,9 @@ test('getNodeRadius', () => {
         voltageValuePrecision: 0,
         voltageLevelCircleRadius: 30,
         fictitiousVoltageLevelCircleRadius: 15,
+        loopEdgesAperture: 60,
+        loopDistance: 120,
+        loopControlDistance: 40,
     };
     const svgParameters = new SvgParameters(svgParametersMetadata);
 
