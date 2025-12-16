@@ -338,3 +338,29 @@ export function getBusNodesMetadata(nodeId: string, busNodes: BusNodeMetadata[])
     const buses = busNodes.filter((bus) => bus.vlNode === nodeId);
     return getSortedBusNodes(buses);
 }
+
+export function getNodeEdgesMetadata(nodeId: string, edges: EdgeMetadata[]): EdgeMetadata[] {
+    return edges.filter((edge) => edge.node1 == nodeId || edge.node2 == nodeId);
+}
+
+export function getBusEdgesMetadata(nodeId: string, edges: EdgeMetadata[]): Map<string, EdgeMetadata[]> {
+    const busNodeEdges = new Map<string, EdgeMetadata[]>();
+    const nodeEdges = getNodeEdgesMetadata(nodeId, edges);
+    nodeEdges.forEach((edge) => {
+        if (edge.node1 == edge.node2) {
+            // loop edge
+            addBusNodeEdge(edge.busNode1, edge, busNodeEdges);
+            addBusNodeEdge(edge.busNode2, edge, busNodeEdges);
+        } else {
+            const busNodeId = edge.node1 == nodeId ? edge.busNode1 : edge.busNode2;
+            addBusNodeEdge(busNodeId, edge, busNodeEdges);
+        }
+    });
+    return busNodeEdges;
+}
+
+function addBusNodeEdge(busNodeId: string, edge: EdgeMetadata, busNodeEdges: Map<string, EdgeMetadata[]>) {
+    const busEdgeGroup: EdgeMetadata[] = busNodeEdges.get(busNodeId) ?? [];
+    busEdgeGroup.push(edge);
+    busNodeEdges.set(busNodeId, busEdgeGroup);
+}
