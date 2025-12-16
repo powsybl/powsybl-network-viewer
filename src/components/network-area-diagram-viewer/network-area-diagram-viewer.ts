@@ -842,13 +842,17 @@ export class NetworkAreaDiagramViewer {
             }
             this.isHoverCallbackUsed = true;
         } else {
-            this.debounceToggleHoverCallback.clear();
-            if (this.isHoverCallbackUsed) {
-                this.isHoverCallbackUsed = false;
-                this.onToggleHoverCallback?.(false, null, '', '');
-            }
+            this.resetHoverCallback();
             this.hideEdgePreviewPoints();
             this.hoveredElement = null;
+        }
+    }
+
+    private resetHoverCallback(): void {
+        this.debounceToggleHoverCallback.clear();
+        if (this.isHoverCallbackUsed) {
+            this.isHoverCallbackUsed = false;
+            this.onToggleHoverCallback?.(false, null, '', '');
         }
     }
 
@@ -1199,11 +1203,15 @@ export class NetworkAreaDiagramViewer {
     }
 
     private redrawForkEdge(edges: EdgeMetadata[]) {
+        const edgeReference = edges[0];
         for (let iEdge = 0; iEdge < edges.length; iEdge++) {
             if (2 * iEdge + 1 == edges.length) {
                 this.redrawStraightEdge(edges[iEdge]); // central edge, if present -> straight line
             } else {
-                this.redrawEdge(edges[iEdge], iEdge, edges.length);
+                const edge = edges[iEdge];
+                // If the fork comes form the opposite side, we inverse it
+                const index = edge.node1 == edgeReference.node1 ? iEdge : edges.length - iEdge - 1;
+                this.redrawEdge(edge, index, edges.length);
             }
         }
     }
@@ -2258,6 +2266,7 @@ export class NetworkAreaDiagramViewer {
         if (!elementData) {
             return;
         }
+        this.resetHoverCallback();
         this.onRightClickCallback?.(elementData.svgId, elementData.equipmentId, elementData.type, mousePosition);
     }
 
