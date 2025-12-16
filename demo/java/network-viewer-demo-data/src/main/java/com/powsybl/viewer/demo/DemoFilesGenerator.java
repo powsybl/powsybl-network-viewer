@@ -18,8 +18,6 @@ import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.nad.NadParameters;
 import com.powsybl.nad.NetworkAreaDiagram;
 import com.powsybl.nad.build.iidm.VoltageLevelFilter;
-import com.powsybl.nad.model.Point;
-import com.powsybl.nad.routing.CustomPathRouting;
 import com.powsybl.nad.svg.LabelProviderParameters;
 import com.powsybl.nad.svg.SvgParameters;
 import com.powsybl.nad.svg.iidm.DefaultLabelProvider;
@@ -27,11 +25,7 @@ import com.powsybl.sld.SingleLineDiagram;
 import com.powsybl.sld.SldParameters;
 
 import java.nio.file.Path;
-import java.util.List;
-import java.util.Map;
 import java.util.Properties;
-
-import static com.powsybl.nad.build.iidm.VoltageLevelFilter.NO_FILTER;
 
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
@@ -103,16 +97,5 @@ public final class DemoFilesGenerator {
         n8.getSwitch("969470b9-e74c-40d2-b3f7-bcfd88400fd1").setOpen(true);
         n8.getSwitch("96c2b5c8-8e28-4b08-96d2-ca9b09cdbd83").setOpen(true);
         SingleLineDiagram.draw(n8, "469df5f7-058f-4451-a998-57a48e8a56fe", demoResources.resolve("sld-example.svg"), sldParameters);
-
-        Network network = IeeeCdfNetworkFactory.create14Solved();
-        Map<String, List<Point>> edgesMap = Map.of(
-                "L1-2-1", List.of(new Point(-0.89, -652.83)),
-                "L1-5-1", List.of(new Point(296.10, -502.39), new Point(717.04, -455.84), new Point(737.27, -51.09))
-        );
-        Map<String, List<Point>> textMap = Map.of(
-                "VL3", List.of(new Point(450, -400), new Point(479.01, -375.27))
-        );
-        nadParameters.setEdgeRouting(new CustomPathRouting(edgesMap, textMap));
-        NetworkAreaDiagram.draw(network, demoResources.resolve("bent_lines.svg"), nadParameters, NO_FILTER);
     }
 }
