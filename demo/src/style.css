@@ -425,7 +425,7 @@ foreignObject.nad-text-nodes {
 .nad-disconnected .nad-svc {stroke: lightgrey}
 .nad-unknown {stroke: none; fill: black}
 
-#action-buttons-bars button {
+#action-buttons-bars button, #zoom-buttons-bars button {
     border: none;
 }
 
