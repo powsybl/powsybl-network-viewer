@@ -71,9 +71,13 @@ test('getPointAtDistanceWithAngle', () => {
 });
 
 test('getTransformerArrowMatrixString', () => {
-    expect(DiagramUtils.getTransformerArrowMatrixString(Math.PI / 4, new Point(60, 60), 20)).toBe(
-        '0.71,0.71,-0.71,0.71,60.00,17.57'
-    );
+    expect(
+        DiagramUtils.getTransformerArrowMatrixString(
+            [new Point(-215.57, -488.07), new Point(-191.64, -354.01)],
+            [new Point(-157.17, -160.87), new Point(-181.1, -294.94)],
+            20
+        )
+    ).toBe('0.18,0.98,-0.98,0.18,-162.11,-359.28');
 });
 
 test('getVoltageLevelCircleRadius', () => {

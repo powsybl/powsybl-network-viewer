@@ -34,6 +34,14 @@ export class EdgeRouter {
         return DiagramUtils.getAngle(halfEdgePoints[0], halfEdgePoints[1]);
     }
 
+    public getEdgePoints(edgeId: string, side: string): Point[] | undefined {
+        const egdesPoints = this.edgePoints[edgeId];
+        if (!egdesPoints) {
+            return undefined;
+        }
+        return side == '1' ? egdesPoints[0] : egdesPoints[1];
+    }
+
     private init() {
         const edgeGroups = this.groupEdges();
         this.storeGroupedEdges(edgeGroups.groupedEdges);
@@ -44,6 +52,9 @@ export class EdgeRouter {
         const groupedEdges: Record<string, EdgeMetadata[]> = {};
         const loopEdges: Record<string, EdgeMetadata[]> = {};
         this.diagramMetadata.edges.forEach((edge) => {
+            if (MetadataUtils.isThreeWtEdge(edge)) {
+                return;
+            }
             const isLoop = edge.node1 === edge.node2;
             const key = isLoop ? edge.node1 : MetadataUtils.getGroupedEdgesIndexKey(edge);
             const target = isLoop ? loopEdges : groupedEdges;
