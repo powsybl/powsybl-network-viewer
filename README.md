@@ -64,7 +64,7 @@ you need to follow the steps below:
     `npm --workspaces --include-workspace-root 3.3.0-dev.0`
 -   Update the package-lock.json:    
 `npm install --workspaces --include-workspace-root`
--   Commit the package.json and package-lock.json files, push to a branch, make a PR, have it reviewed and merged to main.
+-   Commit the package.json and package-lock.json files, push to a branch, make a PR, have it reviewed and squash & merge to main with commit message `Bump to v3.3.0-dev.0`
 
 ### Notes :
 
