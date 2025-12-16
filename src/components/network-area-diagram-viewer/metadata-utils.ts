@@ -364,3 +364,11 @@ function addBusNodeEdge(busNodeId: string, edge: EdgeMetadata, busNodeEdges: Map
     busEdgeGroup.push(edge);
     busNodeEdges.set(busNodeId, busEdgeGroup);
 }
+
+export function isThreeWtEdge(edge: EdgeMetadata): boolean {
+    const edgeType = getEdgeType(edge);
+    return (
+        edgeType == EdgeType.THREE_WINDINGS_TRANSFORMER ||
+        (edgeType == EdgeType.PHASE_SHIFT_TRANSFORMER && edge.node2 == edge.busNode2)
+    );
+}

@@ -12,6 +12,7 @@ import { BusNodeMetadata, DiagramMetadata, EdgeMetadata, NodeMetadata, PointMeta
 import {
     degToRad,
     getAngle,
+    getConverterStationPoints,
     getMidPosition,
     getPointAtDistance,
     getPointAtDistanceWithAngle,
@@ -62,15 +63,6 @@ export function getLabelData(halfEdge: HalfEdge, arrowLabelShift: number): [numb
     ];
 }
 
-// get the points of a converter station of an HVDC line edge
-function getConverterStationPoints(halfEdge: HalfEdge, converterStationWidth: number): [Point, Point] {
-    const halfWidth = converterStationWidth / 2;
-    const middlePoint = halfEdge.edgePoints.at(-1)!;
-    const point1 = getPointAtDistance(middlePoint, halfEdge.edgePoints.at(-2)!, halfWidth);
-    const point2 = getPointAtDistance(point1, middlePoint, converterStationWidth);
-    return [point1, point2];
-}
-
 // get the polyline of a converter station of an HVDC line edge
 export function getConverterStationPolyline(
     halfEdge1: HalfEdge | null,
@@ -78,10 +70,10 @@ export function getConverterStationPolyline(
     converterStationWidth: number
 ): string {
     if (halfEdge1) {
-        const points = getConverterStationPoints(halfEdge1, converterStationWidth);
+        const points = getConverterStationPoints(halfEdge1.edgePoints, converterStationWidth);
         return getFormattedPolyline(points);
     } else if (halfEdge2) {
-        const points = getConverterStationPoints(halfEdge2, converterStationWidth);
+        const points = getConverterStationPoints(halfEdge2.edgePoints, converterStationWidth);
         return getFormattedPolyline(points);
     } else {
         return ''; // should never occur
