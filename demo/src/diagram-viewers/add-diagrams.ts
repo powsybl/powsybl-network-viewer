@@ -57,7 +57,7 @@ export const addNadToDemo = () => {
                 onBendLineCallback: handleLineBending,
             };
             const nadViewer = new NetworkAreaDiagramViewer(
-                document.getElementById('svg-container-nad')!,
+                document.getElementById('svg-container-nad-eurostag')!,
                 svgContent,
                 NadSvgExampleMeta,
                 nadViewerParametersOptions
@@ -100,27 +100,23 @@ export const addNadToDemo = () => {
                 nadViewer.setJsonBranchStates(branchStates);
             });
 
-            document.getElementById('svg-container-nad')?.appendChild(branchLabelsSlider);
+            document.getElementById('svg-container-nad-eurostag')?.appendChild(branchLabelsSlider);
         });
 
-    fetch(NadSvgExample)
-        .then((response) => response.text())
-        .then((svgContent) => {
-            const nadViewerParametersOptions: NadViewerParametersOptions = {
-                onMoveNodeCallback: handleNodeMove,
-                onMoveTextNodeCallback: handleTextNodeMove,
-                onSelectNodeCallback: handleNodeSelect,
-                onToggleHoverCallback: handleToggleNadHover,
-                onRightClickCallback: handleRightClick,
-                onBendLineCallback: handleLineBending,
-            };
-            new NetworkAreaDiagramViewer(
-                document.getElementById('svg-container-nad-no-moving')!,
-                svgContent,
-                NadSvgExampleMeta,
-                nadViewerParametersOptions
-            );
-        });
+    const nadViewerParametersOptions: NadViewerParametersOptions = {
+        onMoveNodeCallback: handleNodeMove,
+        onMoveTextNodeCallback: handleTextNodeMove,
+        onSelectNodeCallback: handleNodeSelect,
+        onToggleHoverCallback: handleToggleNadHover,
+        onRightClickCallback: handleRightClick,
+        onBendLineCallback: handleLineBending,
+    };
+    new NetworkAreaDiagramViewer(
+        document.getElementById('svg-container-nad-eurostag-c')!,
+        '',
+        NadSvgExampleMeta,
+        nadViewerParametersOptions
+    );
 
     fetch(NadSvgMultibusVLNodesExample)
         .then((response) => response.text())
@@ -200,6 +196,13 @@ export const addNadToDemo = () => {
             document.getElementById('svg-container-nad-multibus-vlnodes')?.appendChild(voltageLevelSlider);
         });
 
+    new NetworkAreaDiagramViewer(
+        document.getElementById('svg-container-nad-multibus-vlnodes-c')!,
+        '',
+        NadSvgMultibusVLNodesExampleMeta,
+        nadViewerParametersOptions
+    );
+
     fetch(NadSvgMultibusVLNodes14Example)
         .then((response) => response.text())
         .then((svgContent) => {
@@ -220,6 +223,13 @@ export const addNadToDemo = () => {
                 nadViewerParametersOptions
             );
         });
+
+    new NetworkAreaDiagramViewer(
+        document.getElementById('svg-container-nad-multibus-vlnodes14-c')!,
+        '',
+        NadSvgMultibusVLNodes14ExampleMeta,
+        nadViewerParametersOptions
+    );
 
     fetch(NadSvgPstHvdcExample)
         .then((response) => response.text())
@@ -242,6 +252,13 @@ export const addNadToDemo = () => {
             );
         });
 
+    new NetworkAreaDiagramViewer(
+        document.getElementById('svg-container-nad-pst-hvdc-c')!,
+        '',
+        NadSvgPstHvdcExampleMeta,
+        nadViewerParametersOptions
+    );
+
     fetch(NadSvgThreeWTDanglingLineUnknownBusExample)
         .then((response) => response.text())
         .then((svgContent) => {
@@ -262,6 +279,13 @@ export const addNadToDemo = () => {
                 nadViewerParametersOptions
             );
         });
+
+    new NetworkAreaDiagramViewer(
+        document.getElementById('svg-container-nad-threewt-dl-ub-c')!,
+        '',
+        NadSvgThreeWTDanglingLineUnknownBusExampleMeta,
+        nadViewerParametersOptions
+    );
 
     fetch(NadSvgPartialNetworkExample)
         .then((response) => response.text())
@@ -284,32 +308,12 @@ export const addNadToDemo = () => {
             );
         });
 
-    fetch(NadSvgPartialNetworkExample)
-        .then((response) => response.text())
-        .then((svgContent) => {
-            const nadViewerParametersOptions: NadViewerParametersOptions = {
-                enableDragInteraction: true,
-                addButtons: true,
-                onMoveNodeCallback: handleNodeMove,
-                onMoveTextNodeCallback: handleTextNodeMove,
-                onSelectNodeCallback: handleNodeSelect,
-                onToggleHoverCallback: handleToggleNadHover,
-                onRightClickCallback: handleRightClick,
-                onBendLineCallback: handleLineBending,
-                initialViewBox: {
-                    x: -250.0,
-                    y: -450.0,
-                    width: 1100,
-                    height: 1100,
-                },
-            };
-            new NetworkAreaDiagramViewer(
-                document.getElementById('svg-container-nad-partial-network-custom-view-box')!,
-                svgContent,
-                NadSvgPartialNetworkExampleMeta,
-                nadViewerParametersOptions
-            );
-        });
+    new NetworkAreaDiagramViewer(
+        document.getElementById('svg-container-nad-partial-network-c')!,
+        '',
+        NadSvgPartialNetworkExampleMeta,
+        nadViewerParametersOptions
+    );
 
     fetch(NadSvgPegaseNetworkExample)
         .then((response) => response.text())
@@ -334,6 +338,23 @@ export const addNadToDemo = () => {
                 nadViewerParametersOptions
             );
         });
+
+    const nadViewerParametersOptionsPegase: NadViewerParametersOptions = {
+        minWidth: 1000,
+        minHeight: 1200,
+        onMoveNodeCallback: handleNodeMove,
+        onMoveTextNodeCallback: handleTextNodeMove,
+        onSelectNodeCallback: handleNodeSelect,
+        onToggleHoverCallback: handleToggleNadHover,
+        onRightClickCallback: handleRightClick,
+        onBendLineCallback: handleLineBending,
+    };
+    new NetworkAreaDiagramViewer(
+        document.getElementById('svg-container-nad-pegase-network-c')!,
+        '',
+        NadSvgPegaseNetworkExampleMeta,
+        nadViewerParametersOptionsPegase
+    );
 
     fetch(NadSvgMultibusVLNodes14Example)
         .then((response) => response.text())
