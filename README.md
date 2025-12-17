@@ -60,7 +60,7 @@ you need to follow the steps below:
 -   [Login on the command line to the npm registry](https://docs.npmjs.com/logging-in-to-an-npm-enterprise-registry-from-the-command-line):   
 `npm login`
 -   [Publish the package](https://docs.npmjs.com/creating-and-publishing-scoped-public-packages#publishing-scoped-public-packages):    
-`npm publish:all`
+`npm run publish:all`
 ---
 ##### 3/ Prepare next version
 -   Update to the next version in both packages (example `3.3.0-dev.0`):  
