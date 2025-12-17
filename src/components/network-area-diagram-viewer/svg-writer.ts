@@ -18,6 +18,7 @@ export class SvgWriter {
     static readonly NODES_CLASS = 'nad-vl-nodes';
     static readonly BUS_CLASS = 'nad-busnode';
     static readonly EDGES_CLASS = 'nad-branch-edges';
+    static readonly THREEWT_EDGES_CLASS = 'nad-3wt-edges';
     static readonly EDGE_CLASS = 'nad-edge-path';
     static readonly HVDC_EDGE_CLASS = 'nad-hvdc-edge';
     static readonly DANGLING_LINE_EDGE_CLASS = 'nad-dangling-line-edge';
@@ -47,7 +48,11 @@ export class SvgWriter {
         svg.appendChild(this.getNodes());
         // add edges
         svg.appendChild(this.getEdges());
-
+        // add 3wt edges
+        const threeWtEdges = MetadataUtils.getThreeWtEdges(this.diagramMetadata.edges);
+        if (threeWtEdges && threeWtEdges.length > 0) {
+            svg.appendChild(this.getThreeWtEdges(threeWtEdges));
+        }
         return new XMLSerializer().serializeToString(xmlDoc);
     }
 
@@ -245,6 +250,34 @@ export class SvgWriter {
         polylineElement.classList.add(SvgWriter.HVDC_CLASS);
         const csPoints = DiagramUtils.getConverterStationPoints(points, this.svgParameters.getConverterStationWidth());
         polylineElement.setAttribute('points', DiagramUtils.getFormattedPolyline(csPoints));
+        return polylineElement;
+    }
+
+    private getThreeWtEdges(threeWtEdges: EdgeMetadata[]): SVGGElement {
+        // create g 3wt edges element
+        const gThreeWtEdgesElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        gThreeWtEdgesElement.classList.add(SvgWriter.THREEWT_EDGES_CLASS);
+        // add 3wt edges
+        threeWtEdges.forEach((edge) => {
+            const points = this.edgeRouter?.getThreeWtEdgePoints(edge.svgId);
+            if (points) {
+                gThreeWtEdgesElement.appendChild(this.getThreeWtEdge(edge, points));
+            }
+        });
+        return gThreeWtEdgesElement;
+    }
+
+    private getThreeWtEdge(edge: EdgeMetadata, points: Point[]): SVGGElement {
+        const gTreeWtEdgeElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        gTreeWtEdgeElement.id = edge.svgId;
+        gTreeWtEdgeElement.appendChild(this.getThreeWtPolyline(points));
+        return gTreeWtEdgeElement;
+    }
+
+    private getThreeWtPolyline(points: Point[]): SVGPolylineElement {
+        const polylineElement = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+        polylineElement.classList.add(SvgWriter.EDGE_CLASS);
+        polylineElement.setAttribute('points', DiagramUtils.getFormattedPolyline(points));
         return polylineElement;
     }
 }

@@ -372,3 +372,11 @@ export function isThreeWtEdge(edge: EdgeMetadata): boolean {
         (edgeType == EdgeType.PHASE_SHIFT_TRANSFORMER && edge.node2 == edge.busNode2)
     );
 }
+
+export function getThreeWtEdges(edges: EdgeMetadata[]): EdgeMetadata[] {
+    return edges.filter(
+        (edge) =>
+            getEdgeType(edge) == EdgeType.THREE_WINDINGS_TRANSFORMER ||
+            (getEdgeType(edge) == EdgeType.PHASE_SHIFT_TRANSFORMER && edge.node2 == edge.busNode2)
+    );
+}
