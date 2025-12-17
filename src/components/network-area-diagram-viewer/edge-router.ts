@@ -44,8 +44,7 @@ export class EdgeRouter {
     }
 
     public getThreeWtEdgePoints(edgeId: string): Point[] | undefined {
-        const points = this.threeWtEdgePoints[edgeId];
-        return points ? points : undefined;
+        return this.threeWtEdgePoints[edgeId];
     }
 
     private init() {
@@ -278,12 +277,12 @@ export class EdgeRouter {
             const pointVl = new Point(vlNode.x, vlNode.y);
             return DiagramUtils.getAngle(pointTwt, pointVl);
         });
-        const sortedIndices: number[] = Array.from(Array(angles.length).keys()).sort(function (a, b) {
+        const sortedIndices: number[] = Array.from(new Array(angles.length).keys()).sort(function (a, b) {
             return angles[a] - angles[b];
         });
         const leadingSortedIndex = this.getSortedIndexMaximumAperture(angles.slice());
         const leadingAngle = angles[sortedIndices[leadingSortedIndex]];
-        const sortedThreeWtEdges: EdgeMetadata[] = Array.from(Array(3).keys())
+        const sortedThreeWtEdges: EdgeMetadata[] = Array.from(new Array(3).keys())
             .map((index) => (leadingSortedIndex + index) % 3)
             .map((index) => sortedIndices[index])
             .map((index) => threeWtEdges[index]);
@@ -294,7 +293,7 @@ export class EdgeRouter {
     }
 
     private getSortedIndexMaximumAperture(angles: number[]): number {
-        const sortedAngles = angles.sort(function (a, b) {
+        const sortedAngles = angles.slice().sort(function (a, b) {
             return a - b;
         });
         sortedAngles.push(sortedAngles[0] + 2 * Math.PI);
