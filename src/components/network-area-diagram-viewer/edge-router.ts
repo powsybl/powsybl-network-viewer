@@ -7,7 +7,7 @@
  */
 
 import { Point } from '@svgdotjs/svg.js';
-import { DiagramMetadata, EdgeMetadata } from './diagram-metadata';
+import { DiagramMetadata, EdgeMetadata, NodeMetadata } from './diagram-metadata';
 import { SvgParameters } from './svg-parameters';
 import * as DiagramUtils from './diagram-utils';
 import * as MetadataUtils from './metadata-utils';
@@ -17,6 +17,7 @@ export class EdgeRouter {
     diagramMetadata: DiagramMetadata;
     svgParameters: SvgParameters;
     edgePoints: Record<string, [Point[], Point[]]> = {};
+    threeWtEdgePoints: Record<string, [Point, Point]> = {};
     nodeAngles: Record<string, number[]> = {};
 
     constructor(diagramMetadata: DiagramMetadata) {
@@ -42,26 +43,45 @@ export class EdgeRouter {
         return side == '1' ? egdesPoints[0] : egdesPoints[1];
     }
 
+    public getThreeWtEdgePoints(edgeId: string): Point[] | undefined {
+        const points = this.threeWtEdgePoints[edgeId];
+        return points ? points : undefined;
+    }
+
     private init() {
         const edgeGroups = this.groupEdges();
         this.storeGroupedEdges(edgeGroups.groupedEdges);
         this.storeLoopEdges(edgeGroups.loopEdges);
+        this.storeThreeWtEdges(edgeGroups.threeWtEdges);
     }
 
-    private groupEdges(): { groupedEdges: Record<string, EdgeMetadata[]>; loopEdges: Record<string, EdgeMetadata[]> } {
+    private groupEdges(): {
+        groupedEdges: Record<string, EdgeMetadata[]>;
+        loopEdges: Record<string, EdgeMetadata[]>;
+        threeWtEdges: Record<string, EdgeMetadata[]>;
+    } {
         const groupedEdges: Record<string, EdgeMetadata[]> = {};
         const loopEdges: Record<string, EdgeMetadata[]> = {};
+        const threeWtEdges: Record<string, EdgeMetadata[]> = {};
         this.diagramMetadata.edges.forEach((edge) => {
-            if (MetadataUtils.isThreeWtEdge(edge)) {
-                return;
-            }
+            const is3wtEdge = MetadataUtils.isThreeWtEdge(edge);
             const isLoop = edge.node1 === edge.node2;
-            const key = isLoop ? edge.node1 : MetadataUtils.getGroupedEdgesIndexKey(edge);
-            const target = isLoop ? loopEdges : groupedEdges;
-            target[key] ??= [];
-            target[key].push(edge);
+            let key: string;
+            let targetMap: Record<string, EdgeMetadata[]>;
+            if (is3wtEdge) {
+                key = edge.node2;
+                targetMap = threeWtEdges;
+            } else if (isLoop) {
+                key = edge.node1;
+                targetMap = loopEdges;
+            } else {
+                key = MetadataUtils.getGroupedEdgesIndexKey(edge);
+                targetMap = groupedEdges;
+            }
+            targetMap[key] ??= [];
+            targetMap[key].push(edge);
         });
-        return { groupedEdges, loopEdges };
+        return { groupedEdges, loopEdges, threeWtEdges };
     }
 
     private storeGroupedEdges(edges: Record<string, EdgeMetadata[]>) {
@@ -233,5 +253,84 @@ export class EdgeRouter {
             return;
         }
         this.edgePoints[edge.svgId] = [halfEgdes[0].edgePoints, halfEgdes[1].edgePoints];
+    }
+
+    private storeThreeWtEdges(edgesMap: Record<string, EdgeMetadata[]>) {
+        for (const threeWtId in edgesMap) {
+            const threeWtNode = MetadataUtils.getNodeMetadata(threeWtId, this.diagramMetadata);
+            if (!threeWtNode) {
+                continue;
+            }
+            const threeWtEdges: EdgeMetadata[] = edgesMap[threeWtId] ?? [];
+            if (threeWtEdges.length > 0) {
+                this.storeThreeWtNodeEdges(threeWtNode, threeWtEdges);
+            }
+        }
+    }
+
+    private storeThreeWtNodeEdges(threeWtNode: NodeMetadata, threeWtEdges: EdgeMetadata[]) {
+        const pointTwt = new Point(threeWtNode.x, threeWtNode.y);
+        const angles: number[] = threeWtEdges.map((edge) => {
+            const vlNode = MetadataUtils.getNodeMetadata(edge.node1, this.diagramMetadata);
+            if (!vlNode) {
+                return 0;
+            }
+            const pointVl = new Point(vlNode.x, vlNode.y);
+            return DiagramUtils.getAngle(pointTwt, pointVl);
+        });
+        const sortedIndices: number[] = Array.from(Array(angles.length).keys()).sort(function (a, b) {
+            return angles[a] - angles[b];
+        });
+        const leadingSortedIndex = this.getSortedIndexMaximumAperture(angles.slice());
+        const leadingAngle = angles[sortedIndices[leadingSortedIndex]];
+        const sortedThreeWtEdges: EdgeMetadata[] = Array.from(Array(3).keys())
+            .map((index) => (leadingSortedIndex + index) % 3)
+            .map((index) => sortedIndices[index])
+            .map((index) => threeWtEdges[index]);
+        const dNodeToAnchor = this.svgParameters.getTransformerCircleRadius() * 1.6;
+        for (let index = 0; index < sortedThreeWtEdges.length; index++) {
+            this.storeThreeWtEdge(sortedThreeWtEdges[index], pointTwt, leadingAngle, index, dNodeToAnchor);
+        }
+    }
+
+    private getSortedIndexMaximumAperture(angles: number[]): number {
+        const sortedAngles = angles.sort(function (a, b) {
+            return a - b;
+        });
+        sortedAngles.push(sortedAngles[0] + 2 * Math.PI);
+        const deltaAngles: number[] = [];
+        for (let index = 0; index < 3; index++) {
+            deltaAngles[index] = sortedAngles[index + 1] - sortedAngles[index];
+        }
+        const minDeltaIndex = deltaAngles.reduce(
+            (minIndex, currentValue, currentIndex, array) => (currentValue < array[minIndex] ? currentIndex : minIndex),
+            0
+        );
+        return (minDeltaIndex - 1 + 3) % 3;
+    }
+
+    private storeThreeWtEdge(
+        edge: EdgeMetadata,
+        pointTwt: Point,
+        leadingAngle: number,
+        index: number,
+        dNodeToAnchor: number
+    ) {
+        const vlNode = MetadataUtils.getNodeMetadata(edge.node1, this.diagramMetadata);
+        if (!vlNode) {
+            return;
+        }
+        const busNode = MetadataUtils.getBusNodeMetadata(edge.busNode1, this.diagramMetadata);
+        const nodeRadius = MetadataUtils.getNodeRadius(busNode, vlNode, this.svgParameters);
+        const edgeStart = DiagramUtils.getEdgeStart(
+            edge.busNode1,
+            new Point(vlNode.x, vlNode.y),
+            pointTwt,
+            nodeRadius.busOuterRadius,
+            this.svgParameters.getUnknownBusNodeExtraRadius()
+        );
+        const anchorAngle = leadingAngle + (index * 2 * Math.PI) / 3;
+        const threeWtAnchor: Point = DiagramUtils.shiftRhoTheta(pointTwt, dNodeToAnchor, anchorAngle);
+        this.threeWtEdgePoints[edge.svgId] = [edgeStart, threeWtAnchor];
     }
 }

@@ -13,6 +13,7 @@ import {
     degToRad,
     getAngle,
     getConverterStationPoints,
+    getEdgeStart,
     getMidPosition,
     getPointAtDistance,
     getPointAtDistanceWithAngle,
@@ -97,7 +98,13 @@ export function getThreeWtHalfEdge(
     const pointVl = new Point(vlNode.x, vlNode.y);
     const pointTwt = new Point(twtNode.x, twtNode.y);
     const nodeRadius = getNodeRadius(busNode, vlNode, svgParameters);
-    const edgeStart = getEdgeStart(edgeMetadata.busNode1, pointVl, pointTwt, nodeRadius.busOuterRadius, svgParameters);
+    const edgeStart = getEdgeStart(
+        edgeMetadata.busNode1,
+        pointVl,
+        pointTwt,
+        nodeRadius.busOuterRadius,
+        svgParameters.getUnknownBusNodeExtraRadius()
+    );
     const edgeEnd =
         threeWtMoved && initialPosition
             ? new Point(
@@ -151,7 +158,7 @@ export function getHalfVisibleHalfEdges(
         point,
         polylinePoints[1],
         nodeRadius.busOuterRadius,
-        svgParameters
+        svgParameters.getUnknownBusNodeExtraRadius()
     );
 
     // Create half edges
@@ -206,11 +213,23 @@ export function getHalfEdges(
 
     const edgeDirection1 = getEdgeDirection(point2, edgeFork1, edge.bendingPoints?.at(0));
     const nodeRadius1 = getNodeRadius(busNode1, node1, svgParameters);
-    const edgeStart1 = getEdgeStart(edge.busNode1, point1, edgeDirection1, nodeRadius1.busOuterRadius, svgParameters);
+    const edgeStart1 = getEdgeStart(
+        edge.busNode1,
+        point1,
+        edgeDirection1,
+        nodeRadius1.busOuterRadius,
+        svgParameters.getUnknownBusNodeExtraRadius()
+    );
 
     const edgeDirection2 = getEdgeDirection(point1, edgeFork2, edge.bendingPoints?.at(-1));
     const nodeRadius2 = getNodeRadius(busNode2, node2, svgParameters);
-    const edgeStart2 = getEdgeStart(edge.busNode2, point2, edgeDirection2, nodeRadius2.busOuterRadius, svgParameters);
+    const edgeStart2 = getEdgeStart(
+        edge.busNode2,
+        point2,
+        edgeDirection2,
+        nodeRadius2.busOuterRadius,
+        svgParameters.getUnknownBusNodeExtraRadius()
+    );
 
     const edgeMiddle =
         edgeFork1 && edgeFork2 ? getMidPosition(edgeFork1, edgeFork2) : getMidPosition(edgeStart1, edgeStart2);
@@ -257,18 +276,6 @@ function getTranslatedPolyline(polylinePoints: Point[], nodeMetadata: NodeMetada
 
     // Apply translation to polyline points
     return polylinePoints.map((point) => new Point(point.x + translation.x, point.y + translation.y));
-}
-
-function getEdgeStart(
-    busNodeId: string | undefined,
-    vlPoint: Point,
-    direction: Point,
-    busOuterRadius: number,
-    svgParameters: SvgParameters
-): Point {
-    const unknownBusNode1 = busNodeId?.length == 0;
-    const rho = unknownBusNode1 ? busOuterRadius + svgParameters.getUnknownBusNodeExtraRadius() : busOuterRadius;
-    return getPointAtDistance(vlPoint, direction, rho);
 }
 
 function getEdgeDirection(

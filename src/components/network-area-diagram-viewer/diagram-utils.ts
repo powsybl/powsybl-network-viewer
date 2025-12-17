@@ -314,3 +314,19 @@ export function getConverterStationPoints(halfEdgePoints: Point[], converterStat
     const point2 = getPointAtDistance(point1, middlePoint, converterStationWidth);
     return [point1, point2];
 }
+
+export function getEdgeStart(
+    busNodeId: string | undefined,
+    vlPoint: Point,
+    direction: Point,
+    busOuterRadius: number,
+    unknownBusNodeExtraRadius: number
+): Point {
+    const unknownBusNode1 = busNodeId?.length == 0;
+    const rho = unknownBusNode1 ? busOuterRadius + unknownBusNodeExtraRadius : busOuterRadius;
+    return getPointAtDistance(vlPoint, direction, rho);
+}
+
+export function shiftRhoTheta(point: Point, rho: number, theta: number) {
+    return new Point(point.x + rho * Math.cos(theta), point.y + rho * Math.sin(theta));
+}
