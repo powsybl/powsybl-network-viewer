@@ -249,16 +249,11 @@ export function getArrowClass(direction: string | undefined): string | undefined
     }
 }
 
-export function completeEdgeAngles(traversingBusEdgesAngles: number[]): number[] {
+export function getSortedAnglesWithWrapAround(traversingBusEdgesAngles: number[]): number[] {
     if (traversingBusEdgesAngles.length == 0) {
         return [];
     }
-    const edgeAngles = Object.assign(
-        [],
-        traversingBusEdgesAngles.slice().sort(function (a, b) {
-            return a - b;
-        })
-    );
-    edgeAngles.push(edgeAngles[0] + 2 * Math.PI);
-    return edgeAngles;
+    const sortedAngles = [...traversingBusEdgesAngles].sort((a, b) => a - b);
+    sortedAngles.push(sortedAngles[0] + 2 * Math.PI);
+    return sortedAngles;
 }

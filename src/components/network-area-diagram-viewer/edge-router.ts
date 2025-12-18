@@ -16,8 +16,8 @@ import * as HalfEdgeUtils from './half-edge-utils';
 export class EdgeRouter {
     diagramMetadata: DiagramMetadata;
     svgParameters: SvgParameters;
-    edgeMap: Map<string, [Point[], Point[]]> = new Map<string, [Point[], Point[]]>();
-    nodeAngleMap: Map<string, number[]> = new Map<string, number[]>();
+    edgeAngles: Record<string, [Point[], Point[]]> = {};
+    nodeAngles: Record<string, number[]> = {};
 
     constructor(diagramMetadata: DiagramMetadata) {
         this.diagramMetadata = diagramMetadata;
@@ -26,7 +26,7 @@ export class EdgeRouter {
     }
 
     public getEdgeAngle(edgeId: string, side: string): number | undefined {
-        const egdesPoints = this.edgeMap.get(edgeId);
+        const egdesPoints = this.edgeAngles[edgeId];
         if (!egdesPoints) {
             return undefined;
         }
@@ -40,39 +40,30 @@ export class EdgeRouter {
         this.storeLoopEdges(edgeGroups.loopEdges);
     }
 
-    private groupEdges(): { groupedEdges: Map<string, EdgeMetadata[]>; loopEdges: Map<string, EdgeMetadata[]> } {
-        const groupedEdges: Map<string, EdgeMetadata[]> = new Map<string, EdgeMetadata[]>();
-        const loopEdges: Map<string, EdgeMetadata[]> = new Map<string, EdgeMetadata[]>();
+    private groupEdges(): { groupedEdges: Record<string, EdgeMetadata[]>; loopEdges: Record<string, EdgeMetadata[]> } {
+        const groupedEdges: Record<string, EdgeMetadata[]> = {};
+        const loopEdges: Record<string, EdgeMetadata[]> = {};
         this.diagramMetadata.edges.forEach((edge) => {
-            let edgeGroup: EdgeMetadata[] = [];
-            if (edge.node1 == edge.node2) {
-                if (loopEdges.has(edge.node1)) {
-                    edgeGroup = loopEdges.get(edge.node1) ?? [];
-                }
-                edgeGroup.push(edge);
-                loopEdges.set(edge.node1, edgeGroup);
-            } else {
-                const edgeGroupId = MetadataUtils.getGroupedEdgesIndexKey(edge);
-                if (groupedEdges.has(edgeGroupId)) {
-                    edgeGroup = groupedEdges.get(edgeGroupId) ?? [];
-                }
-                edgeGroup.push(edge);
-                groupedEdges.set(edgeGroupId, edgeGroup);
-            }
+            const isLoop = edge.node1 === edge.node2;
+            const key = isLoop ? edge.node1 : MetadataUtils.getGroupedEdgesIndexKey(edge);
+            const target = isLoop ? loopEdges : groupedEdges;
+            target[key] ??= [];
+            target[key].push(edge);
         });
-        return { groupedEdges: groupedEdges, loopEdges: loopEdges };
+        return { groupedEdges, loopEdges };
     }
 
-    private storeGroupedEdges(edgesMap: Map<string, EdgeMetadata[]>) {
-        for (const edgeGroup of edgesMap.values()) {
-            if (edgeGroup.length == 1) {
-                this.storeHalfEdges(edgeGroup[0], 1, 0);
+    private storeGroupedEdges(edges: Record<string, EdgeMetadata[]>) {
+        for (const edgeId in edges) {
+            const groupedEdges = edges[edgeId];
+            if (groupedEdges.length == 1) {
+                this.storeHalfEdges(groupedEdges[0], 1, 0);
             } else {
-                for (let iEdge = 0; iEdge < edgeGroup.length; iEdge++) {
-                    if (2 * iEdge + 1 == edgeGroup.length) {
-                        this.storeHalfEdges(edgeGroup[iEdge], 1, 0);
+                for (let iEdge = 0; iEdge < groupedEdges.length; iEdge++) {
+                    if (2 * iEdge + 1 == groupedEdges.length) {
+                        this.storeHalfEdges(groupedEdges[iEdge], 1, 0);
                     } else {
-                        this.storeHalfEdges(edgeGroup[iEdge], edgeGroup.length, iEdge);
+                        this.storeHalfEdges(groupedEdges[iEdge], groupedEdges.length, iEdge);
                     }
                 }
             }
@@ -90,26 +81,26 @@ export class EdgeRouter {
         if (!halfEgdes[0] || !halfEgdes[1]) {
             return;
         }
-        this.edgeMap.set(edge.svgId, [halfEgdes[0].edgePoints, halfEgdes[1].edgePoints]);
+        this.edgeAngles[edge.svgId] = [halfEgdes[0].edgePoints, halfEgdes[1].edgePoints];
         const angle1 = DiagramUtils.getAngle(halfEgdes[0].edgePoints[0], halfEgdes[0].edgePoints[1]);
         const angle2 = DiagramUtils.getAngle(halfEgdes[1].edgePoints[0], halfEgdes[1].edgePoints[1]);
-        const node1Angles: number[] = this.nodeAngleMap.get(edge.node1) ?? [];
+        const node1Angles: number[] = this.nodeAngles[edge.node1] ?? [];
         node1Angles.push(angle1);
-        this.nodeAngleMap.set(edge.node1, node1Angles);
-        const node2Angles: number[] = this.nodeAngleMap.get(edge.node2) ?? [];
+        this.nodeAngles[edge.node1] = node1Angles;
+        const node2Angles: number[] = this.nodeAngles[edge.node2] ?? [];
         node2Angles.push(angle2);
-        this.nodeAngleMap.set(edge.node2, node2Angles);
+        this.nodeAngles[edge.node2] = node2Angles;
     }
 
-    private storeLoopEdges(edgesMap: Map<string, EdgeMetadata[]>) {
-        for (const loopEdges of edgesMap.values()) {
+    private storeLoopEdges(edges: Record<string, EdgeMetadata[]>) {
+        for (const edgeId in edges) {
+            const loopEdges = edges[edgeId];
             const availableAngles = this.findAvailableAngles(
-                this.nodeAngleMap.get(loopEdges[0].node1) ?? [],
+                this.nodeAngles[loopEdges[0].node1] ?? [],
                 loopEdges.length
             );
-            let index: number = 0;
-            loopEdges.forEach((loopEdge) => {
-                const angle = availableAngles[index++];
+            loopEdges.forEach((loopEdge, index) => {
+                const angle = availableAngles[index];
                 this.storeLoopHalfEdges(loopEdge, angle);
             });
         }
@@ -125,7 +116,7 @@ export class EdgeRouter {
                     availableAngles.push(angle);
                 });
         } else {
-            anglesOtherEdges = DiagramUtils.completeEdgeAngles(anglesOtherEdges);
+            anglesOtherEdges = DiagramUtils.getSortedAnglesWithWrapAround(anglesOtherEdges);
             const deltaAngles: number[] = [];
             const nbAvailableSlots: number[] = [];
             let totalDeltaAvailable = 0;
@@ -230,6 +221,6 @@ export class EdgeRouter {
         if (!halfEgdes[0] || !halfEgdes[1]) {
             return;
         }
-        this.edgeMap.set(edge.svgId, [halfEgdes[0].edgePoints, halfEgdes[1].edgePoints]);
+        this.edgeAngles[edge.svgId] = [halfEgdes[0].edgePoints, halfEgdes[1].edgePoints];
     }
 }

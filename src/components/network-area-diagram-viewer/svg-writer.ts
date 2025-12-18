@@ -100,7 +100,7 @@ export class SvgWriter {
             const pathElement = document.createElementNS('http://www.w3.org/2000/svg', 'path');
             pathElement.id = busNode.svgId;
             pathElement.classList.add(SvgWriter.BUS_CLASS);
-            const edgeAngles = DiagramUtils.completeEdgeAngles(traversingBusEdgesAngles);
+            const edgeAngles = DiagramUtils.getSortedAnglesWithWrapAround(traversingBusEdgesAngles);
             const path: string = DiagramUtils.getFragmentedAnnulusPath(
                 edgeAngles,
                 nodeRadius,
