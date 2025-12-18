@@ -1237,8 +1237,8 @@ export class NetworkAreaDiagramViewer {
         }
 
         // if present, move edge name
-        if (this.svgParameters.getEdgeNameDisplayed()) {
-            this.updateEdgeName(edgeNode, halfEdge1, halfEdge2);
+        if (edge.edgeInfoMiddle) {
+            this.updateEdgeName(edge.edgeInfoMiddle, halfEdge1, halfEdge2);
         }
     }
 
@@ -1401,13 +1401,13 @@ export class NetworkAreaDiagramViewer {
             this.updateSvgElementPosition(edge.svgId, translation);
             this.updateSvgElementPosition(edge.edgeInfo1?.svgId, translation);
             this.updateSvgElementPosition(edge.edgeInfo2?.svgId, translation);
+            this.updateSvgElementPosition(edge.edgeInfoMiddle?.svgId, translation);
         });
     }
 
-    private updateEdgeName(edgeNode: SVGGraphicsElement, halfEdge1: HalfEdge | null, halfEdge2: HalfEdge | null) {
-        const positionElement: SVGGraphicsElement | null = edgeNode.querySelector(
-            '.nad-edge-label'
-        ) as SVGGraphicsElement;
+    private updateEdgeName(edgeInfo: EdgeInfoMetadata, halfEdge1: HalfEdge | null, halfEdge2: HalfEdge | null) {
+        const positionElement: SVGGraphicsElement | null = this.getEdgeInfo(edgeInfo.svgId) as SVGGraphicsElement;
+
         if (!positionElement) return;
 
         let anchorPoint = new Point(0, 0);
@@ -1848,34 +1848,24 @@ export class NetworkAreaDiagramViewer {
         const halfEdges = this.getHalfEdgesForEdgeInfos(edge);
 
         if (edge.edgeInfo1 && halfEdges[0]) {
-            // temporary fix for fork's middle straight line, where the edgePoints are expected to be 3
-            if (halfEdges[0].fork && halfEdges[0].edgePoints.length < 3) {
-                halfEdges[0].fork = false;
-            }
-
-            const edgeValue1 = Number(edge.edgeInfo1?.externalLabel);
+            const edgeValue1 = Number(edge.edgeInfo1?.labelB);
             this.setBranchSideLabel(
                 edge,
                 halfEdges[0],
                 edge.edgeInfo1,
                 '1',
-                Number.isNaN(edgeValue1) ? (edge.edgeInfo1?.externalLabel ?? '') : edgeValue1
+                Number.isNaN(edgeValue1) ? (edge.edgeInfo1?.labelB ?? '') : edgeValue1
             );
         }
 
         if (edge.edgeInfo2 && halfEdges[1]) {
-            // temporary fix for fork's middle straight line, where the edgePoints are expected to be 3
-            if (halfEdges[1].fork && halfEdges[1].edgePoints.length < 3) {
-                halfEdges[1].fork = false;
-            }
-
-            const edgeValue2 = Number(edge.edgeInfo2?.externalLabel);
+            const edgeValue2 = Number(edge.edgeInfo2?.labelB);
             this.setBranchSideLabel(
                 edge,
                 halfEdges[1],
                 edge.edgeInfo2,
                 '2',
-                Number.isNaN(edgeValue2) ? (edge.edgeInfo2?.externalLabel ?? '') : edgeValue2
+                Number.isNaN(edgeValue2) ? (edge.edgeInfo2?.labelB ?? '') : edgeValue2
             );
         }
     }
@@ -2073,7 +2063,7 @@ export class NetworkAreaDiagramViewer {
         if (!edgeInfoMetadata) {
             edgeInfoMetadata = {
                 svgId: crypto.randomUUID(),
-                infoType: 'ActivePower',
+                infoTypeB: 'ActivePower',
             };
             if (side == '1') {
                 edge.edgeInfo1 = edgeInfoMetadata;
@@ -2081,8 +2071,14 @@ export class NetworkAreaDiagramViewer {
                 edge.edgeInfo2 = edgeInfoMetadata;
             }
         }
-        edgeInfoMetadata.externalLabel =
-            typeof value === 'number' ? value.toFixed(this.getEdgeInfoValuePrecision()) : value;
+        edgeInfoMetadata.labelB =
+            typeof value === 'number'
+                ? value.toFixed(
+                      this.getEdgeInfoValuePrecision(
+                          this.svgParameters.getEdgeInfoDisplayed(edgeInfoMetadata.infoTypeB)
+                      )
+                  )
+                : value;
         edgeInfoMetadata.direction = typeof value === 'number' ? DiagramUtils.getArrowDirection(value) : undefined;
 
         const edgeInfo = this.getOrCreateEdgeInfo(edgeInfoMetadata);
@@ -2091,7 +2087,7 @@ export class NetworkAreaDiagramViewer {
         }
 
         edgeInfo.classList.remove('nad-active', 'nad-reactive', 'nad-current');
-        const edgeInfoClass = DiagramUtils.getEdgeInfoClass(edgeInfoMetadata.infoType);
+        const edgeInfoClass = DiagramUtils.getEdgeInfoClass(edgeInfoMetadata.infoTypeB);
         if (edgeInfoClass) {
             edgeInfo.classList.add(edgeInfoClass);
         }
@@ -2109,7 +2105,7 @@ export class NetworkAreaDiagramViewer {
         }
 
         const branchLabelElement = this.getOrCreateEdgeInfoText(edgeInfo);
-        branchLabelElement.innerHTML = edgeInfoMetadata.externalLabel;
+        branchLabelElement.innerHTML = edgeInfoMetadata.labelB;
 
         this.redrawEdgeArrowAndLabel(halfEdge, edgeInfo);
     }
@@ -2145,9 +2141,8 @@ export class NetworkAreaDiagramViewer {
         return edgeInfoText;
     }
 
-    private getEdgeInfoValuePrecision() {
-        const edgeInfoDisplayed = this.svgParameters.getEdgeInfoDisplayed();
-        switch (edgeInfoDisplayed) {
+    private getEdgeInfoValuePrecision(edgeInfoType: EdgeInfoEnum) {
+        switch (edgeInfoType) {
             case EdgeInfoEnum.ACTIVE_POWER:
             case EdgeInfoEnum.REACTIVE_POWER:
                 return this.svgParameters.getPowerValuePrecision();

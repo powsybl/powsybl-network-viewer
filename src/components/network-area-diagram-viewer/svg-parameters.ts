@@ -12,12 +12,14 @@ export enum EdgeInfoEnum {
     ACTIVE_POWER,
     REACTIVE_POWER,
     CURRENT,
+    NAME,
 }
 
 const EdgeInfoEnumMapping: { [key: string]: EdgeInfoEnum } = {
-    ACTIVE_POWER: EdgeInfoEnum.ACTIVE_POWER,
-    REACTIVE_POWER: EdgeInfoEnum.REACTIVE_POWER,
-    CURRENT: EdgeInfoEnum.CURRENT,
+    ActivePower: EdgeInfoEnum.ACTIVE_POWER,
+    ReactivePower: EdgeInfoEnum.REACTIVE_POWER,
+    Current: EdgeInfoEnum.CURRENT,
+    Name: EdgeInfoEnum.NAME,
 };
 
 type DiagramPadding = {
@@ -50,7 +52,6 @@ export class SvgParameters {
     static readonly CONVERTER_STATION_WIDTH_DEFAULT = 70.0;
     static readonly NODE_HOLLOW_WIDTH_DEFAULT = 15.0;
     static readonly UNKNOWN_BUS_NODE_EXTRA_RADIUS_DEFAULT = 10.0;
-    static readonly EDGE_NAME_DISPLAYED_DEFAULT = true;
     static readonly FICTITIOUS_VOLTAGE_LEVEL_CIRCLE_RADIUS_DEFAULT = 15.0;
     static readonly EDGE_INFO_DISPLAYED_DEFAULT = EdgeInfoEnum.ACTIVE_POWER;
     static readonly POWER_VALUE_PRECISION_RADIUS_DEFAULT = 0;
@@ -123,10 +124,6 @@ export class SvgParameters {
         );
     }
 
-    public getEdgeNameDisplayed(): boolean {
-        return this.svgParametersMetadata?.edgeNameDisplayed ?? SvgParameters.EDGE_NAME_DISPLAYED_DEFAULT;
-    }
-
     public getFictitiousVoltageLevelCircleRadius(): number {
         return (
             this.svgParametersMetadata?.fictitiousVoltageLevelCircleRadius ??
@@ -134,10 +131,8 @@ export class SvgParameters {
         );
     }
 
-    public getEdgeInfoDisplayed(): EdgeInfoEnum {
-        return this.svgParametersMetadata?.edgeInfoDisplayed
-            ? EdgeInfoEnumMapping[this.svgParametersMetadata?.edgeInfoDisplayed]
-            : SvgParameters.EDGE_INFO_DISPLAYED_DEFAULT;
+    public getEdgeInfoDisplayed(edgeInfoType: string | undefined): EdgeInfoEnum {
+        return edgeInfoType ? EdgeInfoEnumMapping[edgeInfoType] : SvgParameters.EDGE_INFO_DISPLAYED_DEFAULT;
     }
 
     public getPowerValuePrecision(): number {

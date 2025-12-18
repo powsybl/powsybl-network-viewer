@@ -17,7 +17,12 @@ export interface DiagramMetadata {
 }
 
 export interface LayoutParametersMetadata {
+    textNodesForceLayout: boolean;
+    textNodeFixedShift: PointMetadata;
     textNodeEdgeConnectionYShift: number;
+    maxSteps: number;
+    timeoutSeconds: number;
+    injectionsAdded: boolean;
 }
 
 export interface SvgParametersMetadata {
@@ -32,9 +37,7 @@ export interface SvgParametersMetadata {
     converterStationWidth: number;
     nodeHollowWidth: number;
     unknownBusNodeExtraRadius: number;
-    edgeNameDisplayed: boolean;
     fictitiousVoltageLevelCircleRadius: number;
-    edgeInfoDisplayed: string;
     powerValuePrecision: number;
     currentValuePrecision: number;
     angleValuePrecision: number;
@@ -43,6 +46,27 @@ export interface SvgParametersMetadata {
     cssLocation: string;
     arrowPathIn: string;
     arrowPathOut: string;
+    svgWidthAndHeightAdded: boolean;
+    sizeConstraint: string;
+    fixedWidth: number;
+    fixedHeight: number;
+    fixedScale: number;
+    edgeStartShift: number;
+    loopDistance: number;
+    loopEdgesAperture: number;
+    loopControlDistance: number;
+    edgeInfoAlongEdge: boolean;
+    svgPrefix: string;
+    languageTag: string;
+    percentageValuePrecision: number;
+    pstArrowHeadSize: number;
+    undefinedValueSymbol: string;
+    highlightGraph: boolean;
+    injectionAperture: number;
+    injectionEdgeLength: number;
+    injectionCircleRadius: number;
+    voltageLevelLegendsIncluded: boolean;
+    edgeInfosIncluded: boolean;
 }
 
 export interface DiagramPaddingMetadata {
@@ -82,7 +106,7 @@ export interface EdgeMetadata {
     busNode2: string;
     type: string;
     bendingPoints?: PointMetadata[];
-    label?: string;
+    edgeInfoMiddle?: EdgeInfoMetadata;
     edgeInfo1?: EdgeInfoMetadata;
     edgeInfo2?: EdgeInfoMetadata;
 }
@@ -113,8 +137,9 @@ export interface InjectionMetadata {
 
 export interface EdgeInfoMetadata {
     svgId: string;
-    infoType: string;
+    infoTypeA?: string;
+    infoTypeB?: string;
     direction?: string;
-    externalLabel?: string;
-    internalLabel?: string;
+    labelA?: string;
+    labelB?: string;
 }
