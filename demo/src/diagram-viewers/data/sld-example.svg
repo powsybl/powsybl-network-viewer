@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<svg viewBox="0 0 430.0 564.0" xmlns="http://www.w3.org/2000/svg">
+<svg viewBox="0 0 530.0 564.0" xmlns="http://www.w3.org/2000/svg">
     <style><![CDATA[/* ----------------------------------------------------------------------- */
 /* File: tautologies.css ------------------------------------------------- */
 .sld-out .sld-arrow-in {visibility: hidden}
@@ -155,15 +155,316 @@
     <rect class="sld-frame" height="100%" width="100%"/>
     <g>
         <g class="sld-voltage-level" id="id469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe">
-            <g class="sld-busbar-section sld-vl300to500 sld-bus-0" id="id64901aec_45_5a8a_45_4bcb_45_8ca7_45_a3ddbfcd0e6c" transform="translate(52.5,252.0)">
-                <line x1="0" x2="325.0" y1="0" y2="0"/>
-                <text class="sld-label" id="id64901aec_45_5a8a_45_4bcb_45_8ca7_45_a3ddbfcd0e6c_95_NW_95_LABEL" x="-5.0" y="-5.0">BE-Busbar_1</text>
+            <g class="sld-busbar-section sld-vl300to500 sld-bus-0" id="id40a961da_45_7a03_45_826a_45_e442_45_cea649f7cebf" transform="translate(52.5,252.0)">
+                <line x1="0" x2="425.0" y1="0" y2="0"/>
+                <text class="sld-label" id="id40a961da_45_7a03_45_826a_45_e442_45_cea649f7cebf_95_NW_95_LABEL" x="-5.0" y="-5.0">BO-Busbar_1</text>
             </g>
             <g class="sld-extern-cell sld-cell-direction-top" id="idEXTERN_32_0">
-                <g class="sld-wire sld-vl300to500 sld-bus-0" id="_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_INTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_BUSCO_95_64901aec_45_5a8a_45_4bcb_45_8ca7_45_a3ddbfcd0e6c_95_002b0a40_45_3957_45_46db_45_b84a_45_30420083558f_45_002b0a40_45_3957_45_46db_45_b84a_45_30420083558f_95_BUSCO_95_64901aec_45_5a8a_45_4bcb_45_8ca7_45_a3ddbfcd0e6c_95_002b0a40_45_3957_45_46db_45_b84a_45_30420083558f">
-                    <polyline points="65.0,222.0,65.0,252.0"/>
+                <g class="sld-wire sld-vl300to500 sld-bus-0" id="_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_INTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_BUSCO_95_40a961da_45_7a03_45_826a_45_e442_45_cea649f7cebf_95_96c2b5c8_45_8e28_45_4b08_45_96d2_45_ca9b09cdbd83_45_96c2b5c8_45_8e28_45_4b08_45_96d2_45_ca9b09cdbd83_95_BUSCO_95_40a961da_45_7a03_45_826a_45_e442_45_cea649f7cebf_95_96c2b5c8_45_8e28_45_4b08_45_96d2_45_ca9b09cdbd83">
+                    <polyline points="390.0,222.0,390.0,252.0"/>
                 </g>
-                <g class="sld-wire sld-vl300to500 sld-bus-0" id="_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_INTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_BUSCO_95_64901aec_45_5a8a_45_4bcb_45_8ca7_45_a3ddbfcd0e6c_95_002b0a40_45_3957_45_46db_45_b84a_45_30420083558f_45_002b0a40_45_3957_45_46db_45_b84a_45_30420083558f_95_INTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_002b0a40_45_3957_45_46db_45_b84a_45_30420083558f">
+                <g class="sld-wire sld-vl300to500 sld-bus-0" id="_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_96c2b5c8_45_8e28_45_4b08_45_96d2_45_ca9b09cdbd83_95_INTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_BUSCO_95_40a961da_45_7a03_45_826a_45_e442_45_cea649f7cebf_95_96c2b5c8_45_8e28_45_4b08_45_96d2_45_ca9b09cdbd83_45_96c2b5c8_45_8e28_45_4b08_45_96d2_45_ca9b09cdbd83">
+                    <polyline points="390.0,192.0,390.0,222.0"/>
+                </g>
+                <g class="sld-wire sld-vl300to500 sld-disconnected" id="_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_84ed55f4_45_61f5_45_4d9d_45_8755_45_bba7b877a246_95_96c2b5c8_45_8e28_45_4b08_45_96d2_45_ca9b09cdbd83">
+                    <polyline points="390.0,154.0,390.0,172.0"/>
+                </g>
+                <g class="sld-wire sld-vl180to300 sld-bus-0 sld-feeder-disconnected-connected" id="_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_84ed55f4_45_61f5_45_4d9d_45_8755_45_bba7b877a246_95_TWO_95_84ed55f4_45_61f5_45_4d9d_45_8755_45_bba7b877a246">
+                    <polyline points="365.0,80.0,365.0,142.0,383.0,142.0"/>
+                </g>
+                <g class="sld-feeder-info sld-out sld-active-power" id="id84ed55f4_45_61f5_45_4d9d_45_8755_45_bba7b877a246_95_TWO_95_ARROW_95_ACTIVE" transform="translate(360.0,95.0)">
+                    <polygon class="sld-arrow-out" points="5,0 10,10 0,10"/>
+                    <polygon class="sld-arrow-in" points="0,0 10,0 5,10"/>
+                    <text class="sld-label" x="15.0" y="5.0">24</text>
+                </g>
+                <g class="sld-feeder-info sld-out sld-reactive-power" id="id84ed55f4_45_61f5_45_4d9d_45_8755_45_bba7b877a246_95_TWO_95_ARROW_95_REACTIVE" transform="translate(360.0,115.0)">
+                    <polygon class="sld-arrow-out" points="5,0 10,10 0,10"/>
+                    <polygon class="sld-arrow-in" points="0,0 10,0 5,10"/>
+                    <text class="sld-label" x="15.0" y="5.0">94</text>
+                </g>
+                <g class="sld-wire sld-vl0to30 sld-disconnected sld-feeder-disconnected" id="_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_84ed55f4_45_61f5_45_4d9d_45_8755_45_bba7b877a246_95_THREE_95_84ed55f4_45_61f5_45_4d9d_45_8755_45_bba7b877a246">
+                    <polyline points="415.0,80.0,415.0,142.0,397.0,142.0"/>
+                </g>
+                <g class="sld-feeder-info sld-in sld-active-power" id="id84ed55f4_45_61f5_45_4d9d_45_8755_45_bba7b877a246_95_THREE_95_ARROW_95_ACTIVE" transform="translate(410.0,95.0)">
+                    <polygon class="sld-arrow-out" points="5,0 10,10 0,10"/>
+                    <polygon class="sld-arrow-in" points="0,0 10,0 5,10"/>
+                    <text class="sld-label" x="15.0" y="5.0">-79</text>
+                </g>
+                <g class="sld-feeder-info sld-in sld-reactive-power" id="id84ed55f4_45_61f5_45_4d9d_45_8755_45_bba7b877a246_95_THREE_95_ARROW_95_REACTIVE" transform="translate(410.0,115.0)">
+                    <polygon class="sld-arrow-out" points="5,0 10,10 0,10"/>
+                    <polygon class="sld-arrow-in" points="0,0 10,0 5,10"/>
+                    <text class="sld-label" x="15.0" y="5.0">-54</text>
+                </g>
+                <g class="sld-bus-connection sld-fictitious sld-vl300to500 sld-bus-0" id="idBUSCO_95_40a961da_45_7a03_45_826a_45_e442_45_cea649f7cebf_95_96c2b5c8_45_8e28_45_4b08_45_96d2_45_ca9b09cdbd83" transform="translate(386.0,248.0)">
+                    <circle cx="4" cy="4" r="4"/>
+                </g>
+                <g class="sld-node sld-hidden-node sld-fictitious sld-vl300to500 sld-bus-0" id="idINTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_BUSCO_95_40a961da_45_7a03_45_826a_45_e442_45_cea649f7cebf_95_96c2b5c8_45_8e28_45_4b08_45_96d2_45_ca9b09cdbd83_45_96c2b5c8_45_8e28_45_4b08_45_96d2_45_ca9b09cdbd83" transform="translate(386.0,218.0)">
+                    <circle cx="4" cy="4" r="4"/>
+                </g>
+                <g class="sld-breaker sld-open sld-vl300to500 sld-disconnected" id="id96c2b5c8_45_8e28_45_4b08_45_96d2_45_ca9b09cdbd83" transform="translate(380.0,172.0)">
+                    <path class="sld-sw-closed" d="M1,1 V19 H19 V1z M10,5 V15"/>
+                    <path class="sld-sw-open" d="M1,1 V19 H19 V1z M5,10 H15"/>
+                </g>
+                <g class="sld-three-wt sld-fictitious" id="id84ed55f4_45_61f5_45_4d9d_45_8755_45_bba7b877a246" transform="translate(382.0,130.0)">
+                    <circle class="sld-vl180to300 sld-bus-0 sld-winding" cx="5" cy="15" r="5"/>
+                    <circle class="sld-vl0to30 sld-disconnected sld-winding" cx="11" cy="15" r="5"/>
+                    <circle class="sld-vl300to500 sld-disconnected sld-winding" cx="8" cy="19" r="5"/>
+                </g>
+                <g class="sld-top-feeder sld-vl300to500 sld-disconnected" id="id84ed55f4_45_61f5_45_4d9d_45_8755_45_bba7b877a246_95_TWO" transform="translate(365.0,80.0)">
+                    <text class="sld-label" id="id84ed55f4_45_61f5_45_4d9d_45_8755_45_bba7b877a246_95_TWO_95_N_95_LABEL" x="-5.0" y="-11.0">BO-TR3_1</text>
+                </g>
+                <g class="sld-top-feeder sld-vl300to500 sld-disconnected" id="id84ed55f4_45_61f5_45_4d9d_45_8755_45_bba7b877a246_95_THREE" transform="translate(415.0,80.0)">
+                    <text class="sld-label" id="id84ed55f4_45_61f5_45_4d9d_45_8755_45_bba7b877a246_95_THREE_95_N_95_LABEL" x="-5.0" y="-11.0">BO-TR3_1</text>
+                </g>
+            </g>
+            <g class="sld-extern-cell sld-cell-direction-top" id="idEXTERN_32_1">
+                <g class="sld-wire sld-vl300to500 sld-bus-0" id="_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_BUSCO_95_40a961da_45_7a03_45_826a_45_e442_45_cea649f7cebf_95_490fd7d6_45_85cc_45_4623_45_99af_45_a33caf71bf9c_95_INTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_BUSCO_95_40a961da_45_7a03_45_826a_45_e442_45_cea649f7cebf_95_490fd7d6_45_85cc_45_4623_45_99af_45_a33caf71bf9c_45_490fd7d6_45_85cc_45_4623_45_99af_45_a33caf71bf9c">
+                    <polyline points="265.0,252.0,265.0,222.0"/>
+                </g>
+                <g class="sld-wire sld-vl300to500 sld-bus-0" id="_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_INTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_BUSCO_95_40a961da_45_7a03_45_826a_45_e442_45_cea649f7cebf_95_490fd7d6_45_85cc_45_4623_45_99af_45_a33caf71bf9c_45_490fd7d6_45_85cc_45_4623_45_99af_45_a33caf71bf9c_95_490fd7d6_45_85cc_45_4623_45_99af_45_a33caf71bf9c">
+                    <polyline points="265.0,222.0,265.0,192.0"/>
+                </g>
+                <g class="sld-wire sld-vl300to500 sld-bus-0" id="_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_490fd7d6_45_85cc_45_4623_45_99af_45_a33caf71bf9c_95_INTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_7e253493_45_0bb4_45_4306_45_95b3_45_374075834b98">
+                    <polyline points="265.0,172.0,265.0,142.0"/>
+                </g>
+                <g class="sld-wire sld-vl300to500 sld-bus-0" id="_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_INTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_7e253493_45_0bb4_45_4306_45_95b3_45_374075834b98_95_7e253493_45_0bb4_45_4306_45_95b3_45_374075834b98">
+                    <polyline points="265.0,142.0,265.0,80.0"/>
+                </g>
+                <g class="sld-feeder-info sld-in sld-active-power" id="id7e253493_45_0bb4_45_4306_45_95b3_45_374075834b98_95_ARROW_95_ACTIVE" transform="translate(260.0,95.0)">
+                    <polygon class="sld-arrow-out" points="5,0 10,10 0,10"/>
+                    <polygon class="sld-arrow-in" points="0,0 10,0 5,10"/>
+                    <text class="sld-label" x="15.0" y="5.0">-565</text>
+                </g>
+                <g class="sld-feeder-info sld-out sld-reactive-power" id="id7e253493_45_0bb4_45_4306_45_95b3_45_374075834b98_95_ARROW_95_REACTIVE" transform="translate(260.0,115.0)">
+                    <polygon class="sld-arrow-out" points="5,0 10,10 0,10"/>
+                    <polygon class="sld-arrow-in" points="0,0 10,0 5,10"/>
+                    <text class="sld-label" x="15.0" y="5.0">187</text>
+                </g>
+                <g class="sld-bus-connection sld-fictitious sld-vl300to500 sld-bus-0" id="idBUSCO_95_40a961da_45_7a03_45_826a_45_e442_45_cea649f7cebf_95_490fd7d6_45_85cc_45_4623_45_99af_45_a33caf71bf9c" transform="translate(261.0,248.0)">
+                    <circle cx="4" cy="4" r="4"/>
+                </g>
+                <g class="sld-node sld-hidden-node sld-fictitious sld-vl300to500 sld-bus-0" id="idINTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_BUSCO_95_40a961da_45_7a03_45_826a_45_e442_45_cea649f7cebf_95_490fd7d6_45_85cc_45_4623_45_99af_45_a33caf71bf9c_45_490fd7d6_45_85cc_45_4623_45_99af_45_a33caf71bf9c" transform="translate(261.0,218.0)">
+                    <circle cx="4" cy="4" r="4"/>
+                </g>
+                <g class="sld-breaker sld-closed sld-vl300to500 sld-bus-0" id="id490fd7d6_45_85cc_45_4623_45_99af_45_a33caf71bf9c" transform="translate(255.0,172.0)">
+                    <path class="sld-sw-closed" d="M1,1 V19 H19 V1z M10,5 V15"/>
+                    <path class="sld-sw-open" d="M1,1 V19 H19 V1z M5,10 H15"/>
+                </g>
+                <g class="sld-node sld-hidden-node sld-fictitious sld-vl300to500 sld-bus-0" id="idINTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_7e253493_45_0bb4_45_4306_45_95b3_45_374075834b98" transform="translate(261.0,138.0)">
+                    <circle cx="4" cy="4" r="4"/>
+                </g>
+                <g class="sld-top-feeder sld-vl300to500 sld-bus-0" id="id7e253493_45_0bb4_45_4306_45_95b3_45_374075834b98" transform="translate(265.0,80.0)">
+                    <text class="sld-label" id="id7e253493_45_0bb4_45_4306_45_95b3_45_374075834b98_95_N_95_LABEL" x="-5.0" y="-11.0">TieLine_SD_BO2</text>
+                </g>
+            </g>
+            <g class="sld-extern-cell sld-cell-direction-top" id="idEXTERN_32_2">
+                <g class="sld-wire sld-vl300to500 sld-bus-0" id="_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_BUSCO_95_40a961da_45_7a03_45_826a_45_e442_45_cea649f7cebf_95_14d55344_45_c118_45_4f54_45_a430_45_72f16d12bf7b_95_INTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_BUSCO_95_40a961da_45_7a03_45_826a_45_e442_45_cea649f7cebf_95_14d55344_45_c118_45_4f54_45_a430_45_72f16d12bf7b_45_14d55344_45_c118_45_4f54_45_a430_45_72f16d12bf7b">
+                    <polyline points="165.0,252.0,165.0,222.0"/>
+                </g>
+                <g class="sld-wire sld-vl300to500 sld-bus-0" id="_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_INTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_BUSCO_95_40a961da_45_7a03_45_826a_45_e442_45_cea649f7cebf_95_14d55344_45_c118_45_4f54_45_a430_45_72f16d12bf7b_45_14d55344_45_c118_45_4f54_45_a430_45_72f16d12bf7b_95_14d55344_45_c118_45_4f54_45_a430_45_72f16d12bf7b">
+                    <polyline points="165.0,222.0,165.0,192.0"/>
+                </g>
+                <g class="sld-wire sld-vl300to500 sld-bus-0" id="_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_14d55344_45_c118_45_4f54_45_a430_45_72f16d12bf7b_95_INTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_b18cd1aa_45_7808_45_49b9_45_a7cf_45_605eaf07b006">
+                    <polyline points="165.0,172.0,165.0,142.0"/>
+                </g>
+                <g class="sld-wire sld-vl300to500 sld-bus-0" id="_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_INTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_b18cd1aa_45_7808_45_49b9_45_a7cf_45_605eaf07b006_95_b18cd1aa_45_7808_45_49b9_45_a7cf_45_605eaf07b006">
+                    <polyline points="165.0,142.0,165.0,80.0"/>
+                </g>
+                <g class="sld-feeder-info sld-out sld-active-power" id="idb18cd1aa_45_7808_45_49b9_45_a7cf_45_605eaf07b006_95_ARROW_95_ACTIVE" transform="translate(160.0,95.0)">
+                    <polygon class="sld-arrow-out" points="5,0 10,10 0,10"/>
+                    <polygon class="sld-arrow-in" points="0,0 10,0 5,10"/>
+                    <text class="sld-label" x="15.0" y="5.0">101</text>
+                </g>
+                <g class="sld-feeder-info sld-out sld-reactive-power" id="idb18cd1aa_45_7808_45_49b9_45_a7cf_45_605eaf07b006_95_ARROW_95_REACTIVE" transform="translate(160.0,115.0)">
+                    <polygon class="sld-arrow-out" points="5,0 10,10 0,10"/>
+                    <polygon class="sld-arrow-in" points="0,0 10,0 5,10"/>
+                    <text class="sld-label" x="15.0" y="5.0">124</text>
+                </g>
+                <g class="sld-bus-connection sld-fictitious sld-vl300to500 sld-bus-0" id="idBUSCO_95_40a961da_45_7a03_45_826a_45_e442_45_cea649f7cebf_95_14d55344_45_c118_45_4f54_45_a430_45_72f16d12bf7b" transform="translate(161.0,248.0)">
+                    <circle cx="4" cy="4" r="4"/>
+                </g>
+                <g class="sld-node sld-hidden-node sld-fictitious sld-vl300to500 sld-bus-0" id="idINTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_BUSCO_95_40a961da_45_7a03_45_826a_45_e442_45_cea649f7cebf_95_14d55344_45_c118_45_4f54_45_a430_45_72f16d12bf7b_45_14d55344_45_c118_45_4f54_45_a430_45_72f16d12bf7b" transform="translate(161.0,218.0)">
+                    <circle cx="4" cy="4" r="4"/>
+                </g>
+                <g class="sld-breaker sld-closed sld-vl300to500 sld-bus-0" id="id14d55344_45_c118_45_4f54_45_a430_45_72f16d12bf7b" transform="translate(155.0,172.0)">
+                    <path class="sld-sw-closed" d="M1,1 V19 H19 V1z M10,5 V15"/>
+                    <path class="sld-sw-open" d="M1,1 V19 H19 V1z M5,10 H15"/>
+                </g>
+                <g class="sld-node sld-hidden-node sld-fictitious sld-vl300to500 sld-bus-0" id="idINTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_b18cd1aa_45_7808_45_49b9_45_a7cf_45_605eaf07b006" transform="translate(161.0,138.0)">
+                    <circle cx="4" cy="4" r="4"/>
+                </g>
+                <g class="sld-top-feeder sld-vl300to500 sld-bus-0" id="idb18cd1aa_45_7808_45_49b9_45_a7cf_45_605eaf07b006" transform="translate(165.0,80.0)">
+                    <text class="sld-label" id="idb18cd1aa_45_7808_45_49b9_45_a7cf_45_605eaf07b006_95_N_95_LABEL" x="-5.0" y="-11.0">TieLine_GA_BO5</text>
+                </g>
+            </g>
+            <g class="sld-extern-cell sld-cell-direction-bottom" id="idEXTERN_32_3">
+                <g class="sld-wire sld-vl300to500 sld-bus-0" id="_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_INTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_BUSCO_95_40a961da_45_7a03_45_826a_45_e442_45_cea649f7cebf_95_21f21596_45_302e_45_4e0e_45_8009_45_2b8c3c23517f_45_21f21596_45_302e_45_4e0e_45_8009_45_2b8c3c23517f_95_BUSCO_95_40a961da_45_7a03_45_826a_45_e442_45_cea649f7cebf_95_21f21596_45_302e_45_4e0e_45_8009_45_2b8c3c23517f">
+                    <polyline points="215.0,282.0,215.0,252.0"/>
+                </g>
+                <g class="sld-wire sld-vl300to500 sld-bus-0" id="_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_21f21596_45_302e_45_4e0e_45_8009_45_2b8c3c23517f_95_INTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_BUSCO_95_40a961da_45_7a03_45_826a_45_e442_45_cea649f7cebf_95_21f21596_45_302e_45_4e0e_45_8009_45_2b8c3c23517f_45_21f21596_45_302e_45_4e0e_45_8009_45_2b8c3c23517f">
+                    <polyline points="215.0,312.0,215.0,282.0"/>
+                </g>
+                <g class="sld-wire sld-vl300to500 sld-bus-0" id="_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_INTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_2d6d13d9_45_fb6e_45_4da2_45_8ddf_45_31ae98dcff8f_95_21f21596_45_302e_45_4e0e_45_8009_45_2b8c3c23517f">
+                    <polyline points="215.0,362.0,215.0,332.0"/>
+                </g>
+                <g class="sld-wire sld-vl300to500 sld-bus-0" id="_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_2d6d13d9_45_fb6e_45_4da2_45_8ddf_45_31ae98dcff8f_95_INTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_2d6d13d9_45_fb6e_45_4da2_45_8ddf_45_31ae98dcff8f">
+                    <polyline points="215.0,424.0,215.0,362.0"/>
+                </g>
+                <g class="sld-feeder-info sld-in sld-reactive-power" id="id2d6d13d9_45_fb6e_45_4da2_45_8ddf_45_31ae98dcff8f_95_ARROW_95_REACTIVE" transform="translate(210.0,399.0)">
+                    <polygon class="sld-arrow-out" points="5,0 10,10 0,10" transform="rotate(180.0,5.0,5.0)"/>
+                    <polygon class="sld-arrow-in" points="0,0 10,0 5,10" transform="rotate(180.0,5.0,5.0)"/>
+                    <text class="sld-label" x="15.0" y="5.0">-353</text>
+                </g>
+                <g class="sld-feeder-info sld-out sld-active-power" id="id2d6d13d9_45_fb6e_45_4da2_45_8ddf_45_31ae98dcff8f_95_ARROW_95_ACTIVE" transform="translate(210.0,379.0)">
+                    <polygon class="sld-arrow-out" points="5,0 10,10 0,10" transform="rotate(180.0,5.0,5.0)"/>
+                    <polygon class="sld-arrow-in" points="0,0 10,0 5,10" transform="rotate(180.0,5.0,5.0)"/>
+                    <text class="sld-label" x="15.0" y="5.0">305</text>
+                </g>
+                <g class="sld-bus-connection sld-fictitious sld-vl300to500 sld-bus-0" id="idBUSCO_95_40a961da_45_7a03_45_826a_45_e442_45_cea649f7cebf_95_21f21596_45_302e_45_4e0e_45_8009_45_2b8c3c23517f" transform="translate(211.0,248.0)">
+                    <circle cx="4" cy="4" r="4"/>
+                </g>
+                <g class="sld-node sld-hidden-node sld-fictitious sld-vl300to500 sld-bus-0" id="idINTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_BUSCO_95_40a961da_45_7a03_45_826a_45_e442_45_cea649f7cebf_95_21f21596_45_302e_45_4e0e_45_8009_45_2b8c3c23517f_45_21f21596_45_302e_45_4e0e_45_8009_45_2b8c3c23517f" transform="translate(211.0,278.0)">
+                    <circle cx="4" cy="4" r="4"/>
+                </g>
+                <g class="sld-breaker sld-closed sld-vl300to500 sld-bus-0" id="id21f21596_45_302e_45_4e0e_45_8009_45_2b8c3c23517f" transform="translate(205.0,312.0)">
+                    <path class="sld-sw-closed" d="M1,1 V19 H19 V1z M10,5 V15"/>
+                    <path class="sld-sw-open" d="M1,1 V19 H19 V1z M5,10 H15"/>
+                </g>
+                <g class="sld-node sld-hidden-node sld-fictitious sld-vl300to500 sld-bus-0" id="idINTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_2d6d13d9_45_fb6e_45_4da2_45_8ddf_45_31ae98dcff8f" transform="translate(211.0,358.0)">
+                    <circle cx="4" cy="4" r="4"/>
+                </g>
+                <g class="sld-bottom-feeder sld-vl300to500 sld-bus-0" id="id2d6d13d9_45_fb6e_45_4da2_45_8ddf_45_31ae98dcff8f" transform="translate(215.0,424.0)">
+                    <text class="sld-label" id="id2d6d13d9_45_fb6e_45_4da2_45_8ddf_45_31ae98dcff8f_95_S_95_LABEL" x="-5.0" y="11.0">TieLine_SD_BO1</text>
+                </g>
+            </g>
+            <g class="sld-extern-cell sld-cell-direction-bottom" id="idEXTERN_32_4">
+                <g class="sld-wire sld-vl300to500 sld-bus-0" id="_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_INTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_BUSCO_95_40a961da_45_7a03_45_826a_45_e442_45_cea649f7cebf_95_b7dc6024_45_a851_45_4412_45_922b_45_dd9b0e64803f_45_b7dc6024_45_a851_45_4412_45_922b_45_dd9b0e64803f_95_BUSCO_95_40a961da_45_7a03_45_826a_45_e442_45_cea649f7cebf_95_b7dc6024_45_a851_45_4412_45_922b_45_dd9b0e64803f">
+                    <polyline points="465.0,282.0,465.0,252.0"/>
+                </g>
+                <g class="sld-wire sld-vl300to500 sld-bus-0" id="_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_b7dc6024_45_a851_45_4412_45_922b_45_dd9b0e64803f_95_INTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_BUSCO_95_40a961da_45_7a03_45_826a_45_e442_45_cea649f7cebf_95_b7dc6024_45_a851_45_4412_45_922b_45_dd9b0e64803f_45_b7dc6024_45_a851_45_4412_45_922b_45_dd9b0e64803f">
+                    <polyline points="465.0,312.0,465.0,282.0"/>
+                </g>
+                <g class="sld-wire sld-vl300to500 sld-bus-0" id="_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_INTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_ed0c5d75_45_4a54_45_43c8_45_b782_45_b20d7431630b_95_b7dc6024_45_a851_45_4412_45_922b_45_dd9b0e64803f">
+                    <polyline points="465.0,362.0,465.0,332.0"/>
+                </g>
+                <g class="sld-wire sld-vl300to500 sld-bus-0" id="_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_ed0c5d75_45_4a54_45_43c8_45_b782_45_b20d7431630b_95_INTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_ed0c5d75_45_4a54_45_43c8_45_b782_45_b20d7431630b">
+                    <polyline points="465.0,424.0,465.0,362.0"/>
+                </g>
+                <g class="sld-feeder-info sld-out sld-reactive-power" id="ided0c5d75_45_4a54_45_43c8_45_b782_45_b20d7431630b_95_ARROW_95_REACTIVE" transform="translate(460.0,399.0)">
+                    <polygon class="sld-arrow-out" points="5,0 10,10 0,10" transform="rotate(180.0,5.0,5.0)"/>
+                    <polygon class="sld-arrow-in" points="0,0 10,0 5,10" transform="rotate(180.0,5.0,5.0)"/>
+                    <text class="sld-label" x="15.0" y="5.0">67</text>
+                </g>
+                <g class="sld-feeder-info sld-out sld-active-power" id="ided0c5d75_45_4a54_45_43c8_45_b782_45_b20d7431630b_95_ARROW_95_ACTIVE" transform="translate(460.0,379.0)">
+                    <polygon class="sld-arrow-out" points="5,0 10,10 0,10" transform="rotate(180.0,5.0,5.0)"/>
+                    <polygon class="sld-arrow-in" points="0,0 10,0 5,10" transform="rotate(180.0,5.0,5.0)"/>
+                    <text class="sld-label" x="15.0" y="5.0">67</text>
+                </g>
+                <g class="sld-bus-connection sld-fictitious sld-vl300to500 sld-bus-0" id="idBUSCO_95_40a961da_45_7a03_45_826a_45_e442_45_cea649f7cebf_95_b7dc6024_45_a851_45_4412_45_922b_45_dd9b0e64803f" transform="translate(461.0,248.0)">
+                    <circle cx="4" cy="4" r="4"/>
+                </g>
+                <g class="sld-node sld-hidden-node sld-fictitious sld-vl300to500 sld-bus-0" id="idINTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_BUSCO_95_40a961da_45_7a03_45_826a_45_e442_45_cea649f7cebf_95_b7dc6024_45_a851_45_4412_45_922b_45_dd9b0e64803f_45_b7dc6024_45_a851_45_4412_45_922b_45_dd9b0e64803f" transform="translate(461.0,278.0)">
+                    <circle cx="4" cy="4" r="4"/>
+                </g>
+                <g class="sld-breaker sld-closed sld-vl300to500 sld-bus-0" id="idb7dc6024_45_a851_45_4412_45_922b_45_dd9b0e64803f" transform="translate(455.0,312.0)">
+                    <path class="sld-sw-closed" d="M1,1 V19 H19 V1z M10,5 V15"/>
+                    <path class="sld-sw-open" d="M1,1 V19 H19 V1z M5,10 H15"/>
+                </g>
+                <g class="sld-node sld-hidden-node sld-fictitious sld-vl300to500 sld-bus-0" id="idINTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_ed0c5d75_45_4a54_45_43c8_45_b782_45_b20d7431630b" transform="translate(461.0,358.0)">
+                    <circle cx="4" cy="4" r="4"/>
+                </g>
+                <g class="sld-bottom-feeder sld-vl300to500 sld-bus-0" id="ided0c5d75_45_4a54_45_43c8_45_b782_45_b20d7431630b" transform="translate(465.0,424.0)">
+                    <text class="sld-label" id="ided0c5d75_45_4a54_45_43c8_45_b782_45_b20d7431630b_95_S_95_LABEL" x="-5.0" y="11.0">TieLine_GA_BO3</text>
+                </g>
+            </g>
+            <g class="sld-extern-cell sld-cell-direction-bottom" id="idEXTERN_32_5">
+                <g class="sld-wire sld-vl300to500 sld-bus-0" id="_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_INTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_BUSCO_95_40a961da_45_7a03_45_826a_45_e442_45_cea649f7cebf_95_6b564930_45_b5e2_45_49d3_45_9d06_45_e1de28d6fd65_45_6b564930_45_b5e2_45_49d3_45_9d06_45_e1de28d6fd65_95_BUSCO_95_40a961da_45_7a03_45_826a_45_e442_45_cea649f7cebf_95_6b564930_45_b5e2_45_49d3_45_9d06_45_e1de28d6fd65">
+                    <polyline points="315.0,282.0,315.0,252.0"/>
+                </g>
+                <g class="sld-wire sld-vl300to500 sld-bus-0" id="_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_6b564930_45_b5e2_45_49d3_45_9d06_45_e1de28d6fd65_95_INTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_BUSCO_95_40a961da_45_7a03_45_826a_45_e442_45_cea649f7cebf_95_6b564930_45_b5e2_45_49d3_45_9d06_45_e1de28d6fd65_45_6b564930_45_b5e2_45_49d3_45_9d06_45_e1de28d6fd65">
+                    <polyline points="315.0,312.0,315.0,282.0"/>
+                </g>
+                <g class="sld-wire sld-vl300to500 sld-bus-0" id="_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_INTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_a708c3bc_45_465d_45_4fe7_45_b6ef_45_6fa6408a62b0_95_ONE_95_6b564930_45_b5e2_45_49d3_45_9d06_45_e1de28d6fd65">
+                    <polyline points="315.0,362.0,315.0,332.0"/>
+                </g>
+                <g class="sld-wire sld-vl300to500 sld-bus-0" id="_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_a708c3bc_45_465d_45_4fe7_45_b6ef_45_6fa6408a62b0_95_ONE_95_INTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_a708c3bc_45_465d_45_4fe7_45_b6ef_45_6fa6408a62b0_95_ONE">
+                    <polyline points="315.0,416.5,315.0,362.0"/>
+                </g>
+                <g class="sld-feeder-info sld-in sld-reactive-power" id="ida708c3bc_45_465d_45_4fe7_45_b6ef_45_6fa6408a62b0_95_ONE_95_ARROW_95_REACTIVE" transform="translate(310.0,391.5)">
+                    <polygon class="sld-arrow-out" points="5,0 10,10 0,10" transform="rotate(180.0,5.0,5.0)"/>
+                    <polygon class="sld-arrow-in" points="0,0 10,0 5,10" transform="rotate(180.0,5.0,5.0)"/>
+                    <text class="sld-label" x="15.0" y="5.0">-106</text>
+                </g>
+                <g class="sld-feeder-info sld-out sld-active-power" id="ida708c3bc_45_465d_45_4fe7_45_b6ef_45_6fa6408a62b0_95_ONE_95_ARROW_95_ACTIVE" transform="translate(310.0,371.5)">
+                    <polygon class="sld-arrow-out" points="5,0 10,10 0,10" transform="rotate(180.0,5.0,5.0)"/>
+                    <polygon class="sld-arrow-in" points="0,0 10,0 5,10" transform="rotate(180.0,5.0,5.0)"/>
+                    <text class="sld-label" x="15.0" y="5.0">86</text>
+                </g>
+                <g class="sld-bus-connection sld-fictitious sld-vl300to500 sld-bus-0" id="idBUSCO_95_40a961da_45_7a03_45_826a_45_e442_45_cea649f7cebf_95_6b564930_45_b5e2_45_49d3_45_9d06_45_e1de28d6fd65" transform="translate(311.0,248.0)">
+                    <circle cx="4" cy="4" r="4"/>
+                </g>
+                <g class="sld-node sld-hidden-node sld-fictitious sld-vl300to500 sld-bus-0" id="idINTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_BUSCO_95_40a961da_45_7a03_45_826a_45_e442_45_cea649f7cebf_95_6b564930_45_b5e2_45_49d3_45_9d06_45_e1de28d6fd65_45_6b564930_45_b5e2_45_49d3_45_9d06_45_e1de28d6fd65" transform="translate(311.0,278.0)">
+                    <circle cx="4" cy="4" r="4"/>
+                </g>
+                <g class="sld-breaker sld-closed sld-vl300to500 sld-bus-0" id="id6b564930_45_b5e2_45_49d3_45_9d06_45_e1de28d6fd65" transform="translate(305.0,312.0)">
+                    <path class="sld-sw-closed" d="M1,1 V19 H19 V1z M10,5 V15"/>
+                    <path class="sld-sw-open" d="M1,1 V19 H19 V1z M5,10 H15"/>
+                </g>
+                <g class="sld-node sld-hidden-node sld-fictitious sld-vl300to500 sld-bus-0" id="idINTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_a708c3bc_45_465d_45_4fe7_45_b6ef_45_6fa6408a62b0_95_ONE" transform="translate(311.0,358.0)">
+                    <circle cx="4" cy="4" r="4"/>
+                </g>
+                <g class="sld-pst sld-bottom-feeder" id="ida708c3bc_45_465d_45_4fe7_45_b6ef_45_6fa6408a62b0_95_ONE" transform="translate(308.0,416.5)">
+                    <circle class="sld-vl300to500 sld-bus-0 sld-winding" cx="7" cy="10" r="5" transform="rotate(180.0,7.0,7.5)"/>
+                    <circle class="sld-vl70to120 sld-bus-0 sld-winding" cx="7" cy="5" r="5" transform="rotate(180.0,7.0,7.5)"/>
+                    <path class="sld-vl300to500 sld-bus-0 sld-pst-arrow" d="M14,0 0,14 M11,0 14,0 14,3" transform="rotate(180.0,7.0,7.5)"/>
+                    <text class="sld-label" id="ida708c3bc_45_465d_45_4fe7_45_b6ef_45_6fa6408a62b0_95_ONE_95_S_95_LABEL" x="-5.0" y="18.5">BO-TR2_1</text>
+                </g>
+            </g>
+            <g class="sld-extern-cell sld-cell-direction-bottom" id="idEXTERN_32_6">
+                <g class="sld-wire sld-vl300to500 sld-bus-0" id="_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_BUSCO_95_40a961da_45_7a03_45_826a_45_e442_45_cea649f7cebf_95_0e8cd279_45_ad5d_45_485a_45_b3a9_45_093ae8714b72_95_INTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_BUSCO_95_40a961da_45_7a03_45_826a_45_e442_45_cea649f7cebf_95_0e8cd279_45_ad5d_45_485a_45_b3a9_45_093ae8714b72_45_0e8cd279_45_ad5d_45_485a_45_b3a9_45_093ae8714b72">
+                    <polyline points="115.0,252.0,115.0,282.0"/>
+                </g>
+                <g class="sld-wire sld-vl300to500 sld-bus-0" id="_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_INTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_BUSCO_95_40a961da_45_7a03_45_826a_45_e442_45_cea649f7cebf_95_0e8cd279_45_ad5d_45_485a_45_b3a9_45_093ae8714b72_45_0e8cd279_45_ad5d_45_485a_45_b3a9_45_093ae8714b72_95_0e8cd279_45_ad5d_45_485a_45_b3a9_45_093ae8714b72">
+                    <polyline points="115.0,282.0,115.0,312.0"/>
+                </g>
+                <g class="sld-wire sld-vl300to500 sld-bus-0" id="_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_0e8cd279_45_ad5d_45_485a_45_b3a9_45_093ae8714b72_95_INTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_78736387_45_5f60_45_4832_45_b3fe_45_d50daf81b0a6">
+                    <polyline points="115.0,332.0,115.0,362.0"/>
+                </g>
+                <g class="sld-wire sld-vl300to500 sld-bus-0" id="_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_INTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_78736387_45_5f60_45_4832_45_b3fe_45_d50daf81b0a6_95_78736387_45_5f60_45_4832_45_b3fe_45_d50daf81b0a6">
+                    <polyline points="115.0,362.0,115.0,424.0"/>
+                </g>
+                <g class="sld-feeder-info sld-out sld-reactive-power" id="id78736387_45_5f60_45_4832_45_b3fe_45_d50daf81b0a6_95_ARROW_95_REACTIVE" transform="translate(110.0,399.0)">
+                    <polygon class="sld-arrow-out" points="5,0 10,10 0,10" transform="rotate(180.0,5.0,5.0)"/>
+                    <polygon class="sld-arrow-in" points="0,0 10,0 5,10" transform="rotate(180.0,5.0,5.0)"/>
+                    <text class="sld-label" x="15.0" y="5.0">44</text>
+                </g>
+                <g class="sld-feeder-info sld-out sld-active-power" id="id78736387_45_5f60_45_4832_45_b3fe_45_d50daf81b0a6_95_ARROW_95_ACTIVE" transform="translate(110.0,379.0)">
+                    <polygon class="sld-arrow-out" points="5,0 10,10 0,10" transform="rotate(180.0,5.0,5.0)"/>
+                    <polygon class="sld-arrow-in" points="0,0 10,0 5,10" transform="rotate(180.0,5.0,5.0)"/>
+                    <text class="sld-label" x="15.0" y="5.0">60</text>
+                </g>
+                <g class="sld-bus-connection sld-fictitious sld-vl300to500 sld-bus-0" id="idBUSCO_95_40a961da_45_7a03_45_826a_45_e442_45_cea649f7cebf_95_0e8cd279_45_ad5d_45_485a_45_b3a9_45_093ae8714b72" transform="translate(111.0,248.0)">
+                    <circle cx="4" cy="4" r="4"/>
+                </g>
+                <g class="sld-node sld-hidden-node sld-fictitious sld-vl300to500 sld-bus-0" id="idINTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_BUSCO_95_40a961da_45_7a03_45_826a_45_e442_45_cea649f7cebf_95_0e8cd279_45_ad5d_45_485a_45_b3a9_45_093ae8714b72_45_0e8cd279_45_ad5d_45_485a_45_b3a9_45_093ae8714b72" transform="translate(111.0,278.0)">
+                    <circle cx="4" cy="4" r="4"/>
+                </g>
+                <g class="sld-breaker sld-closed sld-vl300to500 sld-bus-0" id="id0e8cd279_45_ad5d_45_485a_45_b3a9_45_093ae8714b72" transform="translate(105.0,312.0)">
+                    <path class="sld-sw-closed" d="M1,1 V19 H19 V1z M10,5 V15"/>
+                    <path class="sld-sw-open" d="M1,1 V19 H19 V1z M5,10 H15"/>
+                </g>
+                <g class="sld-node sld-hidden-node sld-fictitious sld-vl300to500 sld-bus-0" id="idINTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_78736387_45_5f60_45_4832_45_b3fe_45_d50daf81b0a6" transform="translate(111.0,358.0)">
+                    <circle cx="4" cy="4" r="4"/>
+                </g>
+                <g class="sld-bottom-feeder sld-vl300to500 sld-bus-0" id="id78736387_45_5f60_45_4832_45_b3fe_45_d50daf81b0a6" transform="translate(115.0,424.0)">
+                    <text class="sld-label" id="id78736387_45_5f60_45_4832_45_b3fe_45_d50daf81b0a6_95_S_95_LABEL" x="-5.0" y="11.0">TieLine_GA_BO4</text>
+                </g>
+            </g>
+            <g class="sld-extern-cell sld-cell-direction-top" id="idEXTERN_32_7">
+                <g class="sld-wire sld-vl300to500 sld-bus-0" id="_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_BUSCO_95_40a961da_45_7a03_45_826a_45_e442_45_cea649f7cebf_95_002b0a40_45_3957_45_46db_45_b84a_45_30420083558f_95_INTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_BUSCO_95_40a961da_45_7a03_45_826a_45_e442_45_cea649f7cebf_95_002b0a40_45_3957_45_46db_45_b84a_45_30420083558f_45_002b0a40_45_3957_45_46db_45_b84a_45_30420083558f">
+                    <polyline points="65.0,252.0,65.0,222.0"/>
+                </g>
+                <g class="sld-wire sld-vl300to500 sld-bus-0" id="_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_INTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_BUSCO_95_40a961da_45_7a03_45_826a_45_e442_45_cea649f7cebf_95_002b0a40_45_3957_45_46db_45_b84a_45_30420083558f_45_002b0a40_45_3957_45_46db_45_b84a_45_30420083558f_95_INTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_002b0a40_45_3957_45_46db_45_b84a_45_30420083558f">
                     <polyline points="65.0,222.0,65.0,142.0"/>
                 </g>
                 <g class="sld-wire sld-vl300to500 sld-bus-0" id="_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_INTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_002b0a40_45_3957_45_46db_45_b84a_45_30420083558f_95_002b0a40_45_3957_45_46db_45_b84a_45_30420083558f">
@@ -172,17 +473,17 @@
                 <g class="sld-feeder-info sld-out sld-active-power" id="id002b0a40_45_3957_45_46db_45_b84a_45_30420083558f_95_ARROW_95_ACTIVE" transform="translate(60.0,101.0)">
                     <polygon class="sld-arrow-out" points="5,0 10,10 0,10"/>
                     <polygon class="sld-arrow-in" points="0,0 10,0 5,10"/>
-                    <text class="sld-label" x="15.0" y="5.0">1</text>
+                    <text class="sld-label" x="15.0" y="5.0">0</text>
                 </g>
                 <g class="sld-feeder-info sld-in sld-reactive-power" id="id002b0a40_45_3957_45_46db_45_b84a_45_30420083558f_95_ARROW_95_REACTIVE" transform="translate(60.0,121.0)">
                     <polygon class="sld-arrow-out" points="5,0 10,10 0,10"/>
                     <polygon class="sld-arrow-in" points="0,0 10,0 5,10"/>
-                    <text class="sld-label" x="15.0" y="5.0">-59</text>
+                    <text class="sld-label" x="15.0" y="5.0">-6</text>
                 </g>
-                <g class="sld-bus-connection sld-fictitious sld-vl300to500 sld-bus-0" id="idBUSCO_95_64901aec_45_5a8a_45_4bcb_45_8ca7_45_a3ddbfcd0e6c_95_002b0a40_45_3957_45_46db_45_b84a_45_30420083558f" transform="translate(61.0,248.0)">
+                <g class="sld-bus-connection sld-fictitious sld-vl300to500 sld-bus-0" id="idBUSCO_95_40a961da_45_7a03_45_826a_45_e442_45_cea649f7cebf_95_002b0a40_45_3957_45_46db_45_b84a_45_30420083558f" transform="translate(61.0,248.0)">
                     <circle cx="4" cy="4" r="4"/>
                 </g>
-                <g class="sld-node sld-hidden-node sld-fictitious sld-vl300to500 sld-bus-0" id="idINTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_BUSCO_95_64901aec_45_5a8a_45_4bcb_45_8ca7_45_a3ddbfcd0e6c_95_002b0a40_45_3957_45_46db_45_b84a_45_30420083558f_45_002b0a40_45_3957_45_46db_45_b84a_45_30420083558f" transform="translate(61.0,218.0)">
+                <g class="sld-node sld-hidden-node sld-fictitious sld-vl300to500 sld-bus-0" id="idINTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_BUSCO_95_40a961da_45_7a03_45_826a_45_e442_45_cea649f7cebf_95_002b0a40_45_3957_45_46db_45_b84a_45_30420083558f_45_002b0a40_45_3957_45_46db_45_b84a_45_30420083558f" transform="translate(61.0,218.0)">
                     <circle cx="4" cy="4" r="4"/>
                 </g>
                 <g class="sld-node sld-hidden-node sld-fictitious sld-vl300to500 sld-bus-0" id="idINTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_002b0a40_45_3957_45_46db_45_b84a_45_30420083558f" transform="translate(61.0,138.0)">
@@ -193,228 +494,14 @@
                     <line x1="0" x2="12" y1="4.5" y2="4.5"/>
                     <line x1="0" x2="12" y1="7.5" y2="7.5"/>
                     <line x1="6" x2="6" y1="7.5" y2="12"/>
-                    <text class="sld-label" id="id002b0a40_45_3957_45_46db_45_b84a_45_30420083558f_95_N_95_LABEL" x="-5.0" y="-5.0">BE_S2</text>
-                </g>
-            </g>
-            <g class="sld-extern-cell sld-cell-direction-bottom" id="idEXTERN_32_1">
-                <g class="sld-wire sld-vl300to500 sld-bus-0" id="_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_INTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_BUSCO_95_64901aec_45_5a8a_45_4bcb_45_8ca7_45_a3ddbfcd0e6c_95_dad02278_45_bd25_45_476f_45_8f58_45_dbe44be72586_32__43__32_ed0c5d75_45_4a54_45_43c8_45_b782_45_b20d7431630b_95_TWO_45_dad02278_45_bd25_45_476f_45_8f58_45_dbe44be72586_32__43__32_ed0c5d75_45_4a54_45_43c8_45_b782_45_b20d7431630b_95_TWO_95_BUSCO_95_64901aec_45_5a8a_45_4bcb_45_8ca7_45_a3ddbfcd0e6c_95_dad02278_45_bd25_45_476f_45_8f58_45_dbe44be72586_32__43__32_ed0c5d75_45_4a54_45_43c8_45_b782_45_b20d7431630b_95_TWO">
-                    <polyline points="365.0,282.0,365.0,252.0"/>
-                </g>
-                <g class="sld-wire sld-vl300to500 sld-bus-0" id="_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_INTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_BUSCO_95_64901aec_45_5a8a_45_4bcb_45_8ca7_45_a3ddbfcd0e6c_95_dad02278_45_bd25_45_476f_45_8f58_45_dbe44be72586_32__43__32_ed0c5d75_45_4a54_45_43c8_45_b782_45_b20d7431630b_95_TWO_45_dad02278_45_bd25_45_476f_45_8f58_45_dbe44be72586_32__43__32_ed0c5d75_45_4a54_45_43c8_45_b782_45_b20d7431630b_95_TWO_95_INTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_dad02278_45_bd25_45_476f_45_8f58_45_dbe44be72586_32__43__32_ed0c5d75_45_4a54_45_43c8_45_b782_45_b20d7431630b_95_TWO">
-                    <polyline points="365.0,282.0,365.0,362.0"/>
-                </g>
-                <g class="sld-wire sld-vl300to500 sld-bus-0 sld-tie-line" id="_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_INTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_dad02278_45_bd25_45_476f_45_8f58_45_dbe44be72586_32__43__32_ed0c5d75_45_4a54_45_43c8_45_b782_45_b20d7431630b_95_TWO_95_dad02278_45_bd25_45_476f_45_8f58_45_dbe44be72586_32__43__32_ed0c5d75_45_4a54_45_43c8_45_b782_45_b20d7431630b_95_TWO">
-                    <polyline points="365.0,362.0,365.0,424.0"/>
-                </g>
-                <g class="sld-feeder-info sld-out sld-reactive-power" id="iddad02278_45_bd25_45_476f_45_8f58_45_dbe44be72586_32__43__32_ed0c5d75_45_4a54_45_43c8_45_b782_45_b20d7431630b_95_TWO_95_ARROW_95_REACTIVE" transform="translate(360.0,399.0)">
-                    <polygon class="sld-arrow-out" points="5,0 10,10 0,10" transform="rotate(180.0,5.0,5.0)"/>
-                    <polygon class="sld-arrow-in" points="0,0 10,0 5,10" transform="rotate(180.0,5.0,5.0)"/>
-                    <text class="sld-label" x="15.0" y="5.0">63</text>
-                </g>
-                <g class="sld-feeder-info sld-in sld-active-power" id="iddad02278_45_bd25_45_476f_45_8f58_45_dbe44be72586_32__43__32_ed0c5d75_45_4a54_45_43c8_45_b782_45_b20d7431630b_95_TWO_95_ARROW_95_ACTIVE" transform="translate(360.0,379.0)">
-                    <polygon class="sld-arrow-out" points="5,0 10,10 0,10" transform="rotate(180.0,5.0,5.0)"/>
-                    <polygon class="sld-arrow-in" points="0,0 10,0 5,10" transform="rotate(180.0,5.0,5.0)"/>
-                    <text class="sld-label" x="15.0" y="5.0">-1</text>
-                </g>
-                <g class="sld-bus-connection sld-fictitious sld-vl300to500 sld-bus-0" id="idBUSCO_95_64901aec_45_5a8a_45_4bcb_45_8ca7_45_a3ddbfcd0e6c_95_dad02278_45_bd25_45_476f_45_8f58_45_dbe44be72586_32__43__32_ed0c5d75_45_4a54_45_43c8_45_b782_45_b20d7431630b_95_TWO" transform="translate(361.0,248.0)">
-                    <circle cx="4" cy="4" r="4"/>
-                </g>
-                <g class="sld-node sld-hidden-node sld-fictitious sld-vl300to500 sld-bus-0" id="idINTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_BUSCO_95_64901aec_45_5a8a_45_4bcb_45_8ca7_45_a3ddbfcd0e6c_95_dad02278_45_bd25_45_476f_45_8f58_45_dbe44be72586_32__43__32_ed0c5d75_45_4a54_45_43c8_45_b782_45_b20d7431630b_95_TWO_45_dad02278_45_bd25_45_476f_45_8f58_45_dbe44be72586_32__43__32_ed0c5d75_45_4a54_45_43c8_45_b782_45_b20d7431630b_95_TWO" transform="translate(361.0,278.0)">
-                    <circle cx="4" cy="4" r="4"/>
-                </g>
-                <g class="sld-node sld-hidden-node sld-fictitious sld-vl300to500 sld-bus-0" id="idINTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_dad02278_45_bd25_45_476f_45_8f58_45_dbe44be72586_32__43__32_ed0c5d75_45_4a54_45_43c8_45_b782_45_b20d7431630b_95_TWO" transform="translate(361.0,358.0)">
-                    <circle cx="4" cy="4" r="4"/>
-                </g>
-                <g class="sld-bottom-feeder sld-vl300to500 sld-bus-0" id="iddad02278_45_bd25_45_476f_45_8f58_45_dbe44be72586_32__43__32_ed0c5d75_45_4a54_45_43c8_45_b782_45_b20d7431630b_95_TWO" transform="translate(365.0,424.0)">
-                    <text class="sld-label" id="iddad02278_45_bd25_45_476f_45_8f58_45_dbe44be72586_32__43__32_ed0c5d75_45_4a54_45_43c8_45_b782_45_b20d7431630b_95_TWO_95_S_95_LABEL" x="-5.0" y="11.0">NL-Line_2 + BE-Line_4</text>
-                </g>
-            </g>
-            <g class="sld-extern-cell sld-cell-direction-top" id="idEXTERN_32_2">
-                <g class="sld-wire sld-vl300to500 sld-bus-0" id="_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_INTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_BUSCO_95_64901aec_45_5a8a_45_4bcb_45_8ca7_45_a3ddbfcd0e6c_95_96c2b5c8_45_8e28_45_4b08_45_96d2_45_ca9b09cdbd83_45_96c2b5c8_45_8e28_45_4b08_45_96d2_45_ca9b09cdbd83_95_BUSCO_95_64901aec_45_5a8a_45_4bcb_45_8ca7_45_a3ddbfcd0e6c_95_96c2b5c8_45_8e28_45_4b08_45_96d2_45_ca9b09cdbd83">
-                    <polyline points="290.0,222.0,290.0,252.0"/>
-                </g>
-                <g class="sld-wire sld-vl300to500 sld-bus-0" id="_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_96c2b5c8_45_8e28_45_4b08_45_96d2_45_ca9b09cdbd83_95_INTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_BUSCO_95_64901aec_45_5a8a_45_4bcb_45_8ca7_45_a3ddbfcd0e6c_95_96c2b5c8_45_8e28_45_4b08_45_96d2_45_ca9b09cdbd83_45_96c2b5c8_45_8e28_45_4b08_45_96d2_45_ca9b09cdbd83">
-                    <polyline points="290.0,192.0,290.0,222.0"/>
-                </g>
-                <g class="sld-wire sld-vl300to500 sld-disconnected" id="_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_84ed55f4_45_61f5_45_4d9d_45_8755_45_bba7b877a246_95_96c2b5c8_45_8e28_45_4b08_45_96d2_45_ca9b09cdbd83">
-                    <polyline points="290.0,154.0,290.0,172.0"/>
-                </g>
-                <g class="sld-wire sld-vl180to300 sld-bus-0 sld-feeder-disconnected-connected" id="_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_84ed55f4_45_61f5_45_4d9d_45_8755_45_bba7b877a246_95_TWO_95_84ed55f4_45_61f5_45_4d9d_45_8755_45_bba7b877a246">
-                    <polyline points="265.0,80.0,265.0,142.0,283.0,142.0"/>
-                </g>
-                <g class="sld-feeder-info sld-in sld-active-power" id="id84ed55f4_45_61f5_45_4d9d_45_8755_45_bba7b877a246_95_TWO_95_ARROW_95_ACTIVE" transform="translate(260.0,95.0)">
-                    <polygon class="sld-arrow-out" points="5,0 10,10 0,10"/>
-                    <polygon class="sld-arrow-in" points="0,0 10,0 5,10"/>
-                    <text class="sld-label" x="15.0" y="5.0">—</text>
-                </g>
-                <g class="sld-feeder-info sld-in sld-reactive-power" id="id84ed55f4_45_61f5_45_4d9d_45_8755_45_bba7b877a246_95_TWO_95_ARROW_95_REACTIVE" transform="translate(260.0,115.0)">
-                    <polygon class="sld-arrow-out" points="5,0 10,10 0,10"/>
-                    <polygon class="sld-arrow-in" points="0,0 10,0 5,10"/>
-                    <text class="sld-label" x="15.0" y="5.0">—</text>
-                </g>
-                <g class="sld-wire sld-vl0to30 sld-disconnected sld-feeder-disconnected" id="_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_84ed55f4_45_61f5_45_4d9d_45_8755_45_bba7b877a246_95_THREE_95_84ed55f4_45_61f5_45_4d9d_45_8755_45_bba7b877a246">
-                    <polyline points="315.0,80.0,315.0,142.0,297.0,142.0"/>
-                </g>
-                <g class="sld-feeder-info sld-in sld-active-power" id="id84ed55f4_45_61f5_45_4d9d_45_8755_45_bba7b877a246_95_THREE_95_ARROW_95_ACTIVE" transform="translate(310.0,95.0)">
-                    <polygon class="sld-arrow-out" points="5,0 10,10 0,10"/>
-                    <polygon class="sld-arrow-in" points="0,0 10,0 5,10"/>
-                    <text class="sld-label" x="15.0" y="5.0">—</text>
-                </g>
-                <g class="sld-feeder-info sld-in sld-reactive-power" id="id84ed55f4_45_61f5_45_4d9d_45_8755_45_bba7b877a246_95_THREE_95_ARROW_95_REACTIVE" transform="translate(310.0,115.0)">
-                    <polygon class="sld-arrow-out" points="5,0 10,10 0,10"/>
-                    <polygon class="sld-arrow-in" points="0,0 10,0 5,10"/>
-                    <text class="sld-label" x="15.0" y="5.0">—</text>
-                </g>
-                <g class="sld-bus-connection sld-fictitious sld-vl300to500 sld-bus-0" id="idBUSCO_95_64901aec_45_5a8a_45_4bcb_45_8ca7_45_a3ddbfcd0e6c_95_96c2b5c8_45_8e28_45_4b08_45_96d2_45_ca9b09cdbd83" transform="translate(286.0,248.0)">
-                    <circle cx="4" cy="4" r="4"/>
-                </g>
-                <g class="sld-node sld-hidden-node sld-fictitious sld-vl300to500 sld-bus-0" id="idINTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_BUSCO_95_64901aec_45_5a8a_45_4bcb_45_8ca7_45_a3ddbfcd0e6c_95_96c2b5c8_45_8e28_45_4b08_45_96d2_45_ca9b09cdbd83_45_96c2b5c8_45_8e28_45_4b08_45_96d2_45_ca9b09cdbd83" transform="translate(286.0,218.0)">
-                    <circle cx="4" cy="4" r="4"/>
-                </g>
-                <g class="sld-breaker sld-open sld-vl300to500 sld-disconnected" id="id96c2b5c8_45_8e28_45_4b08_45_96d2_45_ca9b09cdbd83" transform="translate(280.0,172.0)">
-                    <path class="sld-sw-closed" d="M1,1 V19 H19 V1z M10,5 V15"/>
-                    <path class="sld-sw-open" d="M1,1 V19 H19 V1z M5,10 H15"/>
-                </g>
-                <g class="sld-three-wt sld-fictitious" id="id84ed55f4_45_61f5_45_4d9d_45_8755_45_bba7b877a246" transform="translate(282.0,130.0)">
-                    <circle class="sld-vl180to300 sld-bus-0 sld-winding" cx="5" cy="15" r="5"/>
-                    <circle class="sld-vl0to30 sld-disconnected sld-winding" cx="11" cy="15" r="5"/>
-                    <circle class="sld-vl300to500 sld-disconnected sld-winding" cx="8" cy="19" r="5"/>
-                </g>
-                <g class="sld-top-feeder sld-vl300to500 sld-disconnected" id="id84ed55f4_45_61f5_45_4d9d_45_8755_45_bba7b877a246_95_TWO" transform="translate(265.0,80.0)">
-                    <text class="sld-label" id="id84ed55f4_45_61f5_45_4d9d_45_8755_45_bba7b877a246_95_TWO_95_N_95_LABEL" x="-5.0" y="-11.0">BE-TR3_1</text>
-                </g>
-                <g class="sld-top-feeder sld-vl300to500 sld-disconnected" id="id84ed55f4_45_61f5_45_4d9d_45_8755_45_bba7b877a246_95_THREE" transform="translate(315.0,80.0)">
-                    <text class="sld-label" id="id84ed55f4_45_61f5_45_4d9d_45_8755_45_bba7b877a246_95_THREE_95_N_95_LABEL" x="-5.0" y="-11.0">BE-TR3_1</text>
-                </g>
-            </g>
-            <g class="sld-extern-cell sld-cell-direction-bottom" id="idEXTERN_32_3">
-                <g class="sld-wire sld-vl300to500 sld-bus-0" id="_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_INTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_BUSCO_95_64901aec_45_5a8a_45_4bcb_45_8ca7_45_a3ddbfcd0e6c_95_6b564930_45_b5e2_45_49d3_45_9d06_45_e1de28d6fd65_45_6b564930_45_b5e2_45_49d3_45_9d06_45_e1de28d6fd65_95_BUSCO_95_64901aec_45_5a8a_45_4bcb_45_8ca7_45_a3ddbfcd0e6c_95_6b564930_45_b5e2_45_49d3_45_9d06_45_e1de28d6fd65">
-                    <polyline points="215.0,282.0,215.0,252.0"/>
-                </g>
-                <g class="sld-wire sld-vl300to500 sld-bus-0" id="_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_6b564930_45_b5e2_45_49d3_45_9d06_45_e1de28d6fd65_95_INTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_BUSCO_95_64901aec_45_5a8a_45_4bcb_45_8ca7_45_a3ddbfcd0e6c_95_6b564930_45_b5e2_45_49d3_45_9d06_45_e1de28d6fd65_45_6b564930_45_b5e2_45_49d3_45_9d06_45_e1de28d6fd65">
-                    <polyline points="215.0,312.0,215.0,282.0"/>
-                </g>
-                <g class="sld-wire sld-vl300to500 sld-bus-0" id="_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_INTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_a708c3bc_45_465d_45_4fe7_45_b6ef_45_6fa6408a62b0_95_ONE_95_6b564930_45_b5e2_45_49d3_45_9d06_45_e1de28d6fd65">
-                    <polyline points="215.0,362.0,215.0,332.0"/>
-                </g>
-                <g class="sld-wire sld-vl300to500 sld-bus-0" id="_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_a708c3bc_45_465d_45_4fe7_45_b6ef_45_6fa6408a62b0_95_ONE_95_INTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_a708c3bc_45_465d_45_4fe7_45_b6ef_45_6fa6408a62b0_95_ONE">
-                    <polyline points="215.0,416.5,215.0,362.0"/>
-                </g>
-                <g class="sld-feeder-info sld-in sld-reactive-power" id="ida708c3bc_45_465d_45_4fe7_45_b6ef_45_6fa6408a62b0_95_ONE_95_ARROW_95_REACTIVE" transform="translate(210.0,391.5)">
-                    <polygon class="sld-arrow-out" points="5,0 10,10 0,10" transform="rotate(180.0,5.0,5.0)"/>
-                    <polygon class="sld-arrow-in" points="0,0 10,0 5,10" transform="rotate(180.0,5.0,5.0)"/>
-                    <text class="sld-label" x="15.0" y="5.0">—</text>
-                </g>
-                <g class="sld-feeder-info sld-in sld-active-power" id="ida708c3bc_45_465d_45_4fe7_45_b6ef_45_6fa6408a62b0_95_ONE_95_ARROW_95_ACTIVE" transform="translate(210.0,371.5)">
-                    <polygon class="sld-arrow-out" points="5,0 10,10 0,10" transform="rotate(180.0,5.0,5.0)"/>
-                    <polygon class="sld-arrow-in" points="0,0 10,0 5,10" transform="rotate(180.0,5.0,5.0)"/>
-                    <text class="sld-label" x="15.0" y="5.0">—</text>
-                </g>
-                <g class="sld-bus-connection sld-fictitious sld-vl300to500 sld-bus-0" id="idBUSCO_95_64901aec_45_5a8a_45_4bcb_45_8ca7_45_a3ddbfcd0e6c_95_6b564930_45_b5e2_45_49d3_45_9d06_45_e1de28d6fd65" transform="translate(211.0,248.0)">
-                    <circle cx="4" cy="4" r="4"/>
-                </g>
-                <g class="sld-node sld-hidden-node sld-fictitious sld-vl300to500 sld-bus-0" id="idINTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_BUSCO_95_64901aec_45_5a8a_45_4bcb_45_8ca7_45_a3ddbfcd0e6c_95_6b564930_45_b5e2_45_49d3_45_9d06_45_e1de28d6fd65_45_6b564930_45_b5e2_45_49d3_45_9d06_45_e1de28d6fd65" transform="translate(211.0,278.0)">
-                    <circle cx="4" cy="4" r="4"/>
-                </g>
-                <g class="sld-breaker sld-closed sld-vl300to500 sld-bus-0" id="id6b564930_45_b5e2_45_49d3_45_9d06_45_e1de28d6fd65" transform="translate(205.0,312.0)">
-                    <path class="sld-sw-closed" d="M1,1 V19 H19 V1z M10,5 V15"/>
-                    <path class="sld-sw-open" d="M1,1 V19 H19 V1z M5,10 H15"/>
-                </g>
-                <g class="sld-node sld-hidden-node sld-fictitious sld-vl300to500 sld-bus-0" id="idINTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_a708c3bc_45_465d_45_4fe7_45_b6ef_45_6fa6408a62b0_95_ONE" transform="translate(211.0,358.0)">
-                    <circle cx="4" cy="4" r="4"/>
-                </g>
-                <g class="sld-pst sld-bottom-feeder" id="ida708c3bc_45_465d_45_4fe7_45_b6ef_45_6fa6408a62b0_95_ONE" transform="translate(208.0,416.5)">
-                    <circle class="sld-vl300to500 sld-bus-0 sld-winding" cx="7" cy="10" r="5" transform="rotate(180.0,7.0,7.5)"/>
-                    <circle class="sld-vl70to120 sld-bus-0 sld-winding" cx="7" cy="5" r="5" transform="rotate(180.0,7.0,7.5)"/>
-                    <path class="sld-vl300to500 sld-bus-0 sld-pst-arrow" d="M14,0 0,14 M11,0 14,0 14,3" transform="rotate(180.0,7.0,7.5)"/>
-                    <text class="sld-label" id="ida708c3bc_45_465d_45_4fe7_45_b6ef_45_6fa6408a62b0_95_ONE_95_S_95_LABEL" x="-5.0" y="18.5">BE-TR2_1</text>
-                </g>
-            </g>
-            <g class="sld-extern-cell sld-cell-direction-top" id="idEXTERN_32_4">
-                <g class="sld-wire sld-vl300to500 sld-bus-0" id="_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_INTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_BUSCO_95_64901aec_45_5a8a_45_4bcb_45_8ca7_45_a3ddbfcd0e6c_95_14d55344_45_c118_45_4f54_45_a430_45_72f16d12bf7b_45_14d55344_45_c118_45_4f54_45_a430_45_72f16d12bf7b_95_BUSCO_95_64901aec_45_5a8a_45_4bcb_45_8ca7_45_a3ddbfcd0e6c_95_14d55344_45_c118_45_4f54_45_a430_45_72f16d12bf7b">
-                    <polyline points="165.0,222.0,165.0,252.0"/>
-                </g>
-                <g class="sld-wire sld-vl300to500 sld-bus-0" id="_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_14d55344_45_c118_45_4f54_45_a430_45_72f16d12bf7b_95_INTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_BUSCO_95_64901aec_45_5a8a_45_4bcb_45_8ca7_45_a3ddbfcd0e6c_95_14d55344_45_c118_45_4f54_45_a430_45_72f16d12bf7b_45_14d55344_45_c118_45_4f54_45_a430_45_72f16d12bf7b">
-                    <polyline points="165.0,192.0,165.0,222.0"/>
-                </g>
-                <g class="sld-wire sld-vl300to500 sld-bus-0" id="_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_INTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_b18cd1aa_45_7808_45_49b9_45_a7cf_45_605eaf07b006_32__43__32_e8acf6b6_45_99cb_45_45ad_45_b8dc_45_16c7866a4ddc_95_ONE_95_14d55344_45_c118_45_4f54_45_a430_45_72f16d12bf7b">
-                    <polyline points="165.0,142.0,165.0,172.0"/>
-                </g>
-                <g class="sld-wire sld-vl300to500 sld-bus-0 sld-tie-line" id="_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_b18cd1aa_45_7808_45_49b9_45_a7cf_45_605eaf07b006_32__43__32_e8acf6b6_45_99cb_45_45ad_45_b8dc_45_16c7866a4ddc_95_ONE_95_INTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_b18cd1aa_45_7808_45_49b9_45_a7cf_45_605eaf07b006_32__43__32_e8acf6b6_45_99cb_45_45ad_45_b8dc_45_16c7866a4ddc_95_ONE">
-                    <polyline points="165.0,80.0,165.0,142.0"/>
-                </g>
-                <g class="sld-feeder-info sld-in sld-active-power" id="idb18cd1aa_45_7808_45_49b9_45_a7cf_45_605eaf07b006_32__43__32_e8acf6b6_45_99cb_45_45ad_45_b8dc_45_16c7866a4ddc_95_ONE_95_ARROW_95_ACTIVE" transform="translate(160.0,95.0)">
-                    <polygon class="sld-arrow-out" points="5,0 10,10 0,10"/>
-                    <polygon class="sld-arrow-in" points="0,0 10,0 5,10"/>
-                    <text class="sld-label" x="15.0" y="5.0">-17</text>
-                </g>
-                <g class="sld-feeder-info sld-out sld-reactive-power" id="idb18cd1aa_45_7808_45_49b9_45_a7cf_45_605eaf07b006_32__43__32_e8acf6b6_45_99cb_45_45ad_45_b8dc_45_16c7866a4ddc_95_ONE_95_ARROW_95_REACTIVE" transform="translate(160.0,115.0)">
-                    <polygon class="sld-arrow-out" points="5,0 10,10 0,10"/>
-                    <polygon class="sld-arrow-in" points="0,0 10,0 5,10"/>
-                    <text class="sld-label" x="15.0" y="5.0">109</text>
-                </g>
-                <g class="sld-bus-connection sld-fictitious sld-vl300to500 sld-bus-0" id="idBUSCO_95_64901aec_45_5a8a_45_4bcb_45_8ca7_45_a3ddbfcd0e6c_95_14d55344_45_c118_45_4f54_45_a430_45_72f16d12bf7b" transform="translate(161.0,248.0)">
-                    <circle cx="4" cy="4" r="4"/>
-                </g>
-                <g class="sld-node sld-hidden-node sld-fictitious sld-vl300to500 sld-bus-0" id="idINTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_BUSCO_95_64901aec_45_5a8a_45_4bcb_45_8ca7_45_a3ddbfcd0e6c_95_14d55344_45_c118_45_4f54_45_a430_45_72f16d12bf7b_45_14d55344_45_c118_45_4f54_45_a430_45_72f16d12bf7b" transform="translate(161.0,218.0)">
-                    <circle cx="4" cy="4" r="4"/>
-                </g>
-                <g class="sld-breaker sld-closed sld-vl300to500 sld-bus-0" id="id14d55344_45_c118_45_4f54_45_a430_45_72f16d12bf7b" transform="translate(155.0,172.0)">
-                    <path class="sld-sw-closed" d="M1,1 V19 H19 V1z M10,5 V15"/>
-                    <path class="sld-sw-open" d="M1,1 V19 H19 V1z M5,10 H15"/>
-                </g>
-                <g class="sld-node sld-hidden-node sld-fictitious sld-vl300to500 sld-bus-0" id="idINTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_b18cd1aa_45_7808_45_49b9_45_a7cf_45_605eaf07b006_32__43__32_e8acf6b6_45_99cb_45_45ad_45_b8dc_45_16c7866a4ddc_95_ONE" transform="translate(161.0,138.0)">
-                    <circle cx="4" cy="4" r="4"/>
-                </g>
-                <g class="sld-top-feeder sld-vl300to500 sld-bus-0" id="idb18cd1aa_45_7808_45_49b9_45_a7cf_45_605eaf07b006_32__43__32_e8acf6b6_45_99cb_45_45ad_45_b8dc_45_16c7866a4ddc_95_ONE" transform="translate(165.0,80.0)">
-                    <text class="sld-label" id="idb18cd1aa_45_7808_45_49b9_45_a7cf_45_605eaf07b006_32__43__32_e8acf6b6_45_99cb_45_45ad_45_b8dc_45_16c7866a4ddc_95_ONE_95_N_95_LABEL" x="-5.0" y="-11.0">BE-Line_5 + NL-Line_5</text>
-                </g>
-            </g>
-            <g class="sld-extern-cell sld-cell-direction-bottom" id="idEXTERN_32_5">
-                <g class="sld-wire sld-vl300to500 sld-bus-0" id="_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_INTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_BUSCO_95_64901aec_45_5a8a_45_4bcb_45_8ca7_45_a3ddbfcd0e6c_95_0e8cd279_45_ad5d_45_485a_45_b3a9_45_093ae8714b72_45_0e8cd279_45_ad5d_45_485a_45_b3a9_45_093ae8714b72_95_BUSCO_95_64901aec_45_5a8a_45_4bcb_45_8ca7_45_a3ddbfcd0e6c_95_0e8cd279_45_ad5d_45_485a_45_b3a9_45_093ae8714b72">
-                    <polyline points="115.0,282.0,115.0,252.0"/>
-                </g>
-                <g class="sld-wire sld-vl300to500 sld-bus-0" id="_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_0e8cd279_45_ad5d_45_485a_45_b3a9_45_093ae8714b72_95_INTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_BUSCO_95_64901aec_45_5a8a_45_4bcb_45_8ca7_45_a3ddbfcd0e6c_95_0e8cd279_45_ad5d_45_485a_45_b3a9_45_093ae8714b72_45_0e8cd279_45_ad5d_45_485a_45_b3a9_45_093ae8714b72">
-                    <polyline points="115.0,312.0,115.0,282.0"/>
-                </g>
-                <g class="sld-wire sld-vl300to500 sld-bus-0" id="_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_INTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_78736387_45_5f60_45_4832_45_b3fe_45_d50daf81b0a6_32__43__32_7f43f508_45_2496_45_4b64_45_9146_45_0a40406cbe49_95_ONE_95_0e8cd279_45_ad5d_45_485a_45_b3a9_45_093ae8714b72">
-                    <polyline points="115.0,362.0,115.0,332.0"/>
-                </g>
-                <g class="sld-wire sld-vl300to500 sld-bus-0 sld-tie-line" id="_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_78736387_45_5f60_45_4832_45_b3fe_45_d50daf81b0a6_32__43__32_7f43f508_45_2496_45_4b64_45_9146_45_0a40406cbe49_95_ONE_95_INTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_78736387_45_5f60_45_4832_45_b3fe_45_d50daf81b0a6_32__43__32_7f43f508_45_2496_45_4b64_45_9146_45_0a40406cbe49_95_ONE">
-                    <polyline points="115.0,424.0,115.0,362.0"/>
-                </g>
-                <g class="sld-feeder-info sld-out sld-reactive-power" id="id78736387_45_5f60_45_4832_45_b3fe_45_d50daf81b0a6_32__43__32_7f43f508_45_2496_45_4b64_45_9146_45_0a40406cbe49_95_ONE_95_ARROW_95_REACTIVE" transform="translate(110.0,399.0)">
-                    <polygon class="sld-arrow-out" points="5,0 10,10 0,10" transform="rotate(180.0,5.0,5.0)"/>
-                    <polygon class="sld-arrow-in" points="0,0 10,0 5,10" transform="rotate(180.0,5.0,5.0)"/>
-                    <text class="sld-label" x="15.0" y="5.0">38</text>
-                </g>
-                <g class="sld-feeder-info sld-in sld-active-power" id="id78736387_45_5f60_45_4832_45_b3fe_45_d50daf81b0a6_32__43__32_7f43f508_45_2496_45_4b64_45_9146_45_0a40406cbe49_95_ONE_95_ARROW_95_ACTIVE" transform="translate(110.0,379.0)">
-                    <polygon class="sld-arrow-out" points="5,0 10,10 0,10" transform="rotate(180.0,5.0,5.0)"/>
-                    <polygon class="sld-arrow-in" points="0,0 10,0 5,10" transform="rotate(180.0,5.0,5.0)"/>
-                    <text class="sld-label" x="15.0" y="5.0">-3</text>
-                </g>
-                <g class="sld-bus-connection sld-fictitious sld-vl300to500 sld-bus-0" id="idBUSCO_95_64901aec_45_5a8a_45_4bcb_45_8ca7_45_a3ddbfcd0e6c_95_0e8cd279_45_ad5d_45_485a_45_b3a9_45_093ae8714b72" transform="translate(111.0,248.0)">
-                    <circle cx="4" cy="4" r="4"/>
-                </g>
-                <g class="sld-node sld-hidden-node sld-fictitious sld-vl300to500 sld-bus-0" id="idINTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_BUSCO_95_64901aec_45_5a8a_45_4bcb_45_8ca7_45_a3ddbfcd0e6c_95_0e8cd279_45_ad5d_45_485a_45_b3a9_45_093ae8714b72_45_0e8cd279_45_ad5d_45_485a_45_b3a9_45_093ae8714b72" transform="translate(111.0,278.0)">
-                    <circle cx="4" cy="4" r="4"/>
-                </g>
-                <g class="sld-breaker sld-closed sld-vl300to500 sld-bus-0" id="id0e8cd279_45_ad5d_45_485a_45_b3a9_45_093ae8714b72" transform="translate(105.0,312.0)">
-                    <path class="sld-sw-closed" d="M1,1 V19 H19 V1z M10,5 V15"/>
-                    <path class="sld-sw-open" d="M1,1 V19 H19 V1z M5,10 H15"/>
-                </g>
-                <g class="sld-node sld-hidden-node sld-fictitious sld-vl300to500 sld-bus-0" id="idINTERNAL_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_78736387_45_5f60_45_4832_45_b3fe_45_d50daf81b0a6_32__43__32_7f43f508_45_2496_45_4b64_45_9146_45_0a40406cbe49_95_ONE" transform="translate(111.0,358.0)">
-                    <circle cx="4" cy="4" r="4"/>
-                </g>
-                <g class="sld-bottom-feeder sld-vl300to500 sld-bus-0" id="id78736387_45_5f60_45_4832_45_b3fe_45_d50daf81b0a6_32__43__32_7f43f508_45_2496_45_4b64_45_9146_45_0a40406cbe49_95_ONE" transform="translate(115.0,424.0)">
-                    <text class="sld-label" id="id78736387_45_5f60_45_4832_45_b3fe_45_d50daf81b0a6_32__43__32_7f43f508_45_2496_45_4b64_45_9146_45_0a40406cbe49_95_ONE_95_S_95_LABEL" x="-5.0" y="11.0">BE-Line_3 + NL-Line_1</text>
+                    <text class="sld-label" id="id002b0a40_45_3957_45_46db_45_b84a_45_30420083558f_95_N_95_LABEL" x="-5.0" y="-5.0">BO_S2</text>
                 </g>
             </g>
             <g class="sld-legend">
-                <g id="idNODE_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_0">
-                    <circle class="sld-vl300to500 sld-bus-0 sld-node-infos" cx="70.0" cy="494.0" id="idNODE_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_0_95_circle" r="10" stroke-width="10"/>
-                    <text class="sld-voltage sld-bus-legend-info" id="idNODE_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_0_95_v" x="60.0" y="519.0">414.1 kV</text>
-                    <text class="sld-angle sld-bus-legend-info" id="idNODE_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_0_95_angle" x="60.0" y="534.0">-21.5°</text>
+                <g id="idNODE_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_1">
+                    <circle class="sld-vl300to500 sld-bus-0 sld-node-infos" cx="70.0" cy="494.0" id="idNODE_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_1_95_circle" r="10" stroke-width="10"/>
+                    <text class="sld-voltage sld-bus-legend-info" id="idNODE_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_1_95_v" x="60.0" y="519.0">416.8 kV</text>
+                    <text class="sld-angle sld-bus-legend-info" id="idNODE_95_469df5f7_45_058f_45_4451_45_a998_45_57a48e8a56fe_95_1_95_angle" x="60.0" y="534.0">-3.2°</text>
                 </g>
             </g>
         </g>

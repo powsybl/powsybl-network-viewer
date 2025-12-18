@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.powsybl</groupId>
+        <artifactId>powsybl-parent</artifactId>
+        <version>24</version>
+        <relativePath/>
+    </parent>
+    <groupId>com.powsybl.viewer.demo</groupId>
+    <artifactId>powsybl-network-viewer-demo-data</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <properties>
+        <java.version>21</java.version>
+        <core.version>7.1.0</core.version>
+        <diagram.version>5.2.0</diagram.version>
+        <olf.version>2.1.0</olf.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>powsybl-matpower-converter</artifactId>
+            <version>${core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>powsybl-iidm-impl</artifactId>
+            <version>${core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>powsybl-iidm-serde</artifactId>
+            <version>${core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>powsybl-ieee-cdf-model</artifactId>
+            <version>${core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>powsybl-ieee-cdf-converter</artifactId>
+            <version>${core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>powsybl-cgmes-conversion</artifactId>
+            <version>${core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>powsybl-triple-store-impl-rdf4j</artifactId>
+            <version>${core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>powsybl-cgmes-conformity</artifactId>
+            <version>${core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>powsybl-iidm-test</artifactId>
+            <version>${core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>powsybl-single-line-diagram-core</artifactId>
+            <version>${diagram.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>powsybl-network-area-diagram</artifactId>
+            <version>${diagram.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>powsybl-open-loadflow</artifactId>
+            <version>${olf.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.5.19</version>
+        </dependency>
+    </dependencies>
+
+</project>
