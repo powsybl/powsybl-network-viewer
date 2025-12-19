@@ -43,6 +43,9 @@ export interface SvgParametersMetadata {
     cssLocation: string;
     arrowPathIn: string;
     arrowPathOut: string;
+    loopEdgesAperture: number;
+    loopDistance: number;
+    loopControlDistance: number;
 }
 
 export interface DiagramPaddingMetadata {

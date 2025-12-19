@@ -1,0 +1,226 @@
+/**
+ * Copyright (c) 2025, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
+ */
+
+import { Point } from '@svgdotjs/svg.js';
+import { DiagramMetadata, EdgeMetadata } from './diagram-metadata';
+import { SvgParameters } from './svg-parameters';
+import * as DiagramUtils from './diagram-utils';
+import * as MetadataUtils from './metadata-utils';
+import * as HalfEdgeUtils from './half-edge-utils';
+
+export class EdgeRouter {
+    diagramMetadata: DiagramMetadata;
+    svgParameters: SvgParameters;
+    edgePoints: Record<string, [Point[], Point[]]> = {};
+    nodeAngles: Record<string, number[]> = {};
+
+    constructor(diagramMetadata: DiagramMetadata) {
+        this.diagramMetadata = diagramMetadata;
+        this.svgParameters = new SvgParameters(this.diagramMetadata.svgParameters);
+        this.init();
+    }
+
+    public getEdgeAngle(edgeId: string, side: string): number | undefined {
+        const egdesPoints = this.edgePoints[edgeId];
+        if (!egdesPoints) {
+            return undefined;
+        }
+        const halfEdgePoints = side == '1' ? egdesPoints[0] : egdesPoints[1];
+        return DiagramUtils.getAngle(halfEdgePoints[0], halfEdgePoints[1]);
+    }
+
+    private init() {
+        const edgeGroups = this.groupEdges();
+        this.storeGroupedEdges(edgeGroups.groupedEdges);
+        this.storeLoopEdges(edgeGroups.loopEdges);
+    }
+
+    private groupEdges(): { groupedEdges: Record<string, EdgeMetadata[]>; loopEdges: Record<string, EdgeMetadata[]> } {
+        const groupedEdges: Record<string, EdgeMetadata[]> = {};
+        const loopEdges: Record<string, EdgeMetadata[]> = {};
+        this.diagramMetadata.edges.forEach((edge) => {
+            const isLoop = edge.node1 === edge.node2;
+            const key = isLoop ? edge.node1 : MetadataUtils.getGroupedEdgesIndexKey(edge);
+            const target = isLoop ? loopEdges : groupedEdges;
+            target[key] ??= [];
+            target[key].push(edge);
+        });
+        return { groupedEdges, loopEdges };
+    }
+
+    private storeGroupedEdges(edges: Record<string, EdgeMetadata[]>) {
+        for (const edgeId in edges) {
+            const groupedEdges = edges[edgeId];
+            if (groupedEdges.length == 1) {
+                this.storeHalfEdges(groupedEdges[0], 1, 0);
+            } else {
+                for (let iEdge = 0; iEdge < groupedEdges.length; iEdge++) {
+                    if (2 * iEdge + 1 == groupedEdges.length) {
+                        this.storeHalfEdges(groupedEdges[iEdge], 1, 0);
+                    } else {
+                        this.storeHalfEdges(groupedEdges[iEdge], groupedEdges.length, iEdge);
+                    }
+                }
+            }
+        }
+    }
+
+    private storeHalfEdges(edge: EdgeMetadata, groupedEdgesCount: number, iEdge: number) {
+        const halfEgdes = HalfEdgeUtils.getHalfEdges(
+            edge,
+            iEdge,
+            groupedEdgesCount,
+            this.diagramMetadata,
+            this.svgParameters
+        );
+        if (!halfEgdes[0] || !halfEgdes[1]) {
+            return;
+        }
+        this.edgePoints[edge.svgId] = [halfEgdes[0].edgePoints, halfEgdes[1].edgePoints];
+        const angle1 = DiagramUtils.getAngle(halfEgdes[0].edgePoints[0], halfEgdes[0].edgePoints[1]);
+        const angle2 = DiagramUtils.getAngle(halfEgdes[1].edgePoints[0], halfEgdes[1].edgePoints[1]);
+        const node1Angles: number[] = this.nodeAngles[edge.node1] ?? [];
+        node1Angles.push(angle1);
+        this.nodeAngles[edge.node1] = node1Angles;
+        const node2Angles: number[] = this.nodeAngles[edge.node2] ?? [];
+        node2Angles.push(angle2);
+        this.nodeAngles[edge.node2] = node2Angles;
+    }
+
+    private storeLoopEdges(edges: Record<string, EdgeMetadata[]>) {
+        for (const edgeId in edges) {
+            const loopEdges = edges[edgeId];
+            const availableAngles = this.findAvailableAngles(
+                this.nodeAngles[loopEdges[0].node1] ?? [],
+                loopEdges.length
+            );
+            loopEdges.forEach((loopEdge, index) => {
+                const angle = availableAngles[index];
+                this.storeLoopHalfEdges(loopEdge, angle);
+            });
+        }
+    }
+
+    private findAvailableAngles(anglesOtherEdges: number[], nbAngles: number): number[] {
+        let availableAngles: number[] = [];
+        const slotAperture = this.svgParameters.getLoopEdgesAperture() * 1.2;
+        if (anglesOtherEdges.length == 0) {
+            Array.from(new Array(nbAngles).keys())
+                .map((index) => (index * 2 * Math.PI) / nbAngles)
+                .forEach((angle) => {
+                    availableAngles.push(angle);
+                });
+        } else {
+            anglesOtherEdges = DiagramUtils.getSortedAnglesWithWrapAround(anglesOtherEdges);
+            const deltaAngles: number[] = [];
+            const nbAvailableSlots: number[] = [];
+            let totalDeltaAvailable = 0;
+            for (let index = 0; index < anglesOtherEdges.length - 1; index++) {
+                deltaAngles[index] = anglesOtherEdges[index + 1] - anglesOtherEdges[index];
+                nbAvailableSlots[index] = Math.floor(deltaAngles[index] / DiagramUtils.degToRad(slotAperture));
+                if (nbAvailableSlots[index] > 0) {
+                    totalDeltaAvailable += deltaAngles[index];
+                }
+            }
+            if (nbAngles <= nbAvailableSlots.reduce((a, b) => a + b, 0) && totalDeltaAvailable > 0) {
+                const nbInsertedAngles: number[] = this.computeAnglesInsertedNumber(
+                    nbAngles,
+                    nbAvailableSlots,
+                    totalDeltaAvailable,
+                    deltaAngles
+                );
+                availableAngles = this.calculateInsertedAngles(
+                    nbInsertedAngles,
+                    deltaAngles,
+                    anglesOtherEdges,
+                    slotAperture
+                );
+            } else {
+                const iMaxDelta = deltaAngles.reduce(
+                    (maxIndex, currentValue, currentIndex, array) =>
+                        currentValue > array[maxIndex] ? currentIndex : maxIndex,
+                    0
+                );
+                const startAngle = (anglesOtherEdges[iMaxDelta] + anglesOtherEdges[iMaxDelta + 1]) / 2;
+                Array.from(new Array(nbAngles).keys())
+                    .map((index) => startAngle + (index * 2 * Math.PI) / nbAngles)
+                    .forEach((angle) => {
+                        availableAngles.push(angle);
+                    });
+            }
+        }
+        return availableAngles;
+    }
+
+    private computeAnglesInsertedNumber(
+        nbAngles: number,
+        nbAvailableSlots: number[],
+        totalDeltaAvailable: number,
+        deltaAngles: number[]
+    ): number[] {
+        const nbInsertedAngles: number[] = [];
+        for (let index = 0; index < deltaAngles.length; index++) {
+            const deltaAngleNormalized = deltaAngles[index] / totalDeltaAvailable;
+            const nbSlotsFractions = deltaAngleNormalized * nbAngles;
+            const nbSlotsCeil = Math.ceil(nbSlotsFractions);
+            if (nbSlotsCeil <= nbAvailableSlots[index]) {
+                nbInsertedAngles[index] = nbSlotsCeil;
+            } else {
+                nbInsertedAngles[index] = nbSlotsCeil - 1;
+            }
+        }
+        const totalInsertedAngles = nbInsertedAngles.reduce((a, b) => a + b, 0);
+        if (totalInsertedAngles > nbAngles) {
+            // Too many slots found: remove slots taken starting from the smallest sliced intervals
+            const sortedIndices: number[] = Array.from(new Array(deltaAngles.length).keys()).sort(function (a, b) {
+                return deltaAngles[a] / nbInsertedAngles[a] - deltaAngles[b] / nbInsertedAngles[b];
+            });
+            let nbExcessiveAngles = totalInsertedAngles - nbAngles;
+            for (const iSorted of sortedIndices) {
+                nbInsertedAngles[iSorted]--;
+                if (--nbExcessiveAngles == 0) {
+                    break;
+                }
+            }
+        }
+        return nbInsertedAngles;
+    }
+
+    calculateInsertedAngles(
+        nbInsertedAngles: number[],
+        deltaAngles: number[],
+        anglesOtherEdges: number[],
+        slotAperture: number
+    ): number[] {
+        const insertedAngles: number[] = [];
+        for (let index = 0; index < nbInsertedAngles.length; index++) {
+            const nbAnglesInDelta = nbInsertedAngles[index];
+            if (nbAnglesInDelta == 0) {
+                continue;
+            }
+            const extraSpace = deltaAngles[index] - DiagramUtils.degToRad(slotAperture) * nbAnglesInDelta;
+            const intraSpace = extraSpace / (nbAnglesInDelta + 1);
+            const angleStep = intraSpace + DiagramUtils.degToRad(slotAperture);
+            const startAngle = anglesOtherEdges[index] + intraSpace + DiagramUtils.degToRad(slotAperture) / 2;
+            Array.from(new Array(nbAnglesInDelta).keys())
+                .map((iLoop) => startAngle + iLoop * angleStep)
+                .forEach((angle) => {
+                    insertedAngles.push(angle);
+                });
+        }
+        return insertedAngles;
+    }
+
+    private storeLoopHalfEdges(edge: EdgeMetadata, angle: number) {
+        const halfEgdes = HalfEdgeUtils.getLoopHalfEdges(edge, angle, this.diagramMetadata, this.svgParameters);
+        if (!halfEgdes[0] || !halfEgdes[1]) {
+            return;
+        }
+        this.edgePoints[edge.svgId] = [halfEgdes[0].edgePoints, halfEgdes[1].edgePoints];
+    }
+}

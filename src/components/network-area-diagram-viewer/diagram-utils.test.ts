@@ -64,10 +64,10 @@ test('getAngle', () => {
     expect(DiagramUtils.getAngle(new Point(50, 50), new Point(10, 10))).toBe(-2.356194490192345);
 });
 
-test('getEdgeFork', () => {
-    const edgeFork = DiagramUtils.getEdgeFork(new Point(10, 10), 80, 0.2618);
-    expect(edgeFork.x).toBeCloseTo(87.274, 3);
-    expect(edgeFork.y).toBeCloseTo(30.7055, 3);
+test('getPointAtDistanceWithAngle', () => {
+    const point = DiagramUtils.getPointAtDistanceWithAngle(new Point(10, 10), 80, 0.2618);
+    expect(point.x).toBeCloseTo(87.274, 3);
+    expect(point.y).toBeCloseTo(30.7055, 3);
 });
 
 test('getTransformerArrowMatrixString', () => {
@@ -106,6 +106,9 @@ test('getVoltageLevelCircleRadius', () => {
         voltageValuePrecision: 0,
         voltageLevelCircleRadius: 30,
         fictitiousVoltageLevelCircleRadius: 15,
+        loopEdgesAperture: 60,
+        loopDistance: 120,
+        loopControlDistance: 40,
     };
     const svgParameters = new SvgParameters(svgParametersMetadata);
     expect(DiagramUtils.getVoltageLevelCircleRadius(0, true, svgParameters)).toBe(15);
@@ -194,6 +197,9 @@ test('getArrowClass', () => {
         voltageValuePrecision: 0,
         voltageLevelCircleRadius: 30,
         fictitiousVoltageLevelCircleRadius: 15,
+        loopEdgesAperture: 60,
+        loopDistance: 120,
+        loopControlDistance: 40,
     };
     const svgParameters = new SvgParameters(svgParametersMetadata);
     expect(DiagramUtils.getArrowPath('IN', svgParameters)).toBe(arrowPathIn);
