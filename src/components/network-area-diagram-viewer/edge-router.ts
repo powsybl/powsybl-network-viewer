@@ -16,7 +16,7 @@ import * as HalfEdgeUtils from './half-edge-utils';
 export class EdgeRouter {
     diagramMetadata: DiagramMetadata;
     svgParameters: SvgParameters;
-    edgeAngles: Record<string, [Point[], Point[]]> = {};
+    edgePoints: Record<string, [Point[], Point[]]> = {};
     nodeAngles: Record<string, number[]> = {};
 
     constructor(diagramMetadata: DiagramMetadata) {
@@ -26,7 +26,7 @@ export class EdgeRouter {
     }
 
     public getEdgeAngle(edgeId: string, side: string): number | undefined {
-        const egdesPoints = this.edgeAngles[edgeId];
+        const egdesPoints = this.edgePoints[edgeId];
         if (!egdesPoints) {
             return undefined;
         }
@@ -81,7 +81,7 @@ export class EdgeRouter {
         if (!halfEgdes[0] || !halfEgdes[1]) {
             return;
         }
-        this.edgeAngles[edge.svgId] = [halfEgdes[0].edgePoints, halfEgdes[1].edgePoints];
+        this.edgePoints[edge.svgId] = [halfEgdes[0].edgePoints, halfEgdes[1].edgePoints];
         const angle1 = DiagramUtils.getAngle(halfEgdes[0].edgePoints[0], halfEgdes[0].edgePoints[1]);
         const angle2 = DiagramUtils.getAngle(halfEgdes[1].edgePoints[0], halfEgdes[1].edgePoints[1]);
         const node1Angles: number[] = this.nodeAngles[edge.node1] ?? [];
@@ -221,6 +221,6 @@ export class EdgeRouter {
         if (!halfEgdes[0] || !halfEgdes[1]) {
             return;
         }
-        this.edgeAngles[edge.svgId] = [halfEgdes[0].edgePoints, halfEgdes[1].edgePoints];
+        this.edgePoints[edge.svgId] = [halfEgdes[0].edgePoints, halfEgdes[1].edgePoints];
     }
 }
