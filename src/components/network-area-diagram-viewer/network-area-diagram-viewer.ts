@@ -154,7 +154,7 @@ export class NetworkAreaDiagramViewer {
         this.container = container;
         this.svgDiv = document.createElement('div');
         this.svgDiv.id = 'svg-container';
-        this.svgContent = this.fixSvgContent(svgContent);
+        this.svgContent = svgContent;
         this.diagramMetadata = diagramMetadata;
         this.nadViewerParameters = new NadViewerParameters(nadViewerParametersOptions ?? undefined);
         this.width = 0;
@@ -178,11 +178,6 @@ export class NetworkAreaDiagramViewer {
         this.previousMaxDisplayedSize = 0;
     }
 
-    private fixSvgContent(svgContent: string): string {
-        // fix span in text boxes, for avoiding to include the following text
-        return svgContent.replace(/(<span class=".*")(\/>)/g, '$1></span>');
-    }
-
     public setWidth(width: number): void {
         this.width = width;
     }
@@ -204,7 +199,7 @@ export class NetworkAreaDiagramViewer {
     }
 
     public setSvgContent(svgContent: string): void {
-        this.svgContent = this.fixSvgContent(svgContent);
+        this.svgContent = svgContent;
     }
 
     public getWidth(): number {
@@ -592,14 +587,12 @@ export class NetworkAreaDiagramViewer {
         bendLinesButton.addEventListener('click', () => {
             if (this.bendLines) {
                 this.disableLineBending();
-                bendLinesButton.classList.remove('bend-lines-button-active');
-                bendLinesButton.classList.add('bend-lines-button-inactive');
+                bendLinesButton.classList.remove('button-active');
                 bendLinesButton.title = 'Enable line bending';
             } else {
                 this.enableLineBending();
                 if (this.bendLines) {
-                    bendLinesButton.classList.remove('bend-lines-button-inactive');
-                    bendLinesButton.classList.add('bend-lines-button-active');
+                    bendLinesButton.classList.add('button-active');
                     bendLinesButton.title = 'Disable line bending';
                 }
             }
@@ -844,13 +837,17 @@ export class NetworkAreaDiagramViewer {
             }
             this.isHoverCallbackUsed = true;
         } else {
-            this.debounceToggleHoverCallback.clear();
-            if (this.isHoverCallbackUsed) {
-                this.isHoverCallbackUsed = false;
-                this.onToggleHoverCallback?.(false, null, '', '');
-            }
+            this.resetHoverCallback();
             this.hideEdgePreviewPoints();
             this.hoveredElement = null;
+        }
+    }
+
+    private resetHoverCallback(): void {
+        this.debounceToggleHoverCallback.clear();
+        if (this.isHoverCallbackUsed) {
+            this.isHoverCallbackUsed = false;
+            this.onToggleHoverCallback?.(false, null, '', '');
         }
     }
 
@@ -2233,6 +2230,7 @@ export class NetworkAreaDiagramViewer {
         if (!elementData) {
             return;
         }
+        this.resetHoverCallback();
         this.onRightClickCallback?.(elementData.svgId, elementData.equipmentId, elementData.type, mousePosition);
     }
 
