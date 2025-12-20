@@ -2444,7 +2444,7 @@ export class NetworkAreaDiagramViewer {
     private enableLineBending() {
         const linesPointsElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
         linesPointsElement.classList.add('nad-line-points');
-        const bendableEdges = MetadataUtils.getBendableLines(this.diagramMetadata?.edges, this.innerSvg);
+        const bendableEdges = MetadataUtils.getBendableLines(this.diagramMetadata?.edges);
         for (const edge of bendableEdges) {
             if (edge.bendingPoints) {
                 for (let index = 0; index < edge.bendingPoints.length; index++) {
@@ -2613,7 +2613,7 @@ export class NetworkAreaDiagramViewer {
 
     private getHalfEdges(edge: EdgeMetadata, iEdge: number, groupedEdgesCount: number) {
         // Detect if the edge is linked to an invisible node (not in DOM)
-        const invisibleSide = MetadataUtils.getInvisibleSide(edge, this.innerSvg);
+        const invisibleSide = MetadataUtils.getInvisibleSide(edge);
 
         if (!invisibleSide) {
             return HalfEdgeUtils.getHalfEdges(edge, iEdge, groupedEdgesCount, this.diagramMetadata, this.svgParameters);

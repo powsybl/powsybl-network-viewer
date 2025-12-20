@@ -95,6 +95,7 @@ export interface NodeMetadata {
     legendEdgeSvgId?: string;
     legendHeader?: string[];
     legendFooter?: string[];
+    invisible?: boolean;
 }
 
 export interface EdgeMetadata {
@@ -109,6 +110,8 @@ export interface EdgeMetadata {
     edgeInfoMiddle?: EdgeInfoMetadata;
     edgeInfo1?: EdgeInfoMetadata;
     edgeInfo2?: EdgeInfoMetadata;
+    invisible1?: boolean;
+    invisible2?: boolean;
 }
 
 export interface PointMetadata {
@@ -132,7 +135,7 @@ export interface InjectionMetadata {
     componentType: string;
     busNodeId: string;
     vlNodeId: string;
-    edgeInfo: EdgeInfoMetadata;
+    edgeInfo?: EdgeInfoMetadata;
 }
 
 export interface EdgeInfoMetadata {
