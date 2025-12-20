@@ -124,7 +124,7 @@ test('getVoltageLevelCircleRadius', () => {
         injectionEdgeLength: 0,
         injectionCircleRadius: 0,
         voltageLevelLegendsIncluded: false,
-        edgeInfosIncluded: false
+        edgeInfosIncluded: false,
     };
     const svgParameters = new SvgParameters(svgParametersMetadata);
     expect(DiagramUtils.getVoltageLevelCircleRadius(0, true, svgParameters)).toBe(15);

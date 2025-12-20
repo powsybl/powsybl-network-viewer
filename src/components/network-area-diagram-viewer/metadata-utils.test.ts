@@ -6,7 +6,7 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 
-import { Point, SVG } from '@svgdotjs/svg.js';
+import { Point } from '@svgdotjs/svg.js';
 import {
     BusNodeMetadata,
     DiagramPaddingMetadata,
@@ -68,7 +68,7 @@ test('getNodeRadius', () => {
         injectionEdgeLength: 0,
         injectionCircleRadius: 0,
         voltageLevelLegendsIncluded: false,
-        edgeInfosIncluded: false
+        edgeInfosIncluded: false,
     };
     const svgParameters = new SvgParameters(svgParametersMetadata);
 
