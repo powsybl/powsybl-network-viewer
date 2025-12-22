@@ -81,12 +81,12 @@
             <div style="position: absolute; top: 83px; left: 290px" id="1" class="nad-vl300to500 nad-label-box">
                 <div>vl</div>
                 <div class="nad-bus-descr">
-                    <span class="nad-bus-0 nad-legend-square"/> kV / °</div>
+                    <span class="nad-bus-0 nad-legend-square"></span> kV / °</div>
             </div>
             <div style="position: absolute; top: 92px; left: -72px" id="5" class="nad-vl180to300 nad-label-box">
                 <div>vl2</div>
                 <div class="nad-bus-descr">
-                    <span class="nad-bus-0 nad-legend-square"/> kV / °</div>
+                    <span class="nad-bus-0 nad-legend-square"></span> kV / °</div>
             </div>
             <div style="position: absolute; top: -518px; left: -213px" id="9" class="nad-vl300to500 nad-label-box">
                 <div>vl3</div>

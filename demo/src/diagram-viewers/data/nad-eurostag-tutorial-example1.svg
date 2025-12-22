@@ -36,8 +36,8 @@
             </g>
         </g>
         <g id="18">
-            <polyline class="nad-vl300to500 nad-edge-path" points="-220.63,22.07 -173.60,-1.26 -49.95,6.53"/>
             <polyline class="nad-vl300to500 nad-edge-path" points="117.43,43.39 73.71,14.33 -49.95,6.53"/>
+            <polyline class="nad-vl300to500 nad-edge-path" points="-220.63,22.07 -173.60,-1.26 -49.95,6.53"/>
             <g>
                 <g class="nad-edge-label" transform="translate(-49.95,6.53)">
                     <text transform="rotate(3.61)" x="0.00" style="text-anchor:middle">NHV1_NHV2_2</text>
@@ -68,22 +68,22 @@
             <div style="position: absolute; top: -314px; left: -353px" id="1" class="nad-vl0to30 nad-label-box">
                 <div>VLGEN</div>
                 <div class="nad-bus-descr">
-                    <span class="nad-bus-0 nad-legend-square"/> kV / °</div>
+                    <span class="nad-bus-0 nad-legend-square"></span> kV / °</div>
             </div>
             <div style="position: absolute; top: -6px; left: -145px" id="5" class="nad-vl300to500 nad-label-box">
                 <div>VLHV1</div>
                 <div class="nad-bus-descr">
-                    <span class="nad-bus-0 nad-legend-square"/> kV / °</div>
+                    <span class="nad-bus-0 nad-legend-square"></span> kV / °</div>
             </div>
             <div style="position: absolute; top: 19px; left: 240px" id="9" class="nad-vl300to500 nad-label-box">
                 <div>VLHV2</div>
                 <div class="nad-bus-descr">
-                    <span class="nad-bus-0 nad-legend-square"/> kV / °</div>
+                    <span class="nad-bus-0 nad-legend-square"></span> kV / °</div>
             </div>
             <div style="position: absolute; top: -214px; left: 531px" id="13" class="nad-vl120to180 nad-label-box">
                 <div>VLLOAD</div>
                 <div class="nad-bus-descr">
-                    <span class="nad-bus-0 nad-legend-square"/> kV / °</div>
+                    <span class="nad-bus-0 nad-legend-square"></span> kV / °</div>
             </div>
         </div>
     </foreignObject>

@@ -52,6 +52,7 @@
     "powerValuePrecision" : 0,
     "angleValuePrecision" : 1,
     "currentValuePrecision" : 0,
+    "percentageValuePrecision" : 0,
     "edgeInfoDisplayed" : "ACTIVE_POWER",
     "pstArrowHeadSize" : 8.0,
     "undefinedValueSymbol" : "",
@@ -145,10 +146,10 @@
   }, {
     "svgId" : "18",
     "equipmentId" : "NHV1_NHV2_2",
-    "node1" : "4",
-    "node2" : "8",
-    "busNode1" : "7",
-    "busNode2" : "11",
+    "node1" : "8",
+    "node2" : "4",
+    "busNode1" : "11",
+    "busNode2" : "7",
     "type" : "LineEdge",
     "label" : "NHV1_NHV2_2"
   }, {
