@@ -39,6 +39,16 @@ const CssLocationEnumMapping: { [key: string]: CssLocationEnum } = {
     EXTERNAL_NO_IMPORT: CssLocationEnum.EXTERNAL_NO_IMPORT,
 };
 
+const DEFAULT_BASE_VOLTAGE_NAMES = [
+    'vl0to30',
+    'vl30to50',
+    'vl50to70',
+    'vl70to120',
+    'vl120to180',
+    'vl180to300',
+    'vl300to500',
+];
+
 export class SvgParameters {
     static readonly VOLTAGE_LEVEL_CIRCLE_RADIUS_DEFAULT = 30.0;
     static readonly INTER_ANNULUS_SPACE_DEFAULT = 5.0;
@@ -64,11 +74,14 @@ export class SvgParameters {
     static readonly CSS_LOCATION_DEFAULT = CssLocationEnum.EXTERNAL_NO_IMPORT;
     static readonly ARROW_PATH_IN_DEFAULT = 'M-10 -10 H10 L0 10z';
     static readonly ARROW_PATH_OUT_DEFAULT = 'M-10 10 H10 L0 -10z';
+    static readonly CLASSES_PREFIX = 'nad-';
 
     svgParametersMetadata: SvgParametersMetadata | undefined;
+    private readonly baseVoltageNames: string[];
 
-    constructor(svgParametersMetadata: SvgParametersMetadata | undefined) {
+    constructor(svgParametersMetadata: SvgParametersMetadata | undefined, baseVoltageNames?: string[]) {
         this.svgParametersMetadata = svgParametersMetadata;
+        this.baseVoltageNames = baseVoltageNames ?? DEFAULT_BASE_VOLTAGE_NAMES;
     }
 
     public getVoltageLevelCircleRadius(): number {
@@ -169,5 +182,9 @@ export class SvgParameters {
         return this.svgParametersMetadata?.cssLocation
             ? CssLocationEnumMapping[this.svgParametersMetadata?.cssLocation]
             : SvgParameters.CSS_LOCATION_DEFAULT;
+    }
+
+    public getBaseVoltageClasses(): string[] {
+        return this.baseVoltageNames.map((vl: string) => SvgParameters.CLASSES_PREFIX + vl);
     }
 }

@@ -137,19 +137,21 @@ export class NetworkAreaDiagramViewer {
 
     nodeMap: Map<string, NodeMetadata> | null = null;
 
-    static readonly ZOOM_CLASS_PREFIX = 'nad-zoom-';
+    static readonly ZOOM_CLASS_PREFIX = SvgParameters.CLASSES_PREFIX + 'zoom-';
 
     /**
      * @param container - The HTML element that will contain the SVG diagram.
      * @param svgContent - The SVG content to be rendered in the viewer.
      * @param diagramMetadata - Metadata associated with the diagram, including nodes, edges, and other properties.
      * @param nadViewerParametersOptions - Parameters for the network area diagram viewer.
+     * @param baseVoltageNames - Class names of the voltage levels in the svg.
      */
     constructor(
         container: HTMLElement,
         svgContent: string,
         diagramMetadata: DiagramMetadata | null,
-        nadViewerParametersOptions: NadViewerParametersOptions | null
+        nadViewerParametersOptions: NadViewerParametersOptions | null,
+        baseVoltageNames?: string[]
     ) {
         this.container = container;
         this.svgDiv = document.createElement('div');
@@ -172,7 +174,7 @@ export class NetworkAreaDiagramViewer {
         this.zoomLevels = this.nadViewerParameters.getZoomLevels();
         this.zoomLevels.sort((a, b) => b - a);
         this.hoverPositionPrecision = this.nadViewerParameters.getHoverPositionPrecision();
-        this.svgParameters = new SvgParameters(this.diagramMetadata?.svgParameters);
+        this.svgParameters = new SvgParameters(this.diagramMetadata?.svgParameters, baseVoltageNames);
         this.init();
         this.layoutParameters = new LayoutParameters(this.diagramMetadata?.layoutParameters);
         this.previousMaxDisplayedSize = 0;
@@ -1755,6 +1757,17 @@ export class NetworkAreaDiagramViewer {
             return null;
         };
 
+        const getVoltageLevelClassName = (el: HTMLElement | null | undefined): string | null => {
+            console.log('les classes sont : ', this.svgParameters.getBaseVoltageClasses());
+            if (!el) return null;
+            for (const cls of el.classList) {
+                if (this.svgParameters.getBaseVoltageClasses().includes(cls)) {
+                    return cls;
+                }
+            }
+            return null;
+        };
+
         const newTextElement = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
         newTextElement.style.position = 'absolute';
         newTextElement.style.top = node.y + textNode.shiftY + 'px';
@@ -1764,7 +1777,7 @@ export class NetworkAreaDiagramViewer {
         //Retrieve the voltage level's node class from SVG, if it exist.
         //This logic should be replaced once the class name will be in the metadata.
         const nodeElement: HTMLElement | null = this.svgDiv.querySelector("[id='" + textNode.vlNode + "']");
-        const nodeElementClass = getClassNameWithPrefix(nodeElement, 'nad-vl');
+        const nodeElementClass = getVoltageLevelClassName(nodeElement);
         if (nodeElementClass) {
             newTextElement.classList.add(nodeElementClass);
         }
@@ -1785,6 +1798,9 @@ export class NetworkAreaDiagramViewer {
             const busElement: HTMLElement | null | undefined = nodeElement?.querySelector(
                 "[id='" + busNode.svgId + "']"
             );
+            if (nodeElementClass) {
+                newBusLegendElement.classList.add(nodeElementClass);
+            }
             const busElementClass = getClassNameWithPrefix(busElement, 'nad-bus-');
             if (busElementClass) {
                 newBusLegendElement.classList.add(busElementClass);
