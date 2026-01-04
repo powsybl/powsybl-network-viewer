@@ -85,11 +85,26 @@ function getTransformerArrowMatrix(
 
 // get the string for the matrix used for the position of the arrow drawn in a PS transformer
 export function getTransformerArrowMatrixString(
-    rotationAngle: number,
-    transformerCenter: Point,
-    transfomerCircleRadius: number
+    points1: Point[] | undefined,
+    points2: Point[] | undefined,
+    transformerCircleRadius: number
 ): string {
-    const matrix: number[] = getTransformerArrowMatrix(rotationAngle, transformerCenter, transfomerCircleRadius);
+    let rotationAngle = 0;
+    let transformerCenter = new Point(0, 0);
+    if (points1) {
+        const start = points1.at(-2)!;
+        const end = points1.at(-1)!;
+        const shiftEnd = -1.5 * transformerCircleRadius;
+        rotationAngle = getAngle(start, end);
+        transformerCenter = getPointAtDistance(end, start, shiftEnd);
+    } else if (points2) {
+        const start = points2.at(-2)!;
+        const end = points2.at(-1)!;
+        const shiftEnd = -2 * transformerCircleRadius;
+        rotationAngle = getAngle(end, start);
+        transformerCenter = getPointAtDistance(end, start, shiftEnd);
+    }
+    const matrix: number[] = getTransformerArrowMatrix(rotationAngle, transformerCenter, transformerCircleRadius);
     return matrix.map((e) => getFormattedValue(e)).join(',');
 }
 
@@ -256,4 +271,46 @@ export function getSortedAnglesWithWrapAround(traversingBusEdgesAngles: number[]
     const sortedAngles = [...traversingBusEdgesAngles].sort((a, b) => a - b);
     sortedAngles.push(sortedAngles[0] + 2 * Math.PI);
     return sortedAngles;
+}
+
+export function getHalfLoopPath(points: Point[]): string {
+    return (
+        'M' +
+        points[0].x.toFixed(2) +
+        ',' +
+        points[0].y.toFixed(2) +
+        ' L' +
+        points[1].x.toFixed(2) +
+        ',' +
+        points[1].y.toFixed(2) +
+        ' C' +
+        points[2].x.toFixed(2) +
+        ',' +
+        points[2].y.toFixed(2) +
+        ' ' +
+        points[3].x.toFixed(2) +
+        ',' +
+        points[3].y.toFixed(2) +
+        ' ' +
+        points[4].x.toFixed(2) +
+        ',' +
+        points[4].y.toFixed(2)
+    );
+}
+
+export function isHVDCLineEdge(edgeType: EdgeType): boolean {
+    return edgeType == EdgeType.HVDC_LINE_LCC || edgeType == EdgeType.HVDC_LINE_VSC;
+}
+
+export function isDanglingLineEdge(edgeType: EdgeType): boolean {
+    return edgeType == EdgeType.DANGLING_LINE;
+}
+
+// get the points of a converter station of an HVDC line edge
+export function getConverterStationPoints(halfEdgePoints: Point[], converterStationWidth: number): [Point, Point] {
+    const halfWidth = converterStationWidth / 2;
+    const middlePoint = halfEdgePoints.at(-1)!;
+    const point1 = getPointAtDistance(middlePoint, halfEdgePoints.at(-2)!, halfWidth);
+    const point2 = getPointAtDistance(point1, middlePoint, converterStationWidth);
+    return [point1, point2];
 }

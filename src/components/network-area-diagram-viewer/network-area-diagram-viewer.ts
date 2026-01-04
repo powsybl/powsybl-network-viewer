@@ -1331,26 +1331,10 @@ export class NetworkAreaDiagramViewer {
         halfEdge1: HalfEdge | null,
         halfEdge2: HalfEdge | null
     ) {
-        let rotationAngle = 0;
-        let transformerCenter = new Point(0, 0);
-        if (halfEdge1) {
-            const start = halfEdge1.edgePoints.at(-2)!;
-            const end = halfEdge1.edgePoints.at(-1)!;
-            const shiftEnd = -1.5 * this.svgParameters.getTransformerCircleRadius();
-            rotationAngle = DiagramUtils.getAngle(start, end);
-            transformerCenter = DiagramUtils.getPointAtDistance(end, start, shiftEnd);
-        } else if (halfEdge2) {
-            const start = halfEdge2.edgePoints.at(-2)!;
-            const end = halfEdge2.edgePoints.at(-1)!;
-            const shiftEnd = -2 * this.svgParameters.getTransformerCircleRadius();
-            rotationAngle = DiagramUtils.getAngle(end, start);
-            transformerCenter = DiagramUtils.getPointAtDistance(end, start, shiftEnd);
-        }
-
         const arrowPath: SVGGraphicsElement | null = transformerElement.querySelector('path');
         const matrix: string = DiagramUtils.getTransformerArrowMatrixString(
-            rotationAngle,
-            transformerCenter,
+            halfEdge1?.edgePoints,
+            halfEdge2?.edgePoints,
             this.svgParameters.getTransformerCircleRadius()
         );
         arrowPath?.setAttribute('transform', 'matrix(' + matrix + ')');
