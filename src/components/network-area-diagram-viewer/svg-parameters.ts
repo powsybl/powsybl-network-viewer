@@ -38,6 +38,7 @@ const CssLocationEnumMapping: { [key: string]: CssLocationEnum } = {
     EXTERNAL_IMPORTED: CssLocationEnum.EXTERNAL_IMPORTED,
     EXTERNAL_NO_IMPORT: CssLocationEnum.EXTERNAL_NO_IMPORT,
 };
+
 export class SvgParameters {
     static readonly VOLTAGE_LEVEL_CIRCLE_RADIUS_DEFAULT = 30.0;
     static readonly INTER_ANNULUS_SPACE_DEFAULT = 5.0;

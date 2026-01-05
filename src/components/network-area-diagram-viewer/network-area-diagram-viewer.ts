@@ -1756,6 +1756,7 @@ export class NetworkAreaDiagramViewer {
             }
             return null;
         };
+
         const newTextElement = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
         newTextElement.style.position = 'absolute';
         newTextElement.style.top = node.y + textNode.shiftY + 'px';
