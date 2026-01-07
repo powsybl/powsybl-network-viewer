@@ -137,21 +137,19 @@ export class NetworkAreaDiagramViewer {
 
     nodeMap: Map<string, NodeMetadata> | null = null;
 
-    static readonly ZOOM_CLASS_PREFIX = SvgParameters.CLASSES_PREFIX + 'zoom-';
+    static readonly ZOOM_CLASS_PREFIX = 'nad-zoom-';
 
     /**
      * @param container - The HTML element that will contain the SVG diagram.
      * @param svgContent - The SVG content to be rendered in the viewer.
      * @param diagramMetadata - Metadata associated with the diagram, including nodes, edges, and other properties.
      * @param nadViewerParametersOptions - Parameters for the network area diagram viewer.
-     * @param baseVoltageClassPrefix - Class prefix of the voltage levels in the svg.
      */
     constructor(
         container: HTMLElement,
         svgContent: string,
         diagramMetadata: DiagramMetadata | null,
-        nadViewerParametersOptions: NadViewerParametersOptions | null,
-        baseVoltageClassPrefix?: string
+        nadViewerParametersOptions: NadViewerParametersOptions | null
     ) {
         this.container = container;
         this.svgDiv = document.createElement('div');
@@ -174,7 +172,7 @@ export class NetworkAreaDiagramViewer {
         this.zoomLevels = this.nadViewerParameters.getZoomLevels();
         this.zoomLevels.sort((a, b) => b - a);
         this.hoverPositionPrecision = this.nadViewerParameters.getHoverPositionPrecision();
-        this.svgParameters = new SvgParameters(this.diagramMetadata?.svgParameters, baseVoltageClassPrefix);
+        this.svgParameters = new SvgParameters(this.diagramMetadata?.svgParameters);
         this.init();
         this.layoutParameters = new LayoutParameters(this.diagramMetadata?.layoutParameters);
         this.previousMaxDisplayedSize = 0;
@@ -1747,16 +1745,6 @@ export class NetworkAreaDiagramViewer {
             return;
         }
 
-        const getClassNameWithPrefix = (el: HTMLElement | null | undefined, prefix: string): string | null => {
-            if (!el) return null;
-            for (const cls of el.classList) {
-                if (cls.startsWith(prefix)) {
-                    return cls;
-                }
-            }
-            return null;
-        };
-
         const newTextElement = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
         newTextElement.style.position = 'absolute';
         newTextElement.style.top = node.y + textNode.shiftY + 'px';
@@ -1766,10 +1754,9 @@ export class NetworkAreaDiagramViewer {
         //Retrieve the voltage level's node class from SVG, if it exist.
         //This logic should be replaced once the class name will be in the metadata.
         const nodeElement: HTMLElement | null = this.svgDiv.querySelector("[id='" + textNode.vlNode + "']");
-        const nodeElementClass = getClassNameWithPrefix(nodeElement, this.svgParameters.getBaseVoltageClassPrefix());
-        if (nodeElementClass) {
-            newTextElement.classList.add(nodeElementClass);
-        }
+        nodeElement?.classList.forEach((cls) => {
+            newTextElement.classList.add(cls);
+        });
         newTextElement.classList.add('nad-label-box');
 
         this.textNodesSection?.appendChild(newTextElement);
@@ -1787,13 +1774,11 @@ export class NetworkAreaDiagramViewer {
             const busElement: HTMLElement | null | undefined = nodeElement?.querySelector(
                 "[id='" + busNode.svgId + "']"
             );
-            if (nodeElementClass) {
-                newBusLegendElement.classList.add(nodeElementClass);
-            }
-            const busElementClass = getClassNameWithPrefix(busElement, 'nad-bus-');
-            if (busElementClass) {
-                newBusLegendElement.classList.add(busElementClass);
-            }
+            busElement?.classList.forEach((cls) => {
+                if (cls !== 'nad-busnode') {
+                    newBusLegendElement.classList.add(cls);
+                }
+            });
             newBusLegendElement.classList.add('nad-legend-square');
 
             const textNode = document.createTextNode(busNode.legend ?? '');
