@@ -1233,9 +1233,9 @@ export class NetworkAreaDiagramViewer {
             this.redrawConverterStation(edgeNode, halfEdge1, halfEdge2);
         }
 
-        // if present, move edge name
+        // if present, move edge label
         if (edge.edgeInfoMiddle) {
-            this.updateEdgeName(edge.edgeInfoMiddle, halfEdge1, halfEdge2);
+            this.updateEdgeLabel(edge.edgeInfoMiddle, halfEdge1, halfEdge2);
         }
     }
 
@@ -1402,7 +1402,7 @@ export class NetworkAreaDiagramViewer {
         });
     }
 
-    private updateEdgeName(edgeInfo: EdgeInfoMetadata, halfEdge1: HalfEdge | null, halfEdge2: HalfEdge | null) {
+    private updateEdgeLabel(edgeInfo: EdgeInfoMetadata, halfEdge1: HalfEdge | null, halfEdge2: HalfEdge | null) {
         const positionElement: SVGGraphicsElement | null = this.getEdgeInfo(edgeInfo.svgId) as SVGGraphicsElement;
 
         if (!positionElement) return;
