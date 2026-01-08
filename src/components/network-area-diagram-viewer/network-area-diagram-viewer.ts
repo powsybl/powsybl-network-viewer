@@ -1719,16 +1719,6 @@ export class NetworkAreaDiagramViewer {
             return;
         }
 
-        const getClassNameWithPrefix = (el: HTMLElement | null | undefined, prefix: string): string | null => {
-            if (!el) return null;
-            for (const cls of el.classList) {
-                if (cls.startsWith(prefix)) {
-                    return cls;
-                }
-            }
-            return null;
-        };
-
         const newTextElement = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
         newTextElement.style.position = 'absolute';
         newTextElement.style.top = node.y + textNode.shiftY + 'px';
@@ -1738,10 +1728,9 @@ export class NetworkAreaDiagramViewer {
         //Retrieve the voltage level's node class from SVG, if it exist.
         //This logic should be replaced once the class name will be in the metadata.
         const nodeElement: HTMLElement | null = this.svgDiv.querySelector("[id='" + textNode.vlNode + "']");
-        const nodeElementClass = getClassNameWithPrefix(nodeElement, 'nad-vl');
-        if (nodeElementClass) {
-            newTextElement.classList.add(nodeElementClass);
-        }
+        nodeElement?.classList.forEach((cls) => {
+            newTextElement.classList.add(cls);
+        });
         newTextElement.classList.add('nad-label-box');
 
         this.textNodesSection?.appendChild(newTextElement);
@@ -1759,10 +1748,11 @@ export class NetworkAreaDiagramViewer {
             const busElement: HTMLElement | null | undefined = nodeElement?.querySelector(
                 "[id='" + busNode.svgId + "']"
             );
-            const busElementClass = getClassNameWithPrefix(busElement, 'nad-bus-');
-            if (busElementClass) {
-                newBusLegendElement.classList.add(busElementClass);
-            }
+            busElement?.classList.forEach((cls) => {
+                if (cls !== 'nad-busnode') {
+                    newBusLegendElement.classList.add(cls);
+                }
+            });
             newBusLegendElement.classList.add('nad-legend-square');
 
             const textNode = document.createTextNode(busNode.legend ?? '');
