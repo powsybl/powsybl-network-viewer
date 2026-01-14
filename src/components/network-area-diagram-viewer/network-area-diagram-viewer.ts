@@ -1669,8 +1669,34 @@ export class NetworkAreaDiagramViewer {
         return map;
     }
 
+    private computeVisibleArea(): ViewBox | undefined {
+        // compute the visible area box, considering that it may extend beyond the viewBox
+        // if the container and the viewBox have different aspect ratio
+
+        const vbox = this.getViewBox();
+        if (!vbox) return;
+        const containerWidth = this.getWidth();
+        const containerHeight = this.getHeight();
+
+        if (vbox.width == 0 || vbox.height == 0 || containerWidth == 0 || containerHeight == 0) return;
+
+        const scaleWidth = containerWidth / vbox.width;
+        const scaleHeight = containerHeight / vbox.height;
+        const scale = Math.min(scaleWidth, scaleHeight);
+
+        const dx = (containerWidth / scale - vbox.width) / 2;
+        const dy = (containerHeight / scale - vbox.height) / 2;
+
+        return {
+            x: vbox.x - dx,
+            y: vbox.y - dy,
+            width: vbox.width + dx * 2,
+            height: vbox.height + dy * 2,
+        };
+    }
+
     private getElementsInViewbox(tolerance = 0) {
-        const viewBox = this.getViewBox();
+        const viewBox = this.computeVisibleArea();
         const metadata = this.diagramMetadata;
         if (!viewBox || !metadata) {
             return { nodes: [], edges: [] };
