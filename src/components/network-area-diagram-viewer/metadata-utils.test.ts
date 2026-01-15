@@ -6,7 +6,7 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 
-import { Point, SVG } from '@svgdotjs/svg.js';
+import { Point } from '@svgdotjs/svg.js';
 import {
     BusNodeMetadata,
     DiagramPaddingMetadata,
@@ -37,8 +37,6 @@ test('getNodeRadius', () => {
         cssLocation: '',
         currentValuePrecision: 0,
         diagramPadding: diagramPaddingMetadata,
-        edgeInfoDisplayed: '',
-        edgeNameDisplayed: false,
         edgesForkAperture: 0,
         edgesForkLength: 0,
         insertNameDesc: false,
@@ -50,9 +48,27 @@ test('getNodeRadius', () => {
         voltageValuePrecision: 0,
         voltageLevelCircleRadius: 30,
         fictitiousVoltageLevelCircleRadius: 15,
-        loopEdgesAperture: 60,
-        loopDistance: 120,
-        loopControlDistance: 40,
+        svgWidthAndHeightAdded: false,
+        sizeConstraint: '',
+        fixedWidth: 0,
+        fixedHeight: 0,
+        fixedScale: 0,
+        edgeStartShift: 0,
+        loopDistance: 0,
+        loopEdgesAperture: 0,
+        loopControlDistance: 0,
+        edgeInfoAlongEdge: false,
+        svgPrefix: '',
+        languageTag: '',
+        percentageValuePrecision: 0,
+        pstArrowHeadSize: 0,
+        undefinedValueSymbol: '',
+        highlightGraph: false,
+        injectionAperture: 0,
+        injectionEdgeLength: 0,
+        injectionCircleRadius: 0,
+        voltageLevelLegendsIncluded: false,
+        edgeInfosIncluded: false,
     };
     const svgParameters = new SvgParameters(svgParametersMetadata);
 
@@ -379,6 +395,7 @@ test('getBendableLines', () => {
             node2: '0',
             busNode1: '39',
             busNode2: '5',
+            invisible2: true,
             type: 'LineEdge',
         },
         {
@@ -388,6 +405,7 @@ test('getBendableLines', () => {
             node2: '41',
             busNode1: '5',
             busNode2: '44',
+            invisible1: true,
             type: 'LineEdge',
         },
         {
@@ -410,8 +428,7 @@ test('getBendableLines', () => {
         },
     ];
 
-    const svg = getSvgStraightLineEdge();
-    const lines = MetadataUtils.getBendableLines(edges, svg);
+    const lines = MetadataUtils.getBendableLines(edges);
     expect(lines.length).toBe(1);
     expect(lines[0].svgId).toBe('181');
 });
@@ -575,40 +592,3 @@ test('getEdgeType', () => {
     expect(MetadataUtils.getEdgeType(edge)).toBe(EdgeType.TWO_WINDINGS_TRANSFORMER);
     expect(MetadataUtils.getStringEdgeType(edge)).toBe('TWO_WINDINGS_TRANSFORMER');
 });
-
-function getSvgStraightLineEdge(): SVGGraphicsElement {
-    const halfEdgeSvg = `
-<svg>
-    <g class='nad-vl-nodes'>
-        <g transform='translate(640.93,-338.93)' id='0' class='nad-vl70to120'>
-            <circle r='27.50' id='6' class='nad-bus-1 nad-busnode'></circle>
-            <path
-                d='M32.270,-47.591 A57.500,57.500 166.672 0 1 -20.431,53.748 L-8.447,31.383 A32.500,32.500 -155.175 0 0 20.842,-24.937 Z M-33.602,46.660 A57.500,57.500 42.107 0 1 -56.216,12.086 L-30.930,9.979 A32.500,32.500 -30.610 0 0 -21.539,24.338 Z M-57.210,-5.770 A57.500,57.500 103.434 0 1 18.904,-54.304 L7.557,-31.609 A32.500,32.500 -91.937 0 0 -31.847,-6.484 Z '
-                id='5' class='nad-bus-0 nad-busnode'></path>
-        </g>
-        <g transform='translate(-181.31,169.17)' id='21' class='nad-vl0to30'>
-            <circle r='27.50' id='24' class='nad-bus-0 nad-busnode'></circle>
-            <path
-                d='M-55.577,-14.744 A57.500,57.500 45.053 0 1 -28.827,-49.752 L-19.028,-26.347 A32.500,32.500 -33.556 0 0 -30.421,-11.438 Z M-15.020,-55.504 A57.500,57.500 35.955 0 1 20.431,-53.748 L8.447,-31.383 A32.500,32.500 -24.457 0 0 -5.304,-32.064 Z M33.602,-46.660 A57.500,57.500 223.110 1 1 -56.418,11.100 L-31.100,9.437 A32.500,32.500 -211.613 1 0 21.539,-24.338 Z '
-                id='25' class='nad-bus-1 nad-busnode'></path>
-        </g>
-        <g transform='translate(-665.51,200.12)' id='26' class='nad-vl0to30'>
-            <circle r='27.50' id='29' class='nad-bus-0 nad-busnode'></circle>
-        </g>
-    </g>
-    <g class='nad-branch-edges'>
-        <g id='100'>
-            <polyline class='nad-vl70to120 nad-edge-path' points='697.43,-328.22 907.50,-288.39'></polyline>
-        </g>
-        <g id='103'>
-            <polyline class='nad-vl70to120 nad-edge-path' points='690.34,-368.34 919.41,-504.71'></polyline>
-        </g>
-        <g id='181'>
-            <polyline class='nad-vl0to30 nad-edge-path' points='-208.75,170.93 -423.41,184.65'></polyline>
-            <polyline class='nad-vl0to30 nad-edge-path' points='-638.07,198.37 -423.41,184.65'></polyline>
-        </g>
-    </g>
-</svg>
-    `;
-    return <SVGGraphicsElement>SVG().svg(halfEdgeSvg).node.firstElementChild?.firstElementChild;
-}

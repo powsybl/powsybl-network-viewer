@@ -31,9 +31,10 @@ const EdgeTypeMapping: { [key: string]: EdgeType } = {
     DanglingLineEdge: EdgeType.DANGLING_LINE,
     TieLineEdge: EdgeType.TIE_LINE,
     ThreeWtEdge: EdgeType.THREE_WINDINGS_TRANSFORMER,
+    ThreeWtPstEdge: EdgeType.THREE_WINDINGS_PHASE_SHIFT_TRANSFORMER,
 };
 
-export function getBendableLines(edges: EdgeMetadata[] | undefined, svg: SVGElement | undefined): EdgeMetadata[] {
+export function getBendableLines(edges: EdgeMetadata[] | undefined): EdgeMetadata[] {
     // group edges by edge ends
     const groupedEdges: Map<string, EdgeMetadata[]> = new Map<string, EdgeMetadata[]>();
     for (const edge of edges ?? []) {
@@ -60,23 +61,17 @@ export function getBendableLines(edges: EdgeMetadata[] | undefined, svg: SVGElem
         if (getEdgeType(edge) != EdgeType.LINE) continue;
 
         // exclude half-visible lines
-        if (getInvisibleSide(edge, svg)) continue;
+        if (getInvisibleSide(edge)) continue;
 
         lines.push(edge);
     }
     return lines;
 }
 
-export function getInvisibleSide(edge: EdgeMetadata, svg: SVGElement | undefined): string | undefined {
-    const node1Element = svg?.querySelector('[id="' + edge.node1 + '"]');
-    if (!node1Element) {
-        return '1';
-    }
-
-    const node2Element = svg?.querySelector('[id="' + edge.node2 + '"]');
-    if (!node2Element) {
-        return '2';
-    }
+export function getInvisibleSide(edge: EdgeMetadata): string | undefined {
+    if (edge?.invisible1) return '1';
+    if (edge?.invisible2) return '2';
+    return undefined;
 }
 
 // insert a point in the edge point list
@@ -368,15 +363,10 @@ function addBusNodeEdge(busNodeId: string, edge: EdgeMetadata, busNodeEdges: Map
 export function isThreeWtEdge(edge: EdgeMetadata): boolean {
     const edgeType = getEdgeType(edge);
     return (
-        edgeType == EdgeType.THREE_WINDINGS_TRANSFORMER ||
-        (edgeType == EdgeType.PHASE_SHIFT_TRANSFORMER && edge.node2 == edge.busNode2)
+        edgeType == EdgeType.THREE_WINDINGS_TRANSFORMER || edgeType == EdgeType.THREE_WINDINGS_PHASE_SHIFT_TRANSFORMER
     );
 }
 
 export function getThreeWtEdges(edges: EdgeMetadata[]): EdgeMetadata[] {
-    return edges.filter(
-        (edge) =>
-            getEdgeType(edge) == EdgeType.THREE_WINDINGS_TRANSFORMER ||
-            (getEdgeType(edge) == EdgeType.PHASE_SHIFT_TRANSFORMER && edge.node2 == edge.busNode2)
-    );
+    return edges.filter((edge) => isThreeWtEdge(edge));
 }

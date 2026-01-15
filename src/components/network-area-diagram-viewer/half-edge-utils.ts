@@ -6,7 +6,7 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 
-import { Point } from '@svgdotjs/svg.js';
+import { Point, Matrix } from '@svgdotjs/svg.js';
 import { SvgParameters } from './svg-parameters';
 import { BusNodeMetadata, DiagramMetadata, EdgeMetadata, NodeMetadata, PointMetadata } from './diagram-metadata';
 import {
@@ -23,6 +23,7 @@ import {
 } from './diagram-utils';
 import { getBusNodeMetadata, getEdgePoints, getEdgeType, getNodeMetadata, getNodeRadius } from './metadata-utils';
 import { HalfEdge } from './diagram-types';
+import { getPathPoints, getTransform } from './svg-utils';
 
 // get the angle between first two points of a halfEdge
 export function getEdgeStartAngle(halfEdge: HalfEdge): number {
@@ -267,6 +268,65 @@ export function getHalfEdges(
         voltageLevelRadius: nodeRadius2.voltageLevelRadius,
         edgeInfoId: edge.edgeInfo2?.svgId,
         edgePoints: edgePoints[1],
+    };
+    return [halfEdge1, halfEdge2];
+}
+
+export function getHalfEdgesLoop(
+    edge: EdgeMetadata,
+    diagramMetadata: DiagramMetadata | null,
+    element: SVGGraphicsElement | null,
+    svgParameters: SvgParameters
+): HalfEdge[] | null[] {
+    if (!element) {
+        return [null, null];
+    }
+
+    const node1 = getNodeMetadata(edge.node1, diagramMetadata);
+    const node2 = getNodeMetadata(edge.node2, diagramMetadata);
+
+    if (node1 != node2) {
+        return [null, null];
+    }
+
+    const busNode1 = getBusNodeMetadata(edge.busNode1, diagramMetadata);
+    const busNode2 = getBusNodeMetadata(edge.busNode2, diagramMetadata);
+    const nodeRadius1 = getNodeRadius(busNode1, node1, svgParameters);
+    const nodeRadius2 = getNodeRadius(busNode2, node2, svgParameters);
+
+    const paths = element.getElementsByTagName('path');
+    const path1 = paths.length > 0 ? paths[0].getAttribute('d') : null;
+    const path2 = paths.length > 1 ? paths[1].getAttribute('d') : null;
+
+    const pathPoints1 = getPathPoints(path1) ?? [];
+    const pathPoints2 = getPathPoints(path2) ?? [];
+
+    // if a transform exists in the SVG edge's element, apply it to the path's points, too.
+    const transform = getTransform(element);
+    if (transform) {
+        const svgTransformMatrix = new Matrix(transform.matrix);
+        for (const points of [pathPoints1, pathPoints2]) {
+            for (let i = 0; i < points.length; i++) {
+                points[i] = points[i].transform(svgTransformMatrix);
+            }
+        }
+    }
+
+    const halfEdge1: HalfEdge = {
+        side: '1',
+        fork: false,
+        busOuterRadius: nodeRadius1.busOuterRadius,
+        voltageLevelRadius: nodeRadius1.voltageLevelRadius,
+        edgeInfoId: edge.edgeInfo1?.svgId,
+        edgePoints: pathPoints1,
+    };
+    const halfEdge2: HalfEdge = {
+        side: '2',
+        fork: false,
+        busOuterRadius: nodeRadius2.busOuterRadius,
+        voltageLevelRadius: nodeRadius2.voltageLevelRadius,
+        edgeInfoId: edge.edgeInfo2?.svgId,
+        edgePoints: pathPoints2,
     };
     return [halfEdge1, halfEdge2];
 }

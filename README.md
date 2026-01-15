@@ -33,16 +33,41 @@ To fix this, run this command from the app **after** running "npm install"
 
 #### For integrators
 
+(Optional) [Test your package from library dependent directory](https://docs.npmjs.com/creating-and-publishing-scoped-public-packages#testing-your-package)
+
 If you want to deploy a new version of powsybl-network-viewer in the [NPM package registry](https://www.npmjs.com/package/@powsybl/powsybl-network-viewer),
 you need to follow the steps below:
 
-- [Make a release action](https://github.com/powsybl/powsybl-network-viewer/actions/workflows/release.yml)
-- In the 'run workflow' combobox select, let the branch on main
-- Enter the type of evolution (major | minor | patch)
-- Enter your NPM access token (it must be an **automation** access token to bypass 2FA, see the [access token documentation](https://docs.npmjs.com/creating-and-viewing-access-tokens) for details)
-- Click 'run workflow'
+---
+##### 1/ Prepare released version
+-   Update to the new version in both packages (example `3.2.0`):  
+    `npm --workspaces --include-workspace-root --no-git-tag-version version 3.2.0`    
+    **Remarks**: without `--no-git-tag-version` the commit doesn't contain both package.json and the complete package-lock.json files then we do it manually next
+-   Commit the package.json and package-lock.json files, push to a branch, make a PR, have it reviewed and merged to main with title `Bump to 3.2.0`.
+-   Pull and checkout main on your last commit.
+-   [Tag (with -s signed) your last commit](https://semver.org/) :    
+`git tag -s <tag>` (example: `git tag -s v3.2.0`)
+-   Push tag :    
+`git push origin <tag>`  
+---
+##### 2/ Publish version
+-   Checkout the tag in a fresh repo copy :    
+`cd $(mktemp -d) && git clone https://github.com/powsybl/powsybl-network-viewer.git` then `cd powsybl-network-viewer && git checkout <tag>`
+-   Install your packages:    
+`npm install --workspaces --include-workspace-root`  
+-   Build the packages - npm will publish the README.md, the package.json files and the dist directory you just generate :    
+`npm run build:all`
+-   [Login on the command line to the npm registry](https://docs.npmjs.com/logging-in-to-an-npm-enterprise-registry-from-the-command-line):   
+`npm login`
+-   [Publish the package](https://docs.npmjs.com/creating-and-publishing-scoped-public-packages#publishing-scoped-public-packages):    
+`npm run publish:all`
+---
+##### 3/ Prepare next version
+-   Update to the next version in both packages (example `3.3.0-dev.0`):  
+    `npm --workspaces --include-workspace-root --no-git-tag-version version 3.3.0-dev.0`
+-   Commit the package.json and package-lock.json files, push to a branch, make a PR, have it reviewed and merge to main  with title `Bump to 3.3.0-dev.0`.
 
-Notes :
+### Notes :
 
 - Check [license-checker-config.json](license-checker-config.json) for license white list and exclusion.
   If you need to update this list, please inform organization's owners.

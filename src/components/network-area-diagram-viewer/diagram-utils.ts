@@ -226,13 +226,14 @@ export function getTextEdgeEnd(
 }
 
 // get edge info element class, based on type
-export function getEdgeInfoClass(edgeInfoType: string): string | null {
+export function getEdgeInfoClass(edgeInfoType: string | undefined): string | null {
     const classMap: Record<string, string> = {
         ActivePower: 'nad-active',
         ReactivePower: 'nad-reactive',
         Current: 'nad-current',
+        Name: 'nad-name',
     };
-    return classMap[edgeInfoType];
+    return edgeInfoType ? classMap[edgeInfoType] : null;
 }
 
 // get arrow element direction, based on p value

@@ -23,7 +23,6 @@ function getButton(inputImg: string, title: string, size: string): HTMLButtonEle
     button.style.height = size;
     button.style.width = size;
     button.style.padding = '0px';
-    button.style.border = 'none';
     button.style.display = 'flex';
     button.style.alignItems = 'center';
     button.style.justifyContent = 'center';
