@@ -183,22 +183,10 @@ export class SvgWriter {
             gEdgeElement.appendChild(this.getHalfEdge(edge, halfEdgePoints2));
         }
         if (DiagramUtils.isTransformerEdge(edgeType) && (halfEdgePoints1 || halfEdgePoints2)) {
-            const gTranformerElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-            if (halfEdgePoints1) {
-                gTranformerElement.appendChild(this.getTransformerWinding(halfEdgePoints1));
-            }
-            if (halfEdgePoints2) {
-                gTranformerElement.appendChild(this.getTransformerWinding(halfEdgePoints2));
-            }
-            if (edgeType == EdgeType.PHASE_SHIFT_TRANSFORMER) {
-                gTranformerElement.appendChild(this.getTransformerArrow(halfEdgePoints1, halfEdgePoints2));
-            }
-            gEdgeElement.appendChild(gTranformerElement);
+            gEdgeElement.appendChild(this.getTransformer(halfEdgePoints1, halfEdgePoints2, edgeType));
         }
         if (DiagramUtils.isHVDCLineEdge(edgeType) && halfEdgePoints1) {
-            const gHVDCLineElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-            gHVDCLineElement.appendChild(this.getHVDCLine(halfEdgePoints1));
-            gEdgeElement.appendChild(gHVDCLineElement);
+            gEdgeElement.appendChild(this.getHVDCLine(halfEdgePoints1));
         }
         return gEdgeElement;
     }
@@ -215,6 +203,24 @@ export class SvgWriter {
             polylineElement.setAttribute('points', DiagramUtils.getFormattedPolyline(points));
             return polylineElement;
         }
+    }
+
+    private getTransformer(
+        points1: Point[] | undefined,
+        points2: Point[] | undefined,
+        edgeType: EdgeType
+    ): SVGGElement {
+        const gTranformerElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        if (points1) {
+            gTranformerElement.appendChild(this.getTransformerWinding(points1));
+        }
+        if (points2) {
+            gTranformerElement.appendChild(this.getTransformerWinding(points2));
+        }
+        if (edgeType == EdgeType.PHASE_SHIFT_TRANSFORMER) {
+            gTranformerElement.appendChild(this.getTransformerArrow(points1, points2));
+        }
+        return gTranformerElement;
     }
 
     private getTransformerWinding(points: Point[]): SVGCircleElement {
@@ -247,12 +253,14 @@ export class SvgWriter {
         return arrowPathElement;
     }
 
-    private getHVDCLine(points: Point[]): SVGPolylineElement {
+    private getHVDCLine(points: Point[]): SVGGElement {
+        const gHVDCLineElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
         const polylineElement = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
         polylineElement.classList.add(SvgWriter.HVDC_CLASS);
         const csPoints = DiagramUtils.getConverterStationPoints(points, this.svgParameters.getConverterStationWidth());
         polylineElement.setAttribute('points', DiagramUtils.getFormattedPolyline(csPoints));
-        return polylineElement;
+        gHVDCLineElement.appendChild(polylineElement);
+        return gHVDCLineElement;
     }
 
     private getThreeWtEdges(threeWtEdges: EdgeMetadata[]): SVGGElement {
