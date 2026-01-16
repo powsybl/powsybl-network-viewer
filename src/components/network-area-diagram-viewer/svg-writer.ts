@@ -80,7 +80,9 @@ export class SvgWriter {
         gNodesElement.classList.add(SvgWriter.NODES_CLASS);
         // add nodes
         this.diagramMetadata.nodes.forEach((node) => {
-            gNodesElement.appendChild(this.getNode(node));
+            if (!node.invisible) {
+                gNodesElement.appendChild(this.getNode(node));
+            }
         });
         return gNodesElement;
     }
@@ -173,11 +175,11 @@ export class SvgWriter {
             gEdgeElement.classList.add(SvgWriter.DANGLING_LINE_EDGE_CLASS);
         }
         const halfEdgePoints1 = this.edgeRouter?.getEdgePoints(edge.svgId, '1');
-        if (halfEdgePoints1) {
+        if (halfEdgePoints1 && !edge.invisible1) {
             gEdgeElement.appendChild(this.getHalfEdge(edge, halfEdgePoints1));
         }
         const halfEdgePoints2 = this.edgeRouter?.getEdgePoints(edge.svgId, '2');
-        if (halfEdgePoints2) {
+        if (halfEdgePoints2 && !edge.invisible2) {
             gEdgeElement.appendChild(this.getHalfEdge(edge, halfEdgePoints2));
         }
         if (DiagramUtils.isTransformerEdge(edgeType) && (halfEdgePoints1 || halfEdgePoints2)) {
