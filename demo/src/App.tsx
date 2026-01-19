@@ -7,6 +7,8 @@
 
 import { useEffect, useRef } from 'react';
 import { createTheme, StyledEngineProvider, ThemeProvider } from '@mui/material/styles';
+import { IntlProvider } from 'react-intl';
+import { DEFAULT_INTL_CONFIG } from 'react-intl/src/utils';
 import { GeoData, type MapEquipment, MapEquipments, NetworkMap, type NetworkMapRef } from '../../src';
 
 import { addNadToDemo, addSldToDemo } from './diagram-viewers/add-diagrams';
@@ -35,20 +37,6 @@ export default function App() {
         palette: {
             mode: 'dark',
         },
-        // @ts-expect-error: TODO not present in ThemeOptions
-        link: {
-            color: 'green',
-        },
-        node: {
-            background: '#1976d2',
-            hover: '#90caf9',
-            border: '#cce3f9',
-        },
-        selectedRow: {
-            background: '#545C5B',
-        },
-        mapboxStyle: 'mapbox://styles/mapbox/dark-v9',
-        aggrid: 'ag-theme-alpine-dark',
     });
 
     //declare data to be displayed: coordinates and network data
@@ -78,58 +66,83 @@ export default function App() {
             <header className="App-header"></header>
             <StyledEngineProvider injectFirst>
                 <ThemeProvider theme={darkTheme}>
-                    <div
-                        style={{
-                            position: 'relative',
-                            width: 1000,
-                            height: 1000,
-                        }}
-                    >
-                        <NetworkMap
-                            ref={networkMapRef}
-                            mapEquipments={mapEquipments}
-                            geoData={geoData}
-                            labelsZoomThreshold={LABELS_ZOOM_THRESHOLD}
-                            arrowsZoomThreshold={ARROWS_ZOOM_THRESHOLD}
-                            initialZoom={INITIAL_ZOOM}
-                            useName={useName}
-                            onSubstationClick={(vlId) => {
-                                console.log('# OpenVoltageLevel: ' + vlId);
+                    {/* repeat locale here just to avoid typescript errors and the following error logs in the console
+                     Error: [@formatjs/intl Error INVALID_CONFIG] "locale" was not configured, using "en" as fallback */}
+                    <IntlProvider locale={DEFAULT_INTL_CONFIG.defaultLocale}>
+                        <div
+                            style={{
+                                position: 'relative',
+                                width: 1000,
+                                height: 1000,
                             }}
-                            onSubstationClickChooseVoltageLevel={(idSubstation, x, y) =>
-                                console.log(
-                                    `# Choose Voltage Level for substation: ${idSubstation}  at coordinates (${x}, ${y})`
-                                )
-                            }
-                            onSubstationMenuClick={(equipment, x, y) =>
-                                showEquipmentMenu(equipment, x, y, 'substation')
-                            }
-                            onLineMenuClick={(equipment, x, y) => showEquipmentMenu(equipment, x, y, 'line')}
-                            onVoltageLevelMenuClick={(equipment, x, y) => {
-                                console.log(
-                                    `# VoltageLevel menu click: ${JSON.stringify(
-                                        equipment
-                                    )} at coordinates (${x}, ${y})`
-                                );
-                            }}
-                            mapLibrary={'cartonolabel'}
-                            mapTheme={'dark'}
-                            filteredNominalVoltages={filteredNominalVoltages}
-                            onDrawPolygonModeActive={(active) => {
-                                console.log('polygon drawing mode active: ', active ? 'active' : 'inactive');
-                            }}
-                            onPolygonChanged={() => {
-                                console.log(
-                                    'Selected Substations: ',
-                                    networkMapRef.current?.getSelectedSubstations().length
-                                );
-                                console.log('Selected Lines: ', networkMapRef.current?.getSelectedLines().length);
-                            }}
-                        />
-                        <button onClick={() => networkMapRef.current?.resetZoomAndPosition()}>
-                            Reset zoom and position
-                        </button>
-                    </div>
+                        >
+                            <NetworkMap
+                                ref={networkMapRef}
+                                mapEquipments={mapEquipments}
+                                geoData={geoData}
+                                labelsZoomThreshold={LABELS_ZOOM_THRESHOLD}
+                                arrowsZoomThreshold={ARROWS_ZOOM_THRESHOLD}
+                                initialZoom={INITIAL_ZOOM}
+                                useName={useName}
+                                onSubstationClick={(vlId) => {
+                                    console.log('# OpenVoltageLevel: ' + vlId);
+                                }}
+                                onSubstationClickChooseVoltageLevel={(idSubstation, x, y) =>
+                                    console.log(
+                                        `# Choose Voltage Level for substation: ${idSubstation}  at coordinates (${x}, ${y})`
+                                    )
+                                }
+                                onSubstationMenuClick={(equipment, x, y) =>
+                                    showEquipmentMenu(equipment, x, y, 'substation')
+                                }
+                                onLineMenuClick={(equipment, x, y) => showEquipmentMenu(equipment, x, y, 'line')}
+                                onVoltageLevelMenuClick={(equipment, x, y) => {
+                                    console.log(
+                                        `# VoltageLevel menu click: ${JSON.stringify(
+                                            equipment
+                                        )} at coordinates (${x}, ${y})`
+                                    );
+                                }}
+                                mapLibrary={'cartonolabel'}
+                                mapTheme={'dark'}
+                                filteredNominalVoltages={filteredNominalVoltages}
+                                onDrawPolygonModeActive={(active) => {
+                                    console.log('polygon drawing mode active: ', active ? 'active' : 'inactive');
+                                }}
+                                onPolygonChanged={() => {
+                                    console.log(
+                                        'Selected Substations: ',
+                                        networkMapRef.current?.getSelectedSubstations().length
+                                    );
+                                    console.log('Selected Lines: ', networkMapRef.current?.getSelectedLines().length);
+                                }}
+                                renderPopover={(lineId) => {
+                                    return (
+                                        <div
+                                            style={{
+                                                display: 'block',
+                                                color: 'black',
+                                                backgroundColor: 'white',
+                                                padding: '15px',
+                                                fontSize: '16px',
+                                            }}
+                                        >
+                                            <div>LINE id: {lineId}</div>
+                                        </div>
+                                    );
+                                }}
+                                getNominalVoltageColor={(nominalVoltage: number) => {
+                                    if (nominalVoltage >= 200) {
+                                        return [255, 0, 0]; // Red for high voltage
+                                    }
+                                    return [0, 0, 255]; // Blue for others
+                                }}
+                            />
+                            <button onClick={() => networkMapRef.current?.resetZoomAndPosition()}>
+                                Reset zoom and position
+                            </button>
+                        </div>
+                    </IntlProvider>
                 </ThemeProvider>
             </StyledEngineProvider>
         </div>

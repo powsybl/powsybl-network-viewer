@@ -4,20 +4,25 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-import { type DefaultProps, picking, project32 } from '@deck.gl/core';
-import GL from '@luma.gl/constants';
-import { FEATURES, Geometry, hasFeatures, isWebGL2, Model, Texture2D } from '@luma.gl/core';
+
+import { GL } from '@luma.gl/constants';
+import { Geometry, Model } from '@luma.gl/engine';
+import { Device, RenderPass, Texture, TextureFormat, TextureProps, UniformValue } from '@luma.gl/core';
+
 import {
     type Accessor,
     type Color,
+    DefaultProps,
     Layer,
     type LayerContext,
     type LayerProps,
+    picking,
     type Position,
+    project32,
     type UpdateParameters,
-} from 'deck.gl';
-import { type UniformValues } from 'maplibre-gl';
-import { type MapAnyLineWithType } from '../../../../equipment-types';
+} from '@deck.gl/core';
+import { type MapAnyLineWithType } from '../../equipment-types';
+
 import vs from './arrow-layer-vertex.vert?raw';
 import fs from './arrow-layer-fragment.frag?raw';
 
@@ -67,7 +72,6 @@ type _ArrowLayerProps = {
     maxParallelOffset?: number;
     /** min pixel distance */
     minParallelOffset?: number;
-    opacity?: number;
 } & LayerProps;
 export type ArrowLayerProps = _ArrowLayerProps & LayerProps;
 
@@ -85,11 +89,9 @@ const defaultProps: DefaultProps<ArrowLayerProps> = {
     animated: { type: 'boolean', value: true },
     getLineParallelIndex: { type: 'accessor', value: 0 },
     getLineAngles: { type: 'accessor', value: [0, 0, 0] },
-    // @ts-expect-error TODO TS2322: distanceBetweenLines does not exist in type DefaultProps<ArrowLayerProps>. Did you mean to write getDistanceBetweenLines?
-    distanceBetweenLines: { type: 'number', value: 1000 },
     maxParallelOffset: { type: 'number', value: 100 },
     minParallelOffset: { type: 'number', value: 3 },
-    opacity: { type: 'number', value: 1.0 },
+    // opacity prop is handled at the layer level for visually proportional perception https://deck.gl/docs/api-reference/core/layer#opacity
 };
 
 /**
@@ -104,14 +106,13 @@ export default class ArrowLayer extends Layer<Required<_ArrowLayerProps>> {
     static readonly defaultProps = defaultProps;
 
     declare state: {
-        linePositionsTexture?: Texture2D;
-        lineDistancesTexture?: Texture2D;
+        linePositionsTexture?: Texture;
+        lineDistancesTexture?: Texture;
         lineAttributes?: Map<MapAnyLineWithType, LineAttributes>;
         model?: Model;
         timestamp?: number;
         stop?: boolean;
         maxTextureSize: number;
-        webgl2: boolean;
     };
 
     override getShaders() {
@@ -130,22 +131,16 @@ export default class ArrowLayer extends Layer<Required<_ArrowLayerProps>> {
         return attributes;
     }
 
-    override initializeState() {
-        const { gl } = this.context;
-
-        if (!hasFeatures(gl, [FEATURES.TEXTURE_FLOAT])) {
-            throw new Error('Arrow layer not supported on this browser');
-        }
-
-        const maxTextureSize = gl.getParameter(GL.MAX_TEXTURE_SIZE) as number;
+    override initializeState({ device }: LayerContext) {
+        const maxTextureSize = device.limits.maxTextureDimension2D;
         this.state = {
             maxTextureSize,
-            webgl2: isWebGL2(gl),
         };
 
         this.getAttributeManager()?.addInstanced({
             instanceSize: {
                 size: 1,
+                type: 'float32',
                 transition: true,
                 accessor: 'getSize',
                 defaultValue: 1,
@@ -153,13 +148,13 @@ export default class ArrowLayer extends Layer<Required<_ArrowLayerProps>> {
             instanceColor: {
                 size: this.props.colorFormat.length,
                 transition: true,
-                normalized: true,
-                type: GL.UNSIGNED_BYTE,
+                type: 'unorm8', // normalized: true,
                 accessor: 'getColor',
                 defaultValue: [0, 0, 0, 255],
             },
             instanceSpeedFactor: {
                 size: 1,
+                type: 'float32',
                 transition: true,
                 accessor: 'getSpeedFactor',
                 defaultValue: 1.0,
@@ -168,11 +163,12 @@ export default class ArrowLayer extends Layer<Required<_ArrowLayerProps>> {
                 size: 1,
                 transition: true,
                 accessor: 'getDistance',
-                type: GL.FLOAT,
+                type: 'float32',
                 defaultValue: 0,
             },
             instanceArrowDirection: {
                 size: 1,
+                type: 'float32',
                 transition: true,
                 accessor: 'getDirection',
                 transform: (direction) => {
@@ -192,41 +188,48 @@ export default class ArrowLayer extends Layer<Required<_ArrowLayerProps>> {
             instanceLineDistance: {
                 size: 1,
                 transition: true,
-                type: GL.FLOAT,
+                type: 'float32',
                 accessor: (arrow) => this.getArrowLineAttributes(arrow).distance,
             },
             instanceLinePositionsTextureOffset: {
                 size: 1,
                 transition: true,
-                type: GL.FLOAT,
+                type: 'sint32',
                 accessor: (arrow) => this.getArrowLineAttributes(arrow).positionsTextureOffset,
             },
             instanceLineDistancesTextureOffset: {
                 size: 1,
                 transition: true,
-                type: GL.FLOAT,
+                type: 'sint32',
                 accessor: (arrow) => this.getArrowLineAttributes(arrow).distancesTextureOffset,
             },
             instanceLinePointCount: {
                 size: 1,
                 transition: true,
-                type: GL.FLOAT,
+                type: 'sint32',
                 accessor: (arrow) => this.getArrowLineAttributes(arrow).pointCount,
             },
             instanceLineParallelIndex: {
                 size: 1,
                 accessor: 'getLineParallelIndex',
-                type: GL.FLOAT,
+                type: 'float32',
             },
             instanceLineAngles: {
                 size: 3,
                 accessor: 'getLineAngles',
-                type: GL.FLOAT,
+                type: 'float32',
             },
             instanceProximityFactors: {
                 size: 2,
                 accessor: 'getProximityFactors',
-                type: GL.FLOAT,
+                type: 'float32',
+            },
+            instanceDistanceBetweenLines: {
+                size: 1,
+                transition: true,
+                accessor: 'getDistanceBetweenLines',
+                type: 'float32',
+                defaultValue: 1000,
             },
         });
     }
@@ -237,38 +240,35 @@ export default class ArrowLayer extends Layer<Required<_ArrowLayerProps>> {
         this.state.stop = true;
     }
 
-    createTexture2D(
-        gl: WebGLRenderingContext,
-        data: Array<number>,
-        elementSize: number,
-        format: number,
-        dataFormat: number
-    ) {
+    createTexture2D(device: Device, data: Array<number>, elementSize: number, format: TextureFormat) {
         const start = performance.now();
 
-        // we calculate the smallest square texture that is a power of 2 but less or equals to MAX_TEXTURE_SIZE
-        // (which is a property of the graphic card)
-        const elementCount = data.length / elementSize;
-        const n = Math.ceil(Math.log2(elementCount) / 2);
-        const textureSize = 2 ** n;
         const { maxTextureSize } = this.state;
-        if (textureSize > maxTextureSize) {
-            throw new Error(`Texture size (${textureSize}) cannot be greater than ${maxTextureSize}`);
+        // we calculate the smallest texture width less or equals to MAX_TEXTURE_SIZE
+        // (which is an property of the graphic card)
+        const elementCount = data.length / elementSize;
+        const expSum = Math.ceil(Math.log2(elementCount));
+        const widthExp = Math.ceil(expSum / 2);
+        const heightExp = expSum - widthExp;
+        const width = 2 ** widthExp;
+        const height = 2 ** heightExp;
+        if (height > maxTextureSize || width > maxTextureSize) {
+            throw new Error(`Texture size ${width}*${height} cannot be greater than ${maxTextureSize}`);
         }
 
         // data length needs to be width * height (otherwise we get an error), so we pad the data array with zero until
         // reaching the correct size.
-        if (data.length < textureSize * textureSize * elementSize) {
-            const oldLength = data.length;
-            data.length = textureSize * textureSize * elementSize;
-            data.fill(0, oldLength, textureSize * textureSize * elementSize);
+        const newLength = width * height * elementSize;
+        const oldLength = data.length;
+        if (data.length < newLength) {
+            data.length = newLength;
+            data.fill(0, oldLength, newLength);
         }
 
-        const texture2d = new Texture2D(gl, {
-            width: textureSize,
-            height: textureSize,
-            format: format,
-            dataFormat: dataFormat,
+        const texture2d = device.createTexture({
+            width,
+            height,
+            format,
             type: GL.FLOAT,
             data: new Float32Array(data),
             parameters: {
@@ -278,11 +278,13 @@ export default class ArrowLayer extends Layer<Required<_ArrowLayerProps>> {
                 [GL.TEXTURE_WRAP_T]: GL.CLAMP_TO_EDGE,
             },
             mipmaps: false,
-        });
+        } as TextureProps);
 
         const stop = performance.now();
         console.info(
-            `Texture of ${elementCount} elements (${textureSize} * ${textureSize}) created in ${stop - start} ms`
+            `Texture of ${elementCount} elements of size ${elementSize} (${width} * ${height}) created in ${
+                stop - start
+            } ms`
         );
 
         return texture2d;
@@ -347,24 +349,22 @@ export default class ArrowLayer extends Layer<Required<_ArrowLayerProps>> {
                 (changeFlags.updateTriggersChanged.all || changeFlags.updateTriggersChanged.getLinePositions));
 
         if (geometryChanged) {
-            const { gl } = this.context;
+            const { device } = this.context;
 
             const { linePositionsTextureData, lineDistancesTextureData, lineAttributes } =
                 this.createTexturesStructure(props);
 
             const linePositionsTexture = this.createTexture2D(
-                gl,
+                device,
                 linePositionsTextureData,
                 2,
-                this.state.webgl2 ? GL.RG32F : GL.LUMINANCE_ALPHA,
-                this.state.webgl2 ? GL.RG : GL.LUMINANCE_ALPHA
+                'rg32float' //GL.RG32F,
             );
             const lineDistancesTexture = this.createTexture2D(
-                gl,
+                device,
                 lineDistancesTextureData,
                 1,
-                this.state.webgl2 ? GL.R32F : GL.LUMINANCE,
-                this.state.webgl2 ? GL.RED : GL.LUMINANCE
+                'r32float' //GL.R32F,
             );
 
             this.setState({
@@ -380,16 +380,16 @@ export default class ArrowLayer extends Layer<Required<_ArrowLayerProps>> {
     }
 
     updateModel({ changeFlags }: UpdateParameters<this>) {
-        if (changeFlags.extensionsChanged) {
-            const { gl } = this.context;
+        if (changeFlags.somethingChanged) {
+            const { device } = this.context;
 
             const { model } = this.state;
             if (model) {
-                model.delete();
+                model.destroy();
             }
 
             this.setState({
-                model: this._getModel(gl),
+                model: this._getModel(device),
             });
 
             this.getAttributeManager()?.invalidateAll();
@@ -429,46 +429,55 @@ export default class ArrowLayer extends Layer<Required<_ArrowLayerProps>> {
         window.requestAnimationFrame((timestamp) => this.animate(timestamp));
     }
 
-    // TODO find the full type for record values
-    override draw({ uniforms }: { uniforms: Record<string, UniformValues<object>> }) {
+    draw({ uniforms, renderPass }: { uniforms: Record<string, UniformValue>; renderPass: RenderPass }) {
         const { sizeMinPixels, sizeMaxPixels } = this.props;
 
-        const { linePositionsTexture, lineDistancesTexture, timestamp, webgl2 } = this.state;
+        const {
+            model,
+            linePositionsTexture,
+            lineDistancesTexture,
+            timestamp,
+            // maxTextureSize,
+        } = this.state;
+        model!.setBindings({
+            // @ts-expect-error TODO TS2339: Properties width and height does not exists on type Texture2D
+            linePositionsTexture,
+            // @ts-expect-error TODO TS2339: Properties width and height does not exists on type Texture2D
+            lineDistancesTexture,
+        });
 
-        this.state.model
-            ?.setUniforms(uniforms)
-            .setUniforms({
-                sizeMinPixels,
-                sizeMaxPixels,
-                linePositionsTexture,
-                lineDistancesTexture,
-                // TODO we ask an opacity but we don't seem to set or used it?
-                // @ts-expect-error TODO TS2339: Properties width and height does not exists on type Texture2D
-                linePositionsTextureSize: [linePositionsTexture?.width, linePositionsTexture?.height],
-                // @ts-expect-error TODO TS2339: Properties width and height does not exists on type Texture2D
-                lineDistancesTextureSize: [lineDistancesTexture?.width, lineDistancesTexture?.height],
-                timestamp,
-                webgl2,
-                distanceBetweenLines: this.props.getDistanceBetweenLines,
-                maxParallelOffset: this.props.maxParallelOffset,
-                minParallelOffset: this.props.minParallelOffset,
-            })
-            .draw();
+        model!.setUniforms({
+            ...uniforms,
+            sizeMinPixels,
+            sizeMaxPixels,
+            // maxTextureSize,
+            // @ts-expect-error TODO TS2339: Properties width and height does not exists on type Texture2D
+            linePositionsTextureSize: [linePositionsTexture.width, linePositionsTexture.height],
+            // @ts-expect-error TODO TS2339: Properties width and height does not exists on type Texture2D
+            lineDistancesTextureSize: [lineDistancesTexture.width, lineDistancesTexture.height],
+            // @ts-expect-error TODO TS2339: Properties width and height does not exists on type Texture2D
+            timestamp,
+            maxParallelOffset: this.props.maxParallelOffset,
+            minParallelOffset: this.props.minParallelOffset,
+        });
+        model!.draw(renderPass);
     }
 
-    // TODO Did you mean getModels?
-    private _getModel(gl: WebGLRenderingContext) {
+    _getModel(device: Device) {
+        const positions = [-1, -1, 0, 0, 1, 0, 0, -0.6, 0, 1, -1, 0, 0, 1, 0, 0, -0.6, 0];
+
         return new Model(
-            gl,
+            device,
             Object.assign(this.getShaders(), {
                 id: this.props.id,
+                bufferLayout: this.getAttributeManager()!.getBufferLayouts(),
                 geometry: new Geometry({
-                    drawMode: GL.TRIANGLES,
+                    topology: 'triangle-list',
                     vertexCount: 6,
                     attributes: {
                         positions: {
                             size: 3,
-                            value: new Float32Array([-1, -1, 0, 0, 1, 0, 0, -0.6, 0, 1, -1, 0, 0, 1, 0, 0, -0.6, 0]),
+                            value: new Float32Array(positions),
                         },
                     },
                 }),

@@ -1,25 +1,19 @@
 # dependencies
-/node_modules
+**/node_modules 
 
-# distribution
-/dist
+# production
+**/dist
 /powsybl-network-viewer-*.tgz
-
-# distrib for demo
-/output
+/powsybl-network-map-layers-*.tgz
 
 # webstorm
 /.idea
 
-# parcel
-/.parcel-cache
+# vscode
+/.vscode
 
-# demo
-/demo/node_modules
-/demo/build
-/demo/dist
+# vite
+/vite.config.ts-timestamp-*
 
-# lcov reporst
+# jest
 /coverage
-
-

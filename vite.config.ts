@@ -8,9 +8,11 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import svgr from 'vite-plugin-svgr';
+// @ts-expect-error See https://github.com/gxmari007/vite-plugin-eslint/issues/79
 import eslint from 'vite-plugin-eslint';
 import dts from 'vite-plugin-dts';
 import * as path from 'node:path';
+import { copyFileSync } from 'node:fs';
 
 export default defineConfig((config) => ({
     plugins: [
@@ -18,11 +20,15 @@ export default defineConfig((config) => ({
         svgr(), // works on every import with the pattern "**/*.svg?react"
         eslint({
             failOnWarning: config.mode !== 'development',
-            lintOnStart: true,
         }),
         dts({
             include: ['src'],
             exclude: ['**/*.{spec,test}.{ts,tsx}'],
+            rollupTypes: true,
+            tsconfigPath: './tsconfig.json',
+            afterBuild: () => {
+                copyFileSync('dist/index.d.ts', 'dist/index.d.cts');
+            },
         }),
     ],
     build: {

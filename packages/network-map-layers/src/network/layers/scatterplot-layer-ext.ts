@@ -4,9 +4,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-import { type Accessor, ScatterplotLayer, type ScatterplotLayerProps } from 'deck.gl';
-import type { DefaultProps } from '@deck.gl/core';
-import GL from '@luma.gl/constants';
+import { ScatterplotLayer, type ScatterplotLayerProps } from '@deck.gl/layers';
+import type { Accessor, DefaultProps } from '@deck.gl/core';
 
 type _ScatterplotLayerExtProps<DataT = unknown> = {
     getRadiusMaxPixels: Accessor<DataT, number>;
@@ -34,7 +33,7 @@ export default class ScatterplotLayerExt<DataT = unknown> extends ScatterplotLay
             vs: shaders.vs.replace(', radiusMaxPixels', ', instanceRadiusMaxPixels'), // hack to replace the uniform variable to corresponding attribute
             inject: {
                 'vs:#decl': `\
-attribute float instanceRadiusMaxPixels;
+in float instanceRadiusMaxPixels;
 `,
             },
         });
@@ -47,7 +46,7 @@ attribute float instanceRadiusMaxPixels;
                 size: 1,
                 transition: true,
                 accessor: 'getRadiusMaxPixels',
-                type: GL.FLOAT,
+                type: 'float32',
                 defaultValue: 0,
             },
         });

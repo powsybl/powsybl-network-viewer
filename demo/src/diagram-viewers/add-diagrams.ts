@@ -18,49 +18,49 @@ import NadSvgThreeWTDanglingLineUnknownBusExampleMeta from './data/nad-scada_met
 import NadSvgPartialNetworkExample from './data/nad-ieee300cdf-VL9006.svg';
 import NadSvgPartialNetworkExampleMeta from './data/nad-ieee300cdf-VL9006_metadata.json';
 import NadSvgPegaseNetworkExample from './data/case1354pegase.svg';
-import NadSvgPegaseNetworkExampleMeta from './data/case1354pegase.json';
+import NadSvgPegaseNetworkExampleMeta from './data/case1354pegase_metadata.json';
 import SldSvgExample from './data/sld-example.svg';
-import SldSvgExampleMeta from './data/sld-example-meta.json';
+import SldSvgExampleMeta from './data/sld-example_metadata.json';
 import SldSvgSubExample from './data/sld-sub-example.svg';
-import SldSvgSubExampleMeta from './data/sld-sub-example-meta.json';
+import SldSvgSubExampleMeta from './data/sld-sub-example_metadata.json';
 
 import {
+    BranchState,
+    NadViewerParametersOptions,
     NetworkAreaDiagramViewer,
-    SingleLineDiagramViewer,
-    OnToggleSldHoverCallbackType,
+    OnBendLineCallbackType,
     OnBreakerCallbackType,
     OnBusCallbackType,
     OnFeederCallbackType,
-    OnNextVoltageCallbackType,
     OnMoveNodeCallbackType,
     OnMoveTextNodeCallbackType,
+    OnNextVoltageCallbackType,
+    OnRightClickCallbackType,
     OnSelectNodeCallbackType,
     OnToggleNadHoverCallbackType,
-    BranchState,
-    OnRightClickCallbackType,
+    OnToggleSldHoverCallbackType,
+    SingleLineDiagramViewer,
 } from '../../../src';
 
 export const addNadToDemo = () => {
     fetch(NadSvgExample)
         .then((response) => response.text())
         .then((svgContent) => {
+            const nadViewerParametersOptions: NadViewerParametersOptions = {
+                enableDragInteraction: true,
+                addButtons: true,
+                onMoveNodeCallback: handleNodeMove,
+                onMoveTextNodeCallback: handleTextNodeMove,
+                onSelectNodeCallback: handleNodeSelect,
+                onToggleHoverCallback: handleToggleNadHover,
+                onRightClickCallback: handleRightClick,
+                onBendLineCallback: handleLineBending,
+            };
             const nadViewer = new NetworkAreaDiagramViewer(
                 document.getElementById('svg-container-nad')!,
                 svgContent,
                 NadSvgExampleMeta,
-                500,
-                600,
-                1000,
-                1200,
-                handleNodeMove,
-                handleTextNodeMove,
-                handleNodeSelect,
-                true,
-                false,
-                null,
-                handleToggleNadHover,
-                handleRightClick,
-                true
+                nadViewerParametersOptions
             );
 
             // add range slider to update branch labels
@@ -106,50 +106,45 @@ export const addNadToDemo = () => {
     fetch(NadSvgExample)
         .then((response) => response.text())
         .then((svgContent) => {
+            const nadViewerParametersOptions: NadViewerParametersOptions = {
+                onMoveNodeCallback: handleNodeMove,
+                onMoveTextNodeCallback: handleTextNodeMove,
+                onSelectNodeCallback: handleNodeSelect,
+                onToggleHoverCallback: handleToggleNadHover,
+                onRightClickCallback: handleRightClick,
+                onBendLineCallback: handleLineBending,
+            };
             new NetworkAreaDiagramViewer(
                 document.getElementById('svg-container-nad-no-moving')!,
                 svgContent,
                 NadSvgExampleMeta,
-                500,
-                600,
-                1000,
-                1200,
-                handleNodeMove,
-                handleTextNodeMove,
-                handleNodeSelect,
-                false,
-                false,
-                null,
-                handleToggleNadHover,
-                handleRightClick,
-                false
+                nadViewerParametersOptions
             );
         });
 
     fetch(NadSvgMultibusVLNodesExample)
         .then((response) => response.text())
         .then((svgContent) => {
+            const nadViewerParametersOptions: NadViewerParametersOptions = {
+                enableDragInteraction: true,
+                addButtons: true,
+                onMoveNodeCallback: handleNodeMove,
+                onMoveTextNodeCallback: handleTextNodeMove,
+                onSelectNodeCallback: handleNodeSelect,
+                onToggleHoverCallback: handleToggleNadHover,
+                onRightClickCallback: handleRightClick,
+                onBendLineCallback: handleLineBending,
+            };
             const nadViewer = new NetworkAreaDiagramViewer(
                 document.getElementById('svg-container-nad-multibus-vlnodes')!,
                 svgContent,
                 NadSvgMultibusVLNodesExampleMeta,
-                500,
-                600,
-                1000,
-                1200,
-                handleNodeMove,
-                handleTextNodeMove,
-                handleNodeSelect,
-                true,
-                false,
-                null,
-                handleToggleNadHover,
-                handleRightClick,
-                true
+                nadViewerParametersOptions
             );
 
             // add button to update branch labels
-            const branchLabels = '[{"branchId": "L7-5-0", "value1": 609, "value2": -611}]';
+            const branchLabels =
+                '[{"branchId": "L9-8-0", "value1": 609, "value2": -611,"connectedBus1":"VL3_0","connectedBus2":"VL2_0"}, {"branchId": "L7-5-0", "value1": 609, "value2": -611}]';
             const updateFlowsTextArea = document.createElement('textarea');
             updateFlowsTextArea.rows = 2;
             updateFlowsTextArea.cols = 65;
@@ -166,130 +161,338 @@ export const addNadToDemo = () => {
             updateFlowsDiv.appendChild(br);
             updateFlowsDiv.appendChild(updateFlowsButton);
             document.getElementById('svg-container-nad-multibus-vlnodes')?.appendChild(updateFlowsDiv);
+
+            // add range slider to update voltageLevel states
+            const voltageLevelSlider = document.createElement('input');
+            voltageLevelSlider.type = 'range';
+            voltageLevelSlider.min = '1';
+            voltageLevelSlider.max = '20';
+            voltageLevelSlider.value = '1';
+            voltageLevelSlider.step = 'any';
+            voltageLevelSlider.style.width = '97%';
+            voltageLevelSlider.style.display = 'flex';
+            voltageLevelSlider.style.justifyContent = 'space-between';
+            voltageLevelSlider.style.padding = '0 5px';
+
+            // Create slider event listener
+            voltageLevelSlider.addEventListener('input', (e) => {
+                const target = e.target as HTMLInputElement;
+                const factor = parseFloat(target.value) / 100;
+                const angleFactor = 2 - factor;
+
+                const voltageLevelStates = `[{
+                    "voltageLevelId": "VL1",
+                    "busValue": [
+                        { "busId": "VL1_0", "voltage": ${104 * factor}, "angle": ${0} },
+                        { "busId": "VL1_1", "voltage": ${102.5 * factor}, "angle": ${-2.2 * angleFactor} }
+                    ]
+                }, {
+                    "voltageLevelId": "VL2",
+                    "busValue": [
+                        { "busId": "VL2_0", "voltage": ${102.5 * factor}, "angle": ${9.3 * angleFactor} },
+                        { "busId": "VL2_1", "voltage": ${101.5 * factor}, "angle": ${0.7 * angleFactor} },
+                        { "busId": "VL2_2", "voltage": ${102.5 * factor}, "angle": ${3.7 * angleFactor} }
+                    ]
+                }]`;
+
+                nadViewer.setJsonVoltageLevelStates(voltageLevelStates);
+            });
+            document.getElementById('svg-container-nad-multibus-vlnodes')?.appendChild(voltageLevelSlider);
         });
 
     fetch(NadSvgMultibusVLNodes14Example)
         .then((response) => response.text())
         .then((svgContent) => {
+            const nadViewerParametersOptions: NadViewerParametersOptions = {
+                enableDragInteraction: true,
+                addButtons: true,
+                onMoveNodeCallback: handleNodeMove,
+                onMoveTextNodeCallback: handleTextNodeMove,
+                onSelectNodeCallback: handleNodeSelect,
+                onToggleHoverCallback: handleToggleNadHover,
+                onRightClickCallback: handleRightClick,
+                onBendLineCallback: handleLineBending,
+            };
             new NetworkAreaDiagramViewer(
                 document.getElementById('svg-container-nad-multibus-vlnodes14')!,
                 svgContent,
                 NadSvgMultibusVLNodes14ExampleMeta,
-                500,
-                600,
-                1000,
-                1200,
-                handleNodeMove,
-                handleTextNodeMove,
-                handleNodeSelect,
-                true,
-                false,
-                null,
-                handleToggleNadHover,
-                handleRightClick,
-                true
+                nadViewerParametersOptions
             );
         });
 
     fetch(NadSvgPstHvdcExample)
         .then((response) => response.text())
         .then((svgContent) => {
+            const nadViewerParametersOptions: NadViewerParametersOptions = {
+                enableDragInteraction: true,
+                addButtons: true,
+                onMoveNodeCallback: handleNodeMove,
+                onMoveTextNodeCallback: handleTextNodeMove,
+                onSelectNodeCallback: handleNodeSelect,
+                onToggleHoverCallback: handleToggleNadHover,
+                onRightClickCallback: handleRightClick,
+                onBendLineCallback: handleLineBending,
+            };
             new NetworkAreaDiagramViewer(
                 document.getElementById('svg-container-nad-pst-hvdc')!,
                 svgContent,
                 NadSvgPstHvdcExampleMeta,
-                500,
-                600,
-                1000,
-                1200,
-                handleNodeMove,
-                handleTextNodeMove,
-                handleNodeSelect,
-                true,
-                false,
-                null,
-                handleToggleNadHover,
-                handleRightClick,
-                true
+                nadViewerParametersOptions
             );
         });
 
     fetch(NadSvgThreeWTDanglingLineUnknownBusExample)
         .then((response) => response.text())
         .then((svgContent) => {
+            const nadViewerParametersOptions: NadViewerParametersOptions = {
+                enableDragInteraction: true,
+                addButtons: true,
+                onMoveNodeCallback: handleNodeMove,
+                onMoveTextNodeCallback: handleTextNodeMove,
+                onSelectNodeCallback: handleNodeSelect,
+                onToggleHoverCallback: handleToggleNadHover,
+                onRightClickCallback: handleRightClick,
+                onBendLineCallback: handleLineBending,
+            };
             new NetworkAreaDiagramViewer(
                 document.getElementById('svg-container-nad-threewt-dl-ub')!,
                 svgContent,
                 NadSvgThreeWTDanglingLineUnknownBusExampleMeta,
-                500,
-                600,
-                1000,
-                1200,
-                handleNodeMove,
-                handleTextNodeMove,
-                handleNodeSelect,
-                true,
-                false,
-                null,
-                handleToggleNadHover,
-                handleRightClick,
-                true
+                nadViewerParametersOptions
             );
         });
 
     fetch(NadSvgPartialNetworkExample)
         .then((response) => response.text())
         .then((svgContent) => {
+            const nadViewerParametersOptions: NadViewerParametersOptions = {
+                enableDragInteraction: true,
+                addButtons: true,
+                onMoveNodeCallback: handleNodeMove,
+                onMoveTextNodeCallback: handleTextNodeMove,
+                onSelectNodeCallback: handleNodeSelect,
+                onToggleHoverCallback: handleToggleNadHover,
+                onRightClickCallback: handleRightClick,
+                onBendLineCallback: handleLineBending,
+            };
             new NetworkAreaDiagramViewer(
                 document.getElementById('svg-container-nad-partial-network')!,
                 svgContent,
                 NadSvgPartialNetworkExampleMeta,
-                500,
-                600,
-                1000,
-                1200,
-                handleNodeMove,
-                handleTextNodeMove,
-                handleNodeSelect,
-                true,
-                false,
-                null,
-                handleToggleNadHover,
-                handleRightClick,
-                true
+                nadViewerParametersOptions
             );
         });
 
-    const enableLevelOfDetail: boolean =
-        new URLSearchParams(window.location.search).get('enableLevelOfDetail') === 'true';
+    fetch(NadSvgPartialNetworkExample)
+        .then((response) => response.text())
+        .then((svgContent) => {
+            const nadViewerParametersOptions: NadViewerParametersOptions = {
+                enableDragInteraction: true,
+                addButtons: true,
+                onMoveNodeCallback: handleNodeMove,
+                onMoveTextNodeCallback: handleTextNodeMove,
+                onSelectNodeCallback: handleNodeSelect,
+                onToggleHoverCallback: handleToggleNadHover,
+                onRightClickCallback: handleRightClick,
+                onBendLineCallback: handleLineBending,
+                initialViewBox: {
+                    x: -250.0,
+                    y: -450.0,
+                    width: 1100,
+                    height: 1100,
+                },
+            };
+            new NetworkAreaDiagramViewer(
+                document.getElementById('svg-container-nad-partial-network-custom-view-box')!,
+                svgContent,
+                NadSvgPartialNetworkExampleMeta,
+                nadViewerParametersOptions
+            );
+        });
 
     fetch(NadSvgPegaseNetworkExample)
         .then((response) => response.text())
         .then((svgContent) => {
+            const nadViewerParametersOptions: NadViewerParametersOptions = {
+                enableDragInteraction: true,
+                enableLevelOfDetail: true,
+                zoomLevels: [0, 1000, 2200, 2500, 3000, 4000, 9000, 12000, 20000],
+                addButtons: true,
+                onMoveNodeCallback: handleNodeMove,
+                onMoveTextNodeCallback: handleTextNodeMove,
+                onSelectNodeCallback: handleNodeSelect,
+                onToggleHoverCallback: handleToggleNadHover,
+                onRightClickCallback: handleRightClick,
+                onBendLineCallback: handleLineBending,
+            };
             const svgContainerNadPegase = document.getElementById('svg-container-nad-pegase-network');
             new NetworkAreaDiagramViewer(
                 svgContainerNadPegase!,
                 svgContent,
                 NadSvgPegaseNetworkExampleMeta,
-                500,
-                600,
-                1000,
-                1200,
-                handleNodeMove,
-                handleTextNodeMove,
-                handleNodeSelect,
-                true,
-                enableLevelOfDetail,
-                null,
-                handleToggleNadHover,
-                handleRightClick,
-                true
+                nadViewerParametersOptions
+            );
+        });
+
+    fetch(NadSvgPegaseNetworkExample)
+        .then((response) => response.text())
+        .then((svgContent) => {
+            const nadViewerParametersOptions: NadViewerParametersOptions = {
+                enableDragInteraction: true,
+                addButtons: true,
+                onMoveNodeCallback: handleNodeMove,
+                onMoveTextNodeCallback: handleTextNodeMove,
+                onSelectNodeCallback: handleNodeSelect,
+                onToggleHoverCallback: handleToggleNadHover,
+                onRightClickCallback: handleRightClick,
+                onBendLineCallback: handleLineBending,
+
+                enableAdaptiveTextZoom: true,
+                adaptiveTextZoomThreshold: 3000,
+            };
+            const svgContainerNadPegase = document.getElementById('svg-container-nad-pegase-network-adaptive-zoom');
+            new NetworkAreaDiagramViewer(
+                svgContainerNadPegase!,
+                svgContent,
+                NadSvgPegaseNetworkExampleMeta,
+                nadViewerParametersOptions
+            );
+        });
+
+    fetch(NadSvgPartialNetworkExample)
+        .then((response) => response.text())
+        .then((svgContent) => {
+            const nadViewerParametersOptions: NadViewerParametersOptions = {
+                enableDragInteraction: true,
+                addButtons: true,
+                onMoveNodeCallback: handleNodeMove,
+                onMoveTextNodeCallback: handleTextNodeMove,
+                onSelectNodeCallback: handleNodeSelect,
+                onToggleHoverCallback: handleToggleNadHover,
+                onRightClickCallback: handleRightClick,
+                onBendLineCallback: handleLineBending,
+
+                enableAdaptiveTextZoom: true,
+                adaptiveTextZoomThreshold: 1100,
+            };
+            new NetworkAreaDiagramViewer(
+                document.getElementById('svg-container-nad-partial-network-adaptive-zoom')!,
+                svgContent,
+                NadSvgPartialNetworkExampleMeta,
+                nadViewerParametersOptions
+            );
+        });
+
+    fetch(NadSvgMultibusVLNodes14Example)
+        .then((response) => response.text())
+        .then((svgContent) => {
+            function getRandomColor() {
+                const letters = '0123456789ABCDEF';
+                let color = '#';
+                for (let i = 0; i < 6; i++) {
+                    color += letters[Math.floor(Math.random() * 16)];
+                }
+                return color + 'aa';
+            }
+
+            const defaultHoverPositionPrecision: number = 10;
+
+            const showHoveredEquipmentId: OnToggleNadHoverCallbackType = (
+                hovered,
+                mousePosition,
+                equipmentId,
+                equipmentType
+            ) => {
+                const hoverDiv = document.getElementById('hoverVisualizer');
+                if (hoverDiv) {
+                    hoverDiv.textContent = hovered ? 'Hovering over ' + equipmentId : 'No hover at the moment';
+                }
+
+                document.getElementById('hoverPopup')?.remove();
+                if (hovered) {
+                    const hoverPopup = document.createElement('div');
+                    hoverPopup.id = 'hoverPopup';
+                    hoverPopup.style.display = 'block';
+                    hoverPopup.style.position = 'fixed';
+                    hoverPopup.style.left = (mousePosition?.x || 0) + 'px';
+                    hoverPopup.style.top = (mousePosition?.y || 0) + 'px';
+                    hoverPopup.style.backgroundColor = '#eeeeeeaa';
+                    hoverPopup.style.margin = '10px';
+                    hoverPopup.style.padding = '5px';
+                    hoverPopup.style.border = 'solid 1px #ddd';
+                    hoverPopup.style.borderRadius = '5px';
+                    hoverPopup.textContent = 'Hover ' + equipmentId;
+                    const randomColor = document.createElement('div');
+                    randomColor.style.backgroundColor = getRandomColor();
+                    randomColor.innerHTML = '&nbsp;';
+                    hoverPopup.appendChild(randomColor);
+                    document.getElementById('svg-container-nad-hoverCallback')?.appendChild(hoverPopup);
+                }
+
+                handleToggleNadHover(hovered, mousePosition, equipmentId, equipmentType);
+            };
+
+            const nadViewerParametersOptions: NadViewerParametersOptions = {
+                enableDragInteraction: true,
+                enableLevelOfDetail: true,
+                addButtons: true,
+                onMoveNodeCallback: handleNodeMove,
+                onMoveTextNodeCallback: handleTextNodeMove,
+                onSelectNodeCallback: handleNodeSelect,
+                onToggleHoverCallback: showHoveredEquipmentId,
+                onBendLineCallback: handleLineBending,
+                onRightClickCallback: handleRightClick,
+                hoverPositionPrecision: defaultHoverPositionPrecision,
+            };
+
+            const nadViewer = new NetworkAreaDiagramViewer(
+                document.getElementById('svg-container-nad-hoverCallback')!,
+                svgContent,
+                NadSvgMultibusVLNodes14ExampleMeta,
+                nadViewerParametersOptions
             );
 
-            svgContainerNadPegase?.insertAdjacentHTML(
-                'afterbegin',
-                `<p>enableLevelOfDetail=${enableLevelOfDetail}, <a href=".?enableLevelOfDetail=${!enableLevelOfDetail}">reload toggle enableLevelOfDetail</a></p>`
-            );
+            // add range slider to update hover position precision
+            const hoverSliderDiv = document.createElement('div');
+            hoverSliderDiv.id = 'hoverSliderDiv';
+            hoverSliderDiv.style.display = 'flex';
+            hoverSliderDiv.style.justifyContent = 'space-between';
+            document.getElementById('svg-container-nad-hoverCallback')?.appendChild(hoverSliderDiv);
+
+            const hoverSlider = document.createElement('input');
+            hoverSlider.id = 'hoverSlider';
+            hoverSlider.type = 'range';
+            hoverSlider.min = '0';
+            hoverSlider.max = '50';
+            hoverSlider.value = defaultHoverPositionPrecision.toString();
+            hoverSlider.step = '1';
+            hoverSlider.style.display = 'flex';
+            hoverSlider.style.flexGrow = '1';
+            hoverSlider.style.padding = '0 5px';
+
+            // Create slider event listener
+            hoverSlider.addEventListener('input', (e) => {
+                const target = e.target as HTMLInputElement;
+                nadViewer.hoverPositionPrecision = Number(target.value);
+                const hoverSliderValueDisplay = document.getElementById('hoverSliderValueDisplay');
+                if (hoverSliderValueDisplay) {
+                    hoverSliderValueDisplay.textContent = target.value;
+                }
+            });
+            hoverSliderDiv.appendChild(hoverSlider);
+
+            const hoverSliderValueDisplay = document.createElement('span');
+            hoverSliderValueDisplay.id = 'hoverSliderValueDisplay';
+            hoverSliderValueDisplay.textContent = defaultHoverPositionPrecision.toString();
+            hoverSliderValueDisplay.style.width = '20px';
+            hoverSliderValueDisplay.style.padding = '0 5px';
+            hoverSliderDiv.appendChild(hoverSliderValueDisplay);
+
+            const hoverVisualizer = document.createElement('div');
+            hoverVisualizer.id = 'hoverVisualizer';
+            hoverVisualizer.textContent = 'No hover at the moment';
+            document.getElementById('svg-container-nad-hoverCallback')?.appendChild(hoverVisualizer);
         });
 };
 
@@ -361,8 +564,8 @@ export const addSldToDemo = () => {
         });
 };
 
-const handleNextVL: OnNextVoltageCallbackType = (id: string) => {
-    const msg = 'Clicked on navigation arrow, dest VL is ' + id;
+const handleNextVL: OnNextVoltageCallbackType = (id: string, event: MouseEvent) => {
+    const msg = (event.ctrlKey ? 'CTRL + ' : '') + 'Click on navigation arrow, dest VL is ' + id;
     console.log(msg);
 };
 
@@ -453,15 +656,19 @@ const handleTextNodeMove: OnMoveTextNodeCallbackType = (
     console.log(msg);
 };
 
-const handleNodeSelect: OnSelectNodeCallbackType = (equipmentId, nodeId) => {
-    const msg = 'Node ' + nodeId + ' equipment ' + equipmentId + ' selected';
+const handleNodeSelect: OnSelectNodeCallbackType = (equipmentId, nodeId, mousePosition) => {
+    let msg = 'Node ' + nodeId + ' equipment ' + equipmentId + ' selected';
+    if (mousePosition) {
+        msg += ' on mousePosition: x = ' + mousePosition.x + ', y = ' + mousePosition.y;
+    }
     console.log(msg);
 };
 
 const handleToggleNadHover: OnToggleNadHoverCallbackType = (hovered, mousePosition, equipmentId, equipmentType) => {
+    let msg = 'ToggleNadHoverCallback called';
     if (hovered) {
-        const msg =
-            'Hovers on equipment: ' +
+        msg +=
+            ' with hover on equipment: ' +
             equipmentId +
             ', equipmentType: ' +
             equipmentType +
@@ -469,8 +676,8 @@ const handleToggleNadHover: OnToggleNadHoverCallbackType = (hovered, mousePositi
             mousePosition?.x +
             ', y=' +
             mousePosition?.y;
-        console.log(msg);
     }
+    console.log(msg);
 };
 
 const handleRightClick: OnRightClickCallbackType = (svgId, equipmentId, equipmentType, mousePosition) => {
@@ -485,5 +692,20 @@ const handleRightClick: OnRightClickCallbackType = (svgId, equipmentId, equipmen
         mousePosition?.x +
         ', y=' +
         mousePosition?.y;
+    console.log(msg);
+};
+
+const handleLineBending: OnBendLineCallbackType = (svgId, equipmentId, equipmentType, linePoints, lineOperation) => {
+    const msg =
+        'Bent line: ' +
+        svgId +
+        ', equipment: ' +
+        equipmentId +
+        ', equipmentType: ' +
+        equipmentType +
+        ', linePoints: [' +
+        linePoints?.map((point: { x: number; y: number }) => point.x + ',' + point.y).join(' ') +
+        '], operation: ' +
+        lineOperation;
     console.log(msg);
 };

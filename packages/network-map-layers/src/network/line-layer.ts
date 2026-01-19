@@ -5,34 +5,31 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import type { LiteralUnion } from 'type-fest';
+import type { DefaultProps } from '@deck.gl/core';
+import { PathStyleExtension } from '@deck.gl/extensions';
 import {
     type Color,
     CompositeLayer,
     type CompositeLayerProps,
-    IconLayer,
-    type IconLayerProps,
     type Layer,
     type LayerContext,
     type PickingInfo,
     type Position,
-    TextLayer,
-    type TextLayerProps,
     type UpdateParameters,
-} from 'deck.gl';
-import type { DefaultProps } from '@deck.gl/core';
-import PadlockIcon from '../images/lock_black_24dp.svg?url';
-import BoltIcon from '../images/bolt_black_24dp.svg?url';
-import { PathStyleExtension } from '@deck.gl/extensions';
-import { type GeoData } from './geo-data';
-import { MapEquipments } from './map-equipments';
-import { type LonLat, type MapAnyLine, type MapAnyLineWithType } from '../../../equipment-types';
-import ArrowLayer, { type Arrow, ArrowDirection, type ArrowLayerProps } from './layers/arrow-layer';
-import ParallelPathLayer, { type ParallelPathLayerProps } from './layers/parallel-path-layer';
-import ForkLineLayer, { type ForkLineLayerProps } from './layers/fork-line-layer';
+} from '@deck.gl/core';
 import { getDistance } from 'geolib';
+import type { LiteralUnion } from 'type-fest';
+import { type LonLat, type MapAnyLine, type MapAnyLineWithType } from '../equipment-types';
+import BoltIcon from '../images/bolt_black_24dp.svg?url';
+import PadlockIcon from '../images/lock_black_24dp.svg?url';
+import { INVALID_FLOW_OPACITY } from '../utils/colors';
 import { SUBSTATION_RADIUS, SUBSTATION_RADIUS_MAX_PIXEL, SUBSTATION_RADIUS_MIN_PIXEL } from './constants';
-import { INVALID_FLOW_OPACITY } from '../../../utils/colors';
+import { type GeoData } from './geo-data';
+import ArrowLayer, { type Arrow, ArrowDirection, type ArrowLayerProps } from './layers/arrow-layer';
+import ForkLineLayer, { type ForkLineLayerProps } from './layers/fork-line-layer';
+import ParallelPathLayer, { type ParallelPathLayerProps } from './layers/parallel-path-layer';
+import { MapEquipments } from './map-equipments';
+import { IconLayer, type IconLayerProps, TextLayer, type TextLayerProps } from '@deck.gl/layers';
 
 // isn't exported in @deck.gl/layers lib
 type UnpackedIcon = Exclude<ReturnType<NonNullable<IconLayerProps['getIcon']>>, string>;
@@ -280,7 +277,7 @@ export type LineLayerProps = _LineLayerProps & CompositeLayerProps;
 //         onHover?: ((pickingInfo: LinePickingInfo, event: MjolnirEvent) => boolean | void) | null;
 //     };
 
-export default class LineLayer extends CompositeLayer<Required<_LineLayerProps>> {
+export class LineLayer extends CompositeLayer<Required<_LineLayerProps>> {
     // noinspection JSUnusedGlobalSymbols -- it's dynamically get by deck.gl
     static readonly layerName = 'LineLayer';
     // noinspection JSUnusedGlobalSymbols -- it's dynamically get by deck.gl
@@ -632,7 +629,7 @@ export default class LineLayer extends CompositeLayer<Required<_LineLayerProps>>
                     );
                     const arrowCount = Math.ceil(directLineDistance / DISTANCE_BETWEEN_ARROWS);
 
-                    return [...new Array(arrowCount).keys()].map((index) => {
+                    return Array.from({ length: arrowCount }, (_, index) => {
                         return {
                             distance: index / arrowCount,
                             line: line,
@@ -642,9 +639,9 @@ export default class LineLayer extends CompositeLayer<Required<_LineLayerProps>>
             });
         }
         this.setState({
-            compositeData: compositeData,
-            linesConnection: linesConnection,
-            linesStatus: linesStatus,
+            compositeData,
+            linesConnection,
+            linesStatus,
         });
     }
 
@@ -881,10 +878,13 @@ export default class LineLayer extends CompositeLayer<Required<_LineLayerProps>>
             const startFork = new ForkLineLayer<MapAnyLineWithType>(
                 this.getSubLayerProps({
                     id: 'LineForkStart' + compositeData.nominalV,
-                    getSourcePosition: (line) => line.origin,
-                    getTargetPosition: (line) => line.end,
-                    getSubstationOffset: (line: MapAnyLineWithType) => line.substationIndexStart,
                     data: compositeData.lines,
+                    // @ts-expect-error TODO: manage undefined case
+                    getSourcePosition: (line) => line.origin,
+                    // @ts-expect-error TODO: manage undefined case
+                    getTargetPosition: (line) => line.end,
+                    // @ts-expect-error TODO: manage undefined case
+                    getSubstationOffset: (line) => line.substationIndexStart,
                     widthScale: 20,
                     widthMinPixels: 1,
                     widthMaxPixels: 2,
@@ -893,7 +893,8 @@ export default class LineLayer extends CompositeLayer<Required<_LineLayerProps>>
                         // @ts-expect-error TODO: manage undefined case
                         getLineColor(line, nominalVoltageColor, this.props, this.state.linesConnection.get(line.id)),
                     getWidth: 2,
-                    getProximityFactor: (line: MapAnyLineWithType) => line.proximityFactorStart,
+                    // @ts-expect-error TODO: manage undefined case
+                    getProximityFactor: (line) => line.proximityFactorStart,
                     // @ts-expect-error TODO: manage undefined case
                     getLineParallelIndex: (line) => line.parallelIndex,
                     // @ts-expect-error TODO: manage undefined case
@@ -927,10 +928,13 @@ export default class LineLayer extends CompositeLayer<Required<_LineLayerProps>>
             const endFork = new ForkLineLayer<MapAnyLineWithType>(
                 this.getSubLayerProps({
                     id: 'LineForkEnd' + compositeData.nominalV,
-                    getSourcePosition: (line) => line.end,
-                    getTargetPosition: (line) => line.origin,
-                    getSubstationOffset: (line: MapAnyLineWithType) => line.substationIndexEnd,
                     data: compositeData.lines,
+                    // @ts-expect-error TODO: manage undefined case
+                    getSourcePosition: (line) => line.end,
+                    // @ts-expect-error TODO: manage undefined case
+                    getTargetPosition: (line) => line.origin,
+                    // @ts-expect-error TODO: manage undefined case
+                    getSubstationOffset: (line) => line.substationIndexEnd,
                     widthScale: 20,
                     widthMinPixels: 1,
                     widthMaxPixels: 2,
@@ -939,7 +943,8 @@ export default class LineLayer extends CompositeLayer<Required<_LineLayerProps>>
                         // @ts-expect-error TODO: manage undefined case
                         getLineColor(line, nominalVoltageColor, this.props, this.state.linesConnection.get(line.id)),
                     getWidth: 2,
-                    getProximityFactor: (line: MapAnyLineWithType) => line.proximityFactorEnd,
+                    // @ts-expect-error TODO: manage undefined case
+                    getProximityFactor: (line) => line.proximityFactorEnd,
                     // @ts-expect-error TODO: manage undefined case
                     getLineParallelIndex: (line) => -line.parallelIndex,
                     // @ts-expect-error TODO: manage undefined case

@@ -4,10 +4,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-import { type Accessor, PathLayer, type PathLayerProps } from 'deck.gl';
-import type { DefaultProps } from '@deck.gl/core';
-import { type UniformValues } from 'maplibre-gl';
-import GL from '@luma.gl/constants';
+
+import type { Accessor, DefaultProps } from '@deck.gl/core';
+import { PathLayer, type PathLayerProps } from '@deck.gl/layers';
+import type { UniformValue } from '@luma.gl/core';
 
 type _ParallelPathLayerProps<DataT = unknown> = {
     /** real number representing the parallel translation, normalized to distanceBetweenLines */
@@ -74,7 +74,7 @@ export default class ParallelPathLayer<DataT = unknown> extends PathLayer<
 //       also has the downside that you can't update one attribute and reconstruct
 //       only its buffer, so it hurts performance a bit in this case.
 //       But this is a rare case for us (changing parameters) so it doesn't matter much.
-attribute vec4 instanceExtraAttributes;
+in vec4 instanceExtraAttributes;
 uniform float distanceBetweenLines;
 uniform float maxParallelOffset;
 uniform float minParallelOffset;
@@ -125,14 +125,13 @@ gl_Position += project_common_position_to_clipspace(trans) - project_uCenter;
             // too much instances variables need to compact some...
             instanceExtraAttributes: {
                 size: 4,
-                type: GL.FLOAT,
+                type: 'float32',
                 accessor: 'getExtraAttributes',
             },
         });
     }
 
-    // TODO find the full type for record values
-    override draw({ uniforms }: { uniforms: Record<string, UniformValues<object>> }) {
+    override draw({ uniforms }: { uniforms: Record<string, UniformValue> }) {
         super.draw({
             uniforms: {
                 ...uniforms,
