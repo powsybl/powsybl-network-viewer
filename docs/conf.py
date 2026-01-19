@@ -18,6 +18,7 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 import datetime
+import json
 import os
 import re
 import sys
@@ -31,35 +32,33 @@ print(f'appended {source_path}')
 # -- Project information -----------------------------------------------------
 
 # Only those 4 parameters have to be modified for each specific repository
-project = 'powsybl-core'
-module_name = "powsybl-core"
-github_repository = "https://github.com/powsybl/powsybl-core/"
+project = 'powsybl-network-viewer'
+module_name = "powsybl-network-viewer"
+github_repository = "https://github.com/powsybl/powsybl-network-viewer/"
 
 # Build year for the copyright
-copyright_year = f'2018-{ datetime.datetime.now().year }'
+copyright_year = f'2022-{ datetime.datetime.now().year }'
 
 # Find the version and release information.
-# We have a single source of truth for our version number: the project's pom.xml file.
+# We have a single source of truth for our version number: the project's package.json file.
 # This next bit of code reads from it.
-file_with_version = os.path.join(source_path, "pom.xml")
-with open(file_with_version) as f:
-    next_line_contains_version = False
-    for line in f:
-        if next_line_contains_version == False:
-            m = re.match(r'^ {4}\<artifactId\>' + module_name + r'\<\/artifactId\>', line)
-            if m:
-                next_line_contains_version = True
-        else:
-            m = re.match(r'^ {4}\<version\>(.*)\<\/version\>', line)
-            if m:
-                __version__ = m.group(1)
-                # The short X.Y version.
-                version = ".".join(__version__.split(".")[:2])
-                # The full version, including alpha/beta/rc tags.
-                release = __version__
-                break
-    else:  # AKA no-break
+file_with_version = os.path.join(source_path, "package.json")
+try:
+    with open(file_with_version, encoding="utf-8") as f:
+        package_json = json.load(f)
+
+    __version__ = package_json.get("version")
+
+    if __version__:
+        # The short X.Y version.
+        version = ".".join(__version__.split(".")[:2])
+        # The full version, including alpha/beta/rc/dev tags.
+        release = __version__
+    else:
         version = release = "dev"
+
+except (OSError, json.JSONDecodeError):
+    version = release = "dev"
 
 
 # -- General configuration ---------------------------------------------------
@@ -135,8 +134,7 @@ todo_include_todos = True
 
 # Links to external documentations
 intersphinx_mapping = {
-    "powsyblopenloadflow": ("https://powsybl.readthedocs.io/projects/powsybl-open-loadflow/en/latest/", None),
-    "powsybldynawo": ("https://powsybl.readthedocs.io/projects/powsybl-dynawo/en/latest/", None),
+    "powsyblcore": ("https://powsybl.readthedocs.io/projects/powsybl-core/en/latest/", None),
     "powsybldiagram": ("https://powsybl.readthedocs.io/projects/powsybl-diagram/latest/", None),
     "powsybltutorials": ("https://powsybl.readthedocs.io/projects/powsybl-tutorials/en/latest/", None)
 }
@@ -159,20 +157,34 @@ def extract_base_url(url):
     if m:
         return m.group(1)
 
+# Check that the version is not a pre-release version
+def is_prerelease(version):
+    # Covers: -dev, -alpha, -beta, -rc, etc.
+    return bool(re.search(r"-[a-zA-Z]", version))
+
 # Replace the default version in the URL with the version from the pom.xml
-def replace_versions(intersphinx_mapping, file):
-    with open(file) as f:
-        for line in f:
-            m = re.match(r'^ {8}\<(.*)\.version\>(.*)\<\/(.*)\.version\>', line)
-            if m and m.group(1) == m.group(3):
-                dependency = m.group(1)
-                version = m.group(2)
-                if "SNAPSHOT" not in version and dependency in intersphinx_mapping:
-                    url_start = extract_base_url(intersphinx_mapping[dependency][0])
-                    if url_start:
-                        intersphinx_mapping[dependency] = (url_start + version + "/", None)
-            if "</properties>" in line:
-                break
+def replace_versions(intersphinx_mapping, package_json_file):
+    with open(package_json_file, encoding="utf-8") as f:
+        package_json = json.load(f)
+
+    # Merge dependencies + devDependencies
+    dependencies = {}
+    dependencies.update(package_json.get("dependencies", {}))
+    dependencies.update(package_json.get("devDependencies", {}))
+
+    for dependency, version in dependencies.items():
+        if dependency in intersphinx_mapping:
+            # Remove npm range operators (^, ~, >=, etc.)
+            clean_version = re.sub(r"^[^\d]*", "", version)
+
+            if not is_prerelease(clean_version):
+                url_start = extract_base_url(intersphinx_mapping[dependency][0])
+                if url_start:
+                    intersphinx_mapping[dependency] = (
+                        url_start + clean_version + "/",
+                        None,
+                    )
+
     return intersphinx_mapping
 
 intersphinx_mapping = replace_versions(intersphinx_mapping, file_with_version)

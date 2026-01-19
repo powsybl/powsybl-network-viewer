@@ -60,7 +60,7 @@ If you want to link a specific part of a page, use one of those examples:
 - [Intersphinx roles](inv:sphinx:std:label:#ref-role).
 - [Intersphinx roles](inv:sphinx:*:*:#ref-role).
 ~~~
-*Note: for the last examples to work, there need to be a corresponding reference in the external documentation.
+*Note: for the last examples to work, there needs to be a corresponding reference in the external documentation.
 For those examples, `(ref-role)=` has been added right before the corresponding title
 in the [Cross-referencing syntax page](inv:sphinx:std:doc#usage/referencing). Another way to make it work is to use the `autosectionlabel` module in Sphinx to
 automatically generate anchors for each title.*
