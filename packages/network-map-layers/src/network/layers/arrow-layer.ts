@@ -6,8 +6,8 @@
  */
 
 import { GL } from '@luma.gl/constants';
-import { Geometry, Model } from '@luma.gl/engine';
 import { Device, RenderPass, Texture, TextureFormat, TextureProps, UniformValue } from '@luma.gl/core';
+import { Geometry, Model } from '@luma.gl/engine';
 
 import {
     type Accessor,
@@ -21,10 +21,48 @@ import {
     project32,
     type UpdateParameters,
 } from '@deck.gl/core';
+import { ShaderModule } from '@luma.gl/shadertools';
 import { type MapAnyLineWithType } from '../../equipment-types';
 
-import vs from './arrow-layer-vertex.vert?raw';
 import fs from './arrow-layer-fragment.frag?raw';
+import vs from './arrow-layer-vertex.vert?raw';
+
+const arrowUniformBlock = `\
+uniform arrowUniforms {
+    float sizeMinPixels;
+    float sizeMaxPixels;
+    float timestamp;
+    float maxParallelOffset;
+    float minParallelOffset;
+    highp ivec2 linePositionsTextureSize;
+    highp ivec2 lineDistancesTextureSize;
+} arrow;
+`;
+
+type ArrowUniforms = {
+    sizeMinPixels: number;
+    sizeMaxPixels: number;
+    timestamp: number;
+    maxParallelOffset: number;
+    minParallelOffset: number;
+    linePositionsTextureSize: [number, number];
+    lineDistancesTextureSize: [number, number];
+};
+
+const arrowUniforms = {
+    name: 'arrow',
+    vs: arrowUniformBlock,
+    fs: arrowUniformBlock,
+    uniformTypes: {
+        sizeMinPixels: 'f32',
+        sizeMaxPixels: 'f32',
+        timestamp: 'f32',
+        maxParallelOffset: 'f32',
+        minParallelOffset: 'f32',
+        linePositionsTextureSize: 'vec2<i32>',
+        lineDistancesTextureSize: 'vec2<i32>',
+    },
+} as const satisfies ShaderModule<ArrowUniforms>;
 
 const DEFAULT_COLOR = [0, 0, 0, 255] satisfies Color;
 
@@ -116,7 +154,7 @@ export default class ArrowLayer extends Layer<Required<_ArrowLayerProps>> {
     };
 
     override getShaders() {
-        return super.getShaders({ vs, fs, modules: [project32, picking] });
+        return super.getShaders({ vs, fs, modules: [project32, picking, arrowUniforms] });
     }
 
     getArrowLineAttributes(arrow: Arrow) {
@@ -429,7 +467,7 @@ export default class ArrowLayer extends Layer<Required<_ArrowLayerProps>> {
         window.requestAnimationFrame((timestamp) => this.animate(timestamp));
     }
 
-    draw({ uniforms, renderPass }: { uniforms: Record<string, UniformValue>; renderPass: RenderPass }) {
+    draw({ renderPass }: { uniforms: Record<string, UniformValue>; renderPass: RenderPass }) {
         const { sizeMinPixels, sizeMaxPixels } = this.props;
 
         const {
@@ -446,20 +484,17 @@ export default class ArrowLayer extends Layer<Required<_ArrowLayerProps>> {
             lineDistancesTexture,
         });
 
-        model!.setUniforms({
-            ...uniforms,
+        const arrow: ArrowUniforms = {
             sizeMinPixels,
             sizeMaxPixels,
-            // maxTextureSize,
-            // @ts-expect-error TODO TS2339: Properties width and height does not exists on type Texture2D
-            linePositionsTextureSize: [linePositionsTexture.width, linePositionsTexture.height],
-            // @ts-expect-error TODO TS2339: Properties width and height does not exists on type Texture2D
-            lineDistancesTextureSize: [lineDistancesTexture.width, lineDistancesTexture.height],
-            // @ts-expect-error TODO TS2339: Properties width and height does not exists on type Texture2D
-            timestamp,
+            timestamp: timestamp || 0,
             maxParallelOffset: this.props.maxParallelOffset,
             minParallelOffset: this.props.minParallelOffset,
-        });
+            linePositionsTextureSize: [linePositionsTexture!.width, linePositionsTexture!.height],
+            lineDistancesTextureSize: [lineDistancesTexture!.width, lineDistancesTexture!.height],
+        };
+        model!.shaderInputs.setProps({ arrow });
+
         model!.draw(renderPass);
     }
 
