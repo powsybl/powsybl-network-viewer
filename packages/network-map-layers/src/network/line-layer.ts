@@ -11,6 +11,7 @@ import {
     type Color,
     CompositeLayer,
     type CompositeLayerProps,
+    COORDINATE_SYSTEM,
     type Layer,
     type LayerContext,
     type PickingInfo,
@@ -735,7 +736,13 @@ export class LineLayer extends CompositeLayer<Required<_LineLayerProps>> {
     }
 
     getProximityFactor(firstPosition: LonLat, secondPosition: LonLat) {
-        let factor = getDistance(firstPosition, secondPosition) / (3 * this.props.distanceBetweenLines);
+        let dist;
+        if (this.props.coordinateSystem === COORDINATE_SYSTEM.CARTESIAN) {
+            dist = Math.hypot(secondPosition[0] - firstPosition[0], secondPosition[1] - firstPosition[1]);
+        } else {
+            dist = getDistance(firstPosition, secondPosition);
+        }
+        let factor = dist / (3 * this.props.distanceBetweenLines);
         if (factor > 1) {
             factor = 1;
         }
@@ -743,6 +750,11 @@ export class LineLayer extends CompositeLayer<Required<_LineLayerProps>> {
     }
 
     computeAngle(props: this['props'], position1: LonLat, position2: LonLat) {
+        if (props.coordinateSystem === COORDINATE_SYSTEM.CARTESIAN) {
+            const [x1, y1] = position1;
+            const [x2, y2] = position2;
+            return (3 * Math.PI) / 2 - Math.atan2(y2 - y1, x2 - x1);
+        }
         let angle = props.geoData.getMapAngle(position1, position2);
         angle = (angle * Math.PI) / 180 + Math.PI;
         if (angle < 0) {
