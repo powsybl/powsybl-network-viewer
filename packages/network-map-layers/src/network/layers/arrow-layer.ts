@@ -21,7 +21,7 @@ import {
     project32,
     type UpdateParameters,
 } from '@deck.gl/core';
-import { ShaderModule } from '@luma.gl/shadertools';
+import type { ShaderModule } from '@luma.gl/shadertools';
 import { type MapAnyLineWithType } from '../../equipment-types';
 
 import fs from './arrow-layer-fragment.frag?raw';

@@ -8,7 +8,7 @@
 import type { Accessor, DefaultProps } from '@deck.gl/core';
 import { LineLayer, type LineLayerProps } from '@deck.gl/layers';
 import type { UniformValue } from '@luma.gl/core';
-import { ShaderModule } from '@luma.gl/shadertools';
+import type { ShaderModule } from '@luma.gl/shadertools';
 
 const forkLineUniformBlock = `\
 uniform forkLineUniforms {
@@ -122,7 +122,7 @@ in float instanceProximityFactor;
     trans.x -= sin(instanceLineAngle) * instanceProximityFactor;
     trans.y -= cos(instanceLineAngle) * instanceProximityFactor;
 
-    float transLen = max(1e-6, length(trans.xy));
+    float transLen = max(1e-6, length(trans.xy)); // enforce minimum length to avoid division by zero
     vec4 transTargetCommon = trans * offsetCommonSpace;
     vec4 transSourceCommon = trans * (offsetSubstationCommonSpace / transLen);
 
