@@ -75,6 +75,8 @@ export default defineConfig((config) => ({
                     '@svgdotjs/svg.js': 'SvgJs',
                     '@mapbox/mapbox-gl-draw': 'MapboxGlDraw',
                     '@turf/boolean-point-in-polygon': 'BooleanPointInPolygon',
+                    '@powsybl/network-viewer-core': 'PowsyblNetworkViewerCore',
+                    '@powsybl/network-map-layers': 'PowsyblNetworkMapLayers',
                 },
             },
         },

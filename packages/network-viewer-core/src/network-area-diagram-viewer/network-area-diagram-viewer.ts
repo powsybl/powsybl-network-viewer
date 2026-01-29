@@ -19,7 +19,7 @@ import {
     NodeMetadata,
     TextNodeMetadata,
 } from './diagram-metadata';
-import { debounce } from '@mui/material';
+import debounce from 'lodash.debounce';
 import {
     NadViewerParameters,
     NadViewerParametersOptions,
@@ -30,7 +30,12 @@ import {
     OnSelectNodeCallbackType,
     OnToggleNadHoverCallbackType,
 } from './nad-viewer-parameters';
-import { Cancelable } from '@mui/utils/debounce/debounce';
+
+// Type for cancelable debounced functions (replaces @mui/utils Cancelable)
+interface Cancelable {
+    cancel(): void;
+    flush(): void;
+}
 import * as ViewerButtons from './viewer-buttons';
 import * as SvgUtils from './svg-utils';
 import * as MetadataUtils from './metadata-utils';
@@ -844,7 +849,7 @@ export class NetworkAreaDiagramViewer {
     }
 
     private resetHoverCallback(): void {
-        this.debounceToggleHoverCallback.clear();
+        this.debounceToggleHoverCallback.cancel();
         if (this.isHoverCallbackUsed) {
             this.isHoverCallbackUsed = false;
             this.onToggleHoverCallback?.(false, null, '', '');

@@ -5,30 +5,27 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-export { NetworkAreaDiagramViewer } from './components/network-area-diagram-viewer/network-area-diagram-viewer';
-export type { BranchState } from './components/network-area-diagram-viewer/network-area-diagram-viewer';
-export type {
-    BusNodeMetadata,
-    DiagramMetadata,
-    EdgeMetadata,
-    LayoutParametersMetadata,
-    NodeMetadata,
-    SvgParametersMetadata,
-    TextNodeMetadata,
-} from './components/network-area-diagram-viewer/diagram-metadata';
-export type {
-    OnMoveNodeCallbackType,
-    OnMoveTextNodeCallbackType,
-    OnSelectNodeCallbackType,
-    OnToggleNadHoverCallbackType,
-    OnRightClickCallbackType,
-    OnBendLineCallbackType,
-    NadViewerParametersOptions,
-    NadViewerParameters,
-} from './components/network-area-diagram-viewer/nad-viewer-parameters';
-export { LayoutParameters } from './components/network-area-diagram-viewer/layout-parameters';
-export { SvgParameters } from './components/network-area-diagram-viewer/svg-parameters';
+// Re-export all viewers from @powsybl/network-viewer-core (React-free)
 export {
+    NetworkAreaDiagramViewer,
+    type BranchState,
+    type BusNodeMetadata,
+    type DiagramMetadata,
+    type EdgeMetadata,
+    type LayoutParametersMetadata,
+    type NodeMetadata,
+    type SvgParametersMetadata,
+    type TextNodeMetadata,
+    type OnMoveNodeCallbackType,
+    type OnMoveTextNodeCallbackType,
+    type OnSelectNodeCallbackType,
+    type OnToggleNadHoverCallbackType,
+    type OnRightClickCallbackType,
+    type OnBendLineCallbackType,
+    type NadViewerParametersOptions,
+    type NadViewerParameters,
+    LayoutParameters,
+    SvgParameters,
     SingleLineDiagramViewer,
     type OnBreakerCallbackType,
     type OnBusCallbackType,
@@ -39,8 +36,9 @@ export {
     type SLDMetadataComponent,
     type SLDMetadataComponentSize,
     type SLDMetadataNode,
-} from './components/single-line-diagram-viewer/single-line-diagram-viewer';
+} from '@powsybl/network-viewer-core';
 
+// Re-export from @powsybl/network-map-layers
 export {
     GeoData,
     LineFlowColorMode,
