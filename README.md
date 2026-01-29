@@ -10,8 +10,50 @@ This library contains three viewers:
 The library is built with the Vite bundler.
 Node from v22+ is required to build with Vite.
 
-Installation using npm:  
-'npm install @powsybl/network-viewer'
+## Installation
+
+The library is split into 3 packages to accommodate different use cases:
+
+| Package | Description |
+|---------|-------------|
+| `@powsybl/network-viewer` | Full package with all viewers including NetworkMap |
+| `@powsybl/network-viewer-core` | Core viewers (NAD + SLD) |
+| `@powsybl/network-map-layers` | Deck.gl layers for map integration |
+
+### For full package
+
+```bash
+npm install @powsybl/network-viewer
+```
+
+This package requires React peer dependencies:
+- `react`, `react-dom`, `react-intl`
+- `@mui/material`, `@mui/icons-material`, `@emotion/styled`
+
+### For Angular/Vue/Vanilla JS applications (React-free)
+
+If you only need the SVG diagram viewers (NetworkAreaDiagramViewer and SingleLineDiagramViewer) without React:
+
+```bash
+npm install @powsybl/network-viewer-core
+```
+
+Usage:
+```typescript
+import { NetworkAreaDiagramViewer, SingleLineDiagramViewer, LayoutParameters, SvgParameters } from '@powsybl/network-viewer-core';
+
+// Create NAD viewer
+const nadViewer = new NetworkAreaDiagramViewer(container, svgContent, metadata, minWidth, minHeight, maxWidth, maxHeight, parameters);
+
+// Create SLD viewer
+const sldViewer = new SingleLineDiagramViewer(container, svgContent, metadata, options);
+```
+
+### For Deck.gl map layers only
+
+```bash
+npm install @powsybl/network-map-layers
+```
 
 #### For developers
 

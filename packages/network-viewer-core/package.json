@@ -1,0 +1,54 @@
+{
+    "name": "@powsybl/network-viewer-core",
+    "version": "3.1.0",
+    "description": "Core TypeScript library for PowSyBl network viewers (NAD/SLD)",
+    "author": "PowSyBl team",
+    "homepage": "https://www.powsybl.org/",
+    "license": "MPL-2.0",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/powsybl/powsybl-network-viewer.git"
+    },
+    "engines": {
+        "node": ">=22",
+        "npm": "^10.9.2"
+    },
+    "type": "module",
+    "main": "./dist/powsybl-network-viewer-core.cjs",
+    "module": "./dist/powsybl-network-viewer-core.js",
+    "types": "./dist/index.d.ts",
+    "files": [
+        "dist"
+    ],
+    "exports": {
+        ".": {
+            "import": {
+                "types": "./dist/index.d.ts",
+                "default": "./dist/powsybl-network-viewer-core.js"
+            },
+            "require": {
+                "types": "./dist/index.d.cts",
+                "default": "./dist/powsybl-network-viewer-core.cjs"
+            }
+        },
+        "./package.json": "./package.json"
+    },
+    "scripts": {
+        "build": "vite build",
+        "check": "tsc --noEmit",
+        "check:pack": "attw --pack"
+    },
+    "dependencies": {
+        "lodash.debounce": "^4.0.8",
+        "@svgdotjs/svg.js": "^3.2.4",
+        "@svgdotjs/svg.panzoom.js": "^2.1.2"
+    },
+    "devDependencies": {
+        "@arethetypeswrong/cli": "^0.17.4",
+        "@types/lodash.debounce": "^4.0.9",
+        "typescript": "~5.3.3",
+        "vite": "^5.4.14",
+        "vite-plugin-dts": "^3.9.1",
+        "vite-plugin-eslint": "^1.8.1"
+    }
+}
