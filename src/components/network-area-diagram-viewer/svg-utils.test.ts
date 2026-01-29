@@ -51,6 +51,21 @@ test('getPathAngle', () => {
     expect(angle).toBeCloseTo(-51, 0);
 });
 
+test('getPathPoints', () => {
+    const points = SvgUtils.getPathPoints(getSvgPath().getAttribute('d'));
+    expect(points?.length).toBe(5);
+    expect(points?.at(0)?.x).toBe(350.33);
+    expect(points?.at(0)?.y).toBe(-167.48);
+    expect(points?.at(1)?.x).toBe(364.63);
+    expect(points?.at(1)?.y).toBe(-184.85);
+    expect(points?.at(2)?.x).toBe(390.06);
+    expect(points?.at(2)?.y).toBe(-215.73);
+    expect(points?.at(3)?.x).toBe(412.13);
+    expect(points?.at(3)?.y).toBe(-202.64);
+    expect(points?.at(4)?.x).toBe(415.64);
+    expect(points?.at(4)?.y).toBe(-193.28);
+});
+
 test('isTextNode', () => {
     const isTextNode = SvgUtils.isTextNode(getSvgTextNode());
     expect(isTextNode).toBe(true);
