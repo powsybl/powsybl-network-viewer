@@ -1670,7 +1670,8 @@ export class NetworkAreaDiagramViewer {
     }
 
     private getElementsInViewbox(tolerance = 0) {
-        const viewBox = this.getViewBox();
+        const containerRect = this.container.getBoundingClientRect();
+        const viewBox = SvgUtils.computeVisibleArea(this.getViewBox(), containerRect.width, containerRect.height);
         const metadata = this.diagramMetadata;
         if (!viewBox || !metadata) {
             return { nodes: [], edges: [] };
