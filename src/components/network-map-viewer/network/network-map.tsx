@@ -5,6 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+import { type Layer, type PickingInfo } from '@deck.gl/core';
 import { MapboxOverlay, type MapboxOverlayProps } from '@deck.gl/mapbox';
 import type MapboxDraw from '@mapbox/mapbox-gl-draw';
 import { Replay } from '@mui/icons-material';
@@ -28,7 +29,6 @@ import {
     SubstationLayer,
 } from '@powsybl/network-map-layers';
 import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
-import { type Layer, type PickingInfo } from '@deck.gl/core';
 import type { Feature, Polygon } from 'geojson';
 import mapboxgl, { type MapLayerMouseEvent as MapBoxLayerMouseEvent } from 'mapbox-gl';
 import maplibregl, { type MapLayerMouseEvent as MapLibreLayerMouseEvent } from 'maplibre-gl';
@@ -58,8 +58,8 @@ import { useNameOrId } from '../utils/equipmentInfosHandler';
 import LoaderWithOverlay from '../utils/loader-with-overlay';
 import DrawControl, { type DrawControlProps } from './draw-control';
 
-import 'mapbox-gl/dist/mapbox-gl.css';
 import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
+import 'mapbox-gl/dist/mapbox-gl.css';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
 // MouseEvent.button https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/button
@@ -80,7 +80,6 @@ export enum DRAW_EVENT {
 // Small boilerplate recommended by deckgl, to bridge to a react-map-gl control declaratively
 // see https://deck.gl/docs/api-reference/mapbox/mapbox-overlay#using-with-react-map-gl
 const DeckGLOverlay = forwardRef<MapboxOverlay, MapboxOverlayProps>((props, ref) => {
-    // @ts-expect-error TS2322: Type MapboxOverlay is not assignable to type IControl
     const overlay = useControl<MapboxOverlay>(() => new MapboxOverlay(props));
     overlay.setProps(props);
     useImperativeHandle(ref, () => overlay, [overlay]);

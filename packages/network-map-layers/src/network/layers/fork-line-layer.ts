@@ -5,9 +5,44 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import { LineLayer, type LineLayerProps } from '@deck.gl/layers';
 import type { Accessor, DefaultProps } from '@deck.gl/core';
+import { LineLayer, type LineLayerProps } from '@deck.gl/layers';
 import type { UniformValue } from '@luma.gl/core';
+import type { ShaderModule } from '@luma.gl/shadertools';
+
+const forkLineUniformBlock = `\
+uniform forkLineUniforms {
+    float distanceBetweenLines;
+    float maxParallelOffset;
+    float minParallelOffset;
+    float substationRadius;
+    float substationMaxPixel;
+    float minSubstationRadiusPixel;
+} forkLine;
+`;
+
+type ForkLineProps = {
+    distanceBetweenLines: number;
+    maxParallelOffset: number;
+    minParallelOffset: number;
+    substationRadius: number;
+    substationMaxPixel: number;
+    minSubstationRadiusPixel: number;
+};
+
+const forkLineUniforms = {
+    name: 'forkLine',
+    vs: forkLineUniformBlock,
+    fs: forkLineUniformBlock,
+    uniformTypes: {
+        distanceBetweenLines: 'f32',
+        maxParallelOffset: 'f32',
+        minParallelOffset: 'f32',
+        substationRadius: 'f32',
+        substationMaxPixel: 'f32',
+        minSubstationRadiusPixel: 'f32',
+    },
+} as const satisfies ShaderModule<ForkLineProps>;
 
 type _ForkLineLayerProps<DataT> = {
     /** real number representing the parallel translation, normalized to distanceBetweenLines */
@@ -67,33 +102,39 @@ in float instanceLineParallelIndex;
 in float instanceLineAngle;
 in float instanceOffsetStart;
 in float instanceProximityFactor;
-uniform float distanceBetweenLines;
-uniform float maxParallelOffset;
-uniform float minParallelOffset;
-uniform float substationRadius;
-uniform float substationMaxPixel;
-uniform float minSubstationRadiusPixel;
             `,
             'float segmentIndex = positions.x': `;
-    target = source ;
-    float offsetPixels = clamp(project_size_to_pixel( distanceBetweenLines), minParallelOffset, maxParallelOffset );
+    target = source;
+    target_commonspace = source_commonspace;
+
+    float offsetPixels = clamp(project_size_to_pixel(forkLine.distanceBetweenLines), forkLine.minParallelOffset, forkLine.maxParallelOffset);
     float offsetCommonSpace = project_pixel_size(offsetPixels);
 
-    float offsetSubstation = clamp(project_size_to_pixel(substationRadius*instanceOffsetStart ), 
-                                    minSubstationRadiusPixel, 
-                                    substationMaxPixel * instanceOffsetStart );
-    float offsetSubstationCommonSpace = project_pixel_size(offsetSubstation) ;
+    float offsetSubstation = clamp(
+        project_size_to_pixel(forkLine.substationRadius * instanceOffsetStart),
+        forkLine.minSubstationRadiusPixel,
+        forkLine.substationMaxPixel * instanceOffsetStart
+    );
+    float offsetSubstationCommonSpace = project_pixel_size(offsetSubstation);
 
-    vec4 trans = vec4(cos(instanceLineAngle), -sin(instanceLineAngle ), 0, 0.) * instanceLineParallelIndex;
+    vec4 trans = vec4(cos(instanceLineAngle), -sin(instanceLineAngle), 0.0, 0.0) * instanceLineParallelIndex;
 
     trans.x -= sin(instanceLineAngle) * instanceProximityFactor;
     trans.y -= cos(instanceLineAngle) * instanceProximityFactor;
 
-    source+=project_common_position_to_clipspace(trans * (offsetSubstationCommonSpace / sqrt(trans.x*trans.x+trans.y*trans.y))) - project_uCenter;
-    target+=project_common_position_to_clipspace(trans * offsetCommonSpace) - project_uCenter;
+    float transLen = max(1e-6, length(trans.xy)); // enforce minimum length to avoid division by zero
+    vec4 transTargetCommon = trans * offsetCommonSpace;
+    vec4 transSourceCommon = trans * (offsetSubstationCommonSpace / transLen);
+
+    source_commonspace += transSourceCommon;
+    target_commonspace += transTargetCommon;
+
+    source += project_common_position_to_clipspace(transSourceCommon) - project.center;
+    target += project_common_position_to_clipspace(transTargetCommon) - project.center;
 
             `,
         };
+        shaders.modules.push(forkLineUniforms);
         return shaders;
     }
 
@@ -125,16 +166,16 @@ uniform float minSubstationRadiusPixel;
 
     // TODO find the full type for record values
     override draw({ uniforms }: { uniforms: Record<string, UniformValue> }) {
-        super.draw({
-            uniforms: {
-                ...uniforms,
-                distanceBetweenLines: this.props.getDistanceBetweenLines,
-                maxParallelOffset: this.props.getMaxParallelOffset,
-                minParallelOffset: this.props.getMinParallelOffset,
-                substationRadius: this.props.getSubstationRadius,
-                substationMaxPixel: this.props.getSubstationMaxPixel,
-                minSubstationRadiusPixel: this.props.getMinSubstationRadiusPixel,
-            },
-        });
+        const model = this.state.model!;
+        const forkLine = {
+            distanceBetweenLines: this.props.getDistanceBetweenLines,
+            maxParallelOffset: this.props.getMaxParallelOffset,
+            minParallelOffset: this.props.getMinParallelOffset,
+            substationRadius: this.props.getSubstationRadius,
+            substationMaxPixel: this.props.getSubstationMaxPixel,
+            minSubstationRadiusPixel: this.props.getMinSubstationRadiusPixel,
+        };
+        model.shaderInputs.setProps({ forkLine });
+        super.draw({ uniforms });
     }
 }

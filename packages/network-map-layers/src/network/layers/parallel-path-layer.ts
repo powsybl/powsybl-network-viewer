@@ -8,6 +8,32 @@
 import type { Accessor, DefaultProps } from '@deck.gl/core';
 import { PathLayer, type PathLayerProps } from '@deck.gl/layers';
 import type { UniformValue } from '@luma.gl/core';
+import type { ShaderModule } from '@luma.gl/shadertools';
+
+const parallelPathUniformBlock = `\
+uniform parallelPathUniforms {
+    float distanceBetweenLines;
+    float maxParallelOffset;
+    float minParallelOffset;
+} parallelPath;
+`;
+
+type ParallelPathProps = {
+    distanceBetweenLines: number;
+    maxParallelOffset: number;
+    minParallelOffset: number;
+};
+
+const parallelPathUniforms = {
+    name: 'parallelPath',
+    vs: parallelPathUniformBlock,
+    fs: parallelPathUniformBlock,
+    uniformTypes: {
+        distanceBetweenLines: 'f32',
+        maxParallelOffset: 'f32',
+        minParallelOffset: 'f32',
+    },
+} as const satisfies ShaderModule<ParallelPathProps>;
 
 type _ParallelPathLayerProps<DataT = unknown> = {
     /** real number representing the parallel translation, normalized to distanceBetweenLines */
@@ -49,9 +75,7 @@ export default class ParallelPathLayer<DataT = unknown> extends PathLayer<
     override getShaders() {
         const shaders = super.getShaders();
         shaders.inject = Object.assign({}, shaders.inject, {
-            'vs:#decl':
-                shaders.inject['vs:#decl'] +
-                `\
+            'vs:#decl': `\
 //Note: with the following attribute, we have reached the limit (16 on most platforms) of the number of attributes.
 //      with webgl2, this might be raised in the future to 32 on most platforms...
 //      The PathLayer that this class extends already uses 13 attributes (and 15 with the dash extension).
@@ -75,13 +99,8 @@ export default class ParallelPathLayer<DataT = unknown> extends PathLayer<
 //       only its buffer, so it hurts performance a bit in this case.
 //       But this is a rare case for us (changing parameters) so it doesn't matter much.
 in vec4 instanceExtraAttributes;
-uniform float distanceBetweenLines;
-uniform float maxParallelOffset;
-uniform float minParallelOffset;
 `,
-            'vs:#main-end':
-                shaders.inject['vs:#main-end'] +
-                `\
+            'vs:#main-end': `\
 
 bool isSegmentEnd = isEnd > EPSILON;
 bool isFirstSegment = (instanceTypes == 1.0 || instanceTypes == 3.0);
@@ -96,7 +115,7 @@ else if ( isSegmentEnd && isLastSegment){
 }
 float instanceLineParallelIndex = (mod(instanceExtraAttributes[3], 64.0) - 31.0) / 2.0;
  
-float offsetPixels = clamp(project_size_to_pixel(distanceBetweenLines), minParallelOffset, maxParallelOffset);
+float offsetPixels = clamp(project_size_to_pixel(parallelPath.distanceBetweenLines), parallelPath.minParallelOffset, parallelPath.maxParallelOffset);
 float offsetCommonSpace = project_pixel_size(offsetPixels);
 vec4 trans = vec4(cos(instanceLineAngle), -sin(instanceLineAngle), 0, 0.) * instanceLineParallelIndex;
 
@@ -113,9 +132,11 @@ else if (!isSegmentEnd && isFirstSegment)
 }
 
 trans = trans * offsetCommonSpace;
-gl_Position += project_common_position_to_clipspace(trans) - project_uCenter;
+geometry.position += trans;
+gl_Position += project_common_position_to_clipspace(trans) - project.center;
 `,
         });
+        shaders.modules.push(parallelPathUniforms);
         return shaders;
     }
 
@@ -132,13 +153,13 @@ gl_Position += project_common_position_to_clipspace(trans) - project_uCenter;
     }
 
     override draw({ uniforms }: { uniforms: Record<string, UniformValue> }) {
-        super.draw({
-            uniforms: {
-                ...uniforms,
-                distanceBetweenLines: this.props.distanceBetweenLines,
-                maxParallelOffset: this.props.maxParallelOffset,
-                minParallelOffset: this.props.minParallelOffset,
-            },
-        });
+        const model = this.state.model!;
+        const parallelPath = {
+            distanceBetweenLines: this.props.distanceBetweenLines,
+            maxParallelOffset: this.props.maxParallelOffset,
+            minParallelOffset: this.props.minParallelOffset,
+        };
+        model.shaderInputs.setProps({ parallelPath });
+        super.draw({ uniforms });
     }
 }

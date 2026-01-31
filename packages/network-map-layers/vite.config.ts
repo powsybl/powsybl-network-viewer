@@ -34,7 +34,7 @@ export default defineConfig({
             fileName: 'powsybl-network-map-layers',
         },
         rollupOptions: {
-            external: [...Object.keys(pkg.peerDependencies), /^node:.*/],
+            external: [...Object.keys(pkg.peerDependencies), ...Object.keys(pkg.dependencies), /^node:.*/],
             output: {
                 globals: {
                     '@deck.gl/core': 'DeckGlCore',
