@@ -9,6 +9,7 @@ header:
 
   paths-ignore:
     - 'dist'
+    - 'packages/network-map-layers/dist'
     - 'licenses'
     - '**/*.md'
     - 'LICENSE'
@@ -23,5 +24,7 @@ header:
     - '**/*.css'
     - '**/*.conf'
     - '**/*.properties'
+    - '**/*.vert'
+    - '**/*.frag'
 
   comment: on-failure

@@ -13,7 +13,7 @@ import {
     type MapSubstation,
     type MapTieLine,
     type MapVoltageLevel,
-} from '../../../equipment-types';
+} from '../equipment-types';
 
 const elementIdIndexer = <T extends MapEquipment>(map: Map<string, T>, element: T) => map.set(element.id, element);
 

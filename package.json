@@ -1,6 +1,6 @@
 {
     "name": "@powsybl/network-viewer",
-    "version": "1.8.0",
+    "version": "3.2.0-dev.0",
     "description": "TypeScript library to integrate PowSyBl network viewers in a JavaScript project.",
     "author": "PowSyBl team",
     "homepage": "https://www.powsybl.org/",
@@ -19,9 +19,14 @@
     "module": "./dist/powsybl-network-viewer.js",
     "exports": {
         ".": {
-            "import": "./dist/powsybl-network-viewer.js",
-            "types": "./dist/index.d.ts",
-            "require": "./dist/powsybl-network-viewer.umd.cjs"
+            "import": {
+                "types": "./dist/index.d.ts",
+                "default": "./dist/powsybl-network-viewer.js"
+            },
+            "require": {
+                "types": "./dist/index.d.cts",
+                "default": "./dist/powsybl-network-viewer.umd.cjs"
+            }
         },
         "./package.json": "./package.json"
     },
@@ -29,17 +34,25 @@
         "dist"
     ],
     "scripts": {
-        "postinstall": "rimraf -I -g ./node_modules/@types/deck.gl* ./node_modules/@types/luma.gl* ./node_modules/@types/math.gl* ./node_modules/@types/mapbox-gl",
-        "watch": "vite watch",
+        "check": "tsc --noEmit",
+        "check:pack": "attw --pack",
         "build": "vite build",
+        "build:watch": "vite build --watch --mode development",
+        "build:all": "npm run build -w @powsybl/network-map-layers && npm run build",
         "prepublishOnly": "$npm_execpath run build",
         "test": "jest",
         "test:coverage": "jest --coverage",
-        "start": "vite demo/ --open",
+        "start": "vite demo/ --config demo/vite.config.ts",
+        "start:open": "vite demo/ --config demo/vite.config.ts --open",
         "lint": "eslint --cache --report-unused-disable-directives --report-unused-inline-configs warn --max-warnings 0 .",
         "lint:format": "prettier --cache --check .",
-        "licenses-check": "license-checker --summary --excludePrivatePackages --production --onlyAllow \"$( jq -r .onlyAllow[] license-checker-config.json | tr '\n' ';')\" --excludePackages \"$( jq -r .excludePackages[] license-checker-config.json | tr '\n' ';')\""
+        "licenses-check": "license-checker --summary --excludePrivatePackages --production --onlyAllow \"$( jq -r .onlyAllow[] license-checker-config.json | tr '\n' ';')\" --excludePackages \"$( jq -r .excludePackages[] license-checker-config.json | tr '\n' ';')\"",
+        "pack:all": "npm pack --workspaces --include-workspace-root",
+        "publish:all": "npm publish --workspaces --include-workspace-root"
     },
+    "workspaces": [
+        "packages/network-map-layers"
+    ],
     "overrides": {
         "@deck.gl/mapbox": {
             "@types/mapbox-gl": "npm:mapbox-gl@^3.9.4"
@@ -49,12 +62,19 @@
         }
     },
     "dependencies": {
-        "@mapbox/mapbox-gl-draw": "^1.5.0",
+        "@deck.gl/core": "~9.0.0",
+        "@deck.gl/extensions": "~9.0.0",
+        "@deck.gl/layers": "~9.0.0",
+        "@deck.gl/mapbox": "~9.0.0",
+        "@luma.gl/constants": "~9.0.0",
+        "@luma.gl/core": "~9.0.0",
+        "@luma.gl/engine": "~9.0.0",
+        "@mapbox/mapbox-gl-draw": "<1.5.0",
+        "@powsybl/network-map-layers": "^3.0.0",
         "@svgdotjs/svg.js": "^3.2.4",
         "@svgdotjs/svg.panzoom.js": "^2.1.2",
         "@turf/boolean-point-in-polygon": "^7.2.0",
         "cheap-ruler": "^4.0.0",
-        "deck.gl": "^8.9.36",
         "geolib": "^3.3.4",
         "mapbox-gl": "^3.9.4",
         "maplibre-gl": "^4.7.1",
@@ -65,24 +85,24 @@
         "@emotion/styled": "^11.14.0",
         "@mui/icons-material": "^5.16.14",
         "@mui/material": "^5.16.14",
-        "react": "^18.3.1",
-        "react-dom": "^18.3.1",
+        "react": "^19.2.0",
+        "react-dom": "^19.2.0",
         "react-intl": "^7.1.6"
     },
     "devDependencies": {
+        "@arethetypeswrong/cli": "^0.17.4",
         "@babel/core": "^7.26.8",
         "@babel/preset-env": "^7.26.8",
         "@babel/preset-typescript": "^7.26.0",
-        "@danmarshall/deckgl-typings": "^4.9.28",
-        "@eslint/js": "^9.25.1",
-        "@stylistic/eslint-plugin": "^4.2.0",
-        "@types/eslint-plugin-jsx-a11y": "^6.10.0",
+      "@eslint/js": "^9.25.1",
+      "@stylistic/eslint-plugin": "^4.2.0",
+      "@types/eslint-plugin-jsx-a11y": "^6.10.0",
         "@types/jest": "^29.5.14",
         "@types/license-checker": "^25.0.6",
         "@types/mapbox__mapbox-gl-draw": "^1.4.8",
         "@types/node": "^22.13.4",
-        "@types/react": "^18.3.18",
-        "@types/react-dom": "^18.3.5",
+        "@types/react": "^19.2.2",
+        "@types/react-dom": "^19.2.1",
         "@vitejs/plugin-react": "^4.3.4",
         "babel-jest": "^29.7.0",
         "eslint": "^9.22.0",

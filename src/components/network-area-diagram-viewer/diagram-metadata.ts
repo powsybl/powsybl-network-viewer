@@ -11,12 +11,18 @@ export interface DiagramMetadata {
     svgParameters: SvgParametersMetadata;
     busNodes: BusNodeMetadata[];
     nodes: NodeMetadata[];
+    injections?: InjectionMetadata[];
     edges: EdgeMetadata[];
     textNodes: TextNodeMetadata[];
 }
 
 export interface LayoutParametersMetadata {
+    textNodesForceLayout: boolean;
+    textNodeFixedShift: PointMetadata;
     textNodeEdgeConnectionYShift: number;
+    maxSteps: number;
+    timeoutSeconds: number;
+    injectionsAdded: boolean;
 }
 
 export interface SvgParametersMetadata {
@@ -31,15 +37,36 @@ export interface SvgParametersMetadata {
     converterStationWidth: number;
     nodeHollowWidth: number;
     unknownBusNodeExtraRadius: number;
-    edgeNameDisplayed: boolean;
     fictitiousVoltageLevelCircleRadius: number;
-    edgeInfoDisplayed: string;
     powerValuePrecision: number;
     currentValuePrecision: number;
     angleValuePrecision: number;
     voltageValuePrecision: number;
     insertNameDesc: boolean;
     cssLocation: string;
+    arrowPathIn: string;
+    arrowPathOut: string;
+    svgWidthAndHeightAdded: boolean;
+    sizeConstraint: string;
+    fixedWidth: number;
+    fixedHeight: number;
+    fixedScale: number;
+    edgeStartShift: number;
+    loopDistance: number;
+    loopEdgesAperture: number;
+    loopControlDistance: number;
+    edgeInfoAlongEdge: boolean;
+    svgPrefix: string;
+    languageTag: string;
+    percentageValuePrecision: number;
+    pstArrowHeadSize: number;
+    undefinedValueSymbol: string;
+    highlightGraph: boolean;
+    injectionAperture: number;
+    injectionEdgeLength: number;
+    injectionCircleRadius: number;
+    voltageLevelLegendsIncluded: boolean;
+    edgeInfosIncluded: boolean;
 }
 
 export interface DiagramPaddingMetadata {
@@ -55,6 +82,7 @@ export interface BusNodeMetadata {
     nbNeighbours: number;
     index: number;
     vlNode: string;
+    legend?: string;
 }
 
 export interface NodeMetadata {
@@ -63,6 +91,11 @@ export interface NodeMetadata {
     x: number;
     y: number;
     fictitious?: boolean;
+    legendSvgId?: string;
+    legendEdgeSvgId?: string;
+    legendHeader?: string[];
+    legendFooter?: string[];
+    invisible?: boolean;
 }
 
 export interface EdgeMetadata {
@@ -73,6 +106,17 @@ export interface EdgeMetadata {
     busNode1: string;
     busNode2: string;
     type: string;
+    bendingPoints?: PointMetadata[];
+    edgeInfoMiddle?: EdgeInfoMetadata;
+    edgeInfo1?: EdgeInfoMetadata;
+    edgeInfo2?: EdgeInfoMetadata;
+    invisible1?: boolean;
+    invisible2?: boolean;
+}
+
+export interface PointMetadata {
+    x: number;
+    y: number;
 }
 
 export interface TextNodeMetadata {
@@ -83,4 +127,22 @@ export interface TextNodeMetadata {
     shiftY: number;
     connectionShiftX: number;
     connectionShiftY: number;
+}
+
+export interface InjectionMetadata {
+    svgId: string;
+    equipmentId: string;
+    componentType: string;
+    busNodeId: string;
+    vlNodeId: string;
+    edgeInfo?: EdgeInfoMetadata;
+}
+
+export interface EdgeInfoMetadata {
+    svgId: string;
+    infoTypeA?: string;
+    infoTypeB?: string;
+    direction?: string;
+    labelA?: string;
+    labelB?: string;
 }

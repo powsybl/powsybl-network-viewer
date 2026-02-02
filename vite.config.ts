@@ -13,6 +13,7 @@ import svgr from 'vite-plugin-svgr';
 import checker from 'vite-plugin-checker';
 import dts from 'vite-plugin-dts';
 import * as path from 'node:path';
+import { copyFileSync } from 'node:fs';
 
 const eslintCmd = 'eslint --report-unused-disable-directives --report-unused-inline-configs warn';
 
@@ -40,6 +41,11 @@ export default defineConfig((config) => ({
         dts({
             include: ['src'],
             exclude: ['**/*.{spec,test}.{ts,tsx}'],
+            rollupTypes: true,
+            tsconfigPath: './tsconfig.json',
+            afterBuild: () => {
+                copyFileSync('dist/index.d.ts', 'dist/index.d.cts');
+            },
         }),
     ],
     build: {
