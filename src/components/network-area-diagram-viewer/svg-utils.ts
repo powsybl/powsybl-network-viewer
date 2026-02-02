@@ -8,7 +8,7 @@
 
 import { Point } from '@svgdotjs/svg.js';
 import { getAngle, getFormattedPoint } from './diagram-utils';
-import { ElementType } from './diagram-types';
+import { ElementType, ViewBox } from './diagram-types';
 
 // get the draggable element, if present,
 // from the element selected using the mouse
@@ -230,9 +230,6 @@ export function getPolylineAngle(polyline: HTMLElement): number | null {
 // get angle of first 2 points of a path
 export function getPathAngle(path: HTMLElement): number | null {
     const pathPoints = getAttribute(path, 'path', 'd');
-    if (pathPoints == null) {
-        return null;
-    }
     const points: Point[] | null = getPathPoints(pathPoints);
     if (points == null) {
         return null;
@@ -240,7 +237,11 @@ export function getPathAngle(path: HTMLElement): number | null {
     return getAngle(points[0], points[1]);
 }
 
-function getPathPoints(pathPoints: string): Point[] | null {
+export function getPathPoints(pathPoints: string | null): Point[] | null {
+    if (pathPoints == null) {
+        return null;
+    }
+
     const stringPoints: string[] = pathPoints.split(' ');
     if (stringPoints.length < 2) {
         return null;
@@ -380,4 +381,30 @@ export function getBlobFromPng(png: string): Blob {
         intArray[i] = byteString.charCodeAt(i);
     }
     return new Blob([buffer], { type: mimeString });
+}
+
+// compute the visible area box, considering that it may extend beyond the viewBox
+// when the container and the viewBox have different aspect ratio
+export function computeVisibleArea(
+    vbox: ViewBox | undefined,
+    containerWidth: number,
+    containerHeight: number
+): ViewBox | undefined {
+    if (!vbox) return;
+
+    if (vbox.width == 0 || vbox.height == 0 || containerWidth == 0 || containerHeight == 0) return;
+
+    const scaleWidth = containerWidth / vbox.width;
+    const scaleHeight = containerHeight / vbox.height;
+    const scale = Math.min(scaleWidth, scaleHeight);
+
+    const dx = (containerWidth / scale - vbox.width) / 2;
+    const dy = (containerHeight / scale - vbox.height) / 2;
+
+    return {
+        x: vbox.x - dx,
+        y: vbox.y - dy,
+        width: vbox.width + dx * 2,
+        height: vbox.height + dy * 2,
+    };
 }
