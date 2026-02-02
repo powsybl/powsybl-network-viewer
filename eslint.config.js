@@ -20,7 +20,6 @@ import { getSupportInfo, resolveConfig, resolveConfigFile } from 'prettier';
 
 const JsFiles = [`**/*.{${braceExpand('{,c,m}js{,x}').join(',')}}`];
 const TsFiles = [`**/*.{${braceExpand('{,m}ts{,x}').join(',')}}`];
-// const JsTsFiles = [`**/*.{${['cjs', 'cjsx', ...braceExpand('{,m}{j,t}s{,x}')].join(',')}}`];
 const JsTsFiles = [...JsFiles, ...TsFiles];
 const TestFiles = ['**/__tests__/**/*.{js,cjs,mjs,jsx,ts,mts,tsx}', '**/?(*.)+(spec|test).{js,cjs,mjs,jsx,ts,mts,tsx}'];
 
@@ -46,6 +45,8 @@ async function getPrettierCheckedExt() {
         .map((dotExt) => dotExt.substring(1)); // remove dot from ext string
 }
 
+const prettierExts = await getPrettierCheckedExt();
+
 export default defineConfig([
     globalIgnores([
         // .git & node_modules is implicitly always ignored
@@ -56,7 +57,7 @@ export default defineConfig([
         // We set "default files" checked when another config object don't define "files" field
         name: 'ProjectCheckedFiles',
         files: [
-            `**/*.{${[getPrettierCheckedExt(), JsTsFiles]
+            `**/*.{${[prettierExts, JsTsFiles]
                 .flat()
                 .filter((ext, index, self) => self.indexOf(ext) === index) // dedupe
                 .join(',')}}`,
@@ -105,12 +106,12 @@ export default defineConfig([
             sourceType: 'module',
         },
         rules: {
-            '@typescript-eslint/no-explicit-any': 'off', // we still have "any" in code
-            '@typescript-eslint/no-unsafe-call': 'off', // we call function typed as "any"
-            '@typescript-eslint/no-unsafe-return': 'off', // we return "any" value
-            '@typescript-eslint/no-unsafe-argument': 'off', // we still pass "any" to typed args
-            '@typescript-eslint/no-unsafe-assignment': 'off', // we still pass "any" to typed vars
-            '@typescript-eslint/no-unsafe-member-access': 'off', // access properties of object typed as "any"
+            '@typescript-eslint/no-explicit-any': 'warn', // we still have "any" in code
+            '@typescript-eslint/no-unsafe-call': 'warn', // we call function typed as "any"
+            '@typescript-eslint/no-unsafe-return': 'warn', // we return "any" value
+            '@typescript-eslint/no-unsafe-argument': 'warn', // we still pass "any" to typed args
+            '@typescript-eslint/no-unsafe-assignment': 'warn', // we still pass "any" to typed vars
+            '@typescript-eslint/no-unsafe-member-access': 'warn', // access properties of object typed as "any"
         },
     },
     {
