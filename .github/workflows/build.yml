@@ -36,7 +36,7 @@ jobs:
 
       - name: Build
         run: |
-          npm ci --ignore-scripts
+          npm ci
           npm run build:all
           npm run licenses-check
           npm run lint
