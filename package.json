@@ -45,7 +45,9 @@
         "start": "vite demo/ --config demo/vite.config.ts",
         "start:open": "vite demo/ --config demo/vite.config.ts --open",
         "lint": "eslint --cache --report-unused-disable-directives --report-unused-inline-configs warn --max-warnings 0 .",
+        "lint:fix": "eslint --cache --report-unused-disable-directives --report-unused-inline-configs warn --fix .",
         "lint:format": "prettier --cache --check .",
+        "lint:format:fix": "prettier --cache --write .",
         "licenses-check": "license-checker --summary --excludePrivatePackages --production --onlyAllow \"$( jq -r .onlyAllow[] license-checker-config.json | tr '\n' ';')\" --excludePackages \"$( jq -r .excludePackages[] license-checker-config.json | tr '\n' ';')\"",
         "pack:all": "npm pack --workspaces --include-workspace-root",
         "publish:all": "npm publish --workspaces --include-workspace-root"

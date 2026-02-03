@@ -13,7 +13,7 @@ flat in vec4 vFillColor;
 flat in float shouldDiscard;
 out vec4 fragmentColor;
 
-void main(void) {
+void main(void ) {
     if (shouldDiscard > 0.0) {
         discard;
     }
