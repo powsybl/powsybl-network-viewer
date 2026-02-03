@@ -16,7 +16,6 @@ import pluginReactHooks from 'eslint-plugin-react-hooks';
 import pluginReactRefresh from 'eslint-plugin-react-refresh';
 import pluginJest from 'eslint-plugin-jest';
 import pluginTestingLibrary from 'eslint-plugin-testing-library';
-import { getSupportInfo, resolveConfig, resolveConfigFile } from 'prettier';
 
 const JsFiles = [`**/*.{${braceExpand('{,c,m}js{,x}').join(',')}}`];
 const TsFiles = [`**/*.{${braceExpand('{,m}ts{,x}').join(',')}}`];
@@ -32,21 +31,6 @@ function setRuleLevel(rules, rule, level) {
     return rules; // just a helper for functional chaining
 }
 
-/**
- * Files checked by Prettier
- */
-async function getPrettierCheckedExt() {
-    const configPath = await resolveConfigFile(import.meta.filename);
-    const config = await resolveConfig(configPath, { useCache: false });
-    const supportInfo = await getSupportInfo({ plugins: config.plugins });
-    return supportInfo.languages
-        .flatMap((lng) => lng.extensions ?? []) // extract extensions checked by plugins
-        .concat('.env') // also checked by prettier in override section
-        .map((dotExt) => dotExt.substring(1)); // remove dot from ext string
-}
-
-const prettierExts = await getPrettierCheckedExt();
-
 export default defineConfig([
     globalIgnores([
         // .git & node_modules is implicitly always ignored
@@ -54,19 +38,17 @@ export default defineConfig([
         'coverage/**',
         'docs/_build/**',
         '**/dist/**',
+        'packages/*/vite.config.ts',  // Ignore workspace config files
+        'packages/*/jest.config.ts',
     ]),
     {
-        // We set "default files" checked when another config object don't define "files" field
-        name: 'ProjectCheckedFiles',
-        files: [
-            `**/*.{${[prettierExts, JsTsFiles]
-                .flat()
-                .filter((ext, index, self) => self.indexOf(ext) === index) // dedupe
-                .join(',')}}`,
-        ],
+        name: 'eslint declare',
+        files: JsTsFiles,
+        plugins: { js },
+        extends: ['js/recommended']
     },
-    { name: 'eslint declare', files: JsTsFiles, plugins: { js }, extends: ['js/recommended'] },
     {
+        name: 'TypeScript type-checked',
         files: TsFiles,
         extends: tsEslint.configs.recommendedTypeChecked,
         languageOptions: {
@@ -76,9 +58,21 @@ export default defineConfig([
             },
         },
     },
-    { name: 'eslint-plugin-react declare', files: JsTsFiles, plugins: { react: pluginReact } },
-    { files: JsTsFiles, ...pluginReactHooks.configs['recommended-latest'] },
-    { files: JsTsFiles, ...pluginReactRefresh.configs.vite },
+    {
+        name: 'eslint-plugin-react declare',
+        files: JsTsFiles,
+        plugins: { react: pluginReact }
+    },
+    {
+        name: 'React hooks',
+        files: JsTsFiles,
+        ...pluginReactHooks.configs['recommended-latest']
+    },
+    {
+        name: 'React refresh',
+        files: JsTsFiles,
+        ...pluginReactRefresh.configs.vite
+    },
     {
         name: 'eslint-plugin-testing-library/react',
         files: TestFiles,
@@ -138,7 +132,11 @@ export default defineConfig([
     {
         name: 'ProjectToolsConfigs',
         files: ['**/*.config.{js,ts}'],
-        languageOptions: { globals: globals.node, ecmaVersion: 'latest', sourceType: 'module' },
+        languageOptions: {
+            globals: globals.node,
+            ecmaVersion: 'latest',
+            sourceType: 'module'
+        },
         rules: {
             // Disable type-checked rules for config files
             '@typescript-eslint/no-unsafe-call': 'off',
@@ -148,8 +146,10 @@ export default defineConfig([
             '@typescript-eslint/no-unsafe-member-access': 'off',
         },
     },
-    // keep last in case we have reactivated a rule that conflict with Prettier (turn off the rules of some core & eslint plugins rules)
+    // keep last in case we have reactivated a rule that conflicts with Prettier (turn off the rules of some core & eslint plugins rules)
     {
+        name: 'Prettier',
+        files: JsTsFiles,
         ...eslintPluginPrettierRecommended, // include eslint-config-prettier
         // format isn't mandatory during dev session, so we pass it to warn level instead of error
         rules: setRuleLevel({ ...eslintPluginPrettierRecommended.rules }, 'prettier/prettier', 'warn'),
