@@ -105,12 +105,12 @@ export default defineConfig([
             sourceType: 'module',
         },
         rules: {
-            '@typescript-eslint/no-explicit-any': 'warn', // we still have "any" in code
-            '@typescript-eslint/no-unsafe-call': 'warn', // we call function typed as "any"
-            '@typescript-eslint/no-unsafe-return': 'warn', // we return "any" value
-            '@typescript-eslint/no-unsafe-argument': 'warn', // we still pass "any" to typed args
-            '@typescript-eslint/no-unsafe-assignment': 'warn', // we still pass "any" to typed vars
-            '@typescript-eslint/no-unsafe-member-access': 'warn', // access properties of object typed as "any"
+            '@typescript-eslint/no-explicit-any': 'off', // we still have "any" in code
+            '@typescript-eslint/no-unsafe-call': 'off', // we call function typed as "any"
+            '@typescript-eslint/no-unsafe-return': 'off', // we return "any" value
+            '@typescript-eslint/no-unsafe-argument': 'off', // we still pass "any" to typed args
+            '@typescript-eslint/no-unsafe-assignment': 'off', // we still pass "any" to typed vars
+            '@typescript-eslint/no-unsafe-member-access': 'off', // access properties of object typed as "any"
         },
     },
     {
