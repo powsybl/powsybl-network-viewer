@@ -52,6 +52,8 @@ export default defineConfig([
         // .git & node_modules is implicitly always ignored
         'dist/**',
         'coverage/**',
+        'docs/_build/**',
+        '**/dist/**',
     ]),
     {
         // We set "default files" checked when another config object don't define "files" field
@@ -92,6 +94,9 @@ export default defineConfig([
     {
         name: 'General configuration',
         files: JsTsFiles,
+        plugins: {
+            '@typescript-eslint': tsEslint.plugin,
+        },
         settings: {
             babel: true,
             // compat: true,
@@ -134,6 +139,14 @@ export default defineConfig([
         name: 'ProjectToolsConfigs',
         files: ['**/*.config.{js,ts}'],
         languageOptions: { globals: globals.node, ecmaVersion: 'latest', sourceType: 'module' },
+        rules: {
+            // Disable type-checked rules for config files
+            '@typescript-eslint/no-unsafe-call': 'off',
+            '@typescript-eslint/no-unsafe-return': 'off',
+            '@typescript-eslint/no-unsafe-argument': 'off',
+            '@typescript-eslint/no-unsafe-assignment': 'off',
+            '@typescript-eslint/no-unsafe-member-access': 'off',
+        },
     },
     // keep last in case we have reactivated a rule that conflict with Prettier (turn off the rules of some core & eslint plugins rules)
     {
