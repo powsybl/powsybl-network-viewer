@@ -42,6 +42,12 @@ export default defineConfig([
         'packages/*/jest.config.ts',
     ]),
     {
+        name: 'Global Linter Options',
+        linterOptions: {
+            reportUnusedDisableDirectives: 'warn',
+        },
+    },
+    {
         name: 'eslint declare',
         files: JsTsFiles,
         plugins: { js },

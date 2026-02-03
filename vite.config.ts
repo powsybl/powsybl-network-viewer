@@ -10,32 +10,14 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import svgr from 'vite-plugin-svgr';
-import checker from 'vite-plugin-checker';
 import dts from 'vite-plugin-dts';
 import * as path from 'node:path';
 import { copyFileSync } from 'node:fs';
-
-const eslintCmd = 'eslint --report-unused-disable-directives --report-unused-inline-configs warn';
+import { viteEslintChecker } from './utils/viteEslintChecker';
 
 export default defineConfig((config) => ({
     plugins: [
-        !config.isPreview &&
-            checker({
-                overlay: { initialIsOpen: 'error', position: 'bl' },
-                typescript: true,
-                eslint: {
-                    lintCommand:
-                        config.command === 'build'
-                            ? `${eslintCmd} .`
-                            : process.env.VITEST
-                              ? `${eslintCmd} "./src/**/*.{spec,test}.{js,jsx,ts,tsx}"`
-                              : `${eslintCmd} --ignore-pattern "**/*.{test,spec}.*" "./src/**/*.{js,jsx,ts,tsx}"`,
-                    useFlatConfig: true,
-                    dev: {
-                        logLevel: ['error'], // no warning in dev mode
-                    },
-                },
-            }),
+        viteEslintChecker(config.isPreview, config.command),
         react(),
         svgr(), // works on every import with the pattern "**/*.svg?react"
         dts({

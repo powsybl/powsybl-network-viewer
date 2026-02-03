@@ -8,10 +8,12 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import * as path from 'node:path';
+import { viteEslintChecker } from '../utils/viteEslintChecker';
 const workspaceRoot = path.resolve(__dirname, '..');
-export default defineConfig({
+
+export default defineConfig((config) => ({
     root: __dirname,
-    plugins: [react()],
+    plugins: [viteEslintChecker(config.isPreview, config.command), react()],
     resolve: {
         alias: {
             // Use source files from the workspace package during demo dev for HMR
@@ -32,4 +34,4 @@ export default defineConfig({
         // Do not prebundle the workspace package; we want it treated as source for HMR
         exclude: ['@powsybl/network-map-layers'],
     },
-});
+}));
