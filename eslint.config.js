@@ -38,14 +38,14 @@ export default defineConfig([
         'coverage/**',
         'docs/_build/**',
         '**/dist/**',
-        'packages/*/vite.config.ts',  // Ignore workspace config files
+        'packages/*/vite.config.ts', // Ignore workspace config files
         'packages/*/jest.config.ts',
     ]),
     {
         name: 'eslint declare',
         files: JsTsFiles,
         plugins: { js },
-        extends: ['js/recommended']
+        extends: ['js/recommended'],
     },
     {
         name: 'TypeScript type-checked',
@@ -61,17 +61,17 @@ export default defineConfig([
     {
         name: 'eslint-plugin-react declare',
         files: JsTsFiles,
-        plugins: { react: pluginReact }
+        plugins: { react: pluginReact },
     },
     {
         name: 'React hooks',
         files: JsTsFiles,
-        ...pluginReactHooks.configs['recommended-latest']
+        ...pluginReactHooks.configs['recommended-latest'],
     },
     {
         name: 'React refresh',
         files: JsTsFiles,
-        ...pluginReactRefresh.configs.vite
+        ...pluginReactRefresh.configs.vite,
     },
     {
         name: 'eslint-plugin-testing-library/react',
@@ -135,7 +135,7 @@ export default defineConfig([
         languageOptions: {
             globals: globals.node,
             ecmaVersion: 'latest',
-            sourceType: 'module'
+            sourceType: 'module',
         },
         rules: {
             // Disable type-checked rules for config files
