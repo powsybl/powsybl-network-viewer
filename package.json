@@ -58,9 +58,6 @@
     "overrides": {
         "@deck.gl/mapbox": {
             "@types/mapbox-gl": "npm:mapbox-gl@^3.9.4"
-        },
-        "@types/eslint-plugin-jsx-a11y": {
-            "@types/eslint": "npm:eslint@^9.0.0"
         }
     },
     "dependencies": {
@@ -97,8 +94,6 @@
         "@babel/preset-env": "^7.26.8",
         "@babel/preset-typescript": "^7.26.0",
         "@eslint/js": "^9.25.1",
-        "@stylistic/eslint-plugin": "^4.2.0",
-        "@types/eslint-plugin-jsx-a11y": "^6.10.0",
         "@types/jest": "^29.5.14",
         "@types/license-checker": "^25.0.6",
         "@types/mapbox__mapbox-gl-draw": "^1.4.8",
@@ -107,7 +102,6 @@
         "@types/react-dom": "^19.2.1",
         "@vitejs/plugin-react": "^4.3.4",
         "babel-jest": "^29.7.0",
-        "computeds": "^0.0.1",
         "eslint": "^9.26.0",
         "eslint-config-prettier": "^10.1.2",
         "eslint-plugin-jest": "^28.11.0",
@@ -119,7 +113,6 @@
         "globals": "^16.0.0",
         "jest": "^29.7.0",
         "jest-environment-jsdom": "^29.7.0",
-        "jiti": "^2.4.2",
         "license-checker": "^25.0.1",
         "minimatch": "^10.0.1",
         "prettier": "^3.5.3",
