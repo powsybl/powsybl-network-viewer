@@ -97,9 +97,6 @@ jobs:
               core.setFailed("❌ No matching artifact found");
               return;
             }
-            const prNumber = matchArtifact.name.replace("data-for-sonar-analysis-", "");
-            console.log(`PR number: ${prNumber}`);
-            core.exportVariable('PR_NUMBER', prNumber);
             let download = await github.rest.actions.downloadArtifact({
                owner: context.repo.owner,
                repo: context.repo.repo,
