@@ -1,280 +1,304 @@
 {
-  "layoutParameters" : {
-    "textNodesForceLayout" : false,
-    "textNodeFixedShift" : {
-      "x" : 100.0,
-      "y" : -40.0
+    "layoutParameters": {
+        "textNodesForceLayout": false,
+        "textNodeFixedShift": {
+            "x": 100.0,
+            "y": -40.0
+        },
+        "maxSteps": 1000,
+        "timeoutSeconds": 15.0,
+        "textNodeEdgeConnectionYShift": 25.0,
+        "injectionsAdded": false
     },
-    "maxSteps" : 1000,
-    "timeoutSeconds" : 15.0,
-    "textNodeEdgeConnectionYShift" : 25.0,
-    "injectionsAdded" : false
-  },
-  "svgParameters" : {
-    "diagramPadding" : {
-      "left" : 200.0,
-      "top" : 200.0,
-      "right" : 200.0,
-      "bottom" : 200.0
+    "svgParameters": {
+        "diagramPadding": {
+            "left": 200.0,
+            "top": 200.0,
+            "right": 200.0,
+            "bottom": 200.0
+        },
+        "insertNameDesc": false,
+        "svgWidthAndHeightAdded": false,
+        "cssLocation": "EXTERNAL_NO_IMPORT",
+        "sizeConstraint": "FIXED_SCALE",
+        "fixedWidth": -1,
+        "fixedHeight": -1,
+        "fixedScale": 0.2,
+        "arrowShift": 30.0,
+        "arrowLabelShift": 19.0,
+        "converterStationWidth": 70.0,
+        "voltageLevelCircleRadius": 30.0,
+        "fictitiousVoltageLevelCircleRadius": 15.0,
+        "transformerCircleRadius": 20.0,
+        "nodeHollowWidth": 15.0,
+        "edgesForkLength": 80.0,
+        "edgesForkAperture": 60.0,
+        "edgeStartShift": 0.0,
+        "unknownBusNodeExtraRadius": 10.0,
+        "loopDistance": 120.0,
+        "loopEdgesAperture": 60.0,
+        "loopControlDistance": 40.0,
+        "edgeInfoAlongEdge": true,
+        "interAnnulusSpace": 5.0,
+        "svgPrefix": "",
+        "arrowPathIn": "M-10 -10 H10 L0 10z",
+        "arrowPathOut": "M-10 10 H10 L0 -10z",
+        "languageTag": "en",
+        "voltageValuePrecision": 1,
+        "powerValuePrecision": 0,
+        "angleValuePrecision": 1,
+        "currentValuePrecision": 0,
+        "percentageValuePrecision": 0,
+        "pstArrowHeadSize": 8.0,
+        "undefinedValueSymbol": "",
+        "highlightGraph": false,
+        "injectionAperture": 10.0,
+        "injectionEdgeLength": 145.0,
+        "injectionCircleRadius": 25.0,
+        "voltageLevelLegendsIncluded": true,
+        "edgeInfosIncluded": true
     },
-    "insertNameDesc" : false,
-    "svgWidthAndHeightAdded" : false,
-    "cssLocation" : "EXTERNAL_NO_IMPORT",
-    "sizeConstraint" : "FIXED_SCALE",
-    "fixedWidth" : -1,
-    "fixedHeight" : -1,
-    "fixedScale" : 0.2,
-    "arrowShift" : 30.0,
-    "arrowLabelShift" : 19.0,
-    "converterStationWidth" : 70.0,
-    "voltageLevelCircleRadius" : 30.0,
-    "fictitiousVoltageLevelCircleRadius" : 15.0,
-    "transformerCircleRadius" : 20.0,
-    "nodeHollowWidth" : 15.0,
-    "edgesForkLength" : 80.0,
-    "edgesForkAperture" : 60.0,
-    "edgeStartShift" : 0.0,
-    "unknownBusNodeExtraRadius" : 10.0,
-    "loopDistance" : 120.0,
-    "loopEdgesAperture" : 60.0,
-    "loopControlDistance" : 40.0,
-    "edgeInfoAlongEdge" : true,
-    "interAnnulusSpace" : 5.0,
-    "svgPrefix" : "",
-    "arrowPathIn" : "M-10 -10 H10 L0 10z",
-    "arrowPathOut" : "M-10 10 H10 L0 -10z",
-    "languageTag" : "en",
-    "voltageValuePrecision" : 1,
-    "powerValuePrecision" : 0,
-    "angleValuePrecision" : 1,
-    "currentValuePrecision" : 0,
-    "percentageValuePrecision" : 0,
-    "pstArrowHeadSize" : 8.0,
-    "undefinedValueSymbol" : "",
-    "highlightGraph" : false,
-    "injectionAperture" : 10.0,
-    "injectionEdgeLength" : 145.0,
-    "injectionCircleRadius" : 25.0,
-    "voltageLevelLegendsIncluded" : true,
-    "edgeInfosIncluded" : true
-  },
-  "busNodes" : [ {
-    "svgId" : "3",
-    "equipmentId" : "S1VL1_0",
-    "nbNeighbours" : 0,
-    "index" : 0,
-    "vlNode" : "0",
-    "legend" : "224.6 kV / 2.3°"
-  }, {
-    "svgId" : "7",
-    "equipmentId" : "S1VL2_0",
-    "nbNeighbours" : 0,
-    "index" : 0,
-    "vlNode" : "4",
-    "legend" : "400.0 kV / 0.0°"
-  }, {
-    "svgId" : "11",
-    "equipmentId" : "S2VL1_0",
-    "nbNeighbours" : 0,
-    "index" : 0,
-    "vlNode" : "8",
-    "legend" : "408.8 kV / 0.7°"
-  }, {
-    "svgId" : "15",
-    "equipmentId" : "S3VL1_0",
-    "nbNeighbours" : 0,
-    "index" : 0,
-    "vlNode" : "12",
-    "legend" : "400.0 kV / 0.0°"
-  }, {
-    "svgId" : "19",
-    "equipmentId" : "S4VL1_0",
-    "nbNeighbours" : 0,
-    "index" : 0,
-    "vlNode" : "16",
-    "legend" : "400.0 kV / -1.1°"
-  } ],
-  "nodes" : [ {
-    "svgId" : "0",
-    "equipmentId" : "S1VL1",
-    "x" : -220.4,
-    "y" : -515.14,
-    "legendSvgId" : "1",
-    "legendEdgeSvgId" : "2",
-    "legendHeader" : [ "S1VL1" ]
-  }, {
-    "svgId" : "4",
-    "equipmentId" : "S1VL2",
-    "x" : -152.34,
-    "y" : -133.8,
-    "legendSvgId" : "5",
-    "legendEdgeSvgId" : "6",
-    "legendHeader" : [ "S1VL2" ]
-  }, {
-    "svgId" : "8",
-    "equipmentId" : "S2VL1",
-    "x" : -162.93,
-    "y" : 231.51,
-    "legendSvgId" : "9",
-    "legendEdgeSvgId" : "10",
-    "legendHeader" : [ "S2VL1" ]
-  }, {
-    "svgId" : "12",
-    "equipmentId" : "S3VL1",
-    "x" : 171.13,
-    "y" : 91.69,
-    "legendSvgId" : "13",
-    "legendEdgeSvgId" : "14",
-    "legendHeader" : [ "S3VL1" ]
-  }, {
-    "svgId" : "16",
-    "equipmentId" : "S4VL1",
-    "x" : 497.34,
-    "y" : 302.31,
-    "legendSvgId" : "17",
-    "legendEdgeSvgId" : "18",
-    "legendHeader" : [ "S4VL1" ]
-  } ],
-  "edges" : [ {
-    "svgId" : "20",
-    "equipmentId" : "TWT",
-    "node1" : "0",
-    "node2" : "4",
-    "busNode1" : "3",
-    "busNode2" : "7",
-    "type" : "PstEdge",
-    "edgeInfo1" : {
-      "svgId" : "21",
-      "infoTypeB" : "ActivePower",
-      "direction" : "IN",
-      "labelB" : "-80"
-    },
-    "edgeInfo2" : {
-      "svgId" : "22",
-      "infoTypeB" : "ActivePower",
-      "direction" : "OUT",
-      "labelB" : "80"
-    }
-  }, {
-    "svgId" : "23",
-    "equipmentId" : "HVDC2",
-    "node1" : "4",
-    "node2" : "12",
-    "busNode1" : "7",
-    "busNode2" : "15",
-    "type" : "HvdcLineLccEdge",
-    "edgeInfo1" : {
-      "svgId" : "24",
-      "infoTypeB" : "ActivePower",
-      "direction" : "OUT",
-      "labelB" : "81"
-    },
-    "edgeInfo2" : {
-      "svgId" : "25",
-      "infoTypeB" : "ActivePower",
-      "direction" : "IN",
-      "labelB" : "-79"
-    }
-  }, {
-    "svgId" : "26",
-    "equipmentId" : "HVDC1",
-    "node1" : "4",
-    "node2" : "8",
-    "busNode1" : "7",
-    "busNode2" : "11",
-    "type" : "HvdcLineVscEdge",
-    "edgeInfo1" : {
-      "svgId" : "27",
-      "infoTypeB" : "ActivePower",
-      "direction" : "OUT",
-      "labelB" : "10"
-    },
-    "edgeInfo2" : {
-      "svgId" : "28",
-      "infoTypeB" : "ActivePower",
-      "direction" : "IN",
-      "labelB" : "-10"
-    }
-  }, {
-    "svgId" : "29",
-    "equipmentId" : "LINE_S2S3",
-    "node1" : "8",
-    "node2" : "12",
-    "busNode1" : "11",
-    "busNode2" : "15",
-    "type" : "LineEdge",
-    "edgeInfo1" : {
-      "svgId" : "30",
-      "infoTypeB" : "ActivePower",
-      "direction" : "OUT",
-      "labelB" : "110"
-    },
-    "edgeInfo2" : {
-      "svgId" : "31",
-      "infoTypeB" : "ActivePower",
-      "direction" : "IN",
-      "labelB" : "-110"
-    }
-  }, {
-    "svgId" : "32",
-    "equipmentId" : "LINE_S3S4",
-    "node1" : "12",
-    "node2" : "16",
-    "busNode1" : "15",
-    "busNode2" : "19",
-    "type" : "LineEdge",
-    "edgeInfo1" : {
-      "svgId" : "33",
-      "infoTypeB" : "ActivePower",
-      "direction" : "OUT",
-      "labelB" : "240"
-    },
-    "edgeInfo2" : {
-      "svgId" : "34",
-      "infoTypeB" : "ActivePower",
-      "direction" : "IN",
-      "labelB" : "-240"
-    }
-  } ],
-  "textNodes" : [ {
-    "svgId" : "1",
-    "equipmentId" : "S1VL1",
-    "vlNode" : "0",
-    "shiftX" : 100.0,
-    "shiftY" : -40.0,
-    "connectionShiftX" : 100.0,
-    "connectionShiftY" : -15.0
-  }, {
-    "svgId" : "5",
-    "equipmentId" : "S1VL2",
-    "vlNode" : "4",
-    "shiftX" : 100.0,
-    "shiftY" : -40.0,
-    "connectionShiftX" : 100.0,
-    "connectionShiftY" : -15.0
-  }, {
-    "svgId" : "9",
-    "equipmentId" : "S2VL1",
-    "vlNode" : "8",
-    "shiftX" : 100.0,
-    "shiftY" : -40.0,
-    "connectionShiftX" : 100.0,
-    "connectionShiftY" : -15.0
-  }, {
-    "svgId" : "13",
-    "equipmentId" : "S3VL1",
-    "vlNode" : "12",
-    "shiftX" : 100.0,
-    "shiftY" : -40.0,
-    "connectionShiftX" : 100.0,
-    "connectionShiftY" : -15.0
-  }, {
-    "svgId" : "17",
-    "equipmentId" : "S4VL1",
-    "vlNode" : "16",
-    "shiftX" : 100.0,
-    "shiftY" : -40.0,
-    "connectionShiftX" : 100.0,
-    "connectionShiftY" : -15.0
-  } ]
+    "busNodes": [
+        {
+            "svgId": "3",
+            "equipmentId": "S1VL1_0",
+            "nbNeighbours": 0,
+            "index": 0,
+            "vlNode": "0",
+            "legend": "224.6 kV / 2.3°"
+        },
+        {
+            "svgId": "7",
+            "equipmentId": "S1VL2_0",
+            "nbNeighbours": 0,
+            "index": 0,
+            "vlNode": "4",
+            "legend": "400.0 kV / 0.0°"
+        },
+        {
+            "svgId": "11",
+            "equipmentId": "S2VL1_0",
+            "nbNeighbours": 0,
+            "index": 0,
+            "vlNode": "8",
+            "legend": "408.8 kV / 0.7°"
+        },
+        {
+            "svgId": "15",
+            "equipmentId": "S3VL1_0",
+            "nbNeighbours": 0,
+            "index": 0,
+            "vlNode": "12",
+            "legend": "400.0 kV / 0.0°"
+        },
+        {
+            "svgId": "19",
+            "equipmentId": "S4VL1_0",
+            "nbNeighbours": 0,
+            "index": 0,
+            "vlNode": "16",
+            "legend": "400.0 kV / -1.1°"
+        }
+    ],
+    "nodes": [
+        {
+            "svgId": "0",
+            "equipmentId": "S1VL1",
+            "x": -220.4,
+            "y": -515.14,
+            "legendSvgId": "1",
+            "legendEdgeSvgId": "2",
+            "legendHeader": ["S1VL1"]
+        },
+        {
+            "svgId": "4",
+            "equipmentId": "S1VL2",
+            "x": -152.34,
+            "y": -133.8,
+            "legendSvgId": "5",
+            "legendEdgeSvgId": "6",
+            "legendHeader": ["S1VL2"]
+        },
+        {
+            "svgId": "8",
+            "equipmentId": "S2VL1",
+            "x": -162.93,
+            "y": 231.51,
+            "legendSvgId": "9",
+            "legendEdgeSvgId": "10",
+            "legendHeader": ["S2VL1"]
+        },
+        {
+            "svgId": "12",
+            "equipmentId": "S3VL1",
+            "x": 171.13,
+            "y": 91.69,
+            "legendSvgId": "13",
+            "legendEdgeSvgId": "14",
+            "legendHeader": ["S3VL1"]
+        },
+        {
+            "svgId": "16",
+            "equipmentId": "S4VL1",
+            "x": 497.34,
+            "y": 302.31,
+            "legendSvgId": "17",
+            "legendEdgeSvgId": "18",
+            "legendHeader": ["S4VL1"]
+        }
+    ],
+    "edges": [
+        {
+            "svgId": "20",
+            "equipmentId": "TWT",
+            "node1": "0",
+            "node2": "4",
+            "busNode1": "3",
+            "busNode2": "7",
+            "type": "PstEdge",
+            "edgeInfo1": {
+                "svgId": "21",
+                "infoTypeB": "ActivePower",
+                "direction": "IN",
+                "labelB": "-80"
+            },
+            "edgeInfo2": {
+                "svgId": "22",
+                "infoTypeB": "ActivePower",
+                "direction": "OUT",
+                "labelB": "80"
+            }
+        },
+        {
+            "svgId": "23",
+            "equipmentId": "HVDC2",
+            "node1": "4",
+            "node2": "12",
+            "busNode1": "7",
+            "busNode2": "15",
+            "type": "HvdcLineLccEdge",
+            "edgeInfo1": {
+                "svgId": "24",
+                "infoTypeB": "ActivePower",
+                "direction": "OUT",
+                "labelB": "81"
+            },
+            "edgeInfo2": {
+                "svgId": "25",
+                "infoTypeB": "ActivePower",
+                "direction": "IN",
+                "labelB": "-79"
+            }
+        },
+        {
+            "svgId": "26",
+            "equipmentId": "HVDC1",
+            "node1": "4",
+            "node2": "8",
+            "busNode1": "7",
+            "busNode2": "11",
+            "type": "HvdcLineVscEdge",
+            "edgeInfo1": {
+                "svgId": "27",
+                "infoTypeB": "ActivePower",
+                "direction": "OUT",
+                "labelB": "10"
+            },
+            "edgeInfo2": {
+                "svgId": "28",
+                "infoTypeB": "ActivePower",
+                "direction": "IN",
+                "labelB": "-10"
+            }
+        },
+        {
+            "svgId": "29",
+            "equipmentId": "LINE_S2S3",
+            "node1": "8",
+            "node2": "12",
+            "busNode1": "11",
+            "busNode2": "15",
+            "type": "LineEdge",
+            "edgeInfo1": {
+                "svgId": "30",
+                "infoTypeB": "ActivePower",
+                "direction": "OUT",
+                "labelB": "110"
+            },
+            "edgeInfo2": {
+                "svgId": "31",
+                "infoTypeB": "ActivePower",
+                "direction": "IN",
+                "labelB": "-110"
+            }
+        },
+        {
+            "svgId": "32",
+            "equipmentId": "LINE_S3S4",
+            "node1": "12",
+            "node2": "16",
+            "busNode1": "15",
+            "busNode2": "19",
+            "type": "LineEdge",
+            "edgeInfo1": {
+                "svgId": "33",
+                "infoTypeB": "ActivePower",
+                "direction": "OUT",
+                "labelB": "240"
+            },
+            "edgeInfo2": {
+                "svgId": "34",
+                "infoTypeB": "ActivePower",
+                "direction": "IN",
+                "labelB": "-240"
+            }
+        }
+    ],
+    "textNodes": [
+        {
+            "svgId": "1",
+            "equipmentId": "S1VL1",
+            "vlNode": "0",
+            "shiftX": 100.0,
+            "shiftY": -40.0,
+            "connectionShiftX": 100.0,
+            "connectionShiftY": -15.0
+        },
+        {
+            "svgId": "5",
+            "equipmentId": "S1VL2",
+            "vlNode": "4",
+            "shiftX": 100.0,
+            "shiftY": -40.0,
+            "connectionShiftX": 100.0,
+            "connectionShiftY": -15.0
+        },
+        {
+            "svgId": "9",
+            "equipmentId": "S2VL1",
+            "vlNode": "8",
+            "shiftX": 100.0,
+            "shiftY": -40.0,
+            "connectionShiftX": 100.0,
+            "connectionShiftY": -15.0
+        },
+        {
+            "svgId": "13",
+            "equipmentId": "S3VL1",
+            "vlNode": "12",
+            "shiftX": 100.0,
+            "shiftY": -40.0,
+            "connectionShiftX": 100.0,
+            "connectionShiftY": -15.0
+        },
+        {
+            "svgId": "17",
+            "equipmentId": "S4VL1",
+            "vlNode": "16",
+            "shiftX": 100.0,
+            "shiftY": -40.0,
+            "connectionShiftX": 100.0,
+            "connectionShiftY": -15.0
+        }
+    ]
 }

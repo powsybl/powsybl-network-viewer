@@ -1518,12 +1518,7 @@ export class NetworkAreaDiagramViewer {
         traversingBusEdgesAngles: number[]
     ) {
         const busNodeRadius = MetadataUtils.getNodeRadius(busNode, nodeMetadata, this.svgParameters);
-        const edgeAngles = Object.assign(
-            [],
-            traversingBusEdgesAngles.sort(function (a, b) {
-                return a - b;
-            })
-        );
+        const edgeAngles = [...traversingBusEdgesAngles].sort((a, b) => a - b);
         edgeAngles.push(edgeAngles[0] + 2 * Math.PI);
         const path: string = DiagramUtils.getFragmentedAnnulusPath(
             edgeAngles,
@@ -2299,13 +2294,13 @@ export class NetworkAreaDiagramViewer {
         const svgXml = SvgUtils.getSvgXml(this.getSvg());
         const image = new Image();
         image.src = svgXml;
-        image.onload = () => {
+        image.onload = async () => {
             const png = SvgUtils.getPngFromImage(image);
             const blob = SvgUtils.getBlobFromPng(png);
             if (copyToFile) {
                 this.downloadFile(blob, 'nad.png');
             } else {
-                this.copyToClipboard(blob);
+                await this.copyToClipboard(blob);
             }
         };
         this.removeBackgroundColor(backgroundColor);
@@ -2324,8 +2319,8 @@ export class NetworkAreaDiagramViewer {
         }
     }
 
-    private copyToClipboard(blob: Blob) {
-        navigator.clipboard
+    private async copyToClipboard(blob: Blob) {
+        await navigator.clipboard
             .write([
                 new ClipboardItem({
                     [blob.type]: blob,

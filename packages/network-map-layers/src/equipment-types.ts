@@ -6,7 +6,6 @@
  */
 
 //import { LineStatus } from './components/network-map-viewer/network/line-layer';
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type LineStatus = any;
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

@@ -54,7 +54,6 @@ export {
 export { default as NetworkMap } from './components/network-map-viewer/network/network-map';
 
 export {
-    DRAW_EVENT,
     type MenuClickFunction,
     type NetworkMapProps,
     type NetworkMapRef,
@@ -79,3 +78,4 @@ export {
     type MapTieLineWithType,
     type MapVoltageLevel,
 } from '@powsybl/network-map-layers';
+export { DRAW_EVENT } from './components/network-map-viewer/network/draw_event';
