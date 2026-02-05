@@ -14,11 +14,11 @@ Node from v22+ is required to build with Vite.
 
 The library is split into 3 packages to accommodate different use cases:
 
-| Package | Description |
-|---------|-------------|
-| `@powsybl/network-viewer` | Full package with all viewers including NetworkMap |
-| `@powsybl/network-viewer-core` | Core viewers (NAD + SLD) |
-| `@powsybl/network-map-layers` | Deck.gl layers for map integration |
+| Package                        | Description                                        |
+|--------------------------------|----------------------------------------------------|
+| `@powsybl/network-viewer`      | Full package with all viewers including NetworkMap |
+| `@powsybl/network-viewer-core` | Core viewers (NAD + SLD)                           |
+| `@powsybl/network-map-layers`  | Deck.gl layers for map integration                 |
 
 ### For full package
 
