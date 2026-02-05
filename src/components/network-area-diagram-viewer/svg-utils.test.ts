@@ -254,3 +254,17 @@ function getSvgLineEdge(): SVGGraphicsElement {
         '<text transform="rotate(39.33)" x="0.00" style="text-anchor:middle">L5-4-0</text></g></g></g></g>';
     return <SVGGraphicsElement>SVG().svg(halfEdgeSvg).node.firstElementChild?.firstElementChild;
 }
+
+test('computeVisibleArea', () => {
+    //viewbox and container aspect ratios are the same: the viewbox does not extend
+    let result = SvgUtils.computeVisibleArea({ x: 0, y: 0, width: 100, height: 100 }, 250, 250);
+    expect(result).toEqual({ x: 0, y: 0, width: 100, height: 100 });
+
+    //viewbox and container aspect ratios differ (container is wider): the viewbox extends horizontally
+    result = SvgUtils.computeVisibleArea({ x: 100, y: 100, width: 200, height: 150 }, 1000, 500);
+    expect(result).toEqual({ x: 50, y: 100, width: 300, height: 150 });
+
+    //viewbox and container aspect ratios differ (container is taller): the viewbox extends vertically
+    result = SvgUtils.computeVisibleArea({ x: -500, y: 1500, width: 1000, height: 1000 }, 500, 1500);
+    expect(result).toEqual({ x: -500, y: 500, width: 1000, height: 3000 });
+});
