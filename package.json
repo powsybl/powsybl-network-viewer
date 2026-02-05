@@ -39,7 +39,7 @@
         "check:pack": "attw --pack",
         "build": "vite build",
         "build:watch": "vite build --watch --mode development",
-        "build:all": "npm run build -w @powsybl/network-map-layers && npm run build -w @powsybl/network-viewer-core && npm run build",
+        "build:all": "npm run build --workspaces && npm run build",
         "prepublishOnly": "$npm_execpath run build",
         "test": "jest",
         "test:coverage": "jest --coverage",
