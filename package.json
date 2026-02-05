@@ -39,7 +39,7 @@
         "check:pack": "attw --pack",
         "build": "vite build",
         "build:watch": "vite build --watch --mode development",
-        "build:all": "npm run build -w @powsybl/network-map-layers && npm run build",
+        "build:all": "npm run build --workspaces && npm run build",
         "prepublishOnly": "$npm_execpath run build",
         "test": "jest",
         "test:coverage": "jest --coverage",
@@ -52,7 +52,8 @@
         "publish:all": "npm publish --workspaces --include-workspace-root"
     },
     "workspaces": [
-        "packages/network-map-layers"
+        "packages/network-map-layers",
+        "packages/network-viewer-core"
     ],
     "overrides": {
         "@deck.gl/mapbox": {
@@ -69,8 +70,7 @@
         "@luma.gl/engine": "~9.0.0",
         "@mapbox/mapbox-gl-draw": "<1.5.0",
         "@powsybl/network-map-layers": "^3.0.0",
-        "@svgdotjs/svg.js": "^3.2.4",
-        "@svgdotjs/svg.panzoom.js": "^2.1.2",
+        "@powsybl/network-viewer-core": "^3.0.0",
         "@turf/boolean-point-in-polygon": "^7.2.0",
         "cheap-ruler": "^4.0.0",
         "geolib": "^3.3.4",
