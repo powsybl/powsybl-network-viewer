@@ -561,7 +561,7 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
                     y: event.point.y,
                     radius: PICKING_RADIUS,
                 });
-            info && onClickHandler(info, event, props.mapEquipments);
+            if (info) onClickHandler(info, event, props.mapEquipments);
         },
         [onClickHandler, props.mapEquipments]
     );
