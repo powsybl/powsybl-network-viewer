@@ -27,6 +27,7 @@ npm install @powsybl/network-viewer
 ```
 
 This package requires React peer dependencies:
+
 - `react`, `react-dom`, `react-intl`
 - `@mui/material`, `@mui/icons-material`, `@emotion/styled`
 
@@ -39,11 +40,26 @@ npm install @powsybl/network-viewer-core
 ```
 
 Usage:
+
 ```typescript
-import { NetworkAreaDiagramViewer, SingleLineDiagramViewer, LayoutParameters, SvgParameters } from '@powsybl/network-viewer-core';
+import {
+    NetworkAreaDiagramViewer,
+    SingleLineDiagramViewer,
+    LayoutParameters,
+    SvgParameters,
+} from '@powsybl/network-viewer-core';
 
 // Create NAD viewer
-const nadViewer = new NetworkAreaDiagramViewer(container, svgContent, metadata, minWidth, minHeight, maxWidth, maxHeight, parameters);
+const nadViewer = new NetworkAreaDiagramViewer(
+    container,
+    svgContent,
+    metadata,
+    minWidth,
+    minHeight,
+    maxWidth,
+    maxHeight,
+    parameters
+);
 
 // Create SLD viewer
 const sldViewer = new SingleLineDiagramViewer(container, svgContent, metadata, options);
