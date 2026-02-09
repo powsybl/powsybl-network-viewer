@@ -1,7 +1,7 @@
 {
-    "name": "@powsybl/network-map-layers",
+    "name": "@powsybl/network-viewer-core",
     "version": "3.2.0-dev.0",
-    "description": "Deck.gl layers to integrate PowSyBl network viewers in a JavaScript project.",
+    "description": "Core TypeScript library for PowSyBl network viewers (NAD/SLD)",
     "author": "PowSyBl team",
     "homepage": "https://www.powsybl.org/",
     "license": "MPL-2.0",
@@ -14,8 +14,8 @@
         "npm": "^10.9.2"
     },
     "type": "module",
-    "main": "./dist/powsybl-network-map-layers.cjs",
-    "module": "./dist/powsybl-network-map-layers.js",
+    "main": "./dist/powsybl-network-viewer-core.cjs",
+    "module": "./dist/powsybl-network-viewer-core.js",
     "types": "./dist/index.d.ts",
     "files": [
         "dist"
@@ -24,11 +24,11 @@
         ".": {
             "import": {
                 "types": "./dist/index.d.ts",
-                "default": "./dist/powsybl-network-map-layers.js"
+                "default": "./dist/powsybl-network-viewer-core.js"
             },
             "require": {
                 "types": "./dist/index.d.cts",
-                "default": "./dist/powsybl-network-map-layers.cjs"
+                "default": "./dist/powsybl-network-viewer-core.cjs"
             }
         },
         "./package.json": "./package.json"
@@ -36,27 +36,24 @@
     "scripts": {
         "build": "vite build",
         "check": "tsc --noEmit",
-        "check:pack": "attw --pack",
+       "check:pack": "attw --pack",
         "lint": "eslint --cache --report-unused-disable-directives --report-unused-inline-configs warn --max-warnings 0 .",
         "lint:fix": "eslint --cache --report-unused-disable-directives --report-unused-inline-configs warn --fix .",
         "lint:format": "prettier --cache --check --ignore-path ../../.gitignore .",
         "lint:format:fix": "prettier --cache --write --ignore-path ../../.gitignore ."
     },
-    "peerDependencies": {
-        "@deck.gl/core": "~9.0.0",
-        "@deck.gl/extensions": "~9.0.0",
-        "@deck.gl/layers": "~9.0.0",
-        "@luma.gl/constants": "~9.0.0",
-        "@luma.gl/core": "~9.0.0",
-        "@luma.gl/engine": "~9.0.0"
+    "dependencies": {
+        "lodash.debounce": "^4.0.8",
+        "@svgdotjs/svg.js": "^3.2.4",
+        "@svgdotjs/svg.panzoom.js": "^2.1.2"
     },
     "devDependencies": {
         "@arethetypeswrong/cli": "^0.17.4",
+        "@types/lodash.debounce": "^4.0.9",
         "typescript": "^5.8.3",
         "typescript-eslint": "^8.31.0",
-        "vite": "^7.2.4",
+        "vite": "^6.2.2",
         "vite-plugin-checker": "^0.9.1",
-        "vite-plugin-dts": "^4.5.4",
-        "vite-plugin-svgr": "^4.3.0"
+        "vite-plugin-dts": "^4.5.3"
     }
 }

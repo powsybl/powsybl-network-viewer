@@ -19,7 +19,7 @@ import {
     NodeMetadata,
     TextNodeMetadata,
 } from './diagram-metadata';
-import { debounce } from '@mui/material';
+import debounce from 'lodash.debounce';
 import {
     NadViewerParameters,
     NadViewerParametersOptions,
@@ -30,7 +30,12 @@ import {
     OnSelectNodeCallbackType,
     OnToggleNadHoverCallbackType,
 } from './nad-viewer-parameters';
-import { Cancelable } from '@mui/utils/debounce/debounce';
+
+// Type for cancelable debounced functions (replaces @mui/utils Cancelable)
+interface Cancelable {
+    cancel(): void;
+    flush(): void;
+}
 import * as ViewerButtons from './viewer-buttons';
 import * as SvgUtils from './svg-utils';
 import * as MetadataUtils from './metadata-utils';
@@ -844,7 +849,7 @@ export class NetworkAreaDiagramViewer {
     }
 
     private resetHoverCallback(): void {
-        this.debounceToggleHoverCallback.clear();
+        this.debounceToggleHoverCallback.cancel();
         if (this.isHoverCallbackUsed) {
             this.isHoverCallbackUsed = false;
             this.onToggleHoverCallback?.(false, null, '', '');
@@ -1518,12 +1523,7 @@ export class NetworkAreaDiagramViewer {
         traversingBusEdgesAngles: number[]
     ) {
         const busNodeRadius = MetadataUtils.getNodeRadius(busNode, nodeMetadata, this.svgParameters);
-        const edgeAngles = Object.assign(
-            [],
-            traversingBusEdgesAngles.sort(function (a, b) {
-                return a - b;
-            })
-        );
+        const edgeAngles = [...traversingBusEdgesAngles].sort((a, b) => a - b);
         edgeAngles.push(edgeAngles[0] + 2 * Math.PI);
         const path: string = DiagramUtils.getFragmentedAnnulusPath(
             edgeAngles,
@@ -2299,13 +2299,13 @@ export class NetworkAreaDiagramViewer {
         const svgXml = SvgUtils.getSvgXml(this.getSvg());
         const image = new Image();
         image.src = svgXml;
-        image.onload = () => {
+        image.onload = async () => {
             const png = SvgUtils.getPngFromImage(image);
             const blob = SvgUtils.getBlobFromPng(png);
             if (copyToFile) {
                 this.downloadFile(blob, 'nad.png');
             } else {
-                this.copyToClipboard(blob);
+                await this.copyToClipboard(blob);
             }
         };
         this.removeBackgroundColor(backgroundColor);
@@ -2324,8 +2324,8 @@ export class NetworkAreaDiagramViewer {
         }
     }
 
-    private copyToClipboard(blob: Blob) {
-        navigator.clipboard
+    private async copyToClipboard(blob: Blob) {
+        await navigator.clipboard
             .write([
                 new ClipboardItem({
                     [blob.type]: blob,
