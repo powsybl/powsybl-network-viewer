@@ -36,7 +36,9 @@
     "scripts": {
         "build": "vite build",
         "check": "tsc --noEmit",
-        "check:pack": "attw --pack"
+       "check:pack": "attw --pack",
+        "lint": "eslint --cache --report-unused-disable-directives --report-unused-inline-configs warn --max-warnings 0 .",
+        "lint:fix": "eslint --cache --report-unused-disable-directives --report-unused-inline-configs warn --fix ."
     },
     "dependencies": {
         "lodash.debounce": "^4.0.8",
