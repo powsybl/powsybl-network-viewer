@@ -38,7 +38,9 @@
         "check": "tsc --noEmit",
        "check:pack": "attw --pack",
         "lint": "eslint --cache --report-unused-disable-directives --report-unused-inline-configs warn --max-warnings 0 .",
-        "lint:fix": "eslint --cache --report-unused-disable-directives --report-unused-inline-configs warn --fix ."
+        "lint:fix": "eslint --cache --report-unused-disable-directives --report-unused-inline-configs warn --fix .",
+        "lint:format": "prettier --cache --check --ignore-path ../../.gitignore .",
+        "lint:format:fix": "prettier --cache --write --ignore-path ../../.gitignore ."
     },
     "dependencies": {
         "lodash.debounce": "^4.0.8",
