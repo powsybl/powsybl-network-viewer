@@ -36,7 +36,11 @@
     "scripts": {
         "build": "vite build",
         "check": "tsc --noEmit",
-        "check:pack": "attw --pack"
+       "check:pack": "attw --pack",
+        "lint": "eslint --cache --report-unused-disable-directives --report-unused-inline-configs warn --max-warnings 0 .",
+        "lint:fix": "eslint --cache --report-unused-disable-directives --report-unused-inline-configs warn --fix .",
+        "lint:format": "prettier --cache --check --ignore-path ../../.gitignore .",
+        "lint:format:fix": "prettier --cache --write --ignore-path ../../.gitignore ."
     },
     "dependencies": {
         "lodash.debounce": "^4.0.8",
@@ -46,9 +50,10 @@
     "devDependencies": {
         "@arethetypeswrong/cli": "^0.17.4",
         "@types/lodash.debounce": "^4.0.9",
-        "typescript": "~5.3.3",
-        "vite": "^5.4.14",
-        "vite-plugin-dts": "^3.9.1",
-        "vite-plugin-eslint": "^1.8.1"
+        "typescript": "^5.8.3",
+        "typescript-eslint": "^8.31.0",
+        "vite": "^6.2.2",
+        "vite-plugin-checker": "^0.9.1",
+        "vite-plugin-dts": "^4.5.3"
     }
 }
