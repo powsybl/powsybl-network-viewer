@@ -61,21 +61,11 @@ import DrawControl, { type DrawControlProps } from './draw-control';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
 import 'maplibre-gl/dist/maplibre-gl.css';
+import { DRAW_EVENT } from './draw_event';
 
 // MouseEvent.button https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/button
 const MOUSE_EVENT_BUTTON_LEFT = 0;
 const MOUSE_EVENT_BUTTON_RIGHT = 2;
-
-/**
- * Represents the draw event types for the network map.<br/>
- * when a draw event is triggered, the event type is passed to the onDrawEvent callback<br/>
- * On create, when the user create a new polygon (shape finished)
- */
-export enum DRAW_EVENT {
-    CREATE = 1,
-    UPDATE = 2,
-    DELETE = 0,
-}
 
 // Small boilerplate recommended by deckgl, to bridge to a react-map-gl control declaratively
 // see https://deck.gl/docs/api-reference/mapbox/mapbox-overlay#using-with-react-map-gl
@@ -561,7 +551,9 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
                     y: event.point.y,
                     radius: PICKING_RADIUS,
                 });
-            info && onClickHandler(info, event, props.mapEquipments);
+            if (info) {
+                onClickHandler(info, event, props.mapEquipments);
+            }
         },
         [onClickHandler, props.mapEquipments]
     );

@@ -9,7 +9,6 @@ import { copyFileSync } from 'node:fs';
 import * as path from 'node:path';
 import { defineConfig } from 'vite';
 import dts from 'vite-plugin-dts';
-import svgr from 'vite-plugin-svgr';
 import pkg from './package.json' with { type: 'json' };
 import { viteEslintChecker } from '../../utils/viteEslintChecker';
 
@@ -23,26 +22,22 @@ export default defineConfig((config) => ({
                 copyFileSync('dist/index.d.ts', 'dist/index.d.cts');
             },
         }),
-        svgr(),
     ],
     build: {
         minify: false,
         lib: {
             entry: path.resolve(__dirname, 'src/index.ts'),
             formats: ['es', 'cjs'],
-            name: 'PowsyblNetworkMapLayers',
-            fileName: 'powsybl-network-map-layers',
+            name: 'PowsyblNetworkViewerCore',
+            fileName: 'powsybl-network-viewer-core',
         },
         rollupOptions: {
-            external: [...Object.keys(pkg.peerDependencies), /^node:.*/],
+            external: [...Object.keys(pkg.dependencies || {}), /^node:.*/],
             output: {
                 globals: {
-                    '@deck.gl/core': 'DeckGlCore',
-                    '@deck.gl/extensions': 'DeckGlExtensions',
-                    '@deck.gl/layers': 'DeckGlLayers',
-                    '@luma.gl/constants': 'LumaGlConstants',
-                    '@luma.gl/core': 'LumaGlCore',
-                    '@luma.gl/engine': 'LumaGlEngine',
+                    '@svgdotjs/svg.js': 'SVG',
+                    '@svgdotjs/svg.panzoom.js': 'SVGPanZoom',
+                    'lodash.debounce': 'debounce',
                 },
             },
         },
