@@ -18,6 +18,7 @@ export default defineConfig((config) => ({
         alias: {
             // Use source files from the workspace package during demo dev for HMR
             '@powsybl/network-map-layers': path.resolve(workspaceRoot, 'packages/network-map-layers/src'),
+            '@powsybl/network-viewer-core': path.resolve(workspaceRoot, 'packages/network-viewer-core/src'),
             // Also allow importing the library src directly from the demo if needed
             '@powsybl/network-viewer': path.resolve(workspaceRoot, 'src'),
         },
@@ -32,6 +33,6 @@ export default defineConfig((config) => ({
     },
     optimizeDeps: {
         // Do not prebundle the workspace package; we want it treated as source for HMR
-        exclude: ['@powsybl/network-map-layers'],
+        exclude: ['@powsybl/network-map-layers', '@powsybl/network-viewer-core'],
     },
 }));
