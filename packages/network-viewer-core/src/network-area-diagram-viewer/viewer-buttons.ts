@@ -6,13 +6,13 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 
-import ZoomToFitSvg from '../../resources/material-icons/zoom-to-fit.svg';
-import ZoomInSvg from '../../resources/material-icons/zoom-in.svg';
-import ZoomOutSvg from '../../resources/material-icons/zoom-out.svg';
-import SaveSvg from '../../resources/material-icons/save_svg.svg';
-import SavePng from '../../resources/material-icons/save_png.svg';
-import ScreenshotSvg from '../../resources/material-icons/screenshot.svg';
-import BendLinesSvg from '../../resources/material-icons/bend-lines.svg';
+import ZoomToFitSvg from '../resources/material-icons/zoom-to-fit.svg';
+import ZoomInSvg from '../resources/material-icons/zoom-in.svg';
+import ZoomOutSvg from '../resources/material-icons/zoom-out.svg';
+import SaveSvg from '../resources/material-icons/save_svg.svg';
+import SavePng from '../resources/material-icons/save_png.svg';
+import ScreenshotSvg from '../resources/material-icons/screenshot.svg';
+import BendLinesSvg from '../resources/material-icons/bend-lines.svg';
 
 function getButton(inputImg: string, title: string, size: string): HTMLButtonElement {
     const button = document.createElement('button');
