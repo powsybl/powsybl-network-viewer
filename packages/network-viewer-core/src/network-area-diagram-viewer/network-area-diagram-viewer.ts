@@ -2860,4 +2860,32 @@ export class NetworkAreaDiagramViewer {
             previewContainer.remove();
         }
     }
+
+    public coupleWith(others: NetworkAreaDiagramViewer | NetworkAreaDiagramViewer[]) {
+        const viewers = Array.isArray(others) ? others : [others];
+        const sync = () => {
+            const viewBox = this.getViewBox();
+            if (!viewBox) {
+                return;
+            }
+            for (const other of viewers) {
+                const otherViewBox = other.getViewBox();
+                if (
+                    otherViewBox &&
+                    (viewBox.x !== otherViewBox.x ||
+                        viewBox.y !== otherViewBox.y ||
+                        viewBox.width !== otherViewBox.width ||
+                        viewBox.height !== otherViewBox.height)
+                ) {
+                    other.setViewBox(viewBox);
+                }
+            }
+        };
+
+        const svgElement = this.svgDraw?.node;
+        if (svgElement) {
+            const observer = new MutationObserver(sync);
+            observer.observe(svgElement, { attributes: true, attributeFilter: ['viewBox'] });
+        }
+    }
 }
