@@ -30,17 +30,17 @@ import {
     OnSelectNodeCallbackType,
     OnToggleNadHoverCallbackType,
 } from './nad-viewer-parameters';
+import * as ViewerButtons from './viewer-buttons';
+import * as SvgUtils from './svg-utils';
+import * as MetadataUtils from './metadata-utils';
+import * as HalfEdgeUtils from './half-edge-utils';
+import { Dimensions, EdgeType, ElementType, HalfEdge, ViewBox } from './diagram-types';
 
 // Type for cancelable debounced functions (replaces @mui/utils Cancelable)
 interface Cancelable {
     cancel(): void;
     flush(): void;
 }
-import * as ViewerButtons from './viewer-buttons';
-import * as SvgUtils from './svg-utils';
-import * as MetadataUtils from './metadata-utils';
-import * as HalfEdgeUtils from './half-edge-utils';
-import { Dimensions, EdgeType, ElementType, HalfEdge, ViewBox } from './diagram-types';
 
 export type BranchState = {
     branchId: string;
@@ -388,7 +388,10 @@ export class NetworkAreaDiagramViewer {
             });
 
             this.svgDraw.on('mouseout', () => {
+                this.clearHighlights();
+                this.resetHoverCallback();
                 this.hideEdgePreviewPoints();
+                this.hoveredElement = null;
             });
         }
         if (this.onRightClickCallback != null && hasMetadata) {
