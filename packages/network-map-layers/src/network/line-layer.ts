@@ -110,7 +110,8 @@ function getLineLoadingZoneColor(zone: LineLoadingZone): Color {
     } else if (zone === LineLoadingZone.OVERLOAD) {
         return [255, 0, 0]; // red
     } else {
-        throw new Error('Unsupported line loading zone: ' + zone);
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions -- this case should never happen
+        throw new Error(`Unsupported line loading zone: ${zone}`);
     }
 }
 
@@ -137,7 +138,12 @@ function getLineColor(
 
 function getLineIcon(lineStatus: LineStatus): UnpackedIcon {
     return {
-        url: lineStatus === 'PLANNED_OUTAGE' ? PadlockIcon : lineStatus === 'FORCED_OUTAGE' ? BoltIcon : '',
+        url:
+            lineStatus === LineStatus.PLANNED_OUTAGE
+                ? PadlockIcon
+                : lineStatus === LineStatus.FORCED_OUTAGE
+                  ? BoltIcon
+                  : '',
         height: 24,
         width: 24,
         mask: true,
@@ -548,9 +554,8 @@ export class LineLayer extends CompositeLayer<Required<_LineLayerProps>> {
                 compositeData.lines?.forEach((line) => {
                     const lineStatus = linesStatus.get(line.id);
                     if (
-                        lineStatus !== undefined &&
-                        lineStatus.operatingStatus !== undefined &&
-                        lineStatus.operatingStatus !== 'IN_OPERATION'
+                        lineStatus?.operatingStatus !== undefined &&
+                        lineStatus.operatingStatus !== LineStatus.IN_OPERATION
                     ) {
                         const lineData = compositeData.lineMap?.get(line.id);
                         const coordinatesIcon = props.geoData.labelDisplayPosition(
@@ -946,7 +951,7 @@ export class LineLayer extends CompositeLayer<Required<_LineLayerProps>> {
                     // @ts-expect-error TODO: manage undefined case
                     getProximityFactor: (line) => line.proximityFactorEnd,
                     // @ts-expect-error TODO: manage undefined case
-                    getLineParallelIndex: (line) => -line.parallelIndex,
+                    getLineParallelIndex: (line) => -1 * line.parallelIndex,
                     // @ts-expect-error TODO: manage undefined case
                     getLineAngle: (line) => line.angleEnd + Math.PI,
                     getDistanceBetweenLines: this.props.distanceBetweenLines,
