@@ -15,5 +15,8 @@
 # vite
 /vite.config.ts-timestamp-*
 
+# ESLint
+/.eslintcache
+
 # jest
 /coverage
