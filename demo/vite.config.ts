@@ -16,7 +16,7 @@ export default defineConfig((config) => ({
     plugins: [viteEslintChecker(config.isPreview, config.command), react()],
     resolve: {
         alias: {
-            // Use source files from the workspace package during demo dev for HMR
+            // Use source files from the workspace packages during demo dev for HMR
             '@powsybl/network-map-layers': path.resolve(workspaceRoot, 'packages/network-map-layers/src'),
             '@powsybl/network-viewer-core': path.resolve(workspaceRoot, 'packages/network-viewer-core/src'),
             // Also allow importing the library src directly from the demo if needed
