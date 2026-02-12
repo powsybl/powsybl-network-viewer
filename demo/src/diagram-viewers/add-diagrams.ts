@@ -362,7 +362,7 @@ export const addNadToDemo = () => {
             );
         });
 
-    fetch(NadSvgPartialNetworkExample)
+    fetch(NadSvgMultibusVLNodesExample)
         .then((response) => response.text())
         .then((svgContent) => {
             const nadViewerParametersOptions: NadViewerParametersOptions = {
@@ -376,12 +376,12 @@ export const addNadToDemo = () => {
                 onBendLineCallback: handleLineBending,
 
                 enableAdaptiveTextZoom: true,
-                adaptiveTextZoomThreshold: 1100,
+                adaptiveTextZoomThreshold: 850,
             };
             new NetworkAreaDiagramViewer(
                 document.getElementById('svg-container-nad-partial-network-adaptive-zoom')!,
                 svgContent,
-                NadSvgPartialNetworkExampleMeta,
+                NadSvgMultibusVLNodesExampleMeta,
                 nadViewerParametersOptions
             );
         });
