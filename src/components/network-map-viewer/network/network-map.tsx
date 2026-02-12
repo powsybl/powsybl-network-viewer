@@ -814,7 +814,7 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
                 dragRotate={props.enablePitchAndRotate}
                 onMouseOut={() => {
                     // Sometimes onHover on layers is not triggered when the mouse leaves the layer
-                    // (e.g. when leaving the map container too fast), 
+                    // (e.g. when leaving the map container too fast),
                     // so we need to reset the tooltip on mouse out of the map container
                     setTooltip(null);
                 }}
