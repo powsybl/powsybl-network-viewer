@@ -1910,6 +1910,49 @@ export class NetworkAreaDiagramViewer {
         }
     }
 
+    private filterElements(nodeList: NodeMetadata[], containedEdgeList: EdgeMetadata[]): void {
+        const getEdgeInfosIds = (edgesMetadata: EdgeMetadata[]): string[] => {
+            const ids: string[] = [];
+            for (const edgeMetadata of edgesMetadata) {
+                if (edgeMetadata.edgeInfoMiddle?.svgId) ids.push(edgeMetadata.edgeInfoMiddle.svgId);
+                if (edgeMetadata.edgeInfo1?.svgId) ids.push(edgeMetadata.edgeInfo1.svgId);
+                if (edgeMetadata.edgeInfo2?.svgId) ids.push(edgeMetadata.edgeInfo2.svgId);
+            }
+            return ids;
+        };
+
+        const validLegendIds = new Set(nodeList.map((n) => n.legendSvgId));
+        const validLegendEdgeIds = new Set(nodeList.map((n) => n.legendEdgeSvgId));
+        const validEdgeInfosIds = new Set(getEdgeInfosIds(containedEdgeList));
+
+        // filter legends
+        this.getOrCreateTextNodesSection()
+            .querySelectorAll('div[id]')
+            ?.forEach((div) => {
+                if (!validLegendIds.has(div.id)) {
+                    div.remove();
+                }
+            });
+
+        // filter legend edges
+        this.getOrCreateTextEdgesSection()
+            .querySelectorAll('polyline[id]')
+            ?.forEach((polyline) => {
+                if (!validLegendEdgeIds.has(polyline.id)) {
+                    polyline.remove();
+                }
+            });
+
+        // filter edge infos
+        this.getOrCreateEdgeInfosSection()
+            .querySelectorAll('g[id]')
+            ?.forEach((g) => {
+                if (!validEdgeInfosIds.has(g.id)) {
+                    g.remove();
+                }
+            });
+    }
+
     private adaptiveZoomViewboxUpdate(maxDisplayedSize: number) {
         if (maxDisplayedSize > this.nadViewerParameters.getThresholdAdaptiveTextZoom()) {
             this.edgeInfosSection?.replaceChildren();
@@ -1924,6 +1967,10 @@ export class NetworkAreaDiagramViewer {
             console.log('number of nodes in the current viewbox: ' + containedNodeList.length);
             console.log('number of edges in the current viewbox: ' + containedEdgeList.length);
             console.log(`number of elements in the current viewbox computing time: ${performance.now() - start} ms`);
+
+            start = performance.now();
+            this.filterElements(containedNodeList, containedEdgeList);
+            console.log(`time to remove elements not in the current viewbox: ${performance.now() - start} ms`);
 
             start = performance.now();
             for (const node of containedNodeList) {
@@ -2071,7 +2118,10 @@ export class NetworkAreaDiagramViewer {
                     ) {
                         const voltage = busValue.voltage.toFixed(this.svgParameters.getVoltageValuePrecision());
                         const angle = busValue.angle.toFixed(this.svgParameters.getAngleValuePrecision());
-                        div.childNodes[div.childNodes.length - 1].textContent = `${voltage} kV / ${angle}°`;
+
+                        const newLegend = `${voltage} kV / ${angle}°`;
+                        div.childNodes[div.childNodes.length - 1].textContent = newLegend;
+                        busNode.legend = newLegend;
                     }
                 }
             });
