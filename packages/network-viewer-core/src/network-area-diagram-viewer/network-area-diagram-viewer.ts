@@ -2118,7 +2118,10 @@ export class NetworkAreaDiagramViewer {
                     ) {
                         const voltage = busValue.voltage.toFixed(this.svgParameters.getVoltageValuePrecision());
                         const angle = busValue.angle.toFixed(this.svgParameters.getAngleValuePrecision());
-                        div.childNodes[div.childNodes.length - 1].textContent = `${voltage} kV / ${angle}°`;
+
+                        const newLegend = `${voltage} kV / ${angle}°`;
+                        div.childNodes[div.childNodes.length - 1].textContent = newLegend;
+                        busNode.legend = newLegend;
                     }
                 }
             });
