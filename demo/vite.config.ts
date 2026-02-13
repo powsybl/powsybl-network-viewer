@@ -26,7 +26,8 @@ export default defineConfig((config) => ({
             afterBuild: () => {
                 copyFileSync('dist/index.d.ts', 'dist/index.d.cts');
             },
-        }),],
+        }),
+    ],
     resolve: {
         alias: {
             // Use source files from the workspace packages during demo dev for HMR
