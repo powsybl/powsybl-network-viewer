@@ -116,7 +116,6 @@
         "license-checker": "^25.0.1",
         "minimatch": "^10.0.1",
         "prettier": "^3.5.3",
-        "prettier-plugin-glsl": "^0.2.1",
         "prettier-plugin-properties": "^0.3.0",
         "rimraf": "^6.0.1",
         "svgo": "^3.3.2",
