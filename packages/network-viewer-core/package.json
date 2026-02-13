@@ -1,6 +1,6 @@
 {
     "name": "@powsybl/network-viewer-core",
-    "version": "3.2.0-dev.0",
+    "version": "3.2.0",
     "description": "Core TypeScript library for PowSyBl network viewers (NAD/SLD)",
     "author": "PowSyBl team",
     "homepage": "https://www.powsybl.org/",
@@ -36,7 +36,7 @@
     "scripts": {
         "build": "vite build",
         "check": "tsc --noEmit",
-       "check:pack": "attw --pack",
+        "check:pack": "attw --pack",
         "lint": "eslint --cache --report-unused-disable-directives --report-unused-inline-configs warn --max-warnings 0 .",
         "lint:fix": "eslint --cache --report-unused-disable-directives --report-unused-inline-configs warn --fix .",
         "lint:format": "prettier --cache --check --ignore-path ../../.gitignore .",
