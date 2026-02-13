@@ -30,17 +30,17 @@ import {
     OnSelectNodeCallbackType,
     OnToggleNadHoverCallbackType,
 } from './nad-viewer-parameters';
+import * as ViewerButtons from './viewer-buttons';
+import * as SvgUtils from './svg-utils';
+import * as MetadataUtils from './metadata-utils';
+import * as HalfEdgeUtils from './half-edge-utils';
+import { Dimensions, EdgeType, ElementType, HalfEdge, ViewBox } from './diagram-types';
 
 // Type for cancelable debounced functions (replaces @mui/utils Cancelable)
 interface Cancelable {
     cancel(): void;
     flush(): void;
 }
-import * as ViewerButtons from './viewer-buttons';
-import * as SvgUtils from './svg-utils';
-import * as MetadataUtils from './metadata-utils';
-import * as HalfEdgeUtils from './half-edge-utils';
-import { Dimensions, EdgeType, ElementType, HalfEdge, ViewBox } from './diagram-types';
 
 export type BranchState = {
     branchId: string;
@@ -388,7 +388,10 @@ export class NetworkAreaDiagramViewer {
             });
 
             this.svgDraw.on('mouseout', () => {
+                this.clearHighlights();
+                this.resetHoverCallback();
                 this.hideEdgePreviewPoints();
+                this.hoveredElement = null;
             });
         }
         if (this.onRightClickCallback != null && hasMetadata) {
@@ -1307,6 +1310,29 @@ export class NetworkAreaDiagramViewer {
         }
     }
 
+    private redrawMiddleEdgeLabel(
+        anchorPoint: Point,
+        labelTextAngle: number,
+        style: string | null,
+        edgeInfo: SVGElement
+    ) {
+        if (!edgeInfo) {
+            return;
+        }
+        edgeInfo.setAttribute('transform', 'translate(' + DiagramUtils.getFormattedPoint(anchorPoint) + ')');
+        const labelRotationElement = edgeInfo.firstElementChild as SVGGraphicsElement;
+        labelRotationElement.setAttribute(
+            'transform',
+            'rotate(' + DiagramUtils.getFormattedValue(labelTextAngle) + ')'
+        );
+        labelRotationElement.setAttribute('x', '0.0');
+        if (style) {
+            labelRotationElement.setAttribute('style', style);
+        } else if (labelRotationElement.hasAttribute('style')) {
+            labelRotationElement.removeAttribute('style');
+        }
+    }
+
     private redrawTransformer(
         edgeNode: SVGGraphicsElement,
         halfEdge1: HalfEdge | null,
@@ -1856,11 +1882,24 @@ export class NetworkAreaDiagramViewer {
                 Number.isNaN(edgeValue2) ? (edge.edgeInfo2?.labelB ?? '') : edgeValue2
             );
         }
+
+        if (edge.edgeInfoMiddle) {
+            const edgeValueMiddle = Number(edge.edgeInfoMiddle?.labelA ?? edge.edgeInfoMiddle?.labelB ?? null);
+            this.setBranchMiddleLabel(
+                edge,
+                halfEdges[0],
+                halfEdges[1],
+                edge.edgeInfoMiddle,
+                Number.isNaN(edgeValueMiddle)
+                    ? (edge.edgeInfoMiddle?.labelA ?? edge.edgeInfoMiddle?.labelB ?? '')
+                    : edgeValueMiddle
+            );
+        }
     }
 
     private createEdgesInfos(edges: EdgeMetadata[]): void {
         for (const edge of edges) {
-            const edgeInfo = edge.edgeInfo1 ?? edge.edgeInfo2;
+            const edgeInfo = edge.edgeInfo1 ?? edge.edgeInfo2 ?? edge.edgeInfoMiddle;
             if (!edgeInfo) {
                 continue;
             }
@@ -1869,6 +1908,49 @@ export class NetworkAreaDiagramViewer {
                 this.createEdgeInfos(edge);
             }
         }
+    }
+
+    private filterElements(nodeList: NodeMetadata[], containedEdgeList: EdgeMetadata[]): void {
+        const getEdgeInfosIds = (edgesMetadata: EdgeMetadata[]): string[] => {
+            const ids: string[] = [];
+            for (const edgeMetadata of edgesMetadata) {
+                if (edgeMetadata.edgeInfoMiddle?.svgId) ids.push(edgeMetadata.edgeInfoMiddle.svgId);
+                if (edgeMetadata.edgeInfo1?.svgId) ids.push(edgeMetadata.edgeInfo1.svgId);
+                if (edgeMetadata.edgeInfo2?.svgId) ids.push(edgeMetadata.edgeInfo2.svgId);
+            }
+            return ids;
+        };
+
+        const validLegendIds = new Set(nodeList.map((n) => n.legendSvgId));
+        const validLegendEdgeIds = new Set(nodeList.map((n) => n.legendEdgeSvgId));
+        const validEdgeInfosIds = new Set(getEdgeInfosIds(containedEdgeList));
+
+        // filter legends
+        this.getOrCreateTextNodesSection()
+            .querySelectorAll('div[id]')
+            ?.forEach((div) => {
+                if (!validLegendIds.has(div.id)) {
+                    div.remove();
+                }
+            });
+
+        // filter legend edges
+        this.getOrCreateTextEdgesSection()
+            .querySelectorAll('polyline[id]')
+            ?.forEach((polyline) => {
+                if (!validLegendEdgeIds.has(polyline.id)) {
+                    polyline.remove();
+                }
+            });
+
+        // filter edge infos
+        this.getOrCreateEdgeInfosSection()
+            .querySelectorAll('g[id]')
+            ?.forEach((g) => {
+                if (!validEdgeInfosIds.has(g.id)) {
+                    g.remove();
+                }
+            });
     }
 
     private adaptiveZoomViewboxUpdate(maxDisplayedSize: number) {
@@ -1885,6 +1967,10 @@ export class NetworkAreaDiagramViewer {
             console.log('number of nodes in the current viewbox: ' + containedNodeList.length);
             console.log('number of edges in the current viewbox: ' + containedEdgeList.length);
             console.log(`number of elements in the current viewbox computing time: ${performance.now() - start} ms`);
+
+            start = performance.now();
+            this.filterElements(containedNodeList, containedEdgeList);
+            console.log(`time to remove elements not in the current viewbox: ${performance.now() - start} ms`);
 
             start = performance.now();
             for (const node of containedNodeList) {
@@ -2032,7 +2118,10 @@ export class NetworkAreaDiagramViewer {
                     ) {
                         const voltage = busValue.voltage.toFixed(this.svgParameters.getVoltageValuePrecision());
                         const angle = busValue.angle.toFixed(this.svgParameters.getAngleValuePrecision());
-                        div.childNodes[div.childNodes.length - 1].textContent = `${voltage} kV / ${angle}°`;
+
+                        const newLegend = `${voltage} kV / ${angle}°`;
+                        div.childNodes[div.childNodes.length - 1].textContent = newLegend;
+                        busNode.legend = newLegend;
                     }
                 }
             });
@@ -2096,6 +2185,64 @@ export class NetworkAreaDiagramViewer {
         branchLabelElement.innerHTML = edgeInfoMetadata.labelB;
 
         this.redrawEdgeArrowAndLabel(halfEdge, edgeInfo);
+    }
+
+    private setBranchMiddleLabel(
+        edge: EdgeMetadata,
+        halfEdge1: HalfEdge | null,
+        halfEdge2: HalfEdge | null,
+        edgeInfoMetadata: EdgeInfoMetadata | undefined,
+        value: number | string
+    ) {
+        if (!halfEdge1 && !halfEdge2) {
+            return;
+        }
+
+        if (!edgeInfoMetadata) {
+            edgeInfoMetadata = {
+                svgId: crypto.randomUUID(),
+                infoTypeA: 'Name',
+            };
+            edge.edgeInfoMiddle = edgeInfoMetadata;
+        }
+        const edgeInfo = this.getOrCreateEdgeInfo(edgeInfoMetadata);
+
+        const edgeInfoType = edgeInfoMetadata.infoTypeA ?? edgeInfoMetadata.infoTypeB;
+
+        const formattedValue =
+            typeof value === 'number'
+                ? value.toFixed(this.getEdgeInfoValuePrecision(this.svgParameters.getEdgeInfoDisplayed(edgeInfoType)))
+                : value;
+
+        const branchLabelElement = this.getOrCreateEdgeInfoText(edgeInfo);
+
+        edgeInfo.classList.remove('nad-active', 'nad-reactive', 'nad-current', 'nad-name');
+        const edgeInfoClass = DiagramUtils.getEdgeInfoClass(edgeInfoType);
+        if (edgeInfoClass) {
+            branchLabelElement.classList.add(edgeInfoClass);
+        }
+
+        branchLabelElement.innerHTML = formattedValue;
+
+        let anchorPoint: Point;
+        let labelTextAngle: number;
+
+        if (halfEdge1 && halfEdge2) {
+            const p1: Point = halfEdge1.edgePoints.at(-1)!;
+            const p2: Point = halfEdge2.edgePoints.at(-1)!;
+            anchorPoint = DiagramUtils.getMidPosition(p1, p2);
+            labelTextAngle = DiagramUtils.getEdgeNameAngle(halfEdge1.edgePoints.at(-2)!, halfEdge2.edgePoints.at(-1)!);
+        } else {
+            const visibleHalfEdge = halfEdge1 ?? halfEdge2 ?? null;
+            if (!visibleHalfEdge) return;
+
+            anchorPoint = visibleHalfEdge.edgePoints.at(-1)!;
+            labelTextAngle = DiagramUtils.getEdgeNameAngle(
+                visibleHalfEdge.edgePoints.at(-2)!,
+                visibleHalfEdge.edgePoints.at(-1)!
+            );
+        }
+        this.redrawMiddleEdgeLabel(anchorPoint, labelTextAngle, 'text-anchor:middle', edgeInfo);
     }
 
     private getOrCreateEdgeInfo(edgeInfoMetadata: EdgeInfoMetadata): SVGElement {
