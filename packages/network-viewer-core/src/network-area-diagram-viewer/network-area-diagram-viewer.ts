@@ -2861,7 +2861,7 @@ export class NetworkAreaDiagramViewer {
         }
     }
 
-    public coupleWith(others: NetworkAreaDiagramViewer | NetworkAreaDiagramViewer[]) {
+    public syncViewBoxWith(others: NetworkAreaDiagramViewer | NetworkAreaDiagramViewer[]) {
         const viewers = Array.isArray(others) ? others : [others];
         const sync = () => {
             const viewBox = this.getViewBox();

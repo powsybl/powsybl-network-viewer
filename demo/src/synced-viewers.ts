@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2022, RTE (http://www.rte-france.com)
+ * Copyright (c) 2026, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -43,9 +43,9 @@ const initSyncedViewers = () => {
             );
 
             // Establish synchronization
-            v1.coupleWith([v2, v3]);
-            v2.coupleWith([v1, v3]);
-            v3.coupleWith([v1, v2]);
+            v1.syncViewBoxWith([v2, v3]);
+            v2.syncViewBoxWith([v1, v3]);
+            v3.syncViewBoxWith([v1, v2]);
 
             // Apply randomized branch states
             const edges = NadSvgMultibusVLNodes14ExampleMeta.edges || [];
