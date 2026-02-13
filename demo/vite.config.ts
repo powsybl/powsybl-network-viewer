@@ -9,11 +9,24 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import * as path from 'node:path';
 import { viteEslintChecker } from '../utils/viteEslintChecker';
+import dts from 'vite-plugin-dts';
+import { copyFileSync } from 'node:fs';
 const workspaceRoot = path.resolve(__dirname, '..');
 
 export default defineConfig((config) => ({
     root: __dirname,
-    plugins: [viteEslintChecker(config.isPreview, config.command), react()],
+    plugins: [
+        viteEslintChecker(config.isPreview, config.command),
+        react(),
+        dts({
+            include: ['src'],
+            exclude: ['**/*.{spec,test}.{ts,tsx}'],
+            rollupTypes: true,
+            tsconfigPath: './tsconfig.json',
+            afterBuild: () => {
+                copyFileSync('dist/index.d.ts', 'dist/index.d.cts');
+            },
+        }),],
     resolve: {
         alias: {
             // Use source files from the workspace packages during demo dev for HMR
