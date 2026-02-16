@@ -3033,31 +3033,17 @@ export class NetworkAreaDiagramViewer {
         if (!halfEdges[0] || !halfEdges[1]) return [];
 
         const midpoints: Point[] = [];
-        const isFork = halfEdges[0].fork;
+        const startIndex = halfEdges[0].fork ? 1 : 0; // skip edgeStart, begin at fork point if present
 
-        // For fork edges, use fork point (index 1), otherwise use start point (index 0)
-        const startPoint1 = isFork ? halfEdges[0].edgePoints[1] : halfEdges[0].edgePoints[0];
-        const startPoint2 = isFork ? halfEdges[1].edgePoints[1] : halfEdges[1].edgePoints[0];
+        // Midpoints for half-edge 1 segments (from fork/start toward middle)
+        for (let i = startIndex; i < halfEdges[0].edgePoints.length - 1; i++) {
+            midpoints.push(DiagramUtils.getMidPosition(halfEdges[0].edgePoints[i], halfEdges[0].edgePoints[i + 1]));
+        }
 
-        if (edge.bendingPoints && edge.bendingPoints.length > 0) {
-            // First segment: startPoint1 -> first bend point
-            midpoints.push(
-                DiagramUtils.getMidPosition(startPoint1, new Point(edge.bendingPoints[0].x, edge.bendingPoints[0].y))
-            );
-
-            // Segments between bend points
-            for (let i = 0; i < edge.bendingPoints.length - 1; i++) {
-                const current = new Point(edge.bendingPoints[i].x, edge.bendingPoints[i].y);
-                const next = new Point(edge.bendingPoints[i + 1].x, edge.bendingPoints[i + 1].y);
-                midpoints.push(DiagramUtils.getMidPosition(current, next));
-            }
-
-            // Last segment: last bend point -> startPoint2
-            const lastBendPoint = new Point(edge.bendingPoints.at(-1)!.x, edge.bendingPoints.at(-1)!.y);
-            midpoints.push(DiagramUtils.getMidPosition(lastBendPoint, startPoint2));
-        } else {
-            // No bend points: single segment from startPoint1 to startPoint2
-            midpoints.push(DiagramUtils.getMidPosition(startPoint1, startPoint2));
+        // Midpoints for half-edge 2 segments (from fork/start toward middle)
+        const startIndex2 = halfEdges[1].fork ? 1 : 0;
+        for (let i = startIndex2; i < halfEdges[1].edgePoints.length - 1; i++) {
+            midpoints.push(DiagramUtils.getMidPosition(halfEdges[1].edgePoints[i], halfEdges[1].edgePoints[i + 1]));
         }
 
         return midpoints;

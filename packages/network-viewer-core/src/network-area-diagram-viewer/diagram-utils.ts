@@ -254,7 +254,7 @@ export function calculateLineIntersection(p1: Point, dir1: Point, p2: Point, dir
     const denominator = dir1.x * dir2.y - dir1.y * dir2.x;
 
     // If denominator is 0, lines are parallel
-    if (Math.abs(denominator) < 1e-10) {
+    if (Math.abs(denominator) < 0.01) {
         return null;
     }
 
