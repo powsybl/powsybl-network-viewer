@@ -7,8 +7,16 @@
  */
 
 import { Point } from '@svgdotjs/svg.js';
-import { getAngle, getFormattedPoint } from './diagram-utils';
+import {
+    getAngle,
+    getFormattedPoint,
+    getFormattedPolyline,
+    getPointAtDistance,
+    getVoltageLevelCircleRadius,
+} from './diagram-utils';
 import { ElementType, ViewBox } from './diagram-types';
+import { BusNodeMetadata, NodeMetadata, TextNodeMetadata } from './diagram-metadata';
+import { SvgParameters } from './svg-parameters';
 
 // get the draggable element, if present,
 // from the element selected using the mouse
@@ -413,4 +421,58 @@ export function computeVisibleArea(
         width: vbox.width + dx * 2,
         height: vbox.height + dy * 2,
     };
+}
+
+export function createTextNode(
+    textNode: TextNodeMetadata,
+    node: NodeMetadata,
+    busNodes: BusNodeMetadata[]
+): HTMLElement {
+    const newTextElement = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
+    newTextElement.style.position = 'absolute';
+    newTextElement.style.top = (node.y + textNode.shiftY).toFixed(0) + 'px';
+    newTextElement.style.left = (node.x + textNode.shiftX).toFixed(0) + 'px';
+    newTextElement.id = textNode.svgId;
+    newTextElement.classList.add('nad-label-box');
+
+    const newVlNameElement = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
+    newVlNameElement.textContent = textNode.equipmentId;
+    newTextElement.appendChild(newVlNameElement);
+
+    for (const busNode of busNodes) {
+        const newBusDivElement = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
+        newBusDivElement.classList.add('nad-bus-descr');
+
+        const newBusLegendElement = document.createElementNS('http://www.w3.org/1999/xhtml', 'span');
+        newBusLegendElement.classList.add('nad-legend-square');
+        const textNode = document.createTextNode(busNode.legend ?? '');
+        newBusDivElement.appendChild(newBusLegendElement);
+        newBusDivElement.appendChild(textNode);
+
+        newTextElement.appendChild(newBusDivElement);
+    }
+
+    return newTextElement;
+}
+
+export function createTextEdge(
+    textNode: TextNodeMetadata,
+    node: NodeMetadata,
+    busNodes: BusNodeMetadata[],
+    svgParameters: SvgParameters
+): SVGPolylineElement {
+    // compute text edge start and end points
+    const nodePoint = new Point(node.x, node.y);
+    const endTextEdge = new Point(node.x + textNode.connectionShiftX, node.y + textNode.connectionShiftY);
+    const nbNeighbours = busNodes !== undefined && busNodes.length > 1 ? busNodes.length - 1 : 0;
+    const voltageLevelCircleRadius = getVoltageLevelCircleRadius(nbNeighbours, node.fictitious, svgParameters);
+    const startTextEdge = getPointAtDistance(nodePoint, endTextEdge, voltageLevelCircleRadius);
+
+    //create the text edge element
+    const newLegendEdgeElement = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+    newLegendEdgeElement.id = node.legendEdgeSvgId ?? '';
+    const polyline = getFormattedPolyline([startTextEdge, endTextEdge]);
+    newLegendEdgeElement.setAttribute('points', polyline);
+
+    return newLegendEdgeElement;
 }
