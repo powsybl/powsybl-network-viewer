@@ -1,0 +1,18 @@
+{
+    "extends": "../tsconfig.json",
+    "compilerOptions": {
+        "baseUrl": ".",
+        "paths": {
+            "@powsybl/network-map-layers": ["../packages/network-map-layers/src"],
+            "@powsybl/network-viewer-core": ["../packages/network-viewer-core/src"],
+            "@powsybl/network-viewer": ["../src"]
+        }
+    },
+    "include": [
+        "src",
+        "../src",
+        "../packages/network-map-layers/src",
+        "../packages/network-viewer-core/src",
+        "../vite-plugin-checker.d.ts"
+    ]
+}

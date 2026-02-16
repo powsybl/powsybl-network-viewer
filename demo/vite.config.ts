@@ -5,18 +5,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import * as path from 'node:path';
+import { defineConfig } from 'vite';
 import { viteEslintChecker } from '../utils/viteEslintChecker';
 const workspaceRoot = path.resolve(__dirname, '..');
 
 export default defineConfig((config) => ({
     root: __dirname,
-    plugins: [viteEslintChecker(config.isPreview, config.command), react()],
+    plugins: [viteEslintChecker(config.isPreview, config.command, './tsconfig.json'), react()],
     resolve: {
         alias: {
-            // Use source files from the workspace package during demo dev for HMR
+            // Use source files from the workspace packages during demo dev for HMR
             '@powsybl/network-map-layers': path.resolve(workspaceRoot, 'packages/network-map-layers/src'),
             '@powsybl/network-viewer-core': path.resolve(workspaceRoot, 'packages/network-viewer-core/src'),
             // Also allow importing the library src directly from the demo if needed
