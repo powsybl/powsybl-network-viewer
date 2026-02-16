@@ -42,6 +42,8 @@ import {
     SingleLineDiagramViewer,
 } from '../../../src';
 
+/* eslint-disable @typescript-eslint/no-floating-promises */
+
 export const addNadToDemo = () => {
     fetch(NadSvgExample)
         .then((response) => response.text())
@@ -331,6 +333,55 @@ export const addNadToDemo = () => {
                 svgContainerNadPegase!,
                 svgContent,
                 NadSvgPegaseNetworkExampleMeta,
+                nadViewerParametersOptions
+            );
+        });
+
+    fetch(NadSvgPegaseNetworkExample)
+        .then((response) => response.text())
+        .then((svgContent) => {
+            const nadViewerParametersOptions: NadViewerParametersOptions = {
+                enableDragInteraction: true,
+                addButtons: true,
+                onMoveNodeCallback: handleNodeMove,
+                onMoveTextNodeCallback: handleTextNodeMove,
+                onSelectNodeCallback: handleNodeSelect,
+                onToggleHoverCallback: handleToggleNadHover,
+                onRightClickCallback: handleRightClick,
+                onBendLineCallback: handleLineBending,
+
+                enableAdaptiveTextZoom: true,
+                adaptiveTextZoomThreshold: 3000,
+            };
+            const svgContainerNadPegase = document.getElementById('svg-container-nad-pegase-network-adaptive-zoom');
+            new NetworkAreaDiagramViewer(
+                svgContainerNadPegase!,
+                svgContent,
+                NadSvgPegaseNetworkExampleMeta,
+                nadViewerParametersOptions
+            );
+        });
+
+    fetch(NadSvgMultibusVLNodesExample)
+        .then((response) => response.text())
+        .then((svgContent) => {
+            const nadViewerParametersOptions: NadViewerParametersOptions = {
+                enableDragInteraction: true,
+                addButtons: true,
+                onMoveNodeCallback: handleNodeMove,
+                onMoveTextNodeCallback: handleTextNodeMove,
+                onSelectNodeCallback: handleNodeSelect,
+                onToggleHoverCallback: handleToggleNadHover,
+                onRightClickCallback: handleRightClick,
+                onBendLineCallback: handleLineBending,
+
+                enableAdaptiveTextZoom: true,
+                adaptiveTextZoomThreshold: 850,
+            };
+            new NetworkAreaDiagramViewer(
+                document.getElementById('svg-container-nad-partial-network-adaptive-zoom')!,
+                svgContent,
+                NadSvgMultibusVLNodesExampleMeta,
                 nadViewerParametersOptions
             );
         });

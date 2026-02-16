@@ -102,6 +102,16 @@ export interface NadViewerParametersOptions {
 
     // Size in pixel of the margin that is added to hoverable objects to help the user stay over them.
     hoverPositionPrecision?: number | null;
+
+    // Whether enabling adaptive zoom, to improve the performnces of the viewer with large networks.
+    // If enabled, and the viewbox's zoom level is above a threshold, edge infos and legends are removed
+    // from the SVG, to speed-up panning and zooming.
+    // When the zoom level is below a threshold, edge infos and legends for the NAD elements that are
+    // inside the viewbox are created in the SVG, on the fly, from the NAD metadata.
+    enableAdaptiveTextZoom?: boolean;
+
+    // Threshold for the adaptiveZoom.
+    adaptiveTextZoomThreshold?: number;
 }
 
 export class NadViewerParameters {
@@ -114,6 +124,8 @@ export class NadViewerParameters {
     static readonly ZOOM_LEVELS_DEFAULT = [0, 1000, 2200, 2500, 3000, 4000, 9000, 12000, 20000];
     static readonly ADD_BUTTONS_DEFAULT = false;
     static readonly HOVER_POSITION_PRECISION_DEFAULT = 10;
+    static readonly ENABLE_ADAPTIVE_ZOOM_DEFAULT = false;
+    static readonly THRESHOLD_ADAPTIVE_ZOOM_DEFAULT = 3000;
 
     nadViewerParametersOptions: NadViewerParametersOptions | undefined;
 
@@ -175,6 +187,19 @@ export class NadViewerParameters {
         return (
             this.nadViewerParametersOptions?.hoverPositionPrecision ??
             NadViewerParameters.HOVER_POSITION_PRECISION_DEFAULT
+        );
+    }
+
+    public getEnableAdaptiveTextZoom(): boolean {
+        return (
+            this.nadViewerParametersOptions?.enableAdaptiveTextZoom ?? NadViewerParameters.ENABLE_ADAPTIVE_ZOOM_DEFAULT
+        );
+    }
+
+    public getThresholdAdaptiveTextZoom(): number {
+        return (
+            this.nadViewerParametersOptions?.adaptiveTextZoomThreshold ??
+            NadViewerParameters.THRESHOLD_ADAPTIVE_ZOOM_DEFAULT
         );
     }
 }
