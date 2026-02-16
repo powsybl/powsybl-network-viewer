@@ -249,3 +249,73 @@ export function getArrowClass(direction: string | undefined): string | undefined
             return undefined;
     }
 }
+
+export function calculateLineIntersection(p1: Point, dir1: Point, p2: Point, dir2: Point): Point | null {
+    const denominator = dir1.x * dir2.y - dir1.y * dir2.x;
+
+    // If denominator is 0, lines are parallel
+    if (Math.abs(denominator) < 1e-10) {
+        return null;
+    }
+
+    const dx = p2.x - p1.x;
+    const dy = p2.y - p1.y;
+
+    const t = (dx * dir2.y - dy * dir2.x) / denominator;
+
+    return new Point(p1.x + t * dir1.x, p1.y + t * dir1.y);
+}
+
+export function calculateParallelBendPoint(
+    masterPrevPoint: Point,
+    masterBendPoint: Point,
+    masterNextPoint: Point,
+    slavePrevPoint: Point,
+    slaveNextPoint: Point
+): Point | null {
+    // Direction from master prev to master bend (Vector 1)
+    const dir1 = new Point(masterBendPoint.x - masterPrevPoint.x, masterBendPoint.y - masterPrevPoint.y);
+
+    // Direction from master bend to master next (Vector 2)
+    const dir2 = new Point(masterNextPoint.x - masterBendPoint.x, masterNextPoint.y - masterBendPoint.y);
+
+    const intersection = calculateLineIntersection(slavePrevPoint, dir1, slaveNextPoint, dir2);
+
+    if (!intersection) {
+        return calculateOffset(masterBendPoint, slavePrevPoint, masterPrevPoint);
+    }
+
+    if (!isValidParallelPoint(intersection, masterBendPoint, slavePrevPoint, masterPrevPoint)) {
+        return calculateOffset(masterBendPoint, slavePrevPoint, masterPrevPoint);
+    }
+
+    return intersection;
+}
+
+function isValidParallelPoint(
+    calculatedPoint: Point,
+    masterBendPoint: Point,
+    slavePrevPoint: Point,
+    masterPrevPoint: Point
+): boolean {
+    // Check that the point is not too far from master bend point
+    // The distance should be similar to the distance between slave and master reference points
+    const referenceDistance = getDistance(slavePrevPoint, masterPrevPoint);
+    const calculatedDistance = getDistance(calculatedPoint, masterBendPoint);
+
+    const maxAllowedDistance = Math.max(referenceDistance * 3, 500);
+    if (calculatedDistance > maxAllowedDistance) {
+        return false;
+    }
+    // Check for NaN or Infinity values
+    return Number.isFinite(calculatedPoint.x) && Number.isFinite(calculatedPoint.y);
+}
+
+function calculateOffset(masterPoint: Point, slaveReferencePoint: Point, masterReferencePoint: Point): Point {
+    // Calculate offset between slave and master at reference points
+    const offsetX = slaveReferencePoint.x - masterReferencePoint.x;
+    const offsetY = slaveReferencePoint.y - masterReferencePoint.y;
+
+    // Apply same offset to master bend point
+    return new Point(masterPoint.x + offsetX, masterPoint.y + offsetY);
+}
