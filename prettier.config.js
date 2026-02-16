@@ -19,7 +19,7 @@ const config = {
     printWidth: 120,
     singleQuote: true,
     keySeparator: '=', // format of separator in .properties
-    plugins: ['prettier-plugin-properties', 'prettier-plugin-glsl'],
+    plugins: ['prettier-plugin-properties'],
     overrides: [
         {
             files: ['.env', '.env.*'],

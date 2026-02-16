@@ -106,6 +106,8 @@ you need to follow the steps below:
 - Update to the new version in both packages (example `3.2.0`):  
   `npm --workspaces --include-workspace-root --no-git-tag-version version 3.2.0`  
   **Remarks**: without `--no-git-tag-version` the commit doesn't contain both package.json and the complete package-lock.json files then we do it manually next
+- Change the version of dependencies in the root `package.json` to `^3.2.0`
+- `npm i` to update package-lock accordingly
 - Commit the package.json and package-lock.json files, push to a branch, make a PR, have it reviewed and merged to main with title `Bump to 3.2.0`.
 - Pull and checkout main on your last commit.
 - [Tag (with -s signed) your last commit](https://semver.org/) :  
@@ -134,6 +136,8 @@ you need to follow the steps below:
 
 - Update to the next version in both packages (example `3.3.0-dev.0`):  
   `npm --workspaces --include-workspace-root --no-git-tag-version version 3.3.0-dev.0`
+- Change the version of dependencies in the root `package.json` to `^3.3.0-dev.0`
+- `npm i` to update package-lock accordingly
 - Commit the package.json and package-lock.json files, push to a branch, make a PR, have it reviewed and merge to main with title `Bump to 3.3.0-dev.0`.
 
 ### Notes :
