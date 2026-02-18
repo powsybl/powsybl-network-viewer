@@ -16,11 +16,7 @@ export const eslintCmdWithOptions = () => {
         : `${eslintCmd} --ignore-pattern "**/*.{test,spec}.*" "**/src/**/*.{js,jsx,ts,tsx}"`;
 };
 
-export const viteEslintChecker = (
-    isPreview: boolean | undefined,
-    command: 'build' | 'serve',
-    tsconfigPath?: string
-) => {
+export const viteEslintChecker = (isPreview: boolean | undefined, command: 'build' | 'serve') => {
     return (
         !isPreview &&
         checker({
@@ -28,11 +24,6 @@ export const viteEslintChecker = (
                 initialIsOpen: true,
                 position: 'bl',
             },
-            typescript: tsconfigPath
-                ? {
-                      tsconfigPath,
-                  }
-                : true,
             eslint: {
                 lintCommand: command === 'build' ? `${eslintCmd} .` : eslintCmdWithOptions(),
                 useFlatConfig: true,

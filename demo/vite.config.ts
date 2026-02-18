@@ -13,7 +13,7 @@ const workspaceRoot = path.resolve(__dirname, '..');
 
 export default defineConfig((config) => ({
     root: __dirname,
-    plugins: [viteEslintChecker(config.isPreview, config.command, './tsconfig.json'), react()],
+    plugins: [viteEslintChecker(config.isPreview, config.command), react()],
     resolve: {
         alias: {
             // Use source files from the workspace packages during demo dev for HMR

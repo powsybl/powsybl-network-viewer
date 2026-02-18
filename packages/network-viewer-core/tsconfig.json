@@ -1,18 +1,7 @@
 {
+    "extends": "../../tsconfig.base.json",
     "compilerOptions": {
-        "module": "esnext",
-        "moduleResolution": "node",
-        "target": "es6",
-        "declaration": true,
-        "outDir": "./dist",
-        "strict": true,
-        "skipLibCheck": true,
-        "esModuleInterop": true,
-        "forceConsistentCasingInFileNames": true,
-        "allowSyntheticDefaultImports": true,
-        "noFallthroughCasesInSwitch": true,
-        "resolveJsonModule": true,
-        "noEmit": true
+        "outDir": "./dist"
     },
     "include": ["src"]
 }
