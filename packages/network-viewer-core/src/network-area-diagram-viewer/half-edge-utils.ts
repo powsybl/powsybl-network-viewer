@@ -18,7 +18,14 @@ import {
     isTransformerEdge,
     radToDeg,
 } from './diagram-utils';
-import { getBusNodeMetadata, getEdgePoints, getEdgeType, getNodeMetadata, getNodeRadius } from './metadata-utils';
+import {
+    getBusNodeMetadata,
+    getEdgePoints,
+    getEdgeType,
+    getNodeMetadata,
+    getNodeRadius,
+    EdgePointsParams,
+} from './metadata-utils';
 import { HalfEdge } from './diagram-types';
 import { getPathPoints, getTransform } from './svg-utils';
 
@@ -187,7 +194,8 @@ export function getHalfEdges(
     iEdge: number,
     groupedEdgesCount: number,
     diagramMetadata: DiagramMetadata | null,
-    svgParameters: SvgParameters
+    svgParameters: SvgParameters,
+    parallelEdges?: EdgeMetadata[]
 ): HalfEdge[] | null[] {
     const edgeType = getEdgeType(edge);
     const busNode1 = getBusNodeMetadata(edge.busNode1, diagramMetadata);
@@ -203,20 +211,57 @@ export function getHalfEdges(
     let edgeFork1: Point | undefined;
     let edgeFork2: Point | undefined;
     if (groupedEdgesCount > 1) {
-        const angle = getAngle(point1, point2);
+        // Calculate reference angles for forks
+        let referenceAngle1: number;
+        let referenceAngle2: number;
+
+        // Check if any parallel edge has bending points
+        const edgesWithBendPoints = parallelEdges?.filter((e) => e.bendingPoints && e.bendingPoints.length > 0);
+
+        if (edgesWithBendPoints && edgesWithBendPoints.length > 0) {
+            // Calculate centroid of first bend points
+            let sumFirstX = 0,
+                sumFirstY = 0;
+            let sumLastX = 0,
+                sumLastY = 0;
+
+            for (const e of edgesWithBendPoints) {
+                sumFirstX += e.bendingPoints![0].x;
+                sumFirstY += e.bendingPoints![0].y;
+                sumLastX += e.bendingPoints![e.bendingPoints!.length - 1].x;
+                sumLastY += e.bendingPoints![e.bendingPoints!.length - 1].y;
+            }
+
+            const count = edgesWithBendPoints.length;
+            const centerFirstBendPoint = new Point(sumFirstX / count, sumFirstY / count);
+            const centerLastBendPoint = new Point(sumLastX / count, sumLastY / count);
+
+            referenceAngle1 = getAngle(point1, centerFirstBendPoint);
+            referenceAngle2 = getAngle(point2, centerLastBendPoint);
+        } else {
+            // No bending points - use voltage level to voltage level angle
+            referenceAngle1 = getAngle(point1, point2);
+            referenceAngle2 = referenceAngle1 + Math.PI;
+        }
+
         const angleStep = svgParameters.getEdgesForkAperture() / (groupedEdgesCount - 1);
         const alpha = -svgParameters.getEdgesForkAperture() / 2 + iEdge * angleStep;
-        const angleFork1 = angle - alpha;
-        const angleFork2 = angle + Math.PI + alpha;
+        const angleFork1 = referenceAngle1 - alpha;
+        const angleFork2 = referenceAngle2 + alpha;
         edgeFork1 = getEdgeFork(point1, svgParameters.getEdgesForkLength(), angleFork1);
         edgeFork2 = getEdgeFork(point2, svgParameters.getEdgesForkLength(), angleFork2);
     }
 
-    const edgeDirection1 = getEdgeDirection(point2, edgeFork1, edge.bendingPoints?.at(0));
+    // For parallel edges (groupedEdgesCount > 1), don't use bending points for edge direction
+    // because fork points replace this logic
+    const bendingPointFirst = groupedEdgesCount > 1 ? undefined : edge.bendingPoints?.at(0);
+    const bendingPointLast = groupedEdgesCount > 1 ? undefined : edge.bendingPoints?.at(-1);
+
+    const edgeDirection1 = getEdgeDirection(point2, edgeFork1, bendingPointFirst);
     const nodeRadius1 = getNodeRadius(busNode1, node1, svgParameters);
     const edgeStart1 = getEdgeStart(edge.busNode1, point1, edgeDirection1, nodeRadius1.busOuterRadius, svgParameters);
 
-    const edgeDirection2 = getEdgeDirection(point1, edgeFork2, edge.bendingPoints?.at(-1));
+    const edgeDirection2 = getEdgeDirection(point1, edgeFork2, bendingPointLast);
     const nodeRadius2 = getNodeRadius(busNode2, node2, svgParameters);
     const edgeStart2 = getEdgeStart(edge.busNode2, point2, edgeDirection2, nodeRadius2.busOuterRadius, svgParameters);
 
@@ -226,21 +271,24 @@ export function getHalfEdges(
     // if transformer edge, reduce edge polyline, leaving space for the transformer
     let edgeEnd1 = edgeMiddle;
     let edgeEnd2 = edgeMiddle;
+    let transformerShift = 0;
     if (isTransformerEdge(edgeType)) {
-        const endShift = 1.5 * svgParameters.getTransformerCircleRadius();
-        edgeEnd1 = getPointAtDistance(edgeMiddle, edgeFork1 ?? edgeStart1, endShift);
-        edgeEnd2 = getPointAtDistance(edgeMiddle, edgeFork2 ?? edgeStart2, endShift);
+        transformerShift = 1.5 * svgParameters.getTransformerCircleRadius();
+        edgeEnd1 = getPointAtDistance(edgeMiddle, edgeFork1 ?? edgeStart1, transformerShift);
+        edgeEnd2 = getPointAtDistance(edgeMiddle, edgeFork2 ?? edgeStart2, transformerShift);
     }
 
-    const edgePoints = getEdgePoints(
+    const edgePointsParams: EdgePointsParams = {
         edgeStart1,
         edgeFork1,
         edgeEnd1,
         edgeStart2,
         edgeFork2,
         edgeEnd2,
-        edge.bendingPoints
-    );
+        bendingPoints: edge.bendingPoints,
+        transformerShift,
+    };
+    const edgePoints = getEdgePoints(edgePointsParams);
     const halfEdge1: HalfEdge = {
         side: '1',
         fork: groupedEdgesCount > 1,

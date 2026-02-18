@@ -386,7 +386,7 @@ test('getViewBox', () => {
     expect(viewBox.height).toBe(1500);
 });
 
-test('getBendableLines', () => {
+test('getBendableEdges', () => {
     const edges: EdgeMetadata[] = [
         {
             svgId: '100',
@@ -428,9 +428,10 @@ test('getBendableLines', () => {
         },
     ];
 
-    const lines = MetadataUtils.getBendableLines(edges);
-    expect(lines.length).toBe(1);
+    const lines = MetadataUtils.getBendableEdges(edges);
+    expect(lines.length).toBe(2);
     expect(lines[0].svgId).toBe('181');
+    expect(lines[1].svgId).toBe('178');
 });
 
 test('addPointToList', () => {
@@ -483,15 +484,15 @@ test('getEdgePoints', () => {
     const edgeEnd2 = new Point(0, 0);
 
     const pointsMetadata: PointMetadata[] = [];
-    let edgePoints = MetadataUtils.getEdgePoints(
+    let edgePoints = MetadataUtils.getEdgePoints({
         edgeStart1,
-        undefined,
+        edgeFork1: undefined,
         edgeEnd1,
         edgeStart2,
-        undefined,
+        edgeFork2: undefined,
         edgeEnd2,
-        pointsMetadata.slice()
-    );
+        bendingPoints: pointsMetadata.slice(),
+    });
     expect(edgePoints[0].length).toBe(2);
     expect(edgePoints[0][0].x).toBe(0);
     expect(edgePoints[0][0].y).toBe(0);
@@ -504,15 +505,15 @@ test('getEdgePoints', () => {
     expect(edgePoints[1][1].y).toBe(0);
 
     pointsMetadata.push({ x: 100, y: 0 });
-    edgePoints = MetadataUtils.getEdgePoints(
+    edgePoints = MetadataUtils.getEdgePoints({
         edgeStart1,
-        undefined,
+        edgeFork1: undefined,
         edgeEnd1,
         edgeStart2,
-        undefined,
+        edgeFork2: undefined,
         edgeEnd2,
-        pointsMetadata.slice()
-    );
+        bendingPoints: pointsMetadata.slice(),
+    });
     expect(edgePoints[0].length).toBe(3);
     expect(edgePoints[0][0].x).toBe(0);
     expect(edgePoints[0][0].y).toBe(0);
@@ -527,15 +528,15 @@ test('getEdgePoints', () => {
     expect(edgePoints[1][1].y).toBe(0);
 
     pointsMetadata.push({ x: 300, y: 0 });
-    edgePoints = MetadataUtils.getEdgePoints(
+    edgePoints = MetadataUtils.getEdgePoints({
         edgeStart1,
-        undefined,
+        edgeFork1: undefined,
         edgeEnd1,
         edgeStart2,
-        undefined,
+        edgeFork2: undefined,
         edgeEnd2,
-        pointsMetadata.slice()
-    );
+        bendingPoints: pointsMetadata.slice(),
+    });
     expect(edgePoints[0].length).toBe(4);
     expect(edgePoints[0][0].x).toBe(0);
     expect(edgePoints[0][0].y).toBe(0);
@@ -552,15 +553,15 @@ test('getEdgePoints', () => {
     expect(edgePoints[1][1].y).toBe(0);
 
     pointsMetadata.push({ x: 600, y: 0 });
-    edgePoints = MetadataUtils.getEdgePoints(
+    edgePoints = MetadataUtils.getEdgePoints({
         edgeStart1,
-        undefined,
+        edgeFork1: undefined,
         edgeEnd1,
         edgeStart2,
-        undefined,
+        edgeFork2: undefined,
         edgeEnd2,
-        pointsMetadata.slice()
-    );
+        bendingPoints: pointsMetadata.slice(),
+    });
     expect(edgePoints[0].length).toBe(4);
     expect(edgePoints[0][0].x).toBe(0);
     expect(edgePoints[0][0].y).toBe(0);
