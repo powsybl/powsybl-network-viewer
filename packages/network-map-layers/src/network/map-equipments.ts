@@ -130,7 +130,7 @@ export class MapEquipments {
                 this.linesById?.set(line.id, line);
             });
         } else {
-            this.linesById = this.lines.reduce(elementIdIndexer, new Map());
+            this.linesById = this.lines.reduce((map, line) => elementIdIndexer(map, line), new Map());
         }
     }
 
@@ -140,7 +140,7 @@ export class MapEquipments {
                 this.tieLinesById?.set(tieLine.id, tieLine);
             });
         } else {
-            this.tieLinesById = this.tieLines.reduce(elementIdIndexer, new Map());
+            this.tieLinesById = this.tieLines.reduce((map, tieLine) => elementIdIndexer(map, tieLine), new Map());
         }
     }
 
@@ -174,7 +174,7 @@ export class MapEquipments {
                 this.hvdcLinesById?.set(hvdcLine.id, hvdcLine);
             });
         } else {
-            this.hvdcLinesById = this.hvdcLines.reduce(elementIdIndexer, new Map());
+            this.hvdcLinesById = this.hvdcLines.reduce((map, hvdcLine) => elementIdIndexer(map, hvdcLine), new Map());
         }
     }
 

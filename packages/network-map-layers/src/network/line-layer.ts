@@ -388,7 +388,7 @@ export class LineLayer extends CompositeLayer<Required<_LineLayerProps>> {
                     return map;
                 };
                 const linesByNominalVoltage = props.data.reduce(
-                    lineNominalVoltageIndexer,
+                    (map, line) => lineNominalVoltageIndexer(map, line),
                     new Map<number, MapAnyLineWithType[]>()
                 );
 
