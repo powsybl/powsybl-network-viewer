@@ -98,7 +98,7 @@ export class SubstationLayer extends CompositeLayer<Required<_SubstationLayerPro
                     // index voltage levels of this substation by its nominal voltage (this is because we might
                     // have several voltage levels with the same nominal voltage in the same substation)
                     const voltageLevelsByNominalVoltage = substation.voltageLevels.reduce(
-                        voltageLevelNominalVoltageIndexer,
+                        (map, voltageLevel) => voltageLevelNominalVoltageIndexer(map, voltageLevel),
                         new Map()
                     );
 
