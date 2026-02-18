@@ -53,7 +53,10 @@ export class GeoData {
 
     setSubstationPositions(positions: GeoDataSubstation[]) {
         // index positions by substation id
-        this.substationPositionsById = positions.reduce(substationPositionByIdIndexer, new Map());
+        this.substationPositionsById = positions.reduce(
+            (map, substation) => substationPositionByIdIndexer(map, substation),
+            new Map()
+        );
     }
 
     updateSubstationPositions(substationIdsToUpdate: string[], fetchedPositions: GeoDataSubstation[]) {
@@ -76,7 +79,9 @@ export class GeoData {
 
     setLinePositions(positions: GeoDataLine[]) {
         // index positions by line id
-        this.linePositionsById = positions.reduce(linePositionByIdIndexer, new Map());
+        this.linePositionsById = positions.reduce(
+            (map, line) => linePositionByIdIndexer(map, line),
+            new Map());
     }
 
     updateLinePositions(lineIdsToUpdate: string[], fetchedPositions: GeoDataLine[]) {
