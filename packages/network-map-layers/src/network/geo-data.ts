@@ -79,9 +79,7 @@ export class GeoData {
 
     setLinePositions(positions: GeoDataLine[]) {
         // index positions by line id
-        this.linePositionsById = positions.reduce(
-            (map, line) => linePositionByIdIndexer(map, line),
-            new Map());
+        this.linePositionsById = positions.reduce((map, line) => linePositionByIdIndexer(map, line), new Map());
     }
 
     updateLinePositions(lineIdsToUpdate: string[], fetchedPositions: GeoDataLine[]) {
