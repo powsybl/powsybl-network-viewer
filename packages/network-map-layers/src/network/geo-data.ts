@@ -195,14 +195,13 @@ export class GeoData {
         if (arrowPosition > 1 || arrowPosition < 0) {
             throw new Error('Proportional position value incorrect: ' + arrowPosition);
         }
-        if (
-            cumulativeDistances === null ||
-            cumulativeDistances.length < 2 ||
-            cumulativeDistances[cumulativeDistances.length - 1] === 0
-        ) {
+        if (cumulativeDistances === null || cumulativeDistances.length < 2 || cumulativeDistances.at(-1) === 0) {
             return null;
         }
-        const lineDistance = cumulativeDistances[cumulativeDistances.length - 1];
+        const lineDistance = cumulativeDistances.at(-1);
+        if (lineDistance === undefined) {
+            return null;
+        }
         let wantedDistance = lineDistance * arrowPosition;
 
         if (cumulativeDistances.length === 2) {
@@ -288,7 +287,6 @@ export class GeoData {
                 direction = -1;
                 break;
             case ArrowDirection.NONE:
-                direction = 0;
                 break;
             default:
                 throw new Error('impossible');

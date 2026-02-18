@@ -53,7 +53,7 @@ export class MapEquipments {
 
         substations.forEach((substation) => {
             // sort voltage levels inside substations by nominal voltage
-            substation.voltageLevels = substation.voltageLevels.sort(
+            substation.voltageLevels.sort(
                 (voltageLevel1, voltageLevel2) => voltageLevel1.nominalV - voltageLevel2.nominalV
             );
 
