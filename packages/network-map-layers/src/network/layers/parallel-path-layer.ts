@@ -48,7 +48,8 @@ export default class ParallelPathLayer<DataT = unknown> extends PathLayer<
 
     override getShaders() {
         const shaders = super.getShaders();
-        shaders.inject = Object.assign({}, shaders.inject, {
+        shaders.inject = {
+            ...shaders.inject,
             'vs:#decl':
                 shaders.inject['vs:#decl'] +
                 `\
@@ -115,7 +116,7 @@ else if (!isSegmentEnd && isFirstSegment)
 trans = trans * offsetCommonSpace;
 gl_Position += project_common_position_to_clipspace(trans) - project_uCenter;
 `,
-        });
+        };
         return shaders;
     }
 

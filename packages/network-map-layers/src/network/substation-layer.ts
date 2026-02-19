@@ -144,10 +144,8 @@ export class SubstationLayer extends CompositeLayer<Required<_SubstationLayerPro
             if (props.network != null && props.geoData != null && props.filteredNominalVoltages != null) {
                 // we construct the substations where there is at least one voltage level with a nominal voltage
                 // present in the filteredVoltageLevels property, in order to handle correctly the substations labels visibility
-                substationsLabels = substationsLabels.filter(
-                    (substation) =>
-                        substation.voltageLevels.find((v) => props.filteredNominalVoltages?.includes(v.nominalV)) !==
-                        undefined
+                substationsLabels = substationsLabels.filter((substation) =>
+                    substation.voltageLevels.some((v) => props.filteredNominalVoltages?.includes(v.nominalV))
                 );
             }
 
