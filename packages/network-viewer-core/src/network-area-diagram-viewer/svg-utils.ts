@@ -384,7 +384,7 @@ export function getBlobFromPng(png: string): Blob {
     const buffer = new ArrayBuffer(byteString.length);
     const intArray = new Uint8Array(buffer);
     for (let i = 0; i < byteString.length; i++) {
-        intArray[i] = byteString.charCodeAt(i);
+        intArray[i] = byteString.codePointAt(i) ?? Number.NaN;
     }
     return new Blob([buffer], { type: mimeString });
 }

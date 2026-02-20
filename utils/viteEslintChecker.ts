@@ -24,7 +24,6 @@ export const viteEslintChecker = (isPreview: boolean | undefined, command: 'buil
                 initialIsOpen: true,
                 position: 'bl',
             },
-            typescript: true,
             eslint: {
                 lintCommand: command === 'build' ? `${eslintCmd} .` : eslintCmdWithOptions(),
                 useFlatConfig: true,

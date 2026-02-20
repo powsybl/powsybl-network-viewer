@@ -5,9 +5,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import * as path from 'node:path';
+import { defineConfig } from 'vite';
 import { viteEslintChecker } from '../utils/viteEslintChecker';
 const workspaceRoot = path.resolve(__dirname, '..');
 

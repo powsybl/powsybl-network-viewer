@@ -32,12 +32,12 @@ export function getFormattedPolyline(points: Point[]): string {
 
 // transform angle degrees to radians
 export function degToRad(deg: number): number {
-    return deg * (Math.PI / 180.0);
+    return deg * (Math.PI / 180);
 }
 
 // transform angle radians to degrees
 export function radToDeg(rad: number): number {
-    return (rad * 180.0) / Math.PI;
+    return (rad * 180) / Math.PI;
 }
 
 // round number to 2 decimals, for storing positions in metadata

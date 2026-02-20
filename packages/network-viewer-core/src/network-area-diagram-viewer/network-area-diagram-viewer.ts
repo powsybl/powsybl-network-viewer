@@ -609,7 +609,7 @@ export class NetworkAreaDiagramViewer {
     }
 
     public getSvg(): string | null {
-        return this.svgDraw !== undefined ? this.svgDraw.svg() : null;
+        return this.svgDraw === undefined ? null : this.svgDraw.svg();
     }
 
     public getJsonMetadata(): string | null {
@@ -981,7 +981,7 @@ export class NetworkAreaDiagramViewer {
     }
 
     private updateVoltageLevelText(textNode: SVGGraphicsElement) {
-        window.getSelection()?.empty(); // to avoid text highlighting in firefox
+        globalThis.getSelection()?.empty(); // to avoid text highlighting in firefox
 
         const textNodeMetadata = this.diagramMetadata?.textNodes.find((node) => node.svgId === textNode.id);
         if (!textNodeMetadata) {
@@ -1510,14 +1510,14 @@ export class NetworkAreaDiagramViewer {
             const busEdges = busNodeEdges.get(busNode.svgId) ?? [];
             busEdges.forEach((edge) => {
                 const edgeAngle = this.getEdgeAngle(busNode, edge, edge.svgId, edge.node1 == edge.node2);
-                if (typeof edgeAngle !== 'undefined') {
+                if (edgeAngle !== undefined) {
                     traversingBusEdgesAngles.push(edgeAngle);
                 }
             });
             const busInjectionsEdges = injectionsEdges.get(busNode.svgId) ?? [];
             busInjectionsEdges.forEach((inj) => {
                 const edgeAngle = this.getInjectionEdgeAngle(inj);
-                if (typeof edgeAngle !== 'undefined') {
+                if (edgeAngle !== undefined) {
                     traversingBusEdgesAngles.push(edgeAngle);
                 }
             });
@@ -1633,7 +1633,7 @@ export class NetworkAreaDiagramViewer {
         const edgeStartAngle = DiagramUtils.getAngle(halfEdge.edgePoints[0], halfEdge.edgePoints[1]);
         const path: string = DiagramUtils.getBoundarySemicircle(edgeStartAngle, halfEdge.busOuterRadius);
         const pathElement: HTMLElement | null = <HTMLElement>node.firstElementChild;
-        if (pathElement != null && pathElement.tagName == 'path') {
+        if (pathElement?.tagName == 'path') {
             pathElement.setAttribute('d', path);
         }
     }
@@ -2761,9 +2761,7 @@ export class NetworkAreaDiagramViewer {
         // Detect if the edge is linked to an invisible node (not in DOM)
         const invisibleSide = MetadataUtils.getInvisibleSide(edge);
 
-        if (!invisibleSide) {
-            return HalfEdgeUtils.getHalfEdges(edge, iEdge, groupedEdgesCount, this.diagramMetadata, this.svgParameters);
-        } else {
+        if (invisibleSide) {
             const visibleSide = invisibleSide == '1' ? '2' : '1';
             const halfEdgeElement = this.getHalfEdgeNode(edge.svgId, visibleSide);
             return HalfEdgeUtils.getHalfVisibleHalfEdges(
@@ -2775,6 +2773,8 @@ export class NetworkAreaDiagramViewer {
                 this.initialPosition,
                 this.svgParameters
             );
+        } else {
+            return HalfEdgeUtils.getHalfEdges(edge, iEdge, groupedEdgesCount, this.diagramMetadata, this.svgParameters);
         }
     }
 
