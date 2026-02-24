@@ -7,7 +7,7 @@
 
 import NadSvgMultibusVLNodes14Example from './diagram-viewers/data/nad-ieee14cdf-solved.svg';
 import NadSvgMultibusVLNodes14ExampleMeta from './diagram-viewers/data/nad-ieee14cdf-solved_metadata.json';
-import { NadViewerParametersOptions, NetworkAreaDiagramViewer } from '@powsybl/network-viewer-core';
+import { EdgeMetadata, NadViewerParametersOptions, NetworkAreaDiagramViewer } from '@powsybl/network-viewer-core';
 
 /* eslint-disable @typescript-eslint/no-floating-promises */
 
@@ -48,8 +48,8 @@ const initSyncedViewers = () => {
             v3.syncViewBoxWith([v1, v2]);
 
             // Apply randomized branch states
-            const edges = NadSvgMultibusVLNodes14ExampleMeta.edges || [];
-            const branchIds = edges.map((edge: any) => edge.equipmentId);
+            const edges: EdgeMetadata[] = NadSvgMultibusVLNodes14ExampleMeta.edges;
+            const branchIds = edges.filter((edge) => edge.node1 !== edge.node2).map((edge) => edge.equipmentId);
 
             const getRandomBranchStates = (ids: string[]) => {
                 return JSON.stringify(
