@@ -8,7 +8,7 @@
 import { LayoutParametersMetadata } from './diagram-metadata';
 
 export class LayoutParameters {
-    static readonly TEXT_NODE_EDGE_CONNECTION_Y_SHIFT_DEFAULT = 25.0;
+    static readonly TEXT_NODE_EDGE_CONNECTION_Y_SHIFT_DEFAULT = 25;
 
     layoutParametersMetadata: LayoutParametersMetadata | undefined;
 
