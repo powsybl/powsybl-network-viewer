@@ -98,7 +98,7 @@ export class SubstationLayer extends CompositeLayer<Required<_SubstationLayerPro
                     // index voltage levels of this substation by its nominal voltage (this is because we might
                     // have several voltage levels with the same nominal voltage in the same substation)
                     const voltageLevelsByNominalVoltage = substation.voltageLevels.reduce(
-                        voltageLevelNominalVoltageIndexer,
+                        (map, voltageLevel) => voltageLevelNominalVoltageIndexer(map, voltageLevel),
                         new Map()
                     );
 
@@ -144,10 +144,8 @@ export class SubstationLayer extends CompositeLayer<Required<_SubstationLayerPro
             if (props.network != null && props.geoData != null && props.filteredNominalVoltages != null) {
                 // we construct the substations where there is at least one voltage level with a nominal voltage
                 // present in the filteredVoltageLevels property, in order to handle correctly the substations labels visibility
-                substationsLabels = substationsLabels.filter(
-                    (substation) =>
-                        substation.voltageLevels.find((v) => props.filteredNominalVoltages?.includes(v.nominalV)) !==
-                        undefined
+                substationsLabels = substationsLabels.filter((substation) =>
+                    substation.voltageLevels.some((v) => props.filteredNominalVoltages?.includes(v.nominalV))
                 );
             }
 

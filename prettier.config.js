@@ -26,11 +26,6 @@ const config = {
             options: { parser: 'dot-properties' },
         },
         {
-            // .frag files are recognized as JavaScript files by default
-            files: ['*.frag'],
-            options: { parser: 'glsl-parser' },
-        },
-        {
             files: ['.github/**/*'],
             options: { tabWidth: 2 },
         },
