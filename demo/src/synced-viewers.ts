@@ -23,6 +23,8 @@ const initSyncedViewers = () => {
                 maxWidth: 400,
             };
 
+            const diagramMetadataCopy1 = JSON.parse(JSON.stringify(NadSvgMultibusVLNodes14ExampleMeta));
+            const diagramMetadataCopy2 = JSON.parse(JSON.stringify(NadSvgMultibusVLNodes14ExampleMeta));
             const v1 = new NetworkAreaDiagramViewer(
                 document.getElementById('svg-container-nad-synced-1')!,
                 svgContent,
@@ -32,13 +34,13 @@ const initSyncedViewers = () => {
             const v2 = new NetworkAreaDiagramViewer(
                 document.getElementById('svg-container-nad-synced-2')!,
                 svgContent,
-                NadSvgMultibusVLNodes14ExampleMeta,
+                diagramMetadataCopy1,
                 nadViewerParametersOptions
             );
             const v3 = new NetworkAreaDiagramViewer(
                 document.getElementById('svg-container-nad-synced-3')!,
                 svgContent,
-                NadSvgMultibusVLNodes14ExampleMeta,
+                diagramMetadataCopy2,
                 nadViewerParametersOptions
             );
 
