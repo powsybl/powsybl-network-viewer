@@ -10,7 +10,5 @@ import { toEqualSvg } from './packages/network-viewer-core/src/network-area-diag
 expect.extend({ toEqualSvg });
 
 //FIXME workaround svg.panzoom.js import crash even though it's not used
-/* eslint-disable */
 (global as any).SVG = () => {};
 (global as any).SVG.extend = () => {};
-/* eslint-enable */
