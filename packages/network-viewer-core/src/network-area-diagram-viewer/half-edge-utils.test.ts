@@ -91,3 +91,46 @@ test('getConverterStationPolyline', () => {
     };
     expect(HalfEdgeUtils.getConverterStationPolyline(halfEdge1, halfEdge2, 70)).toBe('60.25,60.25 109.75,109.75');
 });
+
+test('getMiddleArrowRotation', () => {
+    let halfEdge1: HalfEdge = {
+        side: '1',
+        fork: false,
+        busOuterRadius: 0,
+        voltageLevelRadius: 0,
+        edgePoints: [new Point(0, 0), new Point(100, 0)],
+    };
+    let halfEdge2: HalfEdge = {
+        side: '2',
+        fork: false,
+        busOuterRadius: 0,
+        voltageLevelRadius: 0,
+        edgePoints: [new Point(200, 0), new Point(100, 0)],
+    };
+    expect(HalfEdgeUtils.getMiddleArrowRotation(halfEdge1, halfEdge2, 'OUT')).toBe(90);
+    expect(HalfEdgeUtils.getMiddleArrowRotation(halfEdge1, halfEdge2, 'IN')).toBe(-90);
+
+    expect(HalfEdgeUtils.getMiddleArrowRotation(halfEdge1, null, 'OUT')).toBe(90);
+    expect(HalfEdgeUtils.getMiddleArrowRotation(halfEdge1, null, 'IN')).toBe(-90);
+
+    expect(HalfEdgeUtils.getMiddleArrowRotation(null, halfEdge2, 'OUT')).toBe(-270);
+    expect(HalfEdgeUtils.getMiddleArrowRotation(null, halfEdge2, 'IN')).toBe(-90);
+
+    halfEdge1 = {
+        side: '1',
+        fork: false,
+        busOuterRadius: 0,
+        voltageLevelRadius: 0,
+        edgePoints: [new Point(0, 0), new Point(100, 100), new Point(120, 140), new Point(120, 100)],
+    };
+    halfEdge2 = {
+        side: '2',
+        fork: false,
+        busOuterRadius: 0,
+        voltageLevelRadius: 0,
+        edgePoints: [new Point(200, 0), new Point(180, 100), new Point(120, 60), new Point(120, 100)],
+    };
+
+    expect(HalfEdgeUtils.getMiddleArrowRotation(halfEdge1, halfEdge2, 'OUT')).toBe(0);
+    expect(HalfEdgeUtils.getMiddleArrowRotation(halfEdge1, halfEdge2, 'IN')).toBe(-180);
+});
