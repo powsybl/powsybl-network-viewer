@@ -1783,22 +1783,7 @@ export class NetworkAreaDiagramViewer {
             return;
         }
 
-        // compute legend edge start and end oints
-        const nodePoint = new Point(node.x, node.y);
-        const endTextEdge = new Point(node.x + textNode.connectionShiftX, node.y + textNode.connectionShiftY);
-        const nbNeighbours = busNodes !== undefined && busNodes.length > 1 ? busNodes.length - 1 : 0;
-        const voltageLevelCircleRadius = DiagramUtils.getVoltageLevelCircleRadius(
-            nbNeighbours,
-            node?.fictitious,
-            this.svgParameters
-        );
-        const startTextEdge = DiagramUtils.getPointAtDistance(nodePoint, endTextEdge, voltageLevelCircleRadius);
-
-        //create the legend edge element in the DOM
-        const newLegendEdgeElement = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
-        newLegendEdgeElement.id = node?.legendEdgeSvgId ?? '';
-        const polyline = DiagramUtils.getFormattedPolyline([startTextEdge, endTextEdge]);
-        newLegendEdgeElement.setAttribute('points', polyline);
+        const newLegendEdgeElement = SvgUtils.createTextEdge(textNode, node, busNodes, this.svgParameters);
 
         this.textEdgesSection?.appendChild(newLegendEdgeElement);
         return newLegendEdgeElement;
