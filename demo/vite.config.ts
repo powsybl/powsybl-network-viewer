@@ -5,9 +5,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import * as path from 'node:path';
+import { defineConfig } from 'vite';
 import { viteEslintChecker } from '../utils/viteEslintChecker';
 const workspaceRoot = path.resolve(__dirname, '..');
 
@@ -16,7 +16,7 @@ export default defineConfig((config) => ({
     plugins: [viteEslintChecker(config.isPreview, config.command), react()],
     resolve: {
         alias: {
-            // Use source files from the workspace package during demo dev for HMR
+            // Use source files from the workspace packages during demo dev for HMR
             '@powsybl/network-map-layers': path.resolve(workspaceRoot, 'packages/network-map-layers/src'),
             '@powsybl/network-viewer-core': path.resolve(workspaceRoot, 'packages/network-viewer-core/src'),
             // Also allow importing the library src directly from the demo if needed
@@ -24,6 +24,14 @@ export default defineConfig((config) => ({
         },
         // Ensure symlinks from workspaces don't confuse module resolution
         preserveSymlinks: true,
+    },
+    build: {
+        rollupOptions: {
+            input: {
+                main: path.resolve(__dirname, 'index.html'),
+                syncedViewers: path.resolve(__dirname, 'synced-viewers.html'),
+            },
+        },
     },
     server: {
         // Allow the dev server to serve files from the monorepo root (outside demo/)

@@ -246,9 +246,15 @@ export function getPathPoints(pathPoints: string | null): Point[] | null {
     if (stringPoints.length < 2) {
         return null;
     }
+
+    const startsWithLetter = (str: string): boolean => /^[a-zA-Z]/.test(str);
+
     const points: Point[] = [];
-    for (let index = 0; index < 2; index++) {
-        const coordinates: string[] = stringPoints[index].substring(1).split(',');
+    for (let index = 0; index < 5; index++) {
+        const coordinates: string[] = stringPoints[index].split(',');
+        if (startsWithLetter(coordinates[0])) {
+            coordinates[0] = coordinates[0].substring(1);
+        }
         const point = new Point(+coordinates[0], +coordinates[1]);
         points.push(point);
     }
@@ -378,7 +384,7 @@ export function getBlobFromPng(png: string): Blob {
     const buffer = new ArrayBuffer(byteString.length);
     const intArray = new Uint8Array(buffer);
     for (let i = 0; i < byteString.length; i++) {
-        intArray[i] = byteString.charCodeAt(i);
+        intArray[i] = byteString.codePointAt(i) ?? Number.NaN;
     }
     return new Blob([buffer], { type: mimeString });
 }

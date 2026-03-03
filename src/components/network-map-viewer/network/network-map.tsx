@@ -30,7 +30,7 @@ import {
 import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
 import { type Layer, type PickingInfo } from '@deck.gl/core';
 import type { Feature, Polygon } from 'geojson';
-import mapboxgl, { type MapLayerMouseEvent as MapBoxLayerMouseEvent } from 'mapbox-gl';
+import mapboxgl, { type MapMouseEvent as MapBoxLayerMouseEvent } from 'mapbox-gl';
 import maplibregl, { type MapLayerMouseEvent as MapLibreLayerMouseEvent } from 'maplibre-gl';
 import {
     forwardRef,
@@ -306,7 +306,7 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
         return drawControlRef.current?.getAll()?.features[0] ?? ({} as Record<string, never>);
     };
 
-    const mToken = !props.mapBoxToken ? FALLBACK_MAPBOX_TOKEN : props.mapBoxToken;
+    const mToken = props.mapBoxToken ? props.mapBoxToken : FALLBACK_MAPBOX_TOKEN;
 
     useEffect(() => {
         if (centerOnSubstation === null) {
@@ -508,8 +508,7 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
                 rightButton &&
                 info.layer &&
                 info.layer.id.startsWith(LINE_LAYER_PREFIX) &&
-                info.object &&
-                info.object.id &&
+                info.object?.id &&
                 info.object.voltageLevelId1 &&
                 info.object.voltageLevelId2
             ) {
@@ -544,13 +543,11 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
 
     const onMapContextMenu = useCallback<NonNullable<MapProps['onContextMenu']>>(
         (event) => {
-            const info =
-                deckRef.current &&
-                deckRef.current.pickObject({
-                    x: event.point.x,
-                    y: event.point.y,
-                    radius: PICKING_RADIUS,
-                });
+            const info = deckRef.current?.pickObject({
+                x: event.point.x,
+                y: event.point.y,
+                radius: PICKING_RADIUS,
+            });
             if (info) {
                 onClickHandler(info, event, props.mapEquipments);
             }
@@ -812,6 +809,12 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
                 onContextMenu={onMapContextMenu}
                 pitchWithRotate={props.enablePitchAndRotate}
                 dragRotate={props.enablePitchAndRotate}
+                onMouseOut={() => {
+                    // Sometimes onHover on layers is not triggered when the mouse leaves the layer
+                    // (e.g. when leaving the map container too fast),
+                    // so we need to reset the tooltip on mouse out of the map container
+                    setTooltip(null);
+                }}
             >
                 {props.displayOverlayLoader && renderOverlay()}
                 {props.isManualRefreshBackdropDisplayed && (
@@ -907,7 +910,7 @@ function getSelectedLinesInPolygon(
             if (linePos.length < 2) {
                 return false;
             }
-            const extremities = [linePos[0], linePos[linePos.length - 1]];
+            const extremities = [linePos[0], linePos.at(-1)!];
             return extremities.some((pos) => booleanPointInPolygon(pos, polygonCoordinates));
         } catch (error) {
             console.error(error);

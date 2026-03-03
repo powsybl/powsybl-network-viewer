@@ -84,7 +84,7 @@ const defaultProps: DefaultProps<ArrowLayerProps> = {
     getLinePositions: { type: 'accessor', value: (line) => line.positions ?? [] },
     getSize: { type: 'accessor', value: 1 },
     getColor: { type: 'accessor', value: DEFAULT_COLOR },
-    getSpeedFactor: { type: 'accessor', value: 1.0 },
+    getSpeedFactor: { type: 'accessor', value: 1 },
     getDirection: { type: 'accessor', value: ArrowDirection.NONE },
     animated: { type: 'boolean', value: true },
     getLineParallelIndex: { type: 'accessor', value: 0 },
@@ -157,7 +157,7 @@ export default class ArrowLayer extends Layer<Required<_ArrowLayerProps>> {
                 type: 'float32',
                 transition: true,
                 accessor: 'getSpeedFactor',
-                defaultValue: 1.0,
+                defaultValue: 1,
             },
             instanceArrowDistance: {
                 size: 1,
@@ -174,16 +174,16 @@ export default class ArrowLayer extends Layer<Required<_ArrowLayerProps>> {
                 transform: (direction) => {
                     switch (direction) {
                         case ArrowDirection.NONE:
-                            return 0.0;
+                            return 0;
                         case ArrowDirection.FROM_SIDE_1_TO_SIDE_2:
-                            return 1.0;
+                            return 1;
                         case ArrowDirection.FROM_SIDE_2_TO_SIDE_1:
-                            return 2.0;
+                            return 2;
                         default:
                             throw new Error('impossible');
                     }
                 },
-                defaultValue: 0.0,
+                defaultValue: 0,
             },
             instanceLineDistance: {
                 size: 1,
@@ -312,8 +312,7 @@ export default class ArrowLayer extends Layer<Required<_ArrowLayerProps>> {
             if (positions.length > 0) {
                 positions.forEach((position) => {
                     // fill line positions texture
-                    linePositionsTextureData.push(position[0]);
-                    linePositionsTextureData.push(position[1]);
+                    linePositionsTextureData.push(position[0], position[1]);
                     linePointCount++;
                 });
                 lineDistancesTextureData.push(...(line.cumulativeDistances ?? []));
@@ -426,7 +425,7 @@ export default class ArrowLayer extends Layer<Required<_ArrowLayerProps>> {
     }
 
     startAnimation() {
-        window.requestAnimationFrame((timestamp) => this.animate(timestamp));
+        globalThis.requestAnimationFrame((timestamp) => this.animate(timestamp));
     }
 
     draw({ uniforms, renderPass }: { uniforms: Record<string, UniformValue>; renderPass: RenderPass }) {
