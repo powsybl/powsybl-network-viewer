@@ -1434,8 +1434,9 @@ export class NetworkAreaDiagramViewer {
     }
 
     private updateEdgeLabel(edgeInfo: EdgeInfoMetadata, halfEdge1: HalfEdge | null, halfEdge2: HalfEdge | null) {
-        const positionElement: SVGGraphicsElement | null = this.getEdgeInfo(edgeInfo.svgId) as SVGGraphicsElement;
+        if (!halfEdge1 && !halfEdge2) return;
 
+        const positionElement: SVGGraphicsElement | null = this.getEdgeInfo(edgeInfo.svgId) as SVGGraphicsElement;
         if (!positionElement) return;
 
         let anchorPoint = new Point(0, 0);
@@ -1453,10 +1454,19 @@ export class NetworkAreaDiagramViewer {
 
         // move edge name position
         positionElement.setAttribute('transform', 'translate(' + DiagramUtils.getFormattedPoint(anchorPoint) + ')');
-        const angleElement: SVGGraphicsElement | null = positionElement.querySelector('text') as SVGGraphicsElement;
-        if (angleElement != null) {
+        const textElements = positionElement.querySelectorAll('text');
+        for (const textElement of textElements) {
             // change edge name angle
-            angleElement.setAttribute('transform', 'rotate(' + DiagramUtils.getFormattedValue(edgeNameAngle) + ')');
+            textElement.setAttribute('transform', 'rotate(' + DiagramUtils.getFormattedValue(edgeNameAngle) + ')');
+        }
+
+        // rotate arrow if it exists
+        if (edgeInfo.direction) {
+            const arrowElement = positionElement.querySelector('path');
+            if (arrowElement) {
+                const arrowAngle = HalfEdgeUtils.getMiddleArrowRotation(halfEdge1, halfEdge2, edgeInfo.direction);
+                arrowElement.setAttribute('transform', `rotate(${DiagramUtils.getFormattedValue(arrowAngle)})`);
+            }
         }
     }
 
@@ -2858,6 +2868,34 @@ export class NetworkAreaDiagramViewer {
         const previewContainer = this.svgDraw?.node.querySelector('.nad-edge-preview-points');
         if (previewContainer) {
             previewContainer.remove();
+        }
+    }
+
+    public syncViewBoxWith(others: NetworkAreaDiagramViewer | NetworkAreaDiagramViewer[]) {
+        const viewers = Array.isArray(others) ? others : [others];
+        const sync = () => {
+            const viewBox = this.getViewBox();
+            if (!viewBox) {
+                return;
+            }
+            for (const other of viewers) {
+                const otherViewBox = other.getViewBox();
+                if (
+                    otherViewBox &&
+                    (viewBox.x !== otherViewBox.x ||
+                        viewBox.y !== otherViewBox.y ||
+                        viewBox.width !== otherViewBox.width ||
+                        viewBox.height !== otherViewBox.height)
+                ) {
+                    other.setViewBox(viewBox);
+                }
+            }
+        };
+
+        const svgElement = this.svgDraw?.node;
+        if (svgElement) {
+            const observer = new MutationObserver(sync);
+            observer.observe(svgElement, { attributes: true, attributeFilter: ['viewBox'] });
         }
     }
 }
