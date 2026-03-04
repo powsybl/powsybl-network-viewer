@@ -21,5 +21,5 @@ export default {
         '^.+\\.svg$': '<rootDir>/svgTransform.ts',
     },
 
-    setupFiles: ['<rootDir>/setupTests.ts'],
+    setupFilesAfterEnv: ['<rootDir>/setupTests.ts'],
 };
