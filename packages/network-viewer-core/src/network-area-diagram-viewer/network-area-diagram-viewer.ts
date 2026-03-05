@@ -2203,7 +2203,7 @@ export class NetworkAreaDiagramViewer {
             halfEdge.edgeInfoId = edgeInfo.id;
         }
 
-        edgeInfo.classList.remove('nad-active', 'nad-reactive', 'nad-current');
+        edgeInfo.classList.remove(...DiagramUtils.getEdgeInfoClasses());
         const edgeInfoClass = DiagramUtils.getEdgeInfoClass(edgeInfoMetadata.infoTypeB);
         if (edgeInfoClass) {
             edgeInfo.classList.add(edgeInfoClass);
@@ -2277,7 +2277,7 @@ export class NetworkAreaDiagramViewer {
         if (arrowPath) {
             const edgeInfoArrow = this.getOrCreateEdgeInfoArrow(edgeInfo);
             edgeInfoArrow.setAttribute('d', arrowPath);
-            edgeInfoArrow.classList.remove('nad-active', 'nad-reactive', 'nad-current', 'nad-name');
+            edgeInfoArrow.classList.remove(...DiagramUtils.getEdgeInfoClasses());
             let edgeInfoClass = DiagramUtils.getArrowClass(direction);
             if (edgeInfoClass) {
                 edgeInfoArrow.classList.add(edgeInfoClass);

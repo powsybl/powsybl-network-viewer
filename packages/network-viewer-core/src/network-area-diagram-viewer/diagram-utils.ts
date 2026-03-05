@@ -210,15 +210,21 @@ export function getTextEdgeEnd(
     return new Point(textNodePosition.x, textNodePosition.y + detailedTextNodeYShift);
 }
 
+const EdgeInfoClassMap: Record<string, string> = {
+    ActivePower: 'nad-active',
+    ReactivePower: 'nad-reactive',
+    Current: 'nad-current',
+    Name: 'nad-name',
+    PermanentLimitPercentage: 'nad-permanent-limit-percentage',
+};
+
 // get edge info element class, based on type
 export function getEdgeInfoClass(edgeInfoType: string | undefined): string | null {
-    const classMap: Record<string, string> = {
-        ActivePower: 'nad-active',
-        ReactivePower: 'nad-reactive',
-        Current: 'nad-current',
-        Name: 'nad-name',
-    };
-    return edgeInfoType ? classMap[edgeInfoType] : null;
+    return edgeInfoType ? (EdgeInfoClassMap[edgeInfoType] ?? null) : null;
+}
+
+export function getEdgeInfoClasses(): string[] {
+    return Object.values(EdgeInfoClassMap);
 }
 
 // get arrow element direction, based on p value
@@ -257,6 +263,8 @@ export function getEdgeInfoValuePrecision(edgeInfoType: string | undefined, svgP
             return svgParameters.getPowerValuePrecision();
         case EdgeInfoEnum.CURRENT:
             return svgParameters.getCurrentValuePrecision();
+        case EdgeInfoEnum.PERMANENT_LIMIT_PERCENTAGE:
+            return svgParameters.getPercentageValuePrecision();
         default:
             return 0;
     }
