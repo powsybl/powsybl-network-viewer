@@ -93,8 +93,8 @@ public final class NadDemoFiles {
         Network network = IeeeCdfNetworkFactory.create9zeroimpedance();
         LoadFlow.run(network);
         Line line = network.getLine("L9-8-0");
-        line.getTerminal1().setP(1400.0).setQ(400.0);
-        line.getTerminal2().setP(1410.0).setQ(410.0);
+        line.getTerminal1().setP(800).setQ(400.0);
+        line.getTerminal2().setP(810).setQ(410.0);
         line.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
                 .setPermanentLimit(2000.0)
                 .beginTemporaryLimit()

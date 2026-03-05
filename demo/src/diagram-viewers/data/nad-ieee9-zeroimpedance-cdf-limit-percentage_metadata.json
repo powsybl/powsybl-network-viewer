@@ -229,20 +229,20 @@
       "svgId" : "33",
       "infoTypeB" : "ActivePower",
       "direction" : "OUT",
-      "labelB" : "1,400"
+      "labelB" : "800"
     },
     "edgeInfo2" : {
       "svgId" : "34",
       "infoTypeB" : "ActivePower",
       "direction" : "OUT",
-      "labelB" : "1,410"
+      "labelB" : "810"
     },
     "edgeInfoMiddle" : {
       "svgId" : "35",
       "infoTypeA" : "Name",
       "infoTypeB" : "PermanentLimitPercentage",
       "labelA" : "L9-8-0",
-      "labelB" : "416 %"
+      "labelB" : "257 %"
     }
   }, {
     "svgId" : "36",

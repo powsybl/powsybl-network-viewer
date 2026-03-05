@@ -75,14 +75,14 @@
         </g>
         <g id="33" transform="translate(-216.06,206.32)">
             <path transform="rotate(0.30)" class="nad-active nad-arrow-out" d="M-10 10 H10 L0 -10z"/>
-            <text transform="rotate(-89.70)" class="nad-active" x="19.00">1,400</text>
+            <text transform="rotate(-89.70)" class="nad-active" x="19.00">800</text>
         </g>
         <g id="34" transform="translate(-214.96,-3.81)">
             <path transform="rotate(-179.70)" class="nad-active nad-arrow-out" d="M-10 10 H10 L0 -10z"/>
-            <text transform="rotate(-89.70)" class="nad-active" x="-19.00" style="text-anchor:end">1,410</text>
+            <text transform="rotate(-89.70)" class="nad-active" x="-19.00" style="text-anchor:end">810</text>
         </g>
         <g id="35" transform="translate(-215.46,91.26)">
-            <text transform="rotate(-89.70)" class="nad-permanent-limit-percentage" x="19.00">416 %</text>
+            <text transform="rotate(-89.70)" class="nad-permanent-limit-percentage" x="19.00">257 %</text>
             <text transform="rotate(-89.70)" class="nad-name" x="-19.00" style="text-anchor:end">L9-8-0</text>
         </g>
         <g id="37" transform="translate(-294.44,-91.08)">
