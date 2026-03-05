@@ -25,6 +25,7 @@ public final class DemoFilesGenerator {
         NadDemoFiles.draw9ZeroImpedance(demoResources);
         NadDemoFiles.drawScada(demoResources);
         NadDemoFiles.drawFourSubstations(demoResources);
+        NadDemoFiles.drawFourSubstationsWithMultipleLabels(demoResources);
         NadDemoFiles.draw14Solved(demoResources);
         NadDemoFiles.drawVL9006(demoResources);
         NadDemoFiles.draw9ZeroImpedanceMiddleArrow(demoResources);

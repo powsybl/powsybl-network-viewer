@@ -97,7 +97,7 @@
         "@types/node": "^22.13.4",
         "@types/react": "^19.2.2",
         "@types/react-dom": "^19.2.1",
-        "@vitejs/plugin-react": "^4.3.4",
+        "@vitejs/plugin-react": "^5.0.4",
         "eslint": "^9.26.0",
         "eslint-config-prettier": "^10.1.2",
         "eslint-plugin-prettier": "^5.2.6",
@@ -116,9 +116,9 @@
         "ts-node": "^10.9.2",
         "typescript": "^5.8.3",
         "typescript-eslint": "^8.31.0",
-        "vite": "^6.2.2",
+        "vite": "^7.2.4",
         "vite-plugin-checker": "^0.12.0",
-        "vite-plugin-dts": "^4.5.3",
+        "vite-plugin-dts": "^4.5.4",
         "vite-plugin-svgr": "^4.3.0",
         "vitest": "^4.0.18"
     }
