@@ -293,6 +293,7 @@ test('getEdgeInfoValuePrecision', () => {
     const svgParameters = new SvgParameters(svgParametersMetadata);
     expect(DiagramUtils.getEdgeInfoValuePrecision('ActivePower', svgParameters)).toBe(2);
     expect(DiagramUtils.getEdgeInfoValuePrecision('Current', svgParameters)).toBe(3);
+    expect(DiagramUtils.getEdgeInfoValuePrecision('PermanentLimitPercentage', svgParameters)).toBe(0);
 });
 
 test('getFormattedInfoLabel', () => {
@@ -351,4 +352,23 @@ test('getFormattedInfoLabel', () => {
     expect(DiagramUtils.getFormattedInfoLabel('444', 'ActivePower', svgParameters)).toBe('444.00');
     expect(DiagramUtils.getFormattedInfoLabel('2', 'Current', svgParameters)).toBe('2');
     expect(DiagramUtils.getFormattedInfoLabel('L7-8-0', 'Name', svgParameters)).toBe('L7-8-0');
+});
+
+test('getEdgeInfoClass', () => {
+    expect(DiagramUtils.getEdgeInfoClass('UNKNOWN')).toBeNull();
+    expect(DiagramUtils.getEdgeInfoClass(undefined)).toBeNull();
+    expect(DiagramUtils.getEdgeInfoClass('ActivePower')).toBe('nad-active');
+    expect(DiagramUtils.getEdgeInfoClass('ReactivePower')).toBe('nad-reactive');
+    expect(DiagramUtils.getEdgeInfoClass('Current')).toBe('nad-current');
+    expect(DiagramUtils.getEdgeInfoClass('Name')).toBe('nad-name');
+    expect(DiagramUtils.getEdgeInfoClass('PermanentLimitPercentage')).toBe('nad-permanent-limit-percentage');
+});
+
+test('getEdgeInfoClasses', () => {
+    const classes = DiagramUtils.getEdgeInfoClasses();
+    expect(classes).toContain('nad-active');
+    expect(classes).toContain('nad-reactive');
+    expect(classes).toContain('nad-current');
+    expect(classes).toContain('nad-name');
+    expect(classes).toContain('nad-permanent-limit-percentage');
 });
