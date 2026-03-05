@@ -5,17 +5,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import { braceExpand } from 'minimatch';
-import { defineConfig, globalIgnores } from 'eslint/config';
 import js from '@eslint/js';
-import globals from 'globals';
+import pluginVitest from '@vitest/eslint-plugin';
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
-import tsEslint from 'typescript-eslint';
 import pluginReact from 'eslint-plugin-react';
 import pluginReactHooks from 'eslint-plugin-react-hooks';
 import pluginReactRefresh from 'eslint-plugin-react-refresh';
-import pluginJest from 'eslint-plugin-jest';
 import pluginTestingLibrary from 'eslint-plugin-testing-library';
+import { defineConfig, globalIgnores } from 'eslint/config';
+import globals from 'globals';
+import { braceExpand } from 'minimatch';
+import tsEslint from 'typescript-eslint';
 
 const JsFiles = [`**/*.{${braceExpand('{,c,m}js{,x}').join(',')}}`];
 const TsFiles = [`**/*.{${braceExpand('{,m}ts{,x}').join(',')}}`];
@@ -39,7 +39,6 @@ export default defineConfig([
         'docs/_build/**',
         '**/dist/**',
         'packages/*/vite.config.ts', // Ignore workspace config files
-        'packages/*/jest.config.ts',
     ]),
     {
         name: 'Global Linter Options',
@@ -86,9 +85,9 @@ export default defineConfig([
         rules: {}, // rules are set by cra-config
     },
     {
-        name: 'eslint-plugin-jest/recommended',
+        name: 'eslint-plugin-vitest/recommended',
         files: TestFiles,
-        ...pluginJest.configs['flat/recommended'],
+        ...pluginVitest.configs.recommended,
         rules: {}, // rules are set by cra-config
     },
     {
@@ -121,11 +120,11 @@ export default defineConfig([
     },
     {
         name: 'General configuration for tests',
-        files: ['**/setupTests.ts', '**/svgTransform.ts', '**/*.{test,spec}.{js,jsx,ts,tsx}'],
+        files: ['**/setupTests.ts', '**/*.{test,spec}.{js,jsx,ts,tsx}'],
         languageOptions: {
             globals: {
                 ...globals.browser,
-                ...globals.jest, // globals.vitest
+                ...globals.vitest,
             },
         },
     },
