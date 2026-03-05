@@ -6,11 +6,11 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 
-import { NetworkAreaDiagramViewer } from './network-area-diagram-viewer';
 import { NadViewerParametersOptions } from './nad-viewer-parameters';
+import { NetworkAreaDiagramViewer } from './network-area-diagram-viewer';
 
 describe('Test network-area-diagram-viewer', () => {
-    // SVG aren't loaded properly in DOM with Jest. Has to be enriched...
+    // SVG aren't loaded properly in DOM with Vitest. Has to be enriched...
     test('nad creation', () => {
         const container: HTMLDivElement = document.createElement('div');
 

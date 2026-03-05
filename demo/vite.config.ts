@@ -13,7 +13,7 @@ const workspaceRoot = path.resolve(__dirname, '..');
 
 export default defineConfig((config) => ({
     root: __dirname,
-    plugins: [viteEslintChecker(config.isPreview, config.command, './tsconfig.json'), react()],
+    plugins: [viteEslintChecker(config.isPreview, config.command), react()],
     resolve: {
         alias: {
             // Use source files from the workspace packages during demo dev for HMR
@@ -24,6 +24,14 @@ export default defineConfig((config) => ({
         },
         // Ensure symlinks from workspaces don't confuse module resolution
         preserveSymlinks: true,
+    },
+    build: {
+        rollupOptions: {
+            input: {
+                main: path.resolve(__dirname, 'index.html'),
+                syncedViewers: path.resolve(__dirname, 'synced-viewers.html'),
+            },
+        },
     },
     server: {
         // Allow the dev server to serve files from the monorepo root (outside demo/)

@@ -43,6 +43,26 @@ export function getArrowEdgeAngle(halfEdge: HalfEdge): number {
         : getAngle(halfEdge.edgePoints[0], halfEdge.edgePoints[1]);
 }
 
+export function getMiddleArrowRotation(
+    halfEdge1: HalfEdge | null,
+    halfEdge2: HalfEdge | null,
+    direction: string
+): number {
+    if (!halfEdge1 && !halfEdge2) return 0;
+    const halfEdge = halfEdge1 ?? halfEdge2!;
+    let angleMiddleArrow =
+        halfEdge1 && halfEdge2
+            ? getAngle(
+                  halfEdge1.edgePoints.at(-2) ?? halfEdge1.edgePoints[0],
+                  halfEdge2.edgePoints.at(-2) ?? halfEdge2.edgePoints[0]
+              )
+            : getArrowEdgeAngle(halfEdge);
+
+    angleMiddleArrow += angleMiddleArrow > Math.PI / 2 ? (-3 * Math.PI) / 2 : Math.PI / 2;
+    const flipArrow = halfEdge === halfEdge1 ? direction === 'IN' : direction === 'OUT';
+    return radToDeg(flipArrow ? angleMiddleArrow - Math.PI : angleMiddleArrow);
+}
+
 export function getArrowCenter(halfEdge: HalfEdge, svgParameters: SvgParameters): Point {
     if (halfEdge.fork) {
         return getPointAtDistance(halfEdge.edgePoints[1], halfEdge.edgePoints[2], svgParameters.getArrowShift());
