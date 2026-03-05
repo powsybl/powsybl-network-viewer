@@ -6,7 +6,7 @@
  */
 
 import { Point } from '@svgdotjs/svg.js';
-import { SvgParameters } from './svg-parameters';
+import { EdgeInfoEnum, SvgParameters } from './svg-parameters';
 import { EdgeType, NodeRadius } from './diagram-types';
 
 export function getDistance(point1: Point, point2: Point): number {
@@ -248,4 +248,28 @@ export function getArrowClass(direction: string | undefined): string | undefined
         default:
             return undefined;
     }
+}
+
+export function getEdgeInfoValuePrecision(edgeInfoType: string | undefined, svgParameters: SvgParameters) {
+    switch (svgParameters.getEdgeInfoDisplayed(edgeInfoType)) {
+        case EdgeInfoEnum.ACTIVE_POWER:
+        case EdgeInfoEnum.REACTIVE_POWER:
+            return svgParameters.getPowerValuePrecision();
+        case EdgeInfoEnum.CURRENT:
+            return svgParameters.getCurrentValuePrecision();
+        default:
+            return 0;
+    }
+}
+
+export function getFormattedInfoLabel(
+    label: string | undefined,
+    type: string | undefined,
+    svgParameters: SvgParameters
+): string {
+    const edgeValueMiddle = Number(label ?? null);
+    const value: number | string = Number.isNaN(edgeValueMiddle) ? (label ?? '') : edgeValueMiddle;
+    const formattedValue =
+        typeof value === 'number' ? value.toFixed(getEdgeInfoValuePrecision(type, svgParameters)) : value;
+    return formattedValue;
 }

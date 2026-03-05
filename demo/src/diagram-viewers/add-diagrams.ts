@@ -388,6 +388,30 @@ export const addNadToDemo = () => {
             );
         });
 
+    fetch(NadSvgMultibusVLNodesMiddleArrowExample)
+        .then((response) => response.text())
+        .then((svgContent) => {
+            const nadViewerParametersOptions: NadViewerParametersOptions = {
+                enableDragInteraction: true,
+                addButtons: true,
+                onMoveNodeCallback: handleNodeMove,
+                onMoveTextNodeCallback: handleTextNodeMove,
+                onSelectNodeCallback: handleNodeSelect,
+                onToggleHoverCallback: handleToggleNadHover,
+                onRightClickCallback: handleRightClick,
+                onBendLineCallback: handleLineBending,
+
+                enableAdaptiveTextZoom: true,
+                adaptiveTextZoomThreshold: 850,
+            };
+            new NetworkAreaDiagramViewer(
+                document.getElementById('svg-container-nad-multibus-vlnodes-middle-arrow')!,
+                svgContent,
+                NadSvgMultibusVLNodesMiddleArrowExampleMeta,
+                nadViewerParametersOptions
+            );
+        });
+
     fetch(NadSvgMultibusVLNodes14Example)
         .then((response) => response.text())
         .then((svgContent) => {
@@ -497,27 +521,6 @@ export const addNadToDemo = () => {
             hoverVisualizer.id = 'hoverVisualizer';
             hoverVisualizer.textContent = 'No hover at the moment';
             document.getElementById('svg-container-nad-hoverCallback')?.appendChild(hoverVisualizer);
-        });
-
-    fetch(NadSvgMultibusVLNodesMiddleArrowExample)
-        .then((response) => response.text())
-        .then((svgContent) => {
-            const nadViewerParametersOptions: NadViewerParametersOptions = {
-                enableDragInteraction: true,
-                addButtons: true,
-                onMoveNodeCallback: handleNodeMove,
-                onMoveTextNodeCallback: handleTextNodeMove,
-                onSelectNodeCallback: handleNodeSelect,
-                onToggleHoverCallback: handleToggleNadHover,
-                onRightClickCallback: handleRightClick,
-                onBendLineCallback: handleLineBending,
-            };
-            new NetworkAreaDiagramViewer(
-                document.getElementById('svg-container-nad-multibus-vlnodes-middle-arrow')!,
-                svgContent,
-                NadSvgMultibusVLNodesMiddleArrowExampleMeta,
-                nadViewerParametersOptions
-            );
         });
 };
 
