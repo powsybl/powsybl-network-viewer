@@ -89,6 +89,13 @@ public final class NadDemoFiles {
             VoltageLevelFilter.NO_FILTER);
     }
 
+    public static void drawFourSubstationsWithMultipleLabels(Path demoResourcesDirectory) {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+        NetworkAreaDiagram.draw(network, demoResourcesDirectory.resolve("nad-four-substations-multiple-labels.svg"),
+            getNadParametersWithDefaultLabelProviderFilledAndMultipleLabels(),
+            VoltageLevelFilter.NO_FILTER);
+    }
+
     public static void draw14Solved(Path demoResourcesDirectory) {
         Network network = IeeeCdfNetworkFactory.create14Solved();
         NetworkAreaDiagram.draw(network, demoResourcesDirectory.resolve("nad-ieee14cdf-solved.svg"),
@@ -120,6 +127,21 @@ public final class NadDemoFiles {
             DefaultLabelProvider.EdgeInfoEnum.NAME,
             DefaultLabelProvider.EdgeInfoEnum.EMPTY,
             DefaultLabelProvider.EdgeInfoEnum.EMPTY);
+        LabelProviderParameters parameters = new LabelProviderParameters();
+        return new NadParameters()
+            .setSvgParameters(svgParameters)
+            .setLabelProviderFactory((n, s) ->
+                new DefaultLabelProvider(n, edgeInfoParameters, s.createValueFormatter(), parameters));
+    }
+
+    private static NadParameters getNadParametersWithDefaultLabelProviderFilledAndMultipleLabels() {
+        SvgParameters svgParameters = new SvgParameters()
+            .setCssLocation(SvgParameters.CssLocation.EXTERNAL_NO_IMPORT);
+        DefaultLabelProvider.EdgeInfoParameters edgeInfoParameters = new DefaultLabelProvider.EdgeInfoParameters(
+            DefaultLabelProvider.EdgeInfoEnum.ACTIVE_POWER,
+            DefaultLabelProvider.EdgeInfoEnum.NAME,
+            DefaultLabelProvider.EdgeInfoEnum.CURRENT,
+            DefaultLabelProvider.EdgeInfoEnum.REACTIVE_POWER);
         LabelProviderParameters parameters = new LabelProviderParameters();
         return new NadParameters()
             .setSvgParameters(svgParameters)
