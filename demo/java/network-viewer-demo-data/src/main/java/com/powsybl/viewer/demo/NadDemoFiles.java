@@ -198,18 +198,12 @@ public final class NadDemoFiles {
     }
 
     private static NadParameters getNadParametersWithDefaultLabelProviderFilledAndMultipleLabels() {
-        SvgParameters svgParameters = new SvgParameters()
-            .setCssLocation(SvgParameters.CssLocation.EXTERNAL_NO_IMPORT);
         DefaultLabelProvider.EdgeInfoParameters edgeInfoParameters = new DefaultLabelProvider.EdgeInfoParameters(
             DefaultLabelProvider.EdgeInfoEnum.ACTIVE_POWER,
             DefaultLabelProvider.EdgeInfoEnum.NAME,
             DefaultLabelProvider.EdgeInfoEnum.CURRENT,
             DefaultLabelProvider.EdgeInfoEnum.REACTIVE_POWER);
-        LabelProviderParameters parameters = new LabelProviderParameters();
-        return new NadParameters()
-            .setSvgParameters(svgParameters)
-            .setLabelProviderFactory((n, s) ->
-                new DefaultLabelProvider(n, edgeInfoParameters, s.createValueFormatter(), parameters));
+        return getNadParametersWithDefaultLabelProviderFilled(edgeInfoParameters);
     }
 
     private static NadParameters getNadParametersWithDefaultLabelProvider() {
