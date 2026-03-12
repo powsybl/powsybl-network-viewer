@@ -378,11 +378,11 @@ export class SvgWriter {
         if (labelData) {
             edgeInfoLabelElement.setAttribute(
                 'transform',
-                'rotate(' + DiagramUtils.getFormattedValue(labelData[0]) + ')'
+                'rotate(' + DiagramUtils.getFormattedValue(labelData.angle) + ')'
             );
-            edgeInfoLabelElement.setAttribute('x', DiagramUtils.getFormattedValue(labelData[1]));
-            if (labelData[2]) {
-                edgeInfoLabelElement.setAttribute('style', labelData[2]);
+            edgeInfoLabelElement.setAttribute('x', DiagramUtils.getFormattedValue(labelData.external.shift));
+            if (labelData.external.style) {
+                edgeInfoLabelElement.setAttribute('style', labelData.external.style);
             }
         }
         if (edgeInfoClass) {

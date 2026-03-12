@@ -12,7 +12,7 @@ import { SvgParameters } from './svg-parameters';
 import * as DiagramUtils from './diagram-utils';
 import * as MetadataUtils from './metadata-utils';
 import * as HalfEdgeUtils from './half-edge-utils';
-import { HalfEdge } from './diagram-types';
+import { HalfEdge, LabelData } from './diagram-types';
 
 export class EdgeRouter {
     diagramMetadata: DiagramMetadata;
@@ -20,7 +20,7 @@ export class EdgeRouter {
     edgePoints: Record<string, [Point[], Point[]]> = {};
     edgeArrowCenters: Record<string, [Point, Point]> = {};
     edgeArrowAngles: Record<string, [number, number]> = {};
-    edgeArrowLabelData: Record<string, [[number, number, string | null], [number, number, string | null]]> = {};
+    edgeArrowLabelData: Record<string, [LabelData, LabelData]> = {};
     threeWtEdgePoints: Record<string, [Point, Point]> = {};
     nodeAngles: Record<string, number[]> = {};
 
@@ -63,7 +63,7 @@ export class EdgeRouter {
         return side == '1' ? edgeArrowAngles[0] : edgeArrowAngles[1];
     }
 
-    public getEdgeArrowLabelData(edgeId: string, side: string): [number, number, string | null] | undefined {
+    public getEdgeArrowLabelData(edgeId: string, side: string): LabelData | undefined {
         const edgeArrowLabelData = this.edgeArrowLabelData[edgeId];
         if (!edgeArrowLabelData) {
             return undefined;
