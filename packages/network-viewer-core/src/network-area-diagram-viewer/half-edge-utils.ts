@@ -207,7 +207,9 @@ export function getHalfEdges(
     iEdge: number,
     groupedEdgesCount: number,
     diagramMetadata: DiagramMetadata | null,
-    svgParameters: SvgParameters
+    svgParameters: SvgParameters,
+    point1?: Point,
+    point2?: Point
 ): HalfEdge[] | null[] {
     const edgeType = getEdgeType(edge);
     const busNode1 = getBusNodeMetadata(edge.busNode1, diagramMetadata);
@@ -218,8 +220,8 @@ export function getHalfEdges(
         return [null, null];
     }
 
-    const point1 = new Point(node1.x, node1.y);
-    const point2 = new Point(node2.x, node2.y);
+    point1 ??= new Point(node1.x, node1.y);
+    point2 ??= new Point(node2.x, node2.y);
     let edgeFork1: Point | undefined;
     let edgeFork2: Point | undefined;
     if (groupedEdgesCount > 1) {
