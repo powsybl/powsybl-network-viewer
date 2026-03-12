@@ -370,3 +370,17 @@ export function isThreeWtEdge(edge: EdgeMetadata): boolean {
 export function getThreeWtEdges(edges: EdgeMetadata[]): EdgeMetadata[] {
     return edges.filter((edge) => isThreeWtEdge(edge));
 }
+
+export function getEdgeNodePoints(
+    edge: EdgeMetadata,
+    diagramMetadata: DiagramMetadata | null
+): [Point, Point] | [undefined, undefined] {
+    const node1 = getNodeMetadata(edge.node1, diagramMetadata);
+    const node2 = getNodeMetadata(edge.node2, diagramMetadata);
+    if (node1 == null || node2 == null) {
+        return [undefined, undefined];
+    }
+    const point1 = new Point(node1.x, node1.y);
+    const point2 = new Point(node2.x, node2.y);
+    return [point1, point2];
+}

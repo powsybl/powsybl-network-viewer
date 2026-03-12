@@ -331,3 +331,14 @@ export function getEdgeStart(
 export function shiftRhoTheta(point: Point, rho: number, theta: number) {
     return new Point(point.x + rho * Math.cos(theta), point.y + rho * Math.sin(theta));
 }
+
+export function getLabelShiftAndStyle(
+    labelAngle: number,
+    externalLabel: boolean,
+    arrowLabelShift: number
+): [number, string | undefined] {
+    const textFlipped: boolean = Math.cos(labelAngle) < 0;
+    const style: string | undefined = externalLabel == textFlipped ? 'text-anchor:end' : undefined;
+    const shift: number = arrowLabelShift * (externalLabel ? 1 : -1);
+    return [textFlipped ? -shift : shift, style];
+}
