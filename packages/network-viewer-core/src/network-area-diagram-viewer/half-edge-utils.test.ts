@@ -57,9 +57,11 @@ test('getLabelData', () => {
         edgePoints: [new Point(10, 10), new Point(50, 50)],
     };
     const labelData = HalfEdgeUtils.getLabelData(halfEdge1, 19);
-    expect(labelData[0]).toBe(45);
-    expect(labelData[1]).toBe(19);
-    expect(labelData[2]).toBeNull();
+    expect(labelData.angle).toBe(45);
+    expect(labelData.external.shift).toBe(19);
+    expect(labelData.external.style).toBe(undefined);
+    expect(labelData.internal.shift).toBe(-19);
+    expect(labelData.internal.style).toBe('text-anchor:end');
 
     const halfEdge2: HalfEdge = {
         side: '2',
@@ -69,9 +71,11 @@ test('getLabelData', () => {
         edgePoints: [new Point(0, 0), new Point(10, 10), new Point(-30, 50)],
     };
     const flippedLabelData = HalfEdgeUtils.getLabelData(halfEdge2, 19);
-    expect(flippedLabelData[0]).toBe(-45);
-    expect(flippedLabelData[1]).toBe(-19);
-    expect(flippedLabelData[2]).toBe('text-anchor:end');
+    expect(flippedLabelData.angle).toBe(-45);
+    expect(flippedLabelData.external.shift).toBe(-19);
+    expect(flippedLabelData.external.style).toBe('text-anchor:end');
+    expect(flippedLabelData.internal.shift).toBe(19);
+    expect(flippedLabelData.internal.style).toBe(undefined);
 });
 
 test('getConverterStationPolyline', () => {
