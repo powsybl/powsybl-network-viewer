@@ -389,9 +389,7 @@ export class NetworkAreaDiagramViewer {
 
             this.svgDraw.on('mouseout', () => {
                 this.clearHighlights();
-                this.resetHoverCallback();
                 this.hideEdgePreviewPoints();
-                this.hoveredElement = null;
             });
         }
         if (this.onRightClickCallback != null && hasMetadata) {
@@ -688,6 +686,8 @@ export class NetworkAreaDiagramViewer {
         }
 
         this.disablePanzoom();
+        this.resetHoverCallback();
+        this.hoveredElement = null;
         this.draggedElement = draggableElem as SVGGraphicsElement;
 
         if (SvgUtils.isBendable(this.draggedElement)) {
@@ -825,7 +825,6 @@ export class NetworkAreaDiagramViewer {
             return;
         }
 
-        this.clearHighlights();
         const mousePosition = this.getMousePosition(mouseEvent);
 
         // Check if we are over the hovered object
@@ -845,9 +844,10 @@ export class NetworkAreaDiagramViewer {
             }
             this.isHoverCallbackUsed = true;
         } else {
+            this.clearHighlights();
             this.resetHoverCallback();
-            this.hideEdgePreviewPoints();
             this.hoveredElement = null;
+            this.hideEdgePreviewPoints();
         }
     }
 
@@ -878,6 +878,8 @@ export class NetworkAreaDiagramViewer {
     }
 
     private resetMouseEventParams() {
+        this.resetHoverCallback();
+        this.hoveredElement = null;
         this.selectedElement = null;
         this.isDragging = false;
         this.draggedElement = null;
