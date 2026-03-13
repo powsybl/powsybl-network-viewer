@@ -372,3 +372,12 @@ test('getEdgeInfoClasses', () => {
     expect(classes).toContain('nad-name');
     expect(classes).toContain('nad-permanent-limit-percentage');
 });
+
+test('getLabelShiftAndStyle', () => {
+    let labelShiftAndStyle = DiagramUtils.getLabelShiftAndStyle(45, true, 19);
+    expect(labelShiftAndStyle[0]).toBe(19);
+    expect(labelShiftAndStyle[1]).toBe(undefined);
+    labelShiftAndStyle = DiagramUtils.getLabelShiftAndStyle(45, false, 19);
+    expect(labelShiftAndStyle[0]).toBe(-19);
+    expect(labelShiftAndStyle[1]).toBe('text-anchor:end');
+});

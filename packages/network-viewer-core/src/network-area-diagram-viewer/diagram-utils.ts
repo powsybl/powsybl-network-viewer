@@ -281,3 +281,14 @@ export function getFormattedInfoLabel(
         typeof value === 'number' ? value.toFixed(getEdgeInfoValuePrecision(type, svgParameters)) : value;
     return formattedValue;
 }
+
+export function getLabelShiftAndStyle(
+    labelAngle: number,
+    externalLabel: boolean,
+    arrowLabelShift: number
+): [number, string | undefined] {
+    const textFlipped: boolean = Math.cos(labelAngle) < 0;
+    const style: string | undefined = externalLabel == textFlipped ? 'text-anchor:end' : undefined;
+    const shift: number = arrowLabelShift * (externalLabel ? 1 : -1);
+    return [textFlipped ? -shift : shift, style];
+}

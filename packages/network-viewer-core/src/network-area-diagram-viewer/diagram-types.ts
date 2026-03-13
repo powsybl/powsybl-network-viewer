@@ -60,3 +60,9 @@ export type NodeRadius = {
     busOuterRadius: number;
     voltageLevelRadius: number;
 };
+
+export type LabelData = {
+    angle: number;
+    internal: { shift: number; style: string | undefined };
+    external: { shift: number; style: string | undefined };
+};
