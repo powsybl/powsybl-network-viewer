@@ -17,9 +17,10 @@ import {
     getFormattedPolyline,
     isTransformerEdge,
     radToDeg,
+    getLabelShiftAndStyle,
 } from './diagram-utils';
 import { getBusNodeMetadata, getEdgePoints, getEdgeType, getNodeMetadata, getNodeRadius } from './metadata-utils';
-import { HalfEdge } from './diagram-types';
+import { HalfEdge, LabelData } from './diagram-types';
 import { getPathPoints, getTransform } from './svg-utils';
 
 // get the angle between first two points of a halfEdge
@@ -70,16 +71,17 @@ export function getArrowCenter(halfEdge: HalfEdge, svgParameters: SvgParameters)
     }
 }
 
-// get the data [angle, shift, text anchor] of a label
-// between two points of an edge polyline
-export function getLabelData(halfEdge: HalfEdge, arrowLabelShift: number): [number, number, string | null] {
+// get the label data: angle and [shift, style] of a external and internal label
+export function getLabelData(halfEdge: HalfEdge, arrowLabelShift: number): LabelData {
     const angle = getArrowEdgeAngle(halfEdge);
     const textFlipped = Math.cos(angle) < 0;
-    return [
-        radToDeg(textFlipped ? angle - Math.PI : angle),
-        textFlipped ? -arrowLabelShift : arrowLabelShift,
-        textFlipped ? 'text-anchor:end' : null,
-    ];
+    const internalShiftAndStyle = getLabelShiftAndStyle(angle, false, arrowLabelShift);
+    const externalShiftAndStyle = getLabelShiftAndStyle(angle, true, arrowLabelShift);
+    return {
+        angle: radToDeg(textFlipped ? angle - Math.PI : angle),
+        internal: { shift: internalShiftAndStyle[0], style: internalShiftAndStyle[1] },
+        external: { shift: externalShiftAndStyle[0], style: externalShiftAndStyle[1] },
+    };
 }
 
 // get the points of a converter station of an HVDC line edge
@@ -207,7 +209,9 @@ export function getHalfEdges(
     iEdge: number,
     groupedEdgesCount: number,
     diagramMetadata: DiagramMetadata | null,
-    svgParameters: SvgParameters
+    svgParameters: SvgParameters,
+    point1?: Point,
+    point2?: Point
 ): HalfEdge[] | null[] {
     const edgeType = getEdgeType(edge);
     const busNode1 = getBusNodeMetadata(edge.busNode1, diagramMetadata);
@@ -218,8 +222,8 @@ export function getHalfEdges(
         return [null, null];
     }
 
-    const point1 = new Point(node1.x, node1.y);
-    const point2 = new Point(node2.x, node2.y);
+    point1 ??= new Point(node1.x, node1.y);
+    point2 ??= new Point(node2.x, node2.y);
     let edgeFork1: Point | undefined;
     let edgeFork2: Point | undefined;
     if (groupedEdgesCount > 1) {

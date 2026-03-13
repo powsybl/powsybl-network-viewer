@@ -237,3 +237,12 @@ test('getArrowClass', () => {
     expect(DiagramUtils.getArrowPath('IN', svgParameters)).toBe(arrowPathIn);
     expect(DiagramUtils.getArrowPath('OUT', svgParameters)).toBe(arrowPathOut);
 });
+
+test('getLabelShiftAndStyle', () => {
+    let labelShiftAndStyle = DiagramUtils.getLabelShiftAndStyle(45, true, 19);
+    expect(labelShiftAndStyle[0]).toBe(19);
+    expect(labelShiftAndStyle[1]).toBe(undefined);
+    labelShiftAndStyle = DiagramUtils.getLabelShiftAndStyle(45, false, 19);
+    expect(labelShiftAndStyle[0]).toBe(-19);
+    expect(labelShiftAndStyle[1]).toBe('text-anchor:end');
+});
