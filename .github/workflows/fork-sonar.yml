@@ -1,0 +1,159 @@
+name: CI on forks - Sonar analysis
+
+on:
+  workflow_run:
+    workflows: [CI on forks - build and tests]
+    types:
+      - completed
+
+permissions: {}
+
+jobs:
+  sonar:
+    name: Run Sonar Analysis for forks
+    runs-on: ubuntu-latest
+    if: >
+      github.event.workflow_run.event == 'pull_request' && 
+      github.event.workflow_run.conclusion == 'success'
+    permissions:
+      actions: write
+      checks: write
+      contents: read
+      issues: read
+      pull-requests: write
+      statuses: write
+    steps:
+      - name: Download PR information
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          script: |
+            let allArtifacts = await github.rest.actions.listWorkflowRunArtifacts({
+               owner: context.repo.owner,
+               repo: context.repo.repo,
+               run_id: context.payload.workflow_run.id,
+            });
+            let prInfoArtifact = allArtifacts.data.artifacts.filter((artifact) => {
+              return artifact.name.startsWith("pr-info-")
+            })[0];
+            if (!prInfoArtifact) {
+              core.setFailed("❌ No PR info artifact found");
+              return;
+            }
+            let download = await github.rest.actions.downloadArtifact({
+               owner: context.repo.owner,
+               repo: context.repo.repo,
+               artifact_id: prInfoArtifact.id,
+               archive_format: 'zip',
+            });
+            const fs = require('fs');
+            const path = require('path');
+            const temp = '${{ runner.temp }}/pr-info';
+            if (!fs.existsSync(temp)){
+              fs.mkdirSync(temp, { recursive: true });
+            }
+            fs.writeFileSync(path.join(temp, 'pr-info.zip'), Buffer.from(download.data));
+            console.log("PR information downloaded");
+
+      - name: Extract PR Information
+        run: |
+          mkdir -p ${{ runner.temp }}/pr-info-extracted
+          unzip -q ${{ runner.temp }}/pr-info/pr-info.zip -d ${{ runner.temp }}/pr-info-extracted
+          REPO_NAME=$(cat ${{ runner.temp }}/pr-info-extracted/repo-name)
+          HEAD_REF=$(cat ${{ runner.temp }}/pr-info-extracted/head-ref)
+          HEAD_SHA=$(cat ${{ runner.temp }}/pr-info-extracted/head-sha)
+          PR_NUMBER=$(cat ${{ runner.temp }}/pr-info-extracted/pr-number)
+          BASE_REF=$(cat ${{ runner.temp }}/pr-info-extracted/base-ref)
+          echo "REPO_NAME=$REPO_NAME" >> $GITHUB_ENV
+          echo "HEAD_REF=$HEAD_REF" >> $GITHUB_ENV
+          echo "HEAD_SHA=$HEAD_SHA" >> $GITHUB_ENV
+          echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_ENV 
+          echo "BASE_REF=$BASE_REF" >> $GITHUB_ENV
+          echo "PR information extracted: $REPO_NAME $HEAD_REF $HEAD_SHA $PR_NUMBER $BASE_REF"
+
+      - name: Checkout sources
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          ref: ${{ env.HEAD_REF }}
+          repository: ${{ env.REPO_NAME }}
+          fetch-depth: 0
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+
+      - name: Download artifact
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          script: |
+            let allArtifacts = await github.rest.actions.listWorkflowRunArtifacts({
+               owner: context.repo.owner,
+               repo: context.repo.repo,
+               run_id: context.payload.workflow_run.id,
+            });
+            let matchArtifact = allArtifacts.data.artifacts.filter((artifact) => {
+              return artifact.name.startsWith("data-for-sonar-analysis-")
+            })[0];
+            if (!matchArtifact) {
+              core.setFailed("❌ No matching artifact found");
+              return;
+            }
+            let download = await github.rest.actions.downloadArtifact({
+               owner: context.repo.owner,
+               repo: context.repo.repo,
+               artifact_id: matchArtifact.id,
+               archive_format: 'zip',
+            });
+            const fs = require('fs');
+            const path = require('path');
+            const temp = '${{ runner.temp }}/artifacts';
+            if (!fs.existsSync(temp)){
+              fs.mkdirSync(temp);
+            }
+            fs.writeFileSync(path.join(temp, 'sonar-data.zip'), Buffer.from(download.data));
+
+      - name: Extract Sonar Analysis Data
+        run: |
+          mkdir -p ${{ runner.temp }}/extracted
+          unzip -q ${{ runner.temp }}/artifacts/sonar-data.zip -d ${{ runner.temp }}/extracted
+          cp -r ${{ runner.temp }}/extracted/* .
+          ls -la coverage/lcov.info || echo "LCOV report not found"
+
+      - name: Run Sonar Analysis
+        uses: SonarSource/sonarqube-scan-action@1a6d90ebcb0e6a6b1d87e37ba693fe453195ae25 # v5.3.1
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          args: >
+            -Dsonar.pullrequest.key=${{ env.PR_NUMBER }}
+            -Dsonar.pullrequest.branch=${{ env.HEAD_REF }}
+            -Dsonar.pullrequest.base=${{ env.BASE_REF }}
+            -Dsonar.pullrequest.provider=github
+            -Dsonar.pullrequest.github.repository=${{ github.repository }}
+            -Dsonar.scm.revision=${{ env.HEAD_SHA }}
+            -Dsonar.qualitygate.wait=true
+
+      - name: Delete artifacts used in analysis
+        if: always()
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            let artifacts = await github.rest.actions.listWorkflowRunArtifacts({
+               owner: context.repo.owner,
+               repo: context.repo.repo,
+               run_id: context.payload.workflow_run.id,
+            });
+            for (const artifact of artifacts.data.artifacts) {
+              if (
+                artifact.name.startsWith("data-for-sonar-analysis-") ||
+                artifact.name.startsWith("pr-info-")
+              ) {
+                console.log(`Deleting artifact: ${artifact.name} (ID: ${artifact.id})`);
+                await github.rest.actions.deleteArtifact({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  artifact_id: artifact.id
+                });
+              }
+            }

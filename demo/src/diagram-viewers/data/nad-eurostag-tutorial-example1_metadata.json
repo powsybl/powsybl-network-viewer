@@ -161,6 +161,19 @@
     }
   }, {
     "svgId" : "22",
+    "equipmentId" : "NHV1_NHV2_3",
+    "node1" : "8",
+    "node2" : "4",
+    "busNode1" : "11",
+    "busNode2" : "7",
+    "type" : "LineEdge",
+    "edgeInfoMiddle" : {
+      "svgId" : "23",
+      "infoTypeA" : "Name",
+      "labelA" : "NHV1_NHV2_3"
+    }
+  }, {
+    "svgId" : "24",
     "equipmentId" : "NHV2_NLOAD",
     "node1" : "8",
     "node2" : "12",
@@ -168,7 +181,7 @@
     "busNode2" : "15",
     "type" : "TwoWtEdge",
     "edgeInfoMiddle" : {
-      "svgId" : "23",
+      "svgId" : "25",
       "infoTypeA" : "Name",
       "labelA" : "NHV2_NLOAD"
     }

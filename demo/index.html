@@ -14,35 +14,61 @@
         <title>SVG Viewers Examples</title>
         <link rel="stylesheet" href="src/style.css" />
         <link rel="stylesheet" href="src/zoom.css" />
+        <link rel="stylesheet" href="src/demo.css" />
     </head>
     <body>
+        <div class="floating-toc">
+            <h3>Contents</h3>
+            <ul>
+                <li><a href="#map-viewer">Network Map Viewer</a></li>
+                <li><a href="#nad-viewers">Network Area Diagram Viewers</a></li>
+                <li><a href="#sld-viewers">Single Line Diagram Viewers</a></li>
+                <li><hr /></li>
+                <li><a href="synced-viewers.html">Synced Viewers Demo</a></li>
+            </ul>
+        </div>
         <div class="flex-container">
-            <div id="root"></div>
+            <div id="map-viewer" class="viewer-section">
+                <h2>Network Map Viewer</h2>
+                <div class="break"></div>
+                <div id="root"></div>
+            </div>
             <div class="break"></div>
-            <div id="svg-container-nad"></div>
-            <div id="svg-container-nad-no-moving"></div>
+            <div id="nad-viewers" class="viewer-section">
+                <h2>Network Area Diagram Viewers</h2>
+                <div class="break"></div>
+                <div id="svg-container-nad"></div>
+                <div id="svg-container-nad-no-moving"></div>
+                <div class="break"></div>
+                <div id="svg-container-nad-multibus-vlnodes"></div>
+                <div id="svg-container-nad-multibus-vlnodes14"></div>
+                <div class="break"></div>
+                <div id="svg-container-nad-pst-hvdc"></div>
+                <div id="svg-container-nad-threewt-dl-ub"></div>
+                <div class="break"></div>
+                <div id="svg-container-nad-partial-network"></div>
+                <div id="svg-container-nad-partial-network-custom-view-box"></div>
+                <div class="break"></div>
+                <div id="svg-container-nad-pegase-network"></div>
+                <div class="break"></div>
+                <div id="svg-container-nad-pegase-network-adaptive-zoom"></div>
+                <div class="break"></div>
+                <div id="svg-container-nad-partial-network-adaptive-zoom"></div>
+                <div class="break"></div>
+                <div id="svg-container-nad-hoverCallback"></div>
+                <div class="break"></div>
+                <div id="svg-container-nad-multibus-vlnodes-middle-arrow"></div>
+                <div id="svg-container-nad-pst-hvdc-multiple-labels"></div>
+            </div>
             <div class="break"></div>
-            <div id="svg-container-nad-multibus-vlnodes"></div>
-            <div id="svg-container-nad-multibus-vlnodes14"></div>
-            <div class="break"></div>
-            <div id="svg-container-nad-pst-hvdc"></div>
-            <div id="svg-container-nad-threewt-dl-ub"></div>
-            <div class="break"></div>
-            <div id="svg-container-nad-partial-network"></div>
-            <div id="svg-container-nad-partial-network-custom-view-box"></div>
-            <div class="break"></div>
-            <div id="svg-container-nad-pegase-network"></div>
-            <div class="break"></div>
-            <div id="svg-container-nad-pegase-network-adaptive-zoom"></div>
-            <div class="break"></div>
-            <div id="svg-container-nad-partial-network-adaptive-zoom"></div>
-            <div class="break"></div>
-            <div id="svg-container-nad-hoverCallback"></div>
-            <div class="break"></div>
-            <div id="svg-container-sld"></div>
-            <div id="svg-container-sld-with-callbacks"></div>
-            <div class="break"></div>
-            <div id="svg-container-sldsub-with-callbacks"></div>
+            <div id="sld-viewers" class="viewer-section">
+                <h2>Single Line Diagram Viewers</h2>
+                <div class="break"></div>
+                <div id="svg-container-sld"></div>
+                <div id="svg-container-sld-with-callbacks"></div>
+                <div class="break"></div>
+                <div id="svg-container-sldsub-with-callbacks"></div>
+            </div>
         </div>
         <script type="module" src="/src/index.tsx"></script>
     </body>
