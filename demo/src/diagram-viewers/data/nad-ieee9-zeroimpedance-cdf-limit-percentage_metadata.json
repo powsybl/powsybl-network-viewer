@@ -188,10 +188,8 @@
     "edgeInfoMiddle" : {
       "svgId" : "27",
       "infoTypeA" : "Name",
-      "infoTypeB" : "Current",
-      "direction" : "OUT",
-      "labelA" : "L7-5-0",
-      "labelB" : "444"
+      "infoTypeB" : "PermanentLimitPercentage",
+      "labelA" : "L7-5-0"
     }
   }, {
     "svgId" : "28",
@@ -216,10 +214,8 @@
     "edgeInfoMiddle" : {
       "svgId" : "31",
       "infoTypeA" : "Name",
-      "infoTypeB" : "Current",
-      "direction" : "OUT",
-      "labelA" : "L7-8-0",
-      "labelB" : "488"
+      "infoTypeB" : "PermanentLimitPercentage",
+      "labelA" : "L7-8-0"
     }
   }, {
     "svgId" : "32",
@@ -233,21 +229,20 @@
       "svgId" : "33",
       "infoTypeB" : "ActivePower",
       "direction" : "OUT",
-      "labelB" : "15"
+      "labelB" : "800"
     },
     "edgeInfo2" : {
       "svgId" : "34",
       "infoTypeB" : "ActivePower",
-      "direction" : "IN",
-      "labelB" : "-15"
+      "direction" : "OUT",
+      "labelB" : "810"
     },
     "edgeInfoMiddle" : {
       "svgId" : "35",
       "infoTypeA" : "Name",
-      "infoTypeB" : "Current",
-      "direction" : "OUT",
+      "infoTypeB" : "PermanentLimitPercentage",
       "labelA" : "L9-8-0",
-      "labelB" : "83"
+      "labelB" : "257 %"
     }
   }, {
     "svgId" : "36",
@@ -272,10 +267,8 @@
     "edgeInfoMiddle" : {
       "svgId" : "39",
       "infoTypeA" : "Name",
-      "infoTypeB" : "Current",
-      "direction" : "OUT",
-      "labelA" : "T7-2-0",
-      "labelB" : "923"
+      "infoTypeB" : "PermanentLimitPercentage",
+      "labelA" : "T7-2-0"
     }
   }, {
     "svgId" : "40",
@@ -301,10 +294,8 @@
     "edgeInfoMiddle" : {
       "svgId" : "43",
       "infoTypeA" : "Name",
-      "infoTypeB" : "Current",
-      "direction" : "OUT",
-      "labelA" : "L9-6-0",
-      "labelB" : "405"
+      "infoTypeB" : "PermanentLimitPercentage",
+      "labelA" : "L9-6-0"
     }
   }, {
     "svgId" : "44",
@@ -329,10 +320,8 @@
     "edgeInfoMiddle" : {
       "svgId" : "47",
       "infoTypeA" : "Name",
-      "infoTypeB" : "Current",
-      "direction" : "OUT",
-      "labelA" : "T9-3-0",
-      "labelB" : "484"
+      "infoTypeB" : "PermanentLimitPercentage",
+      "labelA" : "T9-3-0"
     }
   }, {
     "svgId" : "48",
@@ -358,10 +347,8 @@
     "edgeInfoMiddle" : {
       "svgId" : "51",
       "infoTypeA" : "Name",
-      "infoTypeB" : "Current",
-      "direction" : "OUT",
-      "labelA" : "L5-4-0",
-      "labelB" : "364"
+      "infoTypeB" : "PermanentLimitPercentage",
+      "labelA" : "L5-4-0"
     }
   } ],
   "textNodes" : [ {

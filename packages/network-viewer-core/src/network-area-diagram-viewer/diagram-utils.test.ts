@@ -238,6 +238,141 @@ test('getArrowClass', () => {
     expect(DiagramUtils.getArrowPath('OUT', svgParameters)).toBe(arrowPathOut);
 });
 
+test('getEdgeInfoValuePrecision', () => {
+    const diagramPaddingMetadata: DiagramPaddingMetadata = {
+        bottom: 0,
+        left: 0,
+        right: 0,
+        top: 0,
+    };
+    const arrowPathIn = 'M-10 -10 H10 L0 10z';
+    const arrowPathOut = 'M-10 10 H10 L0 -10z';
+    const svgParametersMetadata: SvgParametersMetadata = {
+        angleValuePrecision: 0,
+        arrowLabelShift: 0,
+        arrowPathIn: arrowPathIn,
+        arrowPathOut: arrowPathOut,
+        arrowShift: 0,
+        converterStationWidth: 0,
+        cssLocation: '',
+        currentValuePrecision: 3,
+        diagramPadding: diagramPaddingMetadata,
+        edgesForkAperture: 0,
+        edgesForkLength: 0,
+        insertNameDesc: false,
+        interAnnulusSpace: 0,
+        nodeHollowWidth: 0,
+        powerValuePrecision: 2,
+        transformerCircleRadius: 0,
+        unknownBusNodeExtraRadius: 0,
+        voltageValuePrecision: 0,
+        voltageLevelCircleRadius: 30,
+        fictitiousVoltageLevelCircleRadius: 15,
+        svgWidthAndHeightAdded: false,
+        sizeConstraint: '',
+        fixedWidth: 0,
+        fixedHeight: 0,
+        fixedScale: 0,
+        edgeStartShift: 0,
+        loopDistance: 0,
+        loopEdgesAperture: 0,
+        loopControlDistance: 0,
+        edgeInfoAlongEdge: false,
+        svgPrefix: '',
+        languageTag: '',
+        percentageValuePrecision: 0,
+        pstArrowHeadSize: 0,
+        undefinedValueSymbol: '',
+        highlightGraph: false,
+        injectionAperture: 0,
+        injectionEdgeLength: 0,
+        injectionCircleRadius: 0,
+        voltageLevelLegendsIncluded: false,
+        edgeInfosIncluded: false,
+    };
+    const svgParameters = new SvgParameters(svgParametersMetadata);
+    expect(DiagramUtils.getEdgeInfoValuePrecision('ActivePower', svgParameters)).toBe(2);
+    expect(DiagramUtils.getEdgeInfoValuePrecision('Current', svgParameters)).toBe(3);
+    expect(DiagramUtils.getEdgeInfoValuePrecision('PermanentLimitPercentage', svgParameters)).toBe(0);
+});
+
+test('getFormattedInfoLabel', () => {
+    const diagramPaddingMetadata: DiagramPaddingMetadata = {
+        bottom: 0,
+        left: 0,
+        right: 0,
+        top: 0,
+    };
+    const arrowPathIn = 'M-10 -10 H10 L0 10z';
+    const arrowPathOut = 'M-10 10 H10 L0 -10z';
+    const svgParametersMetadata: SvgParametersMetadata = {
+        angleValuePrecision: 0,
+        arrowLabelShift: 0,
+        arrowPathIn: arrowPathIn,
+        arrowPathOut: arrowPathOut,
+        arrowShift: 0,
+        converterStationWidth: 0,
+        cssLocation: '',
+        currentValuePrecision: 0,
+        diagramPadding: diagramPaddingMetadata,
+        edgesForkAperture: 0,
+        edgesForkLength: 0,
+        insertNameDesc: false,
+        interAnnulusSpace: 0,
+        nodeHollowWidth: 0,
+        powerValuePrecision: 2,
+        transformerCircleRadius: 0,
+        unknownBusNodeExtraRadius: 0,
+        voltageValuePrecision: 0,
+        voltageLevelCircleRadius: 30,
+        fictitiousVoltageLevelCircleRadius: 15,
+        svgWidthAndHeightAdded: false,
+        sizeConstraint: '',
+        fixedWidth: 0,
+        fixedHeight: 0,
+        fixedScale: 0,
+        edgeStartShift: 0,
+        loopDistance: 0,
+        loopEdgesAperture: 0,
+        loopControlDistance: 0,
+        edgeInfoAlongEdge: false,
+        svgPrefix: '',
+        languageTag: '',
+        percentageValuePrecision: 0,
+        pstArrowHeadSize: 0,
+        undefinedValueSymbol: '',
+        highlightGraph: false,
+        injectionAperture: 0,
+        injectionEdgeLength: 0,
+        injectionCircleRadius: 0,
+        voltageLevelLegendsIncluded: false,
+        edgeInfosIncluded: false,
+    };
+    const svgParameters = new SvgParameters(svgParametersMetadata);
+    expect(DiagramUtils.getFormattedInfoLabel('444', 'ActivePower', svgParameters)).toBe('444.00');
+    expect(DiagramUtils.getFormattedInfoLabel('2', 'Current', svgParameters)).toBe('2');
+    expect(DiagramUtils.getFormattedInfoLabel('L7-8-0', 'Name', svgParameters)).toBe('L7-8-0');
+});
+
+test('getEdgeInfoClass', () => {
+    expect(DiagramUtils.getEdgeInfoClass('UNKNOWN')).toBeNull();
+    expect(DiagramUtils.getEdgeInfoClass(undefined)).toBeNull();
+    expect(DiagramUtils.getEdgeInfoClass('ActivePower')).toBe('nad-active');
+    expect(DiagramUtils.getEdgeInfoClass('ReactivePower')).toBe('nad-reactive');
+    expect(DiagramUtils.getEdgeInfoClass('Current')).toBe('nad-current');
+    expect(DiagramUtils.getEdgeInfoClass('Name')).toBe('nad-name');
+    expect(DiagramUtils.getEdgeInfoClass('PermanentLimitPercentage')).toBe('nad-permanent-limit-percentage');
+});
+
+test('getEdgeInfoClasses', () => {
+    const classes = DiagramUtils.getEdgeInfoClasses();
+    expect(classes).toContain('nad-active');
+    expect(classes).toContain('nad-reactive');
+    expect(classes).toContain('nad-current');
+    expect(classes).toContain('nad-name');
+    expect(classes).toContain('nad-permanent-limit-percentage');
+});
+
 test('getLabelShiftAndStyle', () => {
     let labelShiftAndStyle = DiagramUtils.getLabelShiftAndStyle(45, true, 19);
     expect(labelShiftAndStyle[0]).toBe(19);
