@@ -25,17 +25,8 @@ in vec3 instanceLineAngles;
 in vec2 instanceProximityFactors;
 in float instanceDistanceBetweenLines;
 
-uniform float sizeMinPixels;
-uniform float sizeMaxPixels;
-uniform float timestamp;
 uniform sampler2D linePositionsTexture;
 uniform sampler2D lineDistancesTexture;
-uniform float maxParallelOffset;
-uniform float minParallelOffset;
-uniform float opacity;
-uniform ivec2 linePositionsTextureSize;
-
-uniform ivec2 lineDistancesTextureSize;
 
 flat out vec4 vFillColor;
 flat out float shouldDiscard;
@@ -52,7 +43,7 @@ ivec2 calculateTextureIndex(int flatIndex, ivec2 textureSize) {
  */
 vec3 fetchLinePosition(int point) {
     int flatIndex = instanceLinePositionsTextureOffset + point;
-    ivec2 textureIndex = calculateTextureIndex(flatIndex, linePositionsTextureSize);
+    ivec2 textureIndex = calculateTextureIndex(flatIndex, arrow.linePositionsTextureSize);
     return vec3(texelFetch(linePositionsTexture, textureIndex, 0).xy, 0);
 }
 
@@ -61,7 +52,7 @@ vec3 fetchLinePosition(int point) {
  */
 float fetchLineDistance(int point) {
     int flatIndex = instanceLineDistancesTextureOffset + point;
-    ivec2 textureIndex = calculateTextureIndex(flatIndex, lineDistancesTextureSize);
+    ivec2 textureIndex = calculateTextureIndex(flatIndex, arrow.lineDistancesTextureSize);
     return texelFetch(lineDistancesTexture, textureIndex, 0).x;
 }
 
@@ -130,9 +121,9 @@ float project_size_at_latitude_low_zoom(float lat) {
  * (see: https://github.com/visgl/deck.gl/blob/401d624c0529faaa62125714c376b3ba3b8f379f/dev-docs/RFCs/v6.1/improved-lnglat-projection-rfc.md?plain=1#L29)
  */
 float project_size_all_zoom_levels(float meters, float lat) {
-    // We use project_uScale = 4096 (2^12) which corresponds to zoom = 12
-    if (project_uScale < 4096.0) {
-        return meters * project_uCommonUnitsPerMeter.z * project_size_at_latitude_low_zoom(lat);
+    // We use project.scale = 4096 (2^12) which corresponds to zoom = 12
+    if (project.scale < 4096.0) {
+        return meters * project.commonUnitsPerMeter.z * project_size_at_latitude_low_zoom(lat);
     }
     return project_size(meters);
 }
@@ -146,7 +137,7 @@ void main(void ) {
         // instanceArrowDistance: a float in interval [0,1] describing the initial position of the arrow along the full path between two substations (0: begin, 1.0 end)
         float distanceAlong =
             instanceLineDistance * instanceArrowDistance +
-            (instanceArrowDirection < 2.0 ? 1.0 : -1.0) * timestamp * instanceSpeedFactor;
+            (instanceArrowDirection < 2.0 ? 1.0 : -1.0) * arrow.timestamp * instanceSpeedFactor;
         float arrowDistance = mod(distanceAlong, instanceLineDistance);
         if (arrowDistance < 0.0) {
             arrowDistance += instanceLineDistance;
@@ -168,7 +159,7 @@ void main(void ) {
         vec3 linePosition2 = fetchLinePosition(linePoint);
 
         // clamp to arrow size limits
-        float sizePixels = clamp(project_size_to_pixel(instanceSize), sizeMinPixels, sizeMaxPixels);
+        float sizePixels = clamp(project_size_to_pixel(instanceSize), arrow.sizeMinPixels, arrow.sizeMaxPixels);
 
         // project the 2 line points position to common space
         vec3 position64Low = vec3(0, 0, 0);
@@ -181,8 +172,8 @@ void main(void ) {
         vec3 arrowPositionWorldSpace = mix(linePosition1, linePosition2, interpolationValue);
         float offsetCommonSpace = clamp(
             project_size_all_zoom_levels(instanceDistanceBetweenLines, arrowPositionWorldSpace.y),
-            project_pixel_size(minParallelOffset),
-            project_pixel_size(maxParallelOffset)
+            project_pixel_size(arrow.minParallelOffset),
+            project_pixel_size(arrow.maxParallelOffset)
         );
 
         // calculate translation for the parallels lines, use the angle calculated from origin/destination
@@ -223,7 +214,7 @@ void main(void ) {
         gl_Position = vertexPosition;
 
         // arrow fill color for fragment shader
-        vFillColor = vec4(instanceColor.rgb, opacity);
+        vFillColor = vec4(instanceColor.rgb, layer.opacity);
         shouldDiscard = 0.0;
     }
 }
