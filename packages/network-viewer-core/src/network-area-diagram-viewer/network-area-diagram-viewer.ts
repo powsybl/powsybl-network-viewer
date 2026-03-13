@@ -1766,9 +1766,7 @@ export class NetworkAreaDiagramViewer {
         return map;
     }
 
-    private getElementsInViewbox(tolerance = 0) {
-        const containerRect = this.container.getBoundingClientRect();
-        const viewBox = SvgUtils.computeVisibleArea(this.getViewBox(), containerRect.width, containerRect.height);
+    private getElementsInViewbox(viewBox: ViewBox | undefined, tolerance = 0) {
         const metadata = this.diagramMetadata;
         if (!viewBox || !metadata) {
             return { nodes: [], edges: [] };
@@ -1972,20 +1970,33 @@ export class NetworkAreaDiagramViewer {
         }
     }
 
-    private filterElements(nodeList: NodeMetadata[], containedEdgeList: EdgeMetadata[]): void {
-        const getEdgeInfosIds = (edgesMetadata: EdgeMetadata[]): string[] => {
-            const ids: string[] = [];
-            for (const edgeMetadata of edgesMetadata) {
-                if (edgeMetadata.edgeInfoMiddle?.svgId) ids.push(edgeMetadata.edgeInfoMiddle.svgId);
-                if (edgeMetadata.edgeInfo1?.svgId) ids.push(edgeMetadata.edgeInfo1.svgId);
-                if (edgeMetadata.edgeInfo2?.svgId) ids.push(edgeMetadata.edgeInfo2.svgId);
-            }
-            return ids;
-        };
+    private static readonly TRANSLATE_POINT_REGEX = /translate\(\s*(-?[\d.]+)\s*,\s*(-?[\d.]+)\s*\)/;
 
+    private removeEdgeInfoItems(viewBox: ViewBox | undefined): void {
+        if (!viewBox) return;
+
+        const xMax = viewBox.x + viewBox.width;
+        const yMax = viewBox.y + viewBox.height;
+
+        for (const g of this.getOrCreateEdgeInfosSection().querySelectorAll<SVGGElement>(':scope > g')) {
+            const transform = g.getAttribute('transform');
+            if (!transform) continue;
+
+            const parsed = NetworkAreaDiagramViewer.TRANSLATE_POINT_REGEX.exec(transform);
+            if (!parsed) continue;
+
+            const x = Number.parseFloat(parsed[1]);
+            const y = Number.parseFloat(parsed[2]);
+
+            if (x < viewBox.x || x > xMax || y < viewBox.y || y > yMax) {
+                g.remove();
+            }
+        }
+    }
+
+    private filterElements(nodeList: NodeMetadata[], viewBox: ViewBox | undefined): void {
         const validLegendIds = new Set(nodeList.map((n) => n.legendSvgId));
         const validLegendEdgeIds = new Set(nodeList.map((n) => n.legendEdgeSvgId));
-        const validEdgeInfosIds = new Set(getEdgeInfosIds(containedEdgeList));
 
         // filter legends
         this.getOrCreateTextNodesSection()
@@ -2005,14 +2016,8 @@ export class NetworkAreaDiagramViewer {
                 }
             });
 
-        // filter edge infos
-        this.getOrCreateEdgeInfosSection()
-            .querySelectorAll('g[id]')
-            ?.forEach((g) => {
-                if (!validEdgeInfosIds.has(g.id)) {
-                    g.remove();
-                }
-            });
+        // filter edge info items that fall outside the viewbox
+        this.removeEdgeInfoItems(viewBox);
     }
 
     private adaptiveZoomViewboxUpdate(maxDisplayedSize: number) {
@@ -2022,7 +2027,10 @@ export class NetworkAreaDiagramViewer {
             this.textNodesSection?.replaceChildren();
         } else {
             let start = performance.now();
-            const containedElementList = this.getElementsInViewbox(50);
+            const containerRect = this.container.getBoundingClientRect();
+            const viewBox = SvgUtils.computeVisibleArea(this.getViewBox(), containerRect.width, containerRect.height);
+
+            const containedElementList = this.getElementsInViewbox(viewBox, 50);
             const containedNodeList = containedElementList.nodes;
             const containedEdgeList = containedElementList.edges;
 
@@ -2031,7 +2039,9 @@ export class NetworkAreaDiagramViewer {
             console.log(`number of elements in the current viewbox computing time: ${performance.now() - start} ms`);
 
             start = performance.now();
-            this.filterElements(containedNodeList, containedEdgeList);
+
+            this.filterElements(containedNodeList, viewBox);
+
             console.log(`time to remove elements not in the current viewbox: ${performance.now() - start} ms`);
 
             start = performance.now();
