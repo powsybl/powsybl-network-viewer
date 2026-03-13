@@ -13,6 +13,7 @@ export enum EdgeInfoEnum {
     REACTIVE_POWER,
     CURRENT,
     NAME,
+    PERMANENT_LIMIT_PERCENTAGE,
 }
 
 const EdgeInfoEnumMapping: { [key: string]: EdgeInfoEnum } = {
@@ -20,6 +21,7 @@ const EdgeInfoEnumMapping: { [key: string]: EdgeInfoEnum } = {
     ReactivePower: EdgeInfoEnum.REACTIVE_POWER,
     Current: EdgeInfoEnum.CURRENT,
     Name: EdgeInfoEnum.NAME,
+    PermanentLimitPercentage: EdgeInfoEnum.PERMANENT_LIMIT_PERCENTAGE,
 };
 
 type DiagramPadding = {
@@ -58,6 +60,7 @@ export class SvgParameters {
     static readonly CURRENT_VALUE_PRECISION_DEFAULT = 0;
     static readonly ANGLE_VALUE_PRECISION_DEFAULT = 1;
     static readonly VOLTAGE_VALUE_PRECISION_DEFAULT = 1;
+    static readonly PERCENTAGE_VALUE_PRECISION_DEFAULT = 0;
     static readonly DIAGRAM_PADDING_LEFT_DEFAULT = 200;
     static readonly DIAGRAM_PADDING_TOP_DEFAULT = 200;
     static readonly DIAGRAM_PADDING_RIGHT_DEFAULT = 200;
@@ -149,6 +152,10 @@ export class SvgParameters {
 
     public getVoltageValuePrecision(): number {
         return this.svgParametersMetadata?.voltageValuePrecision ?? SvgParameters.VOLTAGE_VALUE_PRECISION_DEFAULT;
+    }
+
+    public getPercentageValuePrecision(): number {
+        return this.svgParametersMetadata?.percentageValuePrecision ?? SvgParameters.PERCENTAGE_VALUE_PRECISION_DEFAULT;
     }
 
     public getDiagramPadding(): DiagramPadding {
