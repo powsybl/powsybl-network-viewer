@@ -344,6 +344,18 @@ export function getEdgeInfoValuePrecision(edgeInfoType: string | undefined, svgP
     }
 }
 
+export function getFormattedInfoLabel(
+    label: string | undefined,
+    type: string | undefined,
+    svgParameters: SvgParameters
+): string {
+    const edgeValueMiddle = Number(label ?? null);
+    const value: number | string = Number.isNaN(edgeValueMiddle) ? (label ?? '') : edgeValueMiddle;
+    const formattedValue =
+        typeof value === 'number' ? value.toFixed(getEdgeInfoValuePrecision(type, svgParameters)) : value;
+    return formattedValue;
+}
+
 export function getLabelShiftAndStyle(
     labelAngle: number,
     externalLabel: boolean,

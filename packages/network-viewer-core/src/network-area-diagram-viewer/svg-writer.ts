@@ -313,48 +313,64 @@ export class SvgWriter {
     }
 
     private getEdgeInfo(edge: EdgeMetadata, side: string, info: EdgeInfoMetadata): SVGGElement {
+        // create info element
         const gEdgeInfoElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
         gEdgeInfoElement.id = info.svgId;
-        const arrowCenter = this.edgeRouter?.getEdgeArrowCenter(edge.svgId, side);
+        const arrowCenter = this.edgeRouter?.getEdgeSideArrowCenter(edge.svgId, side);
         if (arrowCenter) {
             gEdgeInfoElement.setAttribute(
                 'transform',
                 'translate(' + DiagramUtils.getFormattedPoint(arrowCenter) + ')'
             );
         }
-        const edgeValue = Number(info.labelB);
-        const value: number | string = Number.isNaN(edgeValue) ? (info.labelB ?? '') : edgeValue;
-        const edgeInfoClass = DiagramUtils.getEdgeInfoClass(info.infoTypeB);
-        if (typeof value === 'number') {
-            const arrowPath = DiagramUtils.getArrowPath(info.direction, this.svgParameters);
-            if (arrowPath) {
-                gEdgeInfoElement.appendChild(this.getEdgeInfoArrow(edge.svgId, side, info, arrowPath, edgeInfoClass));
-            }
+        // add arrow element
+        if (info.direction) {
+            gEdgeInfoElement.appendChild(
+                this.getEdgeInfoArrow(
+                    this.edgeRouter?.getEdgeSideArrowAngle(edge.svgId, side),
+                    info.direction,
+                    info.infoTypeB
+                )
+            );
         }
-        gEdgeInfoElement.appendChild(this.getEdgeInfoLabel(edge.svgId, side, info, value, edgeInfoClass));
+        const labelData = this.edgeRouter?.getEdgeSideLabelData(edge.svgId, side);
+        if (labelData === undefined) return gEdgeInfoElement;
+        if (info.labelB) {
+            // add labelB element
+            gEdgeInfoElement.appendChild(
+                this.getEdgeInfoLabel(
+                    labelData.angle,
+                    labelData.external.shift,
+                    labelData.external.style,
+                    info.labelB,
+                    info.infoTypeB
+                )
+            );
+        }
         return gEdgeInfoElement;
     }
 
     private getEdgeInfoArrow(
-        edgeId: string,
-        side: string,
-        info: EdgeInfoMetadata,
-        arrowPath: string,
-        edgeInfoClass: string | null
+        arrowAngle: number | undefined,
+        direction: string,
+        type: string | undefined
     ): SVGPathElement {
         const edgeInfoArrowElement = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        const arrowAngle = this.edgeRouter?.getEdgeArrowAngle(edgeId, side);
         if (arrowAngle) {
             edgeInfoArrowElement.setAttribute(
                 'transform',
                 'rotate(' + DiagramUtils.getFormattedValue(arrowAngle) + ')'
             );
         }
-        edgeInfoArrowElement.setAttribute('d', arrowPath);
+        const arrowPath = DiagramUtils.getArrowPath(direction, this.svgParameters);
+        if (arrowPath) {
+            edgeInfoArrowElement.setAttribute('d', arrowPath);
+        }
+        const edgeInfoClass = DiagramUtils.getEdgeInfoClass(type);
         if (edgeInfoClass) {
             edgeInfoArrowElement.classList.add(edgeInfoClass);
         }
-        const arrowClass = DiagramUtils.getArrowClass(info.direction);
+        const arrowClass = DiagramUtils.getArrowClass(direction);
         if (arrowClass) {
             edgeInfoArrowElement.classList.add(arrowClass);
         }
@@ -362,29 +378,20 @@ export class SvgWriter {
     }
 
     private getEdgeInfoLabel(
-        edgeId: string,
-        side: string,
-        info: EdgeInfoMetadata,
-        value: number | string,
-        edgeInfoClass: string | null
+        angle: number,
+        shift: number,
+        style: string | undefined,
+        label: string | undefined,
+        type: string | undefined
     ): SVGTextElement {
         const edgeInfoLabelElement = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        const labelB: string =
-            typeof value === 'number'
-                ? value.toFixed(DiagramUtils.getEdgeInfoValuePrecision(info.infoTypeB, this.svgParameters))
-                : value;
-        edgeInfoLabelElement.innerHTML = labelB;
-        const labelData = this.edgeRouter?.getEdgeArrowLabelData(edgeId, side);
-        if (labelData) {
-            edgeInfoLabelElement.setAttribute(
-                'transform',
-                'rotate(' + DiagramUtils.getFormattedValue(labelData.angle) + ')'
-            );
-            edgeInfoLabelElement.setAttribute('x', DiagramUtils.getFormattedValue(labelData.external.shift));
-            if (labelData.external.style) {
-                edgeInfoLabelElement.setAttribute('style', labelData.external.style);
-            }
+        edgeInfoLabelElement.innerHTML = DiagramUtils.getFormattedInfoLabel(label, type, this.svgParameters);
+        edgeInfoLabelElement.setAttribute('transform', 'rotate(' + DiagramUtils.getFormattedValue(angle) + ')');
+        edgeInfoLabelElement.setAttribute('x', DiagramUtils.getFormattedValue(shift));
+        if (style) {
+            edgeInfoLabelElement.setAttribute('style', style);
         }
+        const edgeInfoClass = DiagramUtils.getEdgeInfoClass(type);
         if (edgeInfoClass) {
             edgeInfoLabelElement.classList.add(edgeInfoClass);
         }
