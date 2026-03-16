@@ -335,8 +335,8 @@ export class SvgWriter {
         }
         const labelData = this.edgeRouter?.getEdgeSideLabelData(edge.svgId, side);
         if (labelData === undefined) return gEdgeInfoElement;
+        // add labelB element
         if (info.labelB) {
-            // add labelB element
             gEdgeInfoElement.appendChild(
                 this.getEdgeInfoLabel(
                     labelData.angle,
@@ -344,6 +344,18 @@ export class SvgWriter {
                     labelData.external.style,
                     info.labelB,
                     info.infoTypeB
+                )
+            );
+        }
+        // add labelA element
+        if (info.labelA) {
+            gEdgeInfoElement.appendChild(
+                this.getEdgeInfoLabel(
+                    labelData.angle,
+                    labelData.internal.shift,
+                    labelData.internal.style,
+                    info.labelA,
+                    info.infoTypeA
                 )
             );
         }
