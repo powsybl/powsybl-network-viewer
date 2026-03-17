@@ -8,7 +8,7 @@
 import { Point, SVG, Svg, ViewBoxLike } from '@svgdotjs/svg.js';
 import '@svgdotjs/svg.panzoom.js';
 import * as DiagramUtils from './diagram-utils';
-import { CssLocationEnum, EdgeInfoEnum, SvgParameters } from './svg-parameters';
+import { CssLocationEnum, SvgParameters } from './svg-parameters';
 import { LayoutParameters } from './layout-parameters';
 import {
     BusNodeMetadata,
@@ -2151,11 +2151,7 @@ export class NetworkAreaDiagramViewer {
         }
         edgeInfoMetadata.labelB =
             typeof value === 'number'
-                ? value.toFixed(
-                      this.getEdgeInfoValuePrecision(
-                          this.svgParameters.getEdgeInfoDisplayed(edgeInfoMetadata.infoTypeB)
-                      )
-                  )
+                ? value.toFixed(DiagramUtils.getEdgeInfoValuePrecision(edgeInfoMetadata.infoTypeB, this.svgParameters))
                 : value;
         edgeInfoMetadata.direction = typeof value === 'number' ? DiagramUtils.getArrowDirection(value) : undefined;
 
@@ -2212,7 +2208,7 @@ export class NetworkAreaDiagramViewer {
 
         const formattedValue =
             typeof value === 'number'
-                ? value.toFixed(this.getEdgeInfoValuePrecision(this.svgParameters.getEdgeInfoDisplayed(edgeInfoType)))
+                ? value.toFixed(DiagramUtils.getEdgeInfoValuePrecision(edgeInfoType, this.svgParameters))
                 : value;
 
         const branchLabelElement = this.getOrCreateEdgeInfoText(edgeInfo);
@@ -2275,18 +2271,6 @@ export class NetworkAreaDiagramViewer {
             edgeInfo.appendChild(edgeInfoText);
         }
         return edgeInfoText;
-    }
-
-    private getEdgeInfoValuePrecision(edgeInfoType: EdgeInfoEnum) {
-        switch (edgeInfoType) {
-            case EdgeInfoEnum.ACTIVE_POWER:
-            case EdgeInfoEnum.REACTIVE_POWER:
-                return this.svgParameters.getPowerValuePrecision();
-            case EdgeInfoEnum.CURRENT:
-                return this.svgParameters.getCurrentValuePrecision();
-            default:
-                return 0;
-        }
     }
 
     private setBranchSideConnection(branchId: string, side: string, edgeId: string, connected: boolean | undefined) {

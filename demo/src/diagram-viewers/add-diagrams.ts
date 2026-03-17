@@ -286,6 +286,13 @@ export const addNadToDemo = () => {
             );
         });
 
+    new NetworkAreaDiagramViewer(
+        document.getElementById('svg-container-nad-pst-hvdc-multiple-labels-c')!,
+        '',
+        NadSvgPstHvdcMultipleLabelsExampleMeta,
+        nadViewerParametersOptions
+    );
+
     fetch(NadSvgThreeWTDanglingLineUnknownBusExample)
         .then((response) => response.text())
         .then((svgContent) => {
