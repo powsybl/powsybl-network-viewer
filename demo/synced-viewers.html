@@ -1,0 +1,64 @@
+<!--
+    Copyright (c) 2023, RTE (http://www.rte-france.com)
+    This Source Code Form is subject to the terms of the Mozilla Public
+    License, v. 2.0. If a copy of the MPL was not distributed with this
+    file, You can obtain one at http://mozilla.org/MPL/2.0/.
+-->
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="theme-color" content="#000000" />
+        <meta name="description" content="network map viewer synced viewers demo" />
+        <title>Synced Viewers Demo</title>
+        <link rel="stylesheet" href="src/style.css" />
+        <link rel="stylesheet" href="src/zoom.css" />
+        <link rel="stylesheet" href="src/demo.css" />
+        <style>
+            .viewer-section {
+                margin-bottom: 40px;
+            }
+
+            .viewer-section h2 {
+                padding-left: 10px;
+            }
+
+            .synced-container {
+                display: flex;
+                gap: 10px;
+                padding: 10px;
+            }
+
+            .synced-container > div {
+                display: flex;
+                align-items: center;
+            }
+
+            [id^='svg-container-nad-synced-'] {
+                border: 1px solid #ccc;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="floating-toc">
+            <h3>Contents</h3>
+            <ul>
+                <li><a href="#synced-viewers">Synced Viewers</a></li>
+                <li><a href="/">Back to Main Demo</a></li>
+            </ul>
+        </div>
+
+        <div id="synced-viewers" class="viewer-section">
+            <h2>Synced Viewers</h2>
+            <p>Three viewers synchronized with slightly different branch data on the IEEE 14 bus network.</p>
+            <div class="synced-container">
+                <div id="svg-container-nad-synced-1"></div>
+                <div id="svg-container-nad-synced-2"></div>
+                <div id="svg-container-nad-synced-3"></div>
+            </div>
+        </div>
+
+        <script type="module" src="/src/synced-viewers.ts"></script>
+    </body>
+</html>

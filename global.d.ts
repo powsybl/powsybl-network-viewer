@@ -5,22 +5,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-import 'expect';
+import 'vitest';
 
-declare global {
-    namespace jest {
-        interface Matchers<R> {
-            /**
-             * Custom SVG matcher
-             * Compares two SVGs with numeric tolerance and normalized structure
-             */
-            toEqualSvg(expected: string, options?: { epsilon?: number }): R;
-        }
-    }
-}
-
-declare module 'expect' {
-    interface Matchers<R> {
+declare module 'vitest' {
+    interface Assertion<R> {
+        /**
+         * Custom SVG matcher
+         * Compares two SVGs with numeric tolerance and normalized structure
+         */
         toEqualSvg(expected: string, options?: { epsilon?: number }): R;
     }
 }

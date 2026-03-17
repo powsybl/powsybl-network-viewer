@@ -32,12 +32,12 @@ export function getFormattedPolyline(points: Point[]): string {
 
 // transform angle degrees to radians
 export function degToRad(deg: number): number {
-    return deg * (Math.PI / 180.0);
+    return deg * (Math.PI / 180);
 }
 
 // transform angle radians to degrees
 export function radToDeg(rad: number): number {
-    return (rad * 180.0) / Math.PI;
+    return (rad * 180) / Math.PI;
 }
 
 // round number to 2 decimals, for storing positions in metadata
@@ -330,4 +330,15 @@ export function getEdgeStart(
 
 export function shiftRhoTheta(point: Point, rho: number, theta: number) {
     return new Point(point.x + rho * Math.cos(theta), point.y + rho * Math.sin(theta));
+}
+
+export function getLabelShiftAndStyle(
+    labelAngle: number,
+    externalLabel: boolean,
+    arrowLabelShift: number
+): [number, string | undefined] {
+    const textFlipped: boolean = Math.cos(labelAngle) < 0;
+    const style: string | undefined = externalLabel == textFlipped ? 'text-anchor:end' : undefined;
+    const shift: number = arrowLabelShift * (externalLabel ? 1 : -1);
+    return [textFlipped ? -shift : shift, style];
 }

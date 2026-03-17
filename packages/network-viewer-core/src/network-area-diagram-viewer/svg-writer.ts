@@ -13,12 +13,15 @@ import { SvgParameters } from './svg-parameters';
 import * as MetadataUtils from './metadata-utils';
 import { EdgeRouter } from './edge-router';
 import { EdgeType } from './diagram-types';
+import * as SvgUtils from './svg-utils';
 
 export class SvgWriter {
     static readonly NODES_CLASS = 'nad-vl-nodes';
     static readonly BUS_CLASS = 'nad-busnode';
     static readonly EDGES_CLASS = 'nad-branch-edges';
     static readonly THREEWT_EDGES_CLASS = 'nad-3wt-edges';
+    static readonly TEXT_NODES_CLASS = 'nad-text-nodes';
+    static readonly TEXT_EDGES_CLASS = 'nad-text-edges';
     static readonly EDGE_CLASS = 'nad-edge-path';
     static readonly HVDC_EDGE_CLASS = 'nad-hvdc-edge';
     static readonly DANGLING_LINE_EDGE_CLASS = 'nad-dangling-line-edge';
@@ -53,6 +56,10 @@ export class SvgWriter {
         if (threeWtEdges && threeWtEdges.length > 0) {
             svg.appendChild(this.getThreeWtEdges(threeWtEdges));
         }
+        // add text nodes and edges
+        const textNodeAndEdges = this.getTextNodesAndEdges();
+        svg.appendChild(textNodeAndEdges.textEdges);
+        svg.appendChild(textNodeAndEdges.textNodes);
         return new XMLSerializer().serializeToString(xmlDoc);
     }
 
@@ -289,5 +296,28 @@ export class SvgWriter {
         polylineElement.classList.add(SvgWriter.EDGE_CLASS);
         polylineElement.setAttribute('points', DiagramUtils.getFormattedPolyline(points));
         return polylineElement;
+    }
+
+    private getTextNodesAndEdges(): { textNodes: SVGForeignObjectElement; textEdges: SVGGElement } {
+        // create text nodes foreignObject element
+        const textNodesForeignObject = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject');
+        textNodesForeignObject.setAttribute('height', '1');
+        textNodesForeignObject.setAttribute('width', '1');
+        textNodesForeignObject.classList.add(SvgWriter.TEXT_NODES_CLASS);
+        const textNodesDiv = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
+        textNodesForeignObject.appendChild(textNodesDiv);
+        // create text edges g element
+        const gTextEdgesElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        gTextEdgesElement.classList.add(SvgWriter.TEXT_EDGES_CLASS);
+        // create text nodes and edges
+        this.diagramMetadata.textNodes.forEach((textNode) => {
+            const node = MetadataUtils.getNodeMetadata(textNode.vlNode, this.diagramMetadata);
+            if (node && !node.invisible) {
+                const busNodes = MetadataUtils.getBusNodesMetadata(node.svgId, this.diagramMetadata.busNodes);
+                textNodesDiv.appendChild(SvgUtils.createTextNode(textNode, node, busNodes));
+                gTextEdgesElement.appendChild(SvgUtils.createTextEdge(textNode, node, busNodes, this.svgParameters));
+            }
+        });
+        return { textNodes: textNodesForeignObject, textEdges: gTextEdgesElement };
     }
 }

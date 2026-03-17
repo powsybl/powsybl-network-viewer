@@ -6,7 +6,7 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 
-import type { MatcherContext } from 'expect';
+import type { MatcherState } from '@vitest/expect';
 import { XMLParser } from 'fast-xml-parser';
 
 const parser = new XMLParser({
@@ -140,7 +140,7 @@ function compareWithTolerance(a: any, b: any, epsilon: number): boolean {
 /* ------------------------------------------------ */
 /* Jest matcher */
 /* ------------------------------------------------ */
-export function toEqualSvg(this: MatcherContext, actual: string, expected: string, options?: { epsilon?: number }) {
+export function toEqualSvg(this: MatcherState, actual: string, expected: string, options?: { epsilon?: number }) {
     const epsilon = options?.epsilon ?? 1e-4;
 
     // Use a helper to process the SVG consistently
