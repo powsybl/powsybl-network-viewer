@@ -1244,9 +1244,20 @@ export class NetworkAreaDiagramViewer {
             this.redrawConverterStation(edgeNode, halfEdge1, halfEdge2);
         }
 
-        // if present, move edge label
+        // if present, move edge labels
         if (edge.edgeInfoMiddle) {
-            this.updateEdgeLabel(edge.edgeInfoMiddle, halfEdge1, halfEdge2);
+            const edgeInfoElement = this.getEdgeInfo(edge.edgeInfoMiddle.svgId);
+            if (!edgeInfoElement) return;
+
+            const hasBothLabels = edge.edgeInfoMiddle.labelA !== undefined && edge.edgeInfoMiddle.labelB !== undefined;
+
+            this.redrawMiddleEdgeArrowAndLabels(
+                halfEdge1,
+                halfEdge2,
+                edgeInfoElement,
+                edge.edgeInfoMiddle.direction,
+                hasBothLabels
+            );
         }
     }
 
@@ -1492,43 +1503,6 @@ export class NetworkAreaDiagramViewer {
             this.updateSvgElementPosition(edge.edgeInfo2?.svgId, translation);
             this.updateSvgElementPosition(edge.edgeInfoMiddle?.svgId, translation);
         });
-    }
-
-    private updateEdgeLabel(edgeInfo: EdgeInfoMetadata, halfEdge1: HalfEdge | null, halfEdge2: HalfEdge | null) {
-        if (!halfEdge1 && !halfEdge2) return;
-
-        const positionElement: SVGGraphicsElement | null = this.getEdgeInfo(edgeInfo.svgId) as SVGGraphicsElement;
-        if (!positionElement) return;
-
-        let anchorPoint = new Point(0, 0);
-        let edgeNameAngle = 0;
-        if (halfEdge1 && halfEdge2) {
-            anchorPoint = DiagramUtils.getMidPosition(halfEdge1.edgePoints.at(-1)!, halfEdge2.edgePoints.at(-1)!);
-            edgeNameAngle = DiagramUtils.getEdgeNameAngle(anchorPoint, halfEdge2.edgePoints.at(-2)!);
-        } else if (halfEdge1) {
-            anchorPoint = halfEdge1.edgePoints.at(-1)!;
-            edgeNameAngle = DiagramUtils.getEdgeNameAngle(anchorPoint, halfEdge1.edgePoints.at(-2)!);
-        } else if (halfEdge2) {
-            anchorPoint = halfEdge2.edgePoints.at(-1)!;
-            edgeNameAngle = DiagramUtils.getEdgeNameAngle(halfEdge2.edgePoints.at(-2)!, anchorPoint);
-        }
-
-        // move edge name position
-        positionElement.setAttribute('transform', 'translate(' + DiagramUtils.getFormattedPoint(anchorPoint) + ')');
-        const textElements = positionElement.querySelectorAll('text');
-        for (const textElement of textElements) {
-            // change edge name angle
-            textElement.setAttribute('transform', 'rotate(' + DiagramUtils.getFormattedValue(edgeNameAngle) + ')');
-        }
-
-        // rotate arrow if it exists
-        if (edgeInfo.direction) {
-            const arrowElement = positionElement.querySelector('path');
-            if (arrowElement) {
-                const arrowAngle = HalfEdgeUtils.getMiddleArrowRotation(halfEdge1, halfEdge2, edgeInfo.direction);
-                arrowElement.setAttribute('transform', `rotate(${DiagramUtils.getFormattedValue(arrowAngle)})`);
-            }
-        }
     }
 
     private redrawVoltageLevelNode(node: SVGGraphicsElement | null, edges: EdgeMetadata[]) {
