@@ -45,8 +45,18 @@ function parseNumberList(str: string): number[] {
     return str
         .trim()
         .split(/[\s,]+/)
+        .map(removeLeadingLetters)
         .filter(Boolean)
         .map(Number);
+}
+
+function removeLeadingLetters(str: string): string {
+    const startsWithLetter = (str: string): boolean => /^[a-zA-Z]/.test(str);
+    return startsWithLetter(str) ? str.substring(1) : str;
+}
+
+function parseStyle(str: string): string[] {
+    return str.trim().split(';').filter(Boolean);
 }
 
 /**
@@ -64,8 +74,10 @@ function replaceNumericStrings(obj: any): any {
         for (const key of Object.keys(obj)) {
             const value = obj[key];
 
-            if (typeof value === 'string' && key.endsWith('@_points')) {
+            if (typeof value === 'string' && (key.endsWith('@_points') || key.endsWith('@_d'))) {
                 result[key] = parseNumberList(value);
+            } else if (typeof value === 'string' && key.endsWith('@_style')) {
+                result[key] = parseStyle(value);
             } else {
                 result[key] = replaceNumericStrings(value);
             }
