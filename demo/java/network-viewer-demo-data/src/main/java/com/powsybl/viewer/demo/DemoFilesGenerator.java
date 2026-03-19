@@ -28,6 +28,8 @@ public final class DemoFilesGenerator {
         NadDemoFiles.drawFourSubstationsWithMultipleLabels(demoResources);
         NadDemoFiles.draw14Solved(demoResources);
         NadDemoFiles.drawVL9006(demoResources);
+        NadDemoFiles.draw9ZeroImpedanceMiddleArrow(demoResources);
+        NadDemoFiles.draw9ZeroImpedanceLimitPercentage(demoResources);
 
         SldDemoFiles.drawSldExample(demoResources);
         SldDemoFiles.drawSldSubExample(demoResources);

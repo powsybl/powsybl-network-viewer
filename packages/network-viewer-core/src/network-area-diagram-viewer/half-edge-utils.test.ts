@@ -143,6 +143,61 @@ test('getMiddleArrowRotation', () => {
     expect(HalfEdgeUtils.getMiddleArrowRotation(halfEdge1, halfEdge2, 'IN')).toBe(-180);
 });
 
+test('getInfoPointAndAngle', () => {
+    const halfEdge1: HalfEdge = {
+        side: '1',
+        fork: false,
+        busOuterRadius: 0,
+        voltageLevelRadius: 0,
+        edgePoints: [new Point(0, 0), new Point(90, 0)],
+    };
+    const halfEdge2: HalfEdge = {
+        side: '2',
+        fork: false,
+        busOuterRadius: 0,
+        voltageLevelRadius: 0,
+        edgePoints: [new Point(200, 0), new Point(110, 0)],
+    };
+    let infoPointAndAngle: [Point, number] | undefined = HalfEdgeUtils.getInfoPointAndAngle(halfEdge1, halfEdge2) ?? [
+        new Point(0, 0),
+        0,
+    ];
+    expect(infoPointAndAngle).not.toBe(undefined);
+    expect(infoPointAndAngle[0].x).toBe(100);
+    expect(infoPointAndAngle[0].y).toBe(0);
+    expect(infoPointAndAngle[1]).toBe(0);
+    infoPointAndAngle = HalfEdgeUtils.getInfoPointAndAngle(null, halfEdge2) ?? [new Point(0, 0), 0];
+    expect(infoPointAndAngle).not.toBe(undefined);
+    expect(infoPointAndAngle[0].x).toBe(110);
+    expect(infoPointAndAngle[0].y).toBe(0);
+    expect(infoPointAndAngle[1]).toBe(0);
+    infoPointAndAngle = HalfEdgeUtils.getInfoPointAndAngle(null, null);
+    expect(infoPointAndAngle).toBe(undefined);
+});
+
+test('getMiddleLabelData', () => {
+    const halfEdge1: HalfEdge = {
+        side: '1',
+        fork: false,
+        busOuterRadius: 0,
+        voltageLevelRadius: 0,
+        edgePoints: [new Point(0, 0), new Point(90, 0)],
+    };
+    const halfEdge2: HalfEdge = {
+        side: '2',
+        fork: false,
+        busOuterRadius: 0,
+        voltageLevelRadius: 0,
+        edgePoints: [new Point(200, 0), new Point(110, 0)],
+    };
+    let middleLabelData = HalfEdgeUtils.getMiddleLabelData(halfEdge1, halfEdge2, true, 10);
+    expect(middleLabelData[0]).toBe(10);
+    expect(middleLabelData[1]).toBe(undefined);
+    middleLabelData = HalfEdgeUtils.getMiddleLabelData(halfEdge1, halfEdge2, false, 10);
+    expect(middleLabelData[0]).toBe(-10);
+    expect(middleLabelData[1]).toBe('text-anchor:end');
+});
+
 test('getHalfEdges', () => {
     const svgParametersMetadata: SvgParametersMetadata = {
         diagramPadding: {
