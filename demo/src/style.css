@@ -1,9 +1,9 @@
-.flex-container {
+.flex-container > div {
     display: flex;
     flex-wrap: wrap;
 }
 
-.flex-container > div {
+.flex-container > div > div {
     margin: 10px;
     background-color: white;
 }
@@ -19,7 +19,7 @@ button:hover:not(:disabled) {
 
 #nad-viewer,
 [id^='svg-container-sld'] {
-    border: 2px solid;
+    border: 2px solid #ccc;
 }
 
 .mapbox-gl-draw_ctrl-draw-btn.active,

@@ -5,12 +5,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import type { DefaultProps } from '@deck.gl/core';
 import { PathStyleExtension } from '@deck.gl/extensions';
 import {
     type Color,
     CompositeLayer,
     type CompositeLayerProps,
+    COORDINATE_SYSTEM,
+    type DefaultProps,
     type Layer,
     type LayerContext,
     type PickingInfo,
@@ -35,7 +36,7 @@ import { IconLayer, type IconLayerProps, TextLayer, type TextLayerProps } from '
 type UnpackedIcon = Exclude<ReturnType<NonNullable<IconLayerProps['getIcon']>>, string>;
 
 //Constants for Feeders mode
-const DISTANCE_BETWEEN_ARROWS = 10000.0;
+const DISTANCE_BETWEEN_ARROWS = 10000;
 const START_ARROW_POSITION = 0.1;
 const END_ARROW_POSITION = 0.9;
 
@@ -136,14 +137,13 @@ function getLineColor(
     }
 }
 
+function getIconFromLineStatus(lineStatus: LineStatus): string {
+    return STATUS_ICONS[lineStatus] ?? '';
+}
+
 function getLineIcon(lineStatus: LineStatus): UnpackedIcon {
     return {
-        url:
-            lineStatus === LineStatus.PLANNED_OUTAGE
-                ? PadlockIcon
-                : lineStatus === LineStatus.FORCED_OUTAGE
-                  ? BoltIcon
-                  : '',
+        url: getIconFromLineStatus(lineStatus),
         height: 24,
         width: 24,
         mask: true,
@@ -161,17 +161,15 @@ export enum ArrowSpeed {
 function getArrowSpeedOfSide(limit: number | undefined, intensity: number | undefined) {
     if (limit === undefined || intensity === undefined || intensity === 0) {
         return ArrowSpeed.STOPPED;
+    } else if (intensity > 0 && intensity < limit / 3) {
+        return ArrowSpeed.SLOW;
+    } else if (intensity >= limit / 3 && intensity < (limit * 2) / 3) {
+        return ArrowSpeed.MEDIUM;
+    } else if (intensity >= (limit * 2) / 3 && intensity < limit) {
+        return ArrowSpeed.FAST;
     } else {
-        if (intensity > 0 && intensity < limit / 3) {
-            return ArrowSpeed.SLOW;
-        } else if (intensity >= limit / 3 && intensity < (limit * 2) / 3) {
-            return ArrowSpeed.MEDIUM;
-        } else if (intensity >= (limit * 2) / 3 && intensity < limit) {
-            return ArrowSpeed.FAST;
-        } else {
-            // > limit
-            return ArrowSpeed.CRAZY;
-        }
+        // > limit
+        return ArrowSpeed.CRAZY;
     }
 }
 
@@ -209,8 +207,14 @@ export enum LineStatus {
     IN_OPERATION = 'IN_OPERATION',
 }
 
+const STATUS_ICONS: Record<LineStatus, string> = {
+    [LineStatus.PLANNED_OUTAGE]: PadlockIcon,
+    [LineStatus.FORCED_OUTAGE]: BoltIcon,
+    [LineStatus.IN_OPERATION]: '',
+};
+
 type LinesStatus = {
-    operatingStatus: LineStatus;
+    operatingStatus: LineStatus | undefined;
 };
 
 type CompositeDataLine = {
@@ -360,12 +364,7 @@ export class LineLayer extends CompositeLayer<Required<_LineLayerProps>> {
             linesConnection = new Map<string, LineConnection>();
             linesStatus = new Map<string, LinesStatus>();
 
-            if (
-                props.network != null &&
-                props.network.substations &&
-                props.data.length !== 0 &&
-                props.geoData != null
-            ) {
+            if (props.network?.substations && props.data.length !== 0 && props.geoData != null) {
                 // group lines by nominal voltage
                 const lineNominalVoltageIndexer = (
                     map: Map<number, MapAnyLineWithType[]>,
@@ -388,7 +387,7 @@ export class LineLayer extends CompositeLayer<Required<_LineLayerProps>> {
                     return map;
                 };
                 const linesByNominalVoltage = props.data.reduce(
-                    lineNominalVoltageIndexer,
+                    (map, line) => lineNominalVoltageIndexer(map, line),
                     new Map<number, MapAnyLineWithType[]>()
                 );
 
@@ -523,18 +522,20 @@ export class LineLayer extends CompositeLayer<Required<_LineLayerProps>> {
                         line.proximityFactorEnd
                     );
                     if (coordinates1 !== null && coordinates2 !== null) {
-                        compositeData.activePower?.push({
-                            line: line,
-                            p: line.p1,
-                            printPosition: [coordinates1.position.longitude, coordinates1.position.latitude],
-                            offset: coordinates1.offset,
-                        });
-                        compositeData.activePower?.push({
-                            line: line,
-                            p: line.p2,
-                            printPosition: [coordinates2.position.longitude, coordinates2.position.latitude],
-                            offset: coordinates2.offset,
-                        });
+                        compositeData.activePower?.push(
+                            {
+                                line: line,
+                                p: line.p1,
+                                printPosition: [coordinates1.position.longitude, coordinates1.position.latitude],
+                                offset: coordinates1.offset,
+                            },
+                            {
+                                line: line,
+                                p: line.p2,
+                                printPosition: [coordinates2.position.longitude, coordinates2.position.latitude],
+                                offset: coordinates2.offset,
+                            }
+                        );
                     }
                 });
             });
@@ -695,25 +696,29 @@ export class LineLayer extends CompositeLayer<Required<_LineLayerProps>> {
             compositeData.lines.forEach((line) => {
                 // @ts-expect-error TODO: manage undefined case
                 const positions: LonLat[] = compositeData.lineMap?.get(line.id)?.positions;
-                //the first and last in positions doesn't depend on lineFullPath
-                line.origin = positions[0];
-                line.end = positions[positions.length - 1];
+
+                // Skip this line if we have no valid position data (at least 2 points needed for angles)
+                if (!positions || positions.length < 2) {
+                    return;
+                }
+
+                const first = positions[0];
+                const last = positions.at(-1)!; // ! because length is >= 2
+                const second = positions[1];
+                const secondToLast = positions.at(-2)!;
+
+                //the first and last in positions don't depend on lineFullPath
+                line.origin = first;
+                line.end = last;
 
                 line.substationIndexStart = this.getVoltageLevelIndex(line.voltageLevelId1);
                 line.substationIndexEnd = this.getVoltageLevelIndex(line.voltageLevelId2);
 
-                line.angle = this.computeAngle(props, positions[0], positions[positions.length - 1]);
-                line.angleStart = this.computeAngle(props, positions[0], positions[1]);
-                line.angleEnd = this.computeAngle(
-                    props,
-                    positions[positions.length - 2],
-                    positions[positions.length - 1]
-                );
-                line.proximityFactorStart = this.getProximityFactor(positions[0], positions[1]);
-                line.proximityFactorEnd = this.getProximityFactor(
-                    positions[positions.length - 2],
-                    positions[positions.length - 1]
-                );
+                line.angle = this.computeAngle(props, first, last);
+                line.angleStart = this.computeAngle(props, first, second);
+                line.angleEnd = this.computeAngle(props, secondToLast, last);
+                line.proximityFactorStart = this.getProximityFactor(first, second);
+                line.proximityFactorEnd = this.getProximityFactor(secondToLast, last);
 
                 const key = this.genLineKey(line);
                 const val = mapMinProximityFactor.get(key);
@@ -740,7 +745,13 @@ export class LineLayer extends CompositeLayer<Required<_LineLayerProps>> {
     }
 
     getProximityFactor(firstPosition: LonLat, secondPosition: LonLat) {
-        let factor = getDistance(firstPosition, secondPosition) / (3 * this.props.distanceBetweenLines);
+        let dist;
+        if (this.props.coordinateSystem === COORDINATE_SYSTEM.CARTESIAN) {
+            dist = Math.hypot(secondPosition[0] - firstPosition[0], secondPosition[1] - firstPosition[1]);
+        } else {
+            dist = getDistance(firstPosition, secondPosition);
+        }
+        let factor = dist / (3 * this.props.distanceBetweenLines);
         if (factor > 1) {
             factor = 1;
         }
@@ -748,6 +759,11 @@ export class LineLayer extends CompositeLayer<Required<_LineLayerProps>> {
     }
 
     computeAngle(props: this['props'], position1: LonLat, position2: LonLat) {
+        if (props.coordinateSystem === COORDINATE_SYSTEM.CARTESIAN) {
+            const [x1, y1] = position1;
+            const [x2, y2] = position2;
+            return (3 * Math.PI) / 2 - Math.atan2(y2 - y1, x2 - x1);
+        }
         let angle = props.geoData.getMapAngle(position1, position2);
         angle = (angle * Math.PI) / 180 + Math.PI;
         if (angle < 0) {
@@ -985,7 +1001,7 @@ export class LineLayer extends CompositeLayer<Required<_LineLayerProps>> {
                 this.getSubLayerProps({
                     id: 'ActivePower' + compositeData.nominalV,
                     data: compositeData.activePower,
-                    getText: (activePower) => (activePower.p !== undefined ? Math.round(activePower.p).toString() : ''),
+                    getText: (activePower) => (activePower.p === undefined ? '' : Math.round(activePower.p).toString()),
                     // The position passed to this layer causes a bug when zooming and maxParallelOffset is reached:
                     // the label is not correctly positioned on the lines, they are slightly off.
                     // In the custom layers, we clamp the distanceBetweenLines. This is not done in the deck.gl TextLayer

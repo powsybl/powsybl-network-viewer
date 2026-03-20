@@ -5,8 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-//import { LineStatus } from './components/network-map-viewer/network/line-layer';
-type LineStatus = any;
+import { LineStatus } from './network/line-layer';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 type MergeObject<T1, T2> = {
@@ -125,13 +124,11 @@ export type MapHvdcLine = {
 };
 
 export type MapAnyLine = MapLine | MapTieLine | MapHvdcLine;
-//export type MapAnyLine = MergeObject<MergeObject<MapLine, MapTieLine>, MapHvdcLine>;
 export type MapEquipment = MapVoltageLevel | MapSubstation | MapAnyLine;
 
 export type MapLineWithType = MapLine & { equipmentType: EQUIPMENT_TYPES.LINE };
 export type MapTieLineWithType = MapTieLine & { equipmentType: EQUIPMENT_TYPES.TIE_LINE };
 export type MapHvdcLineWithType = MapHvdcLine & { equipmentType: EQUIPMENT_TYPES.HVDC_LINE };
-//export type MapAnyLineWithType = MergeObject<MergeObject<MapLineWithType, MapTieLineWithType>, MapHvdcLineWithType> & {
 export type MapAnyLineWithType = (MapLineWithType | MapTieLineWithType | MapHvdcLineWithType) & {
     // additional properties from line-layer
     origin?: LonLat;

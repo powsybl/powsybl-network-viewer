@@ -12,14 +12,16 @@ import { DiagramMetadata, EdgeMetadata, NodeMetadata, PointMetadata } from './di
 import {
     getAngle,
     getEdgeFork,
+    getEdgeNameAngle,
+    getFormattedPolyline,
+    getLabelShiftAndStyle,
     getMidPosition,
     getPointAtDistance,
-    getFormattedPolyline,
     isTransformerEdge,
     radToDeg,
 } from './diagram-utils';
 import { getBusNodeMetadata, getEdgePoints, getEdgeType, getNodeMetadata, getNodeRadius } from './metadata-utils';
-import { HalfEdge } from './diagram-types';
+import { HalfEdge, LabelData } from './diagram-types';
 import { getPathPoints, getTransform } from './svg-utils';
 
 // get the angle between first two points of a halfEdge
@@ -40,6 +42,26 @@ export function getArrowEdgeAngle(halfEdge: HalfEdge): number {
         : getAngle(halfEdge.edgePoints[0], halfEdge.edgePoints[1]);
 }
 
+export function getMiddleArrowRotation(
+    halfEdge1: HalfEdge | null,
+    halfEdge2: HalfEdge | null,
+    direction: string
+): number {
+    if (!halfEdge1 && !halfEdge2) return 0;
+    const halfEdge = halfEdge1 ?? halfEdge2!;
+    let angleMiddleArrow =
+        halfEdge1 && halfEdge2
+            ? getAngle(
+                  halfEdge1.edgePoints.at(-2) ?? halfEdge1.edgePoints[0],
+                  halfEdge2.edgePoints.at(-2) ?? halfEdge2.edgePoints[0]
+              )
+            : getArrowEdgeAngle(halfEdge);
+
+    angleMiddleArrow += angleMiddleArrow > Math.PI / 2 ? (-3 * Math.PI) / 2 : Math.PI / 2;
+    const flipArrow = halfEdge === halfEdge1 ? direction === 'IN' : direction === 'OUT';
+    return radToDeg(flipArrow ? angleMiddleArrow - Math.PI : angleMiddleArrow);
+}
+
 export function getArrowCenter(halfEdge: HalfEdge, svgParameters: SvgParameters): Point {
     if (halfEdge.fork) {
         return getPointAtDistance(halfEdge.edgePoints[1], halfEdge.edgePoints[2], svgParameters.getArrowShift());
@@ -50,16 +72,17 @@ export function getArrowCenter(halfEdge: HalfEdge, svgParameters: SvgParameters)
     }
 }
 
-// get the data [angle, shift, text anchor] of a label
-// between two points of an edge polyline
-export function getLabelData(halfEdge: HalfEdge, arrowLabelShift: number): [number, number, string | null] {
+// get the label data: angle and [shift, style] of a external and internal label
+export function getLabelData(halfEdge: HalfEdge, arrowLabelShift: number): LabelData {
     const angle = getArrowEdgeAngle(halfEdge);
     const textFlipped = Math.cos(angle) < 0;
-    return [
-        radToDeg(textFlipped ? angle - Math.PI : angle),
-        textFlipped ? -arrowLabelShift : arrowLabelShift,
-        textFlipped ? 'text-anchor:end' : null,
-    ];
+    const internalShiftAndStyle = getLabelShiftAndStyle(angle, false, arrowLabelShift);
+    const externalShiftAndStyle = getLabelShiftAndStyle(angle, true, arrowLabelShift);
+    return {
+        angle: radToDeg(textFlipped ? angle - Math.PI : angle),
+        internal: { shift: internalShiftAndStyle[0], style: internalShiftAndStyle[1] },
+        external: { shift: externalShiftAndStyle[0], style: externalShiftAndStyle[1] },
+    };
 }
 
 // get the points of a converter station of an HVDC line edge
@@ -187,7 +210,9 @@ export function getHalfEdges(
     iEdge: number,
     groupedEdgesCount: number,
     diagramMetadata: DiagramMetadata | null,
-    svgParameters: SvgParameters
+    svgParameters: SvgParameters,
+    point1?: Point,
+    point2?: Point
 ): HalfEdge[] | null[] {
     const edgeType = getEdgeType(edge);
     const busNode1 = getBusNodeMetadata(edge.busNode1, diagramMetadata);
@@ -198,8 +223,8 @@ export function getHalfEdges(
         return [null, null];
     }
 
-    const point1 = new Point(node1.x, node1.y);
-    const point2 = new Point(node2.x, node2.y);
+    point1 ??= new Point(node1.x, node1.y);
+    point2 ??= new Point(node2.x, node2.y);
     let edgeFork1: Point | undefined;
     let edgeFork2: Point | undefined;
     if (groupedEdgesCount > 1) {
@@ -346,4 +371,34 @@ function getEdgeDirection(
     if (firstBendingPoint) return new Point(firstBendingPoint.x, firstBendingPoint.y);
     if (edgeFork) return edgeFork;
     return nodePoint;
+}
+
+export function getInfoPointAndAngle(
+    halfEdge1: HalfEdge | null,
+    halfEdge2: HalfEdge | null
+): [Point, number] | undefined {
+    if (halfEdge1 && halfEdge2) {
+        const p1: Point = halfEdge1.edgePoints.at(-1)!;
+        const p2: Point = halfEdge2.edgePoints.at(-1)!;
+        return [getMidPosition(p1, p2), getEdgeNameAngle(halfEdge1.edgePoints.at(-2)!, halfEdge2.edgePoints.at(-1)!)];
+    } else {
+        const visibleHalfEdge = halfEdge1 ?? halfEdge2 ?? null;
+        if (!visibleHalfEdge) return undefined;
+        return [
+            visibleHalfEdge.edgePoints.at(-1)!,
+            getEdgeNameAngle(visibleHalfEdge.edgePoints.at(-2)!, visibleHalfEdge.edgePoints.at(-1)!),
+        ];
+    }
+}
+
+export function getMiddleLabelData(
+    halfEdge1: HalfEdge | null,
+    halfEdge2: HalfEdge | null,
+    externalLabel: boolean,
+    arrowLabelShift: number
+): [number, string | undefined] {
+    if (!halfEdge1 && !halfEdge2) return [0, undefined];
+    const halfEdge = halfEdge1 ?? halfEdge2!;
+    const edgeAngle = getAngle(halfEdge.edgePoints.at(-2)!, halfEdge.edgePoints.at(-1)!);
+    return getLabelShiftAndStyle(edgeAngle, externalLabel, arrowLabelShift);
 }

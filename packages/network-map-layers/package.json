@@ -1,6 +1,6 @@
 {
     "name": "@powsybl/network-map-layers",
-    "version": "3.2.0-dev.0",
+    "version": "3.4.0-dev.0",
     "description": "Deck.gl layers to integrate PowSyBl network viewers in a JavaScript project.",
     "author": "PowSyBl team",
     "homepage": "https://www.powsybl.org/",
@@ -42,21 +42,27 @@
         "lint:format": "prettier --cache --check --ignore-path ../../.gitignore .",
         "lint:format:fix": "prettier --cache --write --ignore-path ../../.gitignore ."
     },
+    "dependencies": {
+        "cheap-ruler": "^4.0.0",
+        "geolib": "^3.3.4",
+        "type-fest": "^5.3.1"
+    },
     "peerDependencies": {
-        "@deck.gl/core": "~9.0.0",
-        "@deck.gl/extensions": "~9.0.0",
-        "@deck.gl/layers": "~9.0.0",
-        "@luma.gl/constants": "~9.0.0",
-        "@luma.gl/core": "~9.0.0",
-        "@luma.gl/engine": "~9.0.0"
+        "@deck.gl/core": "~9.2.0",
+        "@deck.gl/extensions": "~9.2.0",
+        "@deck.gl/layers": "~9.2.0",
+        "@luma.gl/constants": "~9.2.0",
+        "@luma.gl/core": "~9.2.0",
+        "@luma.gl/engine": "~9.2.0",
+        "@luma.gl/shadertools": "~9.2.0"
     },
     "devDependencies": {
         "@arethetypeswrong/cli": "^0.17.4",
         "typescript": "^5.8.3",
         "typescript-eslint": "^8.31.0",
-        "vite": "^6.2.2",
+        "vite": "^7.2.4",
         "vite-plugin-checker": "^0.9.1",
-        "vite-plugin-dts": "^4.5.3",
+        "vite-plugin-dts": "^4.5.4",
         "vite-plugin-svgr": "^4.3.0"
     }
 }

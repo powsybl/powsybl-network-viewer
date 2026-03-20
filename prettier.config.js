@@ -19,16 +19,11 @@ const config = {
     printWidth: 120,
     singleQuote: true,
     keySeparator: '=', // format of separator in .properties
-    plugins: ['prettier-plugin-properties', 'prettier-plugin-glsl'],
+    plugins: ['prettier-plugin-properties'],
     overrides: [
         {
             files: ['.env', '.env.*'],
             options: { parser: 'dot-properties' },
-        },
-        {
-            // .frag files are recognized as JavaScript files by default
-            files: ['*.frag'],
-            options: { parser: 'glsl-parser' },
         },
         {
             files: ['.github/**/*'],

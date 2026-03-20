@@ -5,6 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+import { type Layer, type PickingInfo } from '@deck.gl/core';
 import { MapboxOverlay, type MapboxOverlayProps } from '@deck.gl/mapbox';
 import type MapboxDraw from '@mapbox/mapbox-gl-draw';
 import { Replay } from '@mui/icons-material';
@@ -28,9 +29,8 @@ import {
     SubstationLayer,
 } from '@powsybl/network-map-layers';
 import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
-import { type Layer, type PickingInfo } from '@deck.gl/core';
 import type { Feature, Polygon } from 'geojson';
-import mapboxgl, { type MapLayerMouseEvent as MapBoxLayerMouseEvent } from 'mapbox-gl';
+import mapboxgl, { type MapMouseEvent as MapBoxLayerMouseEvent } from 'mapbox-gl';
 import maplibregl, { type MapLayerMouseEvent as MapLibreLayerMouseEvent } from 'maplibre-gl';
 import {
     forwardRef,
@@ -58,8 +58,8 @@ import { useNameOrId } from '../utils/equipmentInfosHandler';
 import LoaderWithOverlay from '../utils/loader-with-overlay';
 import DrawControl, { type DrawControlProps } from './draw-control';
 
-import 'mapbox-gl/dist/mapbox-gl.css';
 import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
+import 'mapbox-gl/dist/mapbox-gl.css';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { DRAW_EVENT } from './draw_event';
 
@@ -70,7 +70,6 @@ const MOUSE_EVENT_BUTTON_RIGHT = 2;
 // Small boilerplate recommended by deckgl, to bridge to a react-map-gl control declaratively
 // see https://deck.gl/docs/api-reference/mapbox/mapbox-overlay#using-with-react-map-gl
 const DeckGLOverlay = forwardRef<MapboxOverlay, MapboxOverlayProps>((props, ref) => {
-    // @ts-expect-error TS2322: Type MapboxOverlay is not assignable to type IControl
     const overlay = useControl<MapboxOverlay>(() => new MapboxOverlay(props));
     overlay.setProps(props);
     useImperativeHandle(ref, () => overlay, [overlay]);
@@ -306,7 +305,7 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
         return drawControlRef.current?.getAll()?.features[0] ?? ({} as Record<string, never>);
     };
 
-    const mToken = !props.mapBoxToken ? FALLBACK_MAPBOX_TOKEN : props.mapBoxToken;
+    const mToken = props.mapBoxToken ? props.mapBoxToken : FALLBACK_MAPBOX_TOKEN;
 
     useEffect(() => {
         if (centerOnSubstation === null) {
@@ -508,8 +507,7 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
                 rightButton &&
                 info.layer &&
                 info.layer.id.startsWith(LINE_LAYER_PREFIX) &&
-                info.object &&
-                info.object.id &&
+                info.object?.id &&
                 info.object.voltageLevelId1 &&
                 info.object.voltageLevelId2
             ) {
@@ -544,13 +542,11 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
 
     const onMapContextMenu = useCallback<NonNullable<MapProps['onContextMenu']>>(
         (event) => {
-            const info =
-                deckRef.current &&
-                deckRef.current.pickObject({
-                    x: event.point.x,
-                    y: event.point.y,
-                    radius: PICKING_RADIUS,
-                });
+            const info = deckRef.current?.pickObject({
+                x: event.point.x,
+                y: event.point.y,
+                radius: PICKING_RADIUS,
+            });
             if (info) {
                 onClickHandler(info, event, props.mapEquipments);
             }
@@ -812,6 +808,12 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
                 onContextMenu={onMapContextMenu}
                 pitchWithRotate={props.enablePitchAndRotate}
                 dragRotate={props.enablePitchAndRotate}
+                onMouseOut={() => {
+                    // Sometimes onHover on layers is not triggered when the mouse leaves the layer
+                    // (e.g. when leaving the map container too fast),
+                    // so we need to reset the tooltip on mouse out of the map container
+                    setTooltip(null);
+                }}
             >
                 {props.displayOverlayLoader && renderOverlay()}
                 {props.isManualRefreshBackdropDisplayed && (
@@ -907,7 +909,7 @@ function getSelectedLinesInPolygon(
             if (linePos.length < 2) {
                 return false;
             }
-            const extremities = [linePos[0], linePos[linePos.length - 1]];
+            const extremities = [linePos[0], linePos.at(-1)!];
             return extremities.some((pos) => booleanPointInPolygon(pos, polygonCoordinates));
         } catch (error) {
             console.error(error);

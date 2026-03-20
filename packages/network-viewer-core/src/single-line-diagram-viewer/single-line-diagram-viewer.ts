@@ -363,7 +363,7 @@ export class SingleLineDiagramViewer {
 
                     const ys = transform?.[1]?.match(/\d+/)?.[0];
                     if (ys !== undefined) {
-                        y = parseInt(ys, 10);
+                        y = Number.parseInt(ys, 10);
                         if (highestY.get(element.vid) === undefined || y > highestY.get(element.vid)) {
                             highestY.set(element.vid, y);
                         }
@@ -380,7 +380,7 @@ export class SingleLineDiagramViewer {
                     const transform: string[] | undefined = elementById?.getAttribute('transform')?.split(',');
                     const xs = transform?.[0]?.match(/\d+/)?.[0];
                     if (xs !== undefined) {
-                        const x = parseInt(xs, 10);
+                        const x = Number.parseInt(xs, 10);
                         const feederWidth =
                             this.svgMetadata?.components.find((comp) => comp.type === element.componentType)?.size
                                 .width || 0;
@@ -397,7 +397,7 @@ export class SingleLineDiagramViewer {
         }
     }
 
-    private setArrowsStyle = (target: SVGElement, color1: string, color2: string) => {
+    private readonly setArrowsStyle = (target: SVGElement, color1: string, color2: string) => {
         const pe1 = target.querySelector('.arrow') as SVGPathElement;
         const pe2 = target.querySelector('.arrow-hover') as SVGPathElement;
         if (pe1 !== null) {
@@ -501,10 +501,10 @@ export class SingleLineDiagramViewer {
         const selectionRect = document.createElementNS(SVG_NS, 'rect');
         selectionRect.setAttribute('class', 'sld-label-selection');
         const style: CSSStyleDeclaration = getComputedStyle(svgText);
-        const padding_top = parseInt(style.paddingTop);
-        const padding_left = parseInt(style.paddingLeft);
-        const padding_right = parseInt(style.paddingRight);
-        const padding_bottom = parseInt(style.paddingBottom);
+        const padding_top = Number.parseInt(style.paddingTop);
+        const padding_left = Number.parseInt(style.paddingLeft);
+        const padding_right = Number.parseInt(style.paddingRight);
+        const padding_bottom = Number.parseInt(style.paddingBottom);
         selectionRect.setAttribute('stroke-width', '0');
         selectionRect.setAttribute('x', (bounds.x - padding_left - selectionPadding).toString());
         selectionRect.setAttribute('y', (bounds.y - padding_top - selectionPadding).toString());
@@ -543,7 +543,7 @@ export class SingleLineDiagramViewer {
                 if (svgText.parentElement !== null && svgText.parentNode !== null) {
                     const selectionRect = svgText.parentElement.getElementsByClassName('sld-label-selection');
                     if (selectionRect.length !== 0) {
-                        svgText.parentNode.removeChild(selectionRect[0]);
+                        selectionRect[0].remove();
                     }
                 }
             };
