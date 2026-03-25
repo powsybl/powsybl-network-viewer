@@ -455,7 +455,7 @@ export const addNadToDemo = () => {
                 onBendLineCallback: handleLineBending,
 
                 enableAdaptiveTextZoom: true,
-                adaptiveTextZoomThreshold: 850,
+                adaptiveTextZoomThreshold: 1800,
             };
             new NetworkAreaDiagramViewer(
                 document.getElementById('svg-container-nad-multibus-vlnodes-middle-arrow')!,
@@ -464,6 +464,13 @@ export const addNadToDemo = () => {
                 nadViewerParametersOptions
             );
         });
+
+    new NetworkAreaDiagramViewer(
+        document.getElementById('svg-container-nad-multibus-vlnodes-middle-arrow-c')!,
+        '',
+        NadSvgMultibusVLNodesMiddleArrowExampleMeta,
+        nadViewerParametersOptions
+    );
 
     fetch(NadSvgMultibusVLNodesLimitPercentageExample)
         .then((response) => response.text())

@@ -18,8 +18,10 @@ export class EdgeRouter {
     diagramMetadata: DiagramMetadata;
     svgParameters: SvgParameters;
     edgePoints: Record<string, [Point[], Point[]]> = {};
-    edgeSideArrowData: Record<string, [[Point, number], [Point, number]]> = {};
+    edgeSideData: Record<string, [[Point, number], [Point, number]]> = {};
     edgeSideLabelData: Record<string, [LabelData, LabelData]> = {};
+    edgeMiddleData: Record<string, [Point, number]> = {};
+    edgeMiddleLabelData: Record<string, LabelData> = {};
     threeWtEdgePoints: Record<string, [Point, Point]> = {};
     nodeAngles: Record<string, number[]> = {};
 
@@ -46,28 +48,48 @@ export class EdgeRouter {
         return side == '1' ? edgesPoints[0] : edgesPoints[1];
     }
 
-    public getEdgeSideArrowCenter(edgeId: string, side: string): Point | undefined {
-        const edgeSideArrowData = this.edgeSideArrowData[edgeId];
-        if (!edgeSideArrowData) {
+    public getEdgeSideinfoPoint(edgeId: string, side: string): Point | undefined {
+        const edgeSideData = this.edgeSideData[edgeId];
+        if (!edgeSideData) {
             return undefined;
         }
-        return side == '1' ? edgeSideArrowData[0][0] : edgeSideArrowData[1][0];
+        return side == '1' ? edgeSideData[0][0] : edgeSideData[1][0];
     }
 
-    public getEdgeSideArrowAngle(edgeId: string, side: string): number | undefined {
-        const edgeSideArrowData = this.edgeSideArrowData[edgeId];
-        if (!edgeSideArrowData) {
+    public getEdgeSideInfoAngle(edgeId: string, side: string): number | undefined {
+        const edgeSideData = this.edgeSideData[edgeId];
+        if (!edgeSideData) {
             return undefined;
         }
-        return side == '1' ? edgeSideArrowData[0][1] : edgeSideArrowData[1][1];
+        return side == '1' ? edgeSideData[0][1] : edgeSideData[1][1];
     }
 
     public getEdgeSideLabelData(edgeId: string, side: string): LabelData | undefined {
-        const edgeArrowLabelData = this.edgeSideLabelData[edgeId];
-        if (!edgeArrowLabelData) {
+        const edgeSideLabelData = this.edgeSideLabelData[edgeId];
+        if (!edgeSideLabelData) {
             return undefined;
         }
-        return side == '1' ? edgeArrowLabelData[0] : edgeArrowLabelData[1];
+        return side == '1' ? edgeSideLabelData[0] : edgeSideLabelData[1];
+    }
+
+    public getEdgeMiddleInfoPoint(edgeId: string): Point | undefined {
+        const edgeMiddleData = this.edgeMiddleData[edgeId];
+        if (!edgeMiddleData) {
+            return undefined;
+        }
+        return edgeMiddleData[0];
+    }
+
+    public getEdgeMiddleInfoAngle(edgeId: string): number | undefined {
+        const edgeMiddleData = this.edgeMiddleData[edgeId];
+        if (!edgeMiddleData) {
+            return undefined;
+        }
+        return edgeMiddleData[1];
+    }
+
+    public getEdgeMiddleLabelData(edgeId: string): LabelData | undefined {
+        return this.edgeMiddleLabelData[edgeId];
     }
 
     public getThreeWtEdgePoints(edgeId: string): Point[] | undefined {
@@ -154,16 +176,23 @@ export class EdgeRouter {
         const node2Angles: number[] = this.nodeAngles[edge.node2] ?? [];
         node2Angles.push(angle2);
         this.nodeAngles[edge.node2] = node2Angles;
+        this.storeEdgeInfos(edge, halfEdges);
+    }
+
+    private storeEdgeInfos(edge: EdgeMetadata, halfEdges: HalfEdge[] | null[]) {
         if (edge.edgeInfo1 || edge.edgeInfo2) {
-            this.storeEdgeSideInfos(edge.svgId, halfEdges);
+            this.storeEdgeSideData(edge.svgId, halfEdges);
+        }
+        if (edge.edgeInfoMiddle) {
+            this.storeEdgeMiddleData(edge.svgId, halfEdges);
         }
     }
 
-    private storeEdgeSideInfos(edgeId: string, halfEdges: HalfEdge[] | null[]) {
+    private storeEdgeSideData(edgeId: string, halfEdges: HalfEdge[] | null[]) {
         if (!halfEdges[0] || !halfEdges[1]) {
             return;
         }
-        this.edgeSideArrowData[edgeId] = [
+        this.edgeSideData[edgeId] = [
             [
                 HalfEdgeUtils.getArrowCenter(halfEdges[0], this.svgParameters),
                 HalfEdgeUtils.getArrowRotation(halfEdges[0]),
@@ -177,6 +206,34 @@ export class EdgeRouter {
             HalfEdgeUtils.getLabelData(halfEdges[0], this.svgParameters.getArrowLabelShift()),
             HalfEdgeUtils.getLabelData(halfEdges[1], this.svgParameters.getArrowLabelShift()),
         ];
+    }
+
+    private storeEdgeMiddleData(edgeId: string, halfEdges: HalfEdge[] | null[]) {
+        const infoPointAndAngle = HalfEdgeUtils.getInfoPointAndAngle(halfEdges[0], halfEdges[1]);
+        const edgesPoints = this.edgePoints[edgeId];
+        const halfEdgePoints = edgesPoints ? edgesPoints[0] : undefined;
+        if (infoPointAndAngle && halfEdgePoints) {
+            const angle = DiagramUtils.getAngle(halfEdgePoints.at(-2)!, halfEdgePoints.at(-1)!);
+            const rotationAngle = DiagramUtils.radToDeg(
+                angle + (angle > Math.PI / 2 ? (-3 * Math.PI) / 2 : Math.PI / 2)
+            );
+            this.edgeMiddleData[edgeId] = [infoPointAndAngle[0], rotationAngle];
+            const internalShiftAndStyle = DiagramUtils.getLabelShiftAndStyle(
+                angle,
+                false,
+                this.svgParameters.getArrowLabelShift()
+            );
+            const externalShiftAndStyle = DiagramUtils.getLabelShiftAndStyle(
+                angle,
+                true,
+                this.svgParameters.getArrowLabelShift()
+            );
+            this.edgeMiddleLabelData[edgeId] = {
+                angle: infoPointAndAngle[1],
+                internal: { shift: internalShiftAndStyle[0], style: internalShiftAndStyle[1] },
+                external: { shift: externalShiftAndStyle[0], style: externalShiftAndStyle[1] },
+            };
+        }
     }
 
     private storeLoopEdges(edges: Record<string, EdgeMetadata[]>) {
@@ -309,9 +366,7 @@ export class EdgeRouter {
             return;
         }
         this.edgePoints[edge.svgId] = [halfEdges[0].edgePoints, halfEdges[1].edgePoints];
-        if (edge.edgeInfo1 || edge.edgeInfo2) {
-            this.storeEdgeSideInfos(edge.svgId, halfEdges);
-        }
+        this.storeEdgeInfos(edge, halfEdges);
     }
 
     private storeThreeWtEdges(edgesMap: Record<string, EdgeMetadata[]>) {
