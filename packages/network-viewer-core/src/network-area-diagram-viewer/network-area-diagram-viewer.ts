@@ -1310,7 +1310,9 @@ export class NetworkAreaDiagramViewer {
         edgeInfo.setAttribute('transform', 'translate(' + DiagramUtils.getFormattedPoint(arrowCenter) + ')');
         const arrowAngle = HalfEdgeUtils.getArrowRotation(halfEdge);
         const arrowElement = edgeInfo.querySelector('path') as SVGGraphicsElement;
-        arrowElement.setAttribute('transform', 'rotate(' + DiagramUtils.getFormattedValue(arrowAngle) + ')');
+        if (arrowElement) {
+            arrowElement.setAttribute('transform', 'rotate(' + DiagramUtils.getFormattedValue(arrowAngle) + ')');
+        }
 
         // move edge labels
         const labelData = HalfEdgeUtils.getLabelData(halfEdge, this.svgParameters.getArrowLabelShift());
