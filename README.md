@@ -88,10 +88,10 @@ Then in the app project :
 - npm install {PATH_TO_LIBRARY}/powsybl-network-viewer-core-{LIBRARY_VERSION}.tgz
 - npm install {PATH_TO_LIBRARY}/powsybl-network-viewer-{LIBRARY_VERSION}.tgz
 
-_Warning_ : You could encounter ERESOLVE errors from peer dependencies during installation.
-please run `npm install --legacy-peer-deps` to fix this for developpement context.
-Do not merge subsequent changes, it won't happen with version installation from npmjs repository.
-see : https://github.com/npm/cli/issues/8647
+_Warning_ : You could encounter ERESOLVE errors from peer dependencies during installation.  
+Please run `npm install --legacy-peer-deps` to fix this for developpement context.  
+Do not merge later changes, it won't happen with version installation from the npmjs repository.  
+See : https://github.com/npm/cli/issues/8647
 
 _Warning_ : with Create React App, we realised the library was not updating correctly if you try to install the library multiple times.
 To fix this, run this command from the app **after** running "npm install"
