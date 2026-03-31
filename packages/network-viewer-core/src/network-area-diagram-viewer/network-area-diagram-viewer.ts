@@ -1935,12 +1935,14 @@ export class NetworkAreaDiagramViewer {
 
     private createEdgesInfos(edges: EdgeMetadata[]): void {
         for (const edge of edges) {
-            const edgeInfo = edge.edgeInfo1 ?? edge.edgeInfo2 ?? edge.edgeInfoMiddle;
-            if (!edgeInfo) {
+            const edgeInfo = edge.edgeInfo1 ?? edge.edgeInfo2;
+            const edgeInfoMiddle = edge.edgeInfoMiddle;
+
+            if (!edgeInfo && !edgeInfoMiddle) {
                 continue;
             }
 
-            if (!this.hasEdgeInfo(edgeInfo)) {
+            if ((edgeInfo && !this.hasEdgeInfo(edgeInfo)) || (edgeInfoMiddle && !this.hasEdgeInfo(edgeInfoMiddle))) {
                 this.createEdgeInfos(edge);
             }
         }
