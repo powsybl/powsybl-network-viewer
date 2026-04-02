@@ -451,14 +451,16 @@ export const addNadToDemo = () => {
                 onBendLineCallback: handleLineBending,
 
                 enableAdaptiveTextZoom: true,
-                adaptiveTextZoomThreshold: 850,
+                adaptiveTextZoomThreshold: 3000,
             };
-            new NetworkAreaDiagramViewer(
+            const nadViewer = new NetworkAreaDiagramViewer(
                 document.getElementById('svg-container-nad-multibus-vlnodes-limit-percentage')!,
                 svgContent,
                 NadSvgMultibusVLNodesLimitPercentageExampleMeta,
                 nadViewerParametersOptions
             );
+
+            nadViewer.moveNodeToCoordinates('VL5', -100, -50);
         });
 
     fetch(NadSvgMultibusVLNodes14Example)
