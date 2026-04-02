@@ -263,6 +263,7 @@ export class NetworkAreaDiagramViewer {
                 this.updateNodeMetadata(elemToMove, new Point(x, y));
                 // update and redraw element
                 this.updateElement(elemToMove);
+                this.initialPosition = null;
             }
         }
     }
@@ -306,6 +307,7 @@ export class NetworkAreaDiagramViewer {
 
         //update and redraw element
         this.updateElement(elemToMove);
+        this.initialPosition = null;
     }
 
     private hasNodeInteraction(): boolean {
@@ -1996,6 +1998,8 @@ export class NetworkAreaDiagramViewer {
     }
 
     private adaptiveZoomViewboxUpdate(maxDisplayedSize: number) {
+        // ensure no leftover drag translation affects adaptive updates
+        // this.initialPosition = null;
         if (maxDisplayedSize > this.nadViewerParameters.getThresholdAdaptiveTextZoom()) {
             this.edgeInfosSection?.replaceChildren();
             this.textEdgesSection?.replaceChildren();
