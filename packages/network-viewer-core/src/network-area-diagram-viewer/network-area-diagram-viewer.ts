@@ -1310,7 +1310,9 @@ export class NetworkAreaDiagramViewer {
         edgeInfo.setAttribute('transform', 'translate(' + DiagramUtils.getFormattedPoint(arrowCenter) + ')');
         const arrowAngle = HalfEdgeUtils.getArrowRotation(halfEdge);
         const arrowElement = edgeInfo.querySelector('path') as SVGGraphicsElement;
-        arrowElement.setAttribute('transform', 'rotate(' + DiagramUtils.getFormattedValue(arrowAngle) + ')');
+        if (arrowElement) {
+            arrowElement.setAttribute('transform', 'rotate(' + DiagramUtils.getFormattedValue(arrowAngle) + ')');
+        }
 
         // move edge labels
         const labelData = HalfEdgeUtils.getLabelData(halfEdge, this.svgParameters.getArrowLabelShift());
@@ -1933,12 +1935,11 @@ export class NetworkAreaDiagramViewer {
 
     private createEdgesInfos(edges: EdgeMetadata[]): void {
         for (const edge of edges) {
-            const edgeInfo = edge.edgeInfo1 ?? edge.edgeInfo2 ?? edge.edgeInfoMiddle;
-            if (!edgeInfo) {
-                continue;
-            }
-
-            if (!this.hasEdgeInfo(edgeInfo)) {
+            if (
+                (edge.edgeInfo1 && !this.hasEdgeInfo(edge.edgeInfo1)) ||
+                (edge.edgeInfo2 && !this.hasEdgeInfo(edge.edgeInfo2)) ||
+                (edge.edgeInfoMiddle && !this.hasEdgeInfo(edge.edgeInfoMiddle))
+            ) {
                 this.createEdgeInfos(edge);
             }
         }
