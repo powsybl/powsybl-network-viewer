@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="-420.40 -755.14 1217.75 1257.45" xmlns="http://www.w3.org/2000/svg">
+    <g class="nad-vl-nodes">
+        <g transform="translate(-220.40,-515.14)" id="0">
+            <circle r="27.50" id="3" class="nad-busnode" style="background:red; fill:red; stroke:black; border: solid black 4px; stroke-width:4px;"/>
+        </g>
+        <g transform="translate(-152.34,-133.80)" id="4">
+            <circle r="27.50" id="7" class="nad-busnode" style="background:blue; fill:blue; stroke:black; border: solid black 4px; stroke-width:4px;"/>
+        </g>
+        <g transform="translate(-162.93,231.51)" id="8">
+            <circle r="27.50" id="11" class="nad-busnode" style="background:yellow; fill:yellow; stroke:black; border: solid black 4px; stroke-width:4px;"/>
+        </g>
+        <g transform="translate(171.13,91.69)" id="12">
+            <circle r="27.50" id="15" class="nad-busnode" style="background:green; fill:green; stroke:black; border: solid black 2px; stroke-width:2px;"/>
+        </g>
+        <g transform="translate(497.34,302.31)" id="16">
+            <circle r="27.50" id="19" class="nad-busnode" style="background:purple; fill:purple; stroke:black; border: solid black 2px; stroke-width:2px;"/>
+        </g>
+    </g>
+    <g class="nad-branch-edges">
+        <g id="20">
+            <polyline class="nad-edge-path" style="stroke:yellow; stroke-width:4px;" points="-215.57,-488.07 -191.64,-354.01"/>
+            <polyline class="nad-edge-path" style="stroke:blue; stroke-width:4px;" points="-157.17,-160.87 -181.10,-294.94"/>
+            <g>
+                <circle class="nad-winding" style="stroke:yellow; stroke-width:4px;" cx="-188.13" cy="-334.32" r="20.00"/>
+                <circle class="nad-winding" style="stroke:blue; stroke-width:4px;" cx="-184.62" cy="-314.63" r="20.00"/>
+                <path d="M60.00,0 0,60.00 M52.00,0 60.00,0 60.00,8.00" transform="matrix(0.18,0.98,-0.98,0.18,-162.11,-359.28)" class="nad-pst-arrow"/>
+            </g>
+        </g>
+        <g id="24" class="nad-hvdc-edge">
+            <polyline class="nad-edge-path" points="-129.78,-118.08 9.40,-21.06"/>
+            <polyline class="nad-edge-path" points="148.57,75.96 9.40,-21.06"/>
+            <g>
+                <polyline points="-19.32,-41.07 38.11,-1.04" class="nad-hvdc"/>
+            </g>
+        </g>
+        <g id="28" class="nad-hvdc-edge">
+            <polyline class="nad-edge-path" points="-153.14,-106.31 -157.64,48.86"/>
+            <polyline class="nad-edge-path" points="-162.13,204.03 -157.64,48.86"/>
+            <g>
+                <polyline points="-156.62,13.87 -158.65,83.84" class="nad-hvdc"/>
+            </g>
+        </g>
+        <g id="32">
+            <polyline class="nad-edge-path" style="stroke:blue; stroke-width:16px; stroke-dasharray:12,12;" points="-137.56,220.90 4.10,161.60"/>
+            <polyline class="nad-edge-path" style="stroke:blue; stroke-width:16px; stroke-dasharray:12,3,12;" points="145.77,102.31 4.10,161.60"/>
+        </g>
+        <g id="36">
+            <polyline class="nad-edge-path" style="stroke:green; stroke-width:3px;" points="194.24,106.60 334.24,197.00"/>
+            <polyline class="nad-edge-path" style="stroke:green; stroke-width:3px;" points="474.24,287.39 334.24,197.00"/>
+        </g>
+    </g>
+    <g class="nad-edge-infos">
+        <g id="21" transform="translate(-209.86,-456.08)">
+            <path transform="rotate(169.88)" class="nad-arrow-in" d="M-10 -10 H10 L0 10z"/>
+            <text transform="rotate(79.88)" x="19.00">b3</text>
+            <text transform="rotate(79.88)" x="-19.00" style="text-anchor:end">a3</text>
+        </g>
+        <g id="22" transform="translate(-162.88,-192.87)">
+            <path transform="rotate(-10.12)" class="nad-arrow-in" d="M-10 -10 H10 L0 10z"/>
+            <text transform="rotate(-280.12)" x="-19.00" style="text-anchor:end">f3</text>
+            <text transform="rotate(-280.12)" x="19.00">e3</text>
+        </g>
+        <g id="23" transform="translate(-186.37,-324.47)">
+            <path transform="rotate(169.88)" class="nad-arrow-out" d="M-10 10 H10 L0 -10z"/>
+            <text transform="rotate(79.88)" x="19.00">d3</text>
+            <text transform="rotate(79.88)" x="-19.00" style="text-anchor:end">c3</text>
+        </g>
+        <g id="25" transform="translate(-103.12,-99.49)">
+            <path transform="rotate(124.88)" class="nad-arrow-in" d="M-10 -10 H10 L0 10z"/>
+            <text transform="rotate(34.88)" x="19.00">b5</text>
+            <text transform="rotate(34.88)" x="-19.00" style="text-anchor:end">a5</text>
+        </g>
+        <g id="26" transform="translate(121.91,57.38)">
+            <path transform="rotate(-55.12)" class="nad-arrow-in" d="M-10 -10 H10 L0 10z"/>
+            <text transform="rotate(-325.12)" x="-19.00" style="text-anchor:end">f5</text>
+            <text transform="rotate(-325.12)" x="19.00">e5</text>
+        </g>
+        <g id="27" transform="translate(9.40,-21.06)">
+            <path transform="rotate(124.88)" class="nad-arrow-out" d="M-10 10 H10 L0 -10z"/>
+            <text transform="rotate(34.88)" x="19.00">d5</text>
+            <text transform="rotate(34.88)" x="-19.00" style="text-anchor:end">c5</text>
+        </g>
+        <g id="29" transform="translate(-154.08,-73.83)">
+            <path transform="rotate(-178.34)" class="nad-arrow-in" d="M-10 -10 H10 L0 10z"/>
+            <text transform="rotate(-88.34)" x="-19.00" style="text-anchor:end">b4</text>
+            <text transform="rotate(-88.34)" x="19.00">a4</text>
+        </g>
+        <g id="30" transform="translate(-161.19,171.54)">
+            <path transform="rotate(1.66)" class="nad-arrow-in" d="M-10 -10 H10 L0 10z"/>
+            <text transform="rotate(-88.34)" x="19.00">f4</text>
+            <text transform="rotate(-88.34)" x="-19.00" style="text-anchor:end">e4</text>
+        </g>
+        <g id="31" transform="translate(-157.64,48.86)">
+            <path transform="rotate(-178.34)" class="nad-arrow-out" d="M-10 10 H10 L0 -10z"/>
+            <text transform="rotate(-88.34)" x="-19.00" style="text-anchor:end">d4</text>
+            <text transform="rotate(-88.34)" x="19.00">c4</text>
+        </g>
+        <g id="33" transform="translate(-107.58,208.35)">
+            <path transform="rotate(67.29)" class="nad-arrow-in" d="M-10 -10 H10 L0 10z"/>
+            <text transform="rotate(-22.71)" x="19.00">b1</text>
+            <text transform="rotate(-22.71)" x="-19.00" style="text-anchor:end">a1</text>
+        </g>
+        <g id="34" transform="translate(115.79,114.85)">
+            <path transform="rotate(-112.71)" class="nad-arrow-in" d="M-10 -10 H10 L0 10z"/>
+            <text transform="rotate(-22.71)" x="-19.00" style="text-anchor:end">f1</text>
+            <text transform="rotate(-22.71)" x="19.00">e1</text>
+        </g>
+        <g id="35" transform="translate(4.10,161.60)">
+            <path transform="rotate(67.29)" class="nad-arrow-out" d="M-10 10 H10 L0 -10z"/>
+            <text transform="rotate(-22.71)" x="19.00">d1</text>
+            <text transform="rotate(-22.71)" x="-19.00" style="text-anchor:end">c1</text>
+        </g>
+        <g id="37" transform="translate(221.54,124.23)">
+            <path transform="rotate(122.85)" class="nad-arrow-in" d="M-10 -10 H10 L0 10z"/>
+            <text transform="rotate(32.85)" x="19.00">b2</text>
+            <text transform="rotate(32.85)" x="-19.00" style="text-anchor:end">a2</text>
+        </g>
+        <g id="38" transform="translate(446.94,269.76)">
+            <path transform="rotate(-57.15)" class="nad-arrow-in" d="M-10 -10 H10 L0 10z"/>
+            <text transform="rotate(-327.15)" x="-19.00" style="text-anchor:end">f2</text>
+            <text transform="rotate(-327.15)" x="19.00">e2</text>
+        </g>
+        <g id="39" transform="translate(334.24,197.00)">
+            <path transform="rotate(122.85)" class="nad-arrow-out" d="M-10 10 H10 L0 -10z"/>
+            <text transform="rotate(32.85)" x="19.00">d2</text>
+            <text transform="rotate(32.85)" x="-19.00" style="text-anchor:end">c2</text>
+        </g>
+    </g>
+    <g class="nad-text-edges">
+        <polyline id="2" points="-190.74,-519.59 -120.40,-530.14"/>
+        <polyline id="6" points="-122.67,-138.25 -52.34,-148.80"/>
+        <polyline id="10" points="-133.26,227.06 -62.93,216.51"/>
+        <polyline id="14" points="200.80,87.24 271.13,76.69"/>
+        <polyline id="18" points="527.01,297.86 597.34,287.31"/>
+    </g>
+    <foreignObject height="1" width="1" class="nad-text-nodes">
+        <div xmlns="http://www.w3.org/1999/xhtml">
+            <div style="position: absolute; top: -555px; left: -120px" id="1" class="nad-label-box">
+                <div>S1VL1 description1</div>
+                <div class="nad-bus-descr">
+                    <span class="nad-legend-square" style="background:red; fill:red; stroke:black; border: solid black 4px; stroke-width:4px;"></span>S1VL1_0 description</div>
+            </div>
+            <div style="position: absolute; top: -174px; left: -52px" id="5" class="nad-label-box">
+                <div>S1VL2 description1</div>
+                <div class="nad-bus-descr">
+                    <span class="nad-legend-square" style="background:blue; fill:blue; stroke:black; border: solid black 4px; stroke-width:4px;"></span>S1VL2_0 description</div>
+            </div>
+            <div style="position: absolute; top: 192px; left: -63px" id="9" class="nad-label-box">
+                <div>S2VL1 description1</div>
+                <div class="nad-bus-descr">
+                    <span class="nad-legend-square" style="background:yellow; fill:yellow; stroke:black; border: solid black 4px; stroke-width:4px;"></span>S2VL1_0 description</div>
+            </div>
+            <div style="position: absolute; top: 52px; left: 271px" id="13" class="nad-label-box">
+                <div>S3VL1 description1</div>
+                <div class="nad-bus-descr">
+                    <span class="nad-legend-square" style="background:green; fill:green; stroke:black; border: solid black 2px; stroke-width:2px;"></span>S3VL1_0 description</div>
+            </div>
+            <div style="position: absolute; top: 262px; left: 597px" id="17" class="nad-label-box">
+                <div>S4VL1 description1</div>
+                <div class="nad-bus-descr">
+                    <span class="nad-legend-square" style="background:purple; fill:purple; stroke:black; border: solid black 2px; stroke-width:2px;"></span>S4VL1_0 description</div>
+            </div>
+        </div>
+    </foreignObject>
+</svg>
