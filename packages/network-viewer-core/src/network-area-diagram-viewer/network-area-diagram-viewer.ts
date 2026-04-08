@@ -263,6 +263,8 @@ export class NetworkAreaDiagramViewer {
                 this.updateNodeMetadata(elemToMove, new Point(x, y));
                 // update and redraw element
                 this.updateElement(elemToMove);
+                // reset initial position now that node is moved
+                // to avoid wrong offset if the node is moved again before mouse up
                 this.initialPosition = null;
             }
         }
@@ -307,6 +309,8 @@ export class NetworkAreaDiagramViewer {
 
         //update and redraw element
         this.updateElement(elemToMove);
+        // reset initial position now that text node is moved
+        // to avoid wrong offset if the text node is moved again before mouse up
         this.initialPosition = null;
     }
 
@@ -1900,7 +1904,10 @@ export class NetworkAreaDiagramViewer {
                     nbGroupedEdges = groupedEdges.length;
                 }
             }
-            halfEdges = this.getHalfEdges(edge, iEdge, nbGroupedEdges);
+            // We don't need to consider this.initialPosition and this.draggedElement here,
+            // during the adaptiveTextZoom update, edges are not moved by dragging.
+            // getHalfEdgesForEdgeInfos is only used for edge infos position update.
+            halfEdges = this.getHalfEdges(edge, iEdge, nbGroupedEdges, undefined, undefined, null);
         }
         return halfEdges;
     }
@@ -1998,8 +2005,6 @@ export class NetworkAreaDiagramViewer {
     }
 
     private adaptiveZoomViewboxUpdate(maxDisplayedSize: number) {
-        // ensure no leftover drag translation affects adaptive updates
-        // this.initialPosition = null;
         if (maxDisplayedSize > this.nadViewerParameters.getThresholdAdaptiveTextZoom()) {
             this.edgeInfosSection?.replaceChildren();
             this.textEdgesSection?.replaceChildren();
@@ -2811,7 +2816,14 @@ export class NetworkAreaDiagramViewer {
         }
     }
 
-    private getHalfEdges(edge: EdgeMetadata, iEdge: number, groupedEdgesCount: number, point1?: Point, point2?: Point) {
+    private getHalfEdges(
+        edge: EdgeMetadata,
+        iEdge: number,
+        groupedEdgesCount: number,
+        point1?: Point,
+        point2?: Point,
+        initialPosition: Point | null = this.initialPosition
+    ) {
         // Detect if the edge is linked to an invisible node (not in DOM)
         const invisibleSide = MetadataUtils.getInvisibleSide(edge);
 
@@ -2824,7 +2836,7 @@ export class NetworkAreaDiagramViewer {
                 visibleSide,
                 groupedEdgesCount > 1,
                 this.diagramMetadata,
-                this.initialPosition,
+                initialPosition,
                 this.svgParameters
             );
         } else {
