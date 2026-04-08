@@ -21,12 +21,20 @@ import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.nad.NadParameters;
 import com.powsybl.nad.NetworkAreaDiagram;
 import com.powsybl.nad.build.iidm.VoltageLevelFilter;
+import com.powsybl.nad.svg.CustomLabelProvider;
+import com.powsybl.nad.svg.CustomStyleProvider;
+import com.powsybl.nad.svg.EdgeInfo;
 import com.powsybl.nad.svg.LabelProvider;
 import com.powsybl.nad.svg.LabelProviderParameters;
+import com.powsybl.nad.svg.StyleProvider;
 import com.powsybl.nad.svg.SvgParameters;
+import com.powsybl.nad.svg.VoltageLevelLegend;
 import com.powsybl.nad.svg.iidm.DefaultLabelProvider;
 
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -222,5 +230,80 @@ public final class NadDemoFiles {
             .setLabelProviderFactory(DefaultLabelProvider::new);
         nadParameters.getLayoutParameters().setInjectionsAdded(true);
         return nadParameters;
+    }
+
+    public static void drawFourSubstationsCustomLabelAndStyle(Path demoResourcesDirectory) {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+        Map<String, CustomLabelProvider.BranchLabels> branchLabels = new HashMap<>();
+        branchLabels.put("LINE_S2S3", new CustomLabelProvider.BranchLabels("a1", "b1", "c1", "d1", "e1", "f1",
+                EdgeInfo.Direction.IN, EdgeInfo.Direction.OUT, EdgeInfo.Direction.IN));
+        branchLabels.put("LINE_S3S4", new CustomLabelProvider.BranchLabels("a2", "b2", "c2", "d2", "e2", "f2",
+                EdgeInfo.Direction.IN, EdgeInfo.Direction.OUT, EdgeInfo.Direction.IN));
+        branchLabels.put("TWT", new CustomLabelProvider.BranchLabels("a3", "b3", "c3", "d3", "e3", "f3",
+                EdgeInfo.Direction.IN, EdgeInfo.Direction.OUT, EdgeInfo.Direction.IN));
+        branchLabels.put("HVDC1", new CustomLabelProvider.BranchLabels("a4", "b4", "c4", "d4", "e4", "f4",
+                EdgeInfo.Direction.IN, EdgeInfo.Direction.OUT, EdgeInfo.Direction.IN));
+        branchLabels.put("HVDC2", new CustomLabelProvider.BranchLabels("a5", "b5", "c5", "d5", "e5", "f5",
+                EdgeInfo.Direction.IN, EdgeInfo.Direction.OUT, EdgeInfo.Direction.IN));
+
+        Map<String, VoltageLevelLegend> vlDescriptions = new HashMap<>();
+        var vl1Legend = new VoltageLevelLegend(
+                List.of("S1VL1 description1"),
+                List.of(),
+                Map.of("S1VL1_0", "S1VL1_0 description"));
+        var vl2Legend = new VoltageLevelLegend(
+                List.of("S1VL2 description1"),
+                List.of(),
+                Map.of("S1VL2_0", "S1VL2_0 description"));
+        var vl3Legend = new VoltageLevelLegend(
+                List.of("S2VL1 description1"),
+                List.of(),
+                Map.of("S2VL1_0", "S2VL1_0 description"));
+        var vl4Legend = new VoltageLevelLegend(
+                List.of("S3VL1 description1"),
+                List.of(),
+                Map.of("S3VL1_0", "S3VL1_0 description"));
+        var vl5Legend = new VoltageLevelLegend(
+                List.of("S4VL1 description1"),
+                List.of(),
+                Map.of("S4VL1_0", "S4VL1_0 description"));
+        vlDescriptions.put("S1VL1", vl1Legend);
+        vlDescriptions.put("S1VL2", vl2Legend);
+        vlDescriptions.put("S2VL1", vl3Legend);
+        vlDescriptions.put("S3VL1", vl4Legend);
+        vlDescriptions.put("S4VL1", vl5Legend);
+
+        Map<String, CustomLabelProvider.ThreeWtLabels> threeWtLabels = new HashMap<>();
+        Map<String, CustomLabelProvider.InjectionLabels> injectionLabels = new HashMap<>();
+
+        LabelProvider labelProvider = new CustomLabelProvider(branchLabels, threeWtLabels, injectionLabels, vlDescriptions);
+
+        Map<String, CustomStyleProvider.BusNodeStyles> busNodesStyles = new HashMap<>();
+        busNodesStyles.put("S1VL1_0", new CustomStyleProvider.BusNodeStyles("red", "black", "4px"));
+        busNodesStyles.put("S1VL2_0", new CustomStyleProvider.BusNodeStyles("blue", "black", "4px"));
+        busNodesStyles.put("S2VL1_0", new CustomStyleProvider.BusNodeStyles("yellow", "black", "4px"));
+        busNodesStyles.put("S3VL1_0", new CustomStyleProvider.BusNodeStyles("green", "black", "2px"));
+        busNodesStyles.put("S4VL1_0", new CustomStyleProvider.BusNodeStyles("purple", "black", "2px"));
+
+        Map<String, CustomStyleProvider.EdgeStyles> edgesStyles = new HashMap<>();
+        edgesStyles.put("LINE_S2S3", new CustomStyleProvider.EdgeStyles("blue", "16px", "12,12", "blue", "16px", "12,3,12"));
+        edgesStyles.put("LINE_S3S4", new CustomStyleProvider.EdgeStyles("green", "3px", null, "green", "3px", null));
+        edgesStyles.put("TWT", new CustomStyleProvider.EdgeStyles("yellow", "4px", null, "blue", "4px", null));
+
+        Map<String, CustomStyleProvider.ThreeWtStyles> threeWtsStyles = new HashMap<>();
+
+        StyleProvider styleProvider = new CustomStyleProvider(busNodesStyles, edgesStyles, threeWtsStyles);
+
+        SvgParameters svgParameters = new SvgParameters()
+                .setCssLocation(SvgParameters.CssLocation.EXTERNAL_NO_IMPORT);
+
+        NadParameters nadParameters = new NadParameters()
+                .setSvgParameters(svgParameters)
+                .setLabelProviderFactory((n, s) -> labelProvider)
+                .setStyleProviderFactory(n -> styleProvider);
+
+        NetworkAreaDiagram.draw(network, demoResourcesDirectory.resolve("nad-four-substations_custom.svg"),
+                nadParameters,
+                VoltageLevelFilter.NO_FILTER);
     }
 }
