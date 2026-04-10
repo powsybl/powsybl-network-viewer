@@ -1772,7 +1772,7 @@ export class NetworkAreaDiagramViewer {
         const visibleNodeIds = new Set<string>();
 
         for (const node of nodes) {
-            if (node.x >= minX && node.x <= maxX && node.y >= minY && node.y <= maxY) {
+            if (!node.invisible && node.x >= minX && node.x <= maxX && node.y >= minY && node.y <= maxY) {
                 visibleNodes.push(node);
                 visibleNodeIds.add(node.svgId);
             }
