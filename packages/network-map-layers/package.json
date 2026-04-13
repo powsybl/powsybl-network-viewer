@@ -9,10 +9,6 @@
         "type": "git",
         "url": "git+https://github.com/powsybl/powsybl-network-viewer.git"
     },
-    "engines": {
-        "node": ">=22",
-        "npm": "^10.9.2"
-    },
     "type": "module",
     "main": "./dist/powsybl-network-map-layers.cjs",
     "module": "./dist/powsybl-network-map-layers.js",

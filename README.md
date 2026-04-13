@@ -8,10 +8,15 @@ This library contains three viewers:
 - network-map-viewer, to display the substations / voltage levels on a map
 
 The library is built with the Vite bundler.
-Node from v22+ is required to build with Vite.
-
+[Node v24+](https://nodejs.org/en/download) is required to build with Vite. Use fnm or nvm to select the correct Node version when entering the project directory.
 > **_Note:_**  
 > A .nvmrc file is present in the repository, please run `nvm use` to use the expected NodeJS version.
+
+The current package manager is set in the `"packageManager"` field in `package.json`.  
+To install it, run:
+```bash
+corepack install
+```
 
 ## Installation
 
