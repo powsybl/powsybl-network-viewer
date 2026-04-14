@@ -96,7 +96,7 @@ export class NetworkAreaDiagramViewer {
     originalHeight: number;
     svgDraw: Svg | undefined;
     innerSvg: SVGElement | undefined;
-    textNodesSection: HTMLElement | undefined;
+    textNodesSection: SVGElement | undefined;
     textEdgesSection: SVGElement | undefined;
     edgeInfosSection: SVGElement | undefined;
     ratio = 1;
@@ -477,21 +477,14 @@ export class NetworkAreaDiagramViewer {
         }
     }
 
-    private getOrCreateTextNodesSection(): HTMLElement {
-        let textNodesForeignObject = this.innerSvg?.querySelector(':scope > foreignObject.nad-text-nodes');
-        if (!textNodesForeignObject) {
-            textNodesForeignObject = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject');
-            textNodesForeignObject.setAttribute('height', '1');
-            textNodesForeignObject.setAttribute('width', '1');
-            textNodesForeignObject.classList.add('nad-text-nodes');
-            this.innerSvg?.appendChild(textNodesForeignObject);
+    private getOrCreateTextNodesSection(): SVGElement {
+        let textNodesGElement = <SVGElement>this.innerSvg?.querySelector(':scope > g.nad-text-nodes');
+        if (!textNodesGElement) {
+            textNodesGElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+            textNodesGElement.classList.add('nad-text-nodes');
+            this.innerSvg?.appendChild(textNodesGElement);
         }
-        let textNodesDiv = textNodesForeignObject?.children[0] as HTMLElement | undefined;
-        if (!textNodesDiv) {
-            textNodesDiv = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
-            textNodesForeignObject?.appendChild(textNodesDiv);
-        }
-        return textNodesDiv;
+        return textNodesGElement;
     }
 
     private getOrCreateTextEdgesSection(): SVGElement {
@@ -1043,8 +1036,8 @@ export class NetworkAreaDiagramViewer {
 
     private updateTextNodePosition(textElement: SVGGraphicsElement | null, point: Point) {
         if (textElement != null) {
-            textElement.style.left = point.x.toFixed(0) + 'px';
-            textElement.style.top = point.y.toFixed(0) + 'px';
+            textElement.setAttribute('x', DiagramUtils.getFormattedValue(point.x));
+            textElement.setAttribute('y', DiagramUtils.getFormattedValue(point.y));
         }
     }
 
@@ -1797,46 +1790,40 @@ export class NetworkAreaDiagramViewer {
             return;
         }
 
-        const newTextElement = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
-        newTextElement.style.position = 'absolute';
-        newTextElement.style.top = node.y + textNode.shiftY + 'px';
-        newTextElement.style.left = node.x + textNode.shiftX + 'px';
+        const newTextElement = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject');
+        newTextElement.setAttribute('y', DiagramUtils.getFormattedValue(node.y + textNode.shiftY));
+        newTextElement.setAttribute('x', DiagramUtils.getFormattedValue(node.x + textNode.shiftX));
+        newTextElement.setAttribute('height', '1');
+        newTextElement.setAttribute('width', '1');
         newTextElement.id = textNode.svgId;
 
-        //Retrieve the voltage level's node class from SVG, if it exist.
-        //This logic should be replaced once the class name will be in the metadata.
-        const nodeElement: HTMLElement | null = this.svgDiv.querySelector("[id='" + textNode.vlNode + "']");
-        nodeElement?.classList.forEach((cls) => {
-            newTextElement.classList.add(cls);
+        const newDivElement = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
+        node.classes?.forEach((cls) => {
+            newDivElement.classList.add(cls);
         });
-        newTextElement.classList.add('nad-label-box');
+        newDivElement.classList.add('nad-label-box');
+        newTextElement.appendChild(newDivElement);
 
         this.textNodesSection?.appendChild(newTextElement);
 
         const newVlNameElement = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
         newVlNameElement.textContent = textNode.equipmentId;
-        newTextElement?.appendChild(newVlNameElement);
+        newDivElement.appendChild(newVlNameElement);
 
         for (const busNode of busNodes) {
             const newBusDivElement = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
             newBusDivElement.classList.add('nad-bus-descr');
             const newBusLegendElement = document.createElementNS('http://www.w3.org/1999/xhtml', 'span');
 
-            //Per-bus class name (e.g. nad-bus-0) is currently inferred from SVG, from the element representing the bus.
-            const busElement: HTMLElement | null | undefined = nodeElement?.querySelector(
-                "[id='" + busNode.svgId + "']"
-            );
-            busElement?.classList.forEach((cls) => {
-                if (cls !== 'nad-busnode') {
-                    newBusLegendElement.classList.add(cls);
-                }
+            busNode.classes?.forEach((cls) => {
+                newBusLegendElement.classList.add(cls);
             });
             newBusLegendElement.classList.add('nad-legend-square');
 
             const textNode = document.createTextNode(busNode.legend ?? '');
             newBusDivElement?.appendChild(newBusLegendElement);
             newBusDivElement?.appendChild(textNode);
-            newTextElement?.appendChild(newBusDivElement);
+            newDivElement.appendChild(newBusDivElement);
         }
         return newTextElement;
     }
@@ -1984,10 +1971,10 @@ export class NetworkAreaDiagramViewer {
 
         // filter legends
         this.getOrCreateTextNodesSection()
-            .querySelectorAll('div[id]')
-            ?.forEach((div) => {
-                if (!validLegendIds.has(div.id)) {
-                    div.remove();
+            .querySelectorAll('foreignObject[id]')
+            ?.forEach((textBox) => {
+                if (!validLegendIds.has(textBox.id)) {
+                    textBox.remove();
                 }
             });
 
@@ -2630,8 +2617,8 @@ export class NetworkAreaDiagramViewer {
     }
     private addHighlightTextClass(svgId: string) {
         const element = this.svgDiv.querySelector(`[id='${svgId}']`);
-        if (element) {
-            element.classList.add('nad-textnode-highlight');
+        if (element?.firstElementChild) {
+            element.firstElementChild.classList.add('nad-textnode-highlight');
         }
     }
 

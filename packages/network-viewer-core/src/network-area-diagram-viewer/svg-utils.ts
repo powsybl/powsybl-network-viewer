@@ -134,7 +134,7 @@ export function getRightClickableFrom(element: SVGElement): SVGElement | undefin
 
 // check if a DOM element is a text node
 export function isTextNode(element: SVGElement | null): boolean {
-    return element != null && hasId(element) && element.classList.contains('nad-label-box');
+    return element?.parentElement?.classList.contains('nad-text-nodes') ?? false;
 }
 
 /**
@@ -290,7 +290,10 @@ export function getTextNodeCenterFromTopLeftCorner(
 
 // Get text node size
 export function getTextNodeSize(textNode: SVGGraphicsElement | null): { width: number; height: number } {
-    return { width: textNode?.scrollWidth ?? 0, height: textNode?.scrollHeight ?? 0 };
+    return {
+        width: textNode?.firstElementChild?.scrollWidth ?? 0,
+        height: textNode?.firstElementChild?.scrollHeight ?? 0,
+    };
 }
 
 // Get the top left corner position of a text box using the box's center position
@@ -307,8 +310,8 @@ export function getTextNodeTranslatedPosition(textNode: SVGGraphicsElement | nul
 
 // get text node position
 export function getTextNodePosition(textNode: SVGGraphicsElement | null): Point {
-    const textNodeX = textNode?.style.left.replace('px', '') ?? '0';
-    const textNodeY = textNode?.style.top.replace('px', '') ?? '0';
+    const textNodeX = textNode?.getAttribute('x') ?? '0';
+    const textNodeY = textNode?.getAttribute('y') ?? '0';
     return new Point(+textNodeX, +textNodeY);
 }
 

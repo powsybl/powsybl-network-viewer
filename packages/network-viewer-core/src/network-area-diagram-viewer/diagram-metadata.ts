@@ -83,6 +83,7 @@ export interface BusNodeMetadata {
     index: number;
     vlNode: string;
     legend?: string;
+    classes?: string[];
 }
 
 export interface NodeMetadata {
@@ -96,6 +97,7 @@ export interface NodeMetadata {
     legendHeader?: string[];
     legendFooter?: string[];
     invisible?: boolean;
+    classes?: string[];
 }
 
 export interface EdgeMetadata {
@@ -112,6 +114,8 @@ export interface EdgeMetadata {
     edgeInfo2?: EdgeInfoMetadata;
     invisible1?: boolean;
     invisible2?: boolean;
+    classes1?: string[];
+    classes2?: string[];
 }
 
 export interface PointMetadata {
