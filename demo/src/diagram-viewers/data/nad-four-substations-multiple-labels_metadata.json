@@ -8,7 +8,8 @@
     "maxSteps" : 1000,
     "timeoutSeconds" : 15.0,
     "textNodeEdgeConnectionYShift" : 25.0,
-    "injectionsAdded" : false
+    "injectionsAdded" : false,
+    "scaleFactor" : 1.0
   },
   "svgParameters" : {
     "diagramPadding" : {
@@ -56,7 +57,9 @@
     "injectionEdgeLength" : 145.0,
     "injectionCircleRadius" : 25.0,
     "voltageLevelLegendsIncluded" : true,
-    "edgeInfosIncluded" : true
+    "edgeInfosIncluded" : true,
+    "doubleArrowShiftFactorArrows" : 1.5,
+    "doubleArrowShiftFactorText" : 1.8
   },
   "busNodes" : [ {
     "svgId" : "3",
@@ -64,35 +67,40 @@
     "nbNeighbours" : 0,
     "index" : 0,
     "vlNode" : "0",
-    "legend" : "224.6 kV / 2.3°"
+    "legend" : "224.6 kV / 2.3°",
+    "classes" : [ "nad-bus-0" ]
   }, {
     "svgId" : "7",
     "equipmentId" : "S1VL2_0",
     "nbNeighbours" : 0,
     "index" : 0,
     "vlNode" : "4",
-    "legend" : "400.0 kV / 0.0°"
+    "legend" : "400.0 kV / 0.0°",
+    "classes" : [ "nad-bus-0" ]
   }, {
     "svgId" : "11",
     "equipmentId" : "S2VL1_0",
     "nbNeighbours" : 0,
     "index" : 0,
     "vlNode" : "8",
-    "legend" : "408.8 kV / 0.7°"
+    "legend" : "408.8 kV / 0.7°",
+    "classes" : [ "nad-bus-0" ]
   }, {
     "svgId" : "15",
     "equipmentId" : "S3VL1_0",
     "nbNeighbours" : 0,
     "index" : 0,
     "vlNode" : "12",
-    "legend" : "400.0 kV / 0.0°"
+    "legend" : "400.0 kV / 0.0°",
+    "classes" : [ "nad-bus-0" ]
   }, {
     "svgId" : "19",
     "equipmentId" : "S4VL1_0",
     "nbNeighbours" : 0,
     "index" : 0,
     "vlNode" : "16",
-    "legend" : "400.0 kV / -1.1°"
+    "legend" : "400.0 kV / -1.1°",
+    "classes" : [ "nad-bus-0" ]
   } ],
   "nodes" : [ {
     "svgId" : "0",
@@ -101,7 +109,8 @@
     "y" : -515.14,
     "legendSvgId" : "1",
     "legendEdgeSvgId" : "2",
-    "legendHeader" : [ "S1VL1" ]
+    "legendHeader" : [ "S1VL1" ],
+    "classes" : [ "nad-vl180to300" ]
   }, {
     "svgId" : "4",
     "equipmentId" : "S1VL2",
@@ -109,7 +118,8 @@
     "y" : -133.8,
     "legendSvgId" : "5",
     "legendEdgeSvgId" : "6",
-    "legendHeader" : [ "S1VL2" ]
+    "legendHeader" : [ "S1VL2" ],
+    "classes" : [ "nad-vl300to500" ]
   }, {
     "svgId" : "8",
     "equipmentId" : "S2VL1",
@@ -117,7 +127,8 @@
     "y" : 231.51,
     "legendSvgId" : "9",
     "legendEdgeSvgId" : "10",
-    "legendHeader" : [ "S2VL1" ]
+    "legendHeader" : [ "S2VL1" ],
+    "classes" : [ "nad-vl300to500" ]
   }, {
     "svgId" : "12",
     "equipmentId" : "S3VL1",
@@ -125,7 +136,8 @@
     "y" : 91.69,
     "legendSvgId" : "13",
     "legendEdgeSvgId" : "14",
-    "legendHeader" : [ "S3VL1" ]
+    "legendHeader" : [ "S3VL1" ],
+    "classes" : [ "nad-vl300to500" ]
   }, {
     "svgId" : "16",
     "equipmentId" : "S4VL1",
@@ -133,7 +145,8 @@
     "y" : 302.31,
     "legendSvgId" : "17",
     "legendEdgeSvgId" : "18",
-    "legendHeader" : [ "S4VL1" ]
+    "legendHeader" : [ "S4VL1" ],
+    "classes" : [ "nad-vl300to500" ]
   } ],
   "edges" : [ {
     "svgId" : "20",
@@ -166,7 +179,9 @@
       "direction" : "OUT",
       "labelA" : "TWT",
       "labelB" : "207"
-    }
+    },
+    "classes1" : [ "nad-vl180to300" ],
+    "classes2" : [ "nad-vl300to500" ]
   }, {
     "svgId" : "24",
     "equipmentId" : "HVDC2",
@@ -194,7 +209,9 @@
       "infoTypeA" : "Name",
       "infoTypeB" : "Current",
       "labelA" : "LCC1"
-    }
+    },
+    "classes1" : [ "nad-vl300to500" ],
+    "classes2" : [ "nad-vl300to500" ]
   }, {
     "svgId" : "28",
     "equipmentId" : "HVDC1",
@@ -226,7 +243,9 @@
       "direction" : "OUT",
       "labelA" : "VSC1",
       "labelB" : "739"
-    }
+    },
+    "classes1" : [ "nad-vl300to500" ],
+    "classes2" : [ "nad-vl300to500" ]
   }, {
     "svgId" : "32",
     "equipmentId" : "LINE_S2S3",
@@ -258,7 +277,9 @@
       "direction" : "OUT",
       "labelA" : "LINE_S2S3",
       "labelB" : "310"
-    }
+    },
+    "classes1" : [ "nad-vl300to500" ],
+    "classes2" : [ "nad-vl300to500" ]
   }, {
     "svgId" : "36",
     "equipmentId" : "LINE_S3S4",
@@ -290,7 +311,9 @@
       "direction" : "OUT",
       "labelA" : "LINE_S3S4",
       "labelB" : "346"
-    }
+    },
+    "classes1" : [ "nad-vl300to500" ],
+    "classes2" : [ "nad-vl300to500" ]
   } ],
   "textNodes" : [ {
     "svgId" : "1",

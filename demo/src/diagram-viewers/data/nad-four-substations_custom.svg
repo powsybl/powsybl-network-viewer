@@ -134,33 +134,41 @@
         <polyline id="14" points="200.80,87.24 271.13,76.69"/>
         <polyline id="18" points="527.01,297.86 597.34,287.31"/>
     </g>
-    <foreignObject height="1" width="1" class="nad-text-nodes">
-        <div xmlns="http://www.w3.org/1999/xhtml">
-            <div style="position: absolute; top: -555px; left: -120px" id="1" class="nad-label-box">
+    <g class="nad-text-nodes">
+        <foreignObject id="1" y="-555.14" x="-120.40" height="1" width="1">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="nad-label-box">
                 <div>S1VL1 description1</div>
                 <div class="nad-bus-descr">
                     <span class="nad-legend-square" style="background:red; fill:red; stroke:black; border: solid black 4px; stroke-width:4px;"></span>S1VL1_0 description</div>
             </div>
-            <div style="position: absolute; top: -174px; left: -52px" id="5" class="nad-label-box">
+        </foreignObject>
+        <foreignObject id="5" y="-173.80" x="-52.34" height="1" width="1">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="nad-label-box">
                 <div>S1VL2 description1</div>
                 <div class="nad-bus-descr">
                     <span class="nad-legend-square" style="background:blue; fill:blue; stroke:black; border: solid black 4px; stroke-width:4px;"></span>S1VL2_0 description</div>
             </div>
-            <div style="position: absolute; top: 192px; left: -63px" id="9" class="nad-label-box">
+        </foreignObject>
+        <foreignObject id="9" y="191.51" x="-62.93" height="1" width="1">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="nad-label-box">
                 <div>S2VL1 description1</div>
                 <div class="nad-bus-descr">
                     <span class="nad-legend-square" style="background:yellow; fill:yellow; stroke:black; border: solid black 4px; stroke-width:4px;"></span>S2VL1_0 description</div>
             </div>
-            <div style="position: absolute; top: 52px; left: 271px" id="13" class="nad-label-box">
+        </foreignObject>
+        <foreignObject id="13" y="51.69" x="271.13" height="1" width="1">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="nad-label-box">
                 <div>S3VL1 description1</div>
                 <div class="nad-bus-descr">
                     <span class="nad-legend-square" style="background:green; fill:green; stroke:black; border: solid black 2px; stroke-width:2px;"></span>S3VL1_0 description</div>
             </div>
-            <div style="position: absolute; top: 262px; left: 597px" id="17" class="nad-label-box">
+        </foreignObject>
+        <foreignObject id="17" y="262.31" x="597.34" height="1" width="1">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="nad-label-box">
                 <div>S4VL1 description1</div>
                 <div class="nad-bus-descr">
                     <span class="nad-legend-square" style="background:purple; fill:purple; stroke:black; border: solid black 2px; stroke-width:2px;"></span>S4VL1_0 description</div>
             </div>
-        </div>
-    </foreignObject>
+        </foreignObject>
+    </g>
 </svg>

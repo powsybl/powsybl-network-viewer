@@ -22,9 +22,9 @@
 
     <properties>
         <java.version>21</java.version>
-        <core.version>7.1.1</core.version>
-        <diagram.version>5.2.0</diagram.version>
-        <olf.version>2.1.0</olf.version>
+        <core.version>7.2.0</core.version>
+        <diagram.version>5.3.0</diagram.version>
+        <olf.version>2.2.0</olf.version>
     </properties>
 
     <dependencies>

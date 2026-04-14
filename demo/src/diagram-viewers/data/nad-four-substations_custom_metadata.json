@@ -8,7 +8,8 @@
     "maxSteps" : 1000,
     "timeoutSeconds" : 15.0,
     "textNodeEdgeConnectionYShift" : 25.0,
-    "injectionsAdded" : false
+    "injectionsAdded" : false,
+    "scaleFactor" : 1.0
   },
   "svgParameters" : {
     "diagramPadding" : {
@@ -56,7 +57,9 @@
     "injectionEdgeLength" : 145.0,
     "injectionCircleRadius" : 25.0,
     "voltageLevelLegendsIncluded" : true,
-    "edgeInfosIncluded" : true
+    "edgeInfosIncluded" : true,
+    "doubleArrowShiftFactorArrows" : 1.5,
+    "doubleArrowShiftFactorText" : 1.8
   },
   "busNodes" : [ {
     "svgId" : "3",
@@ -64,35 +67,40 @@
     "nbNeighbours" : 0,
     "index" : 0,
     "vlNode" : "0",
-    "legend" : "S1VL1_0 description"
+    "legend" : "S1VL1_0 description",
+    "style" : "background:red; fill:red; stroke:black; border: solid black 4px; stroke-width:4px;"
   }, {
     "svgId" : "7",
     "equipmentId" : "S1VL2_0",
     "nbNeighbours" : 0,
     "index" : 0,
     "vlNode" : "4",
-    "legend" : "S1VL2_0 description"
+    "legend" : "S1VL2_0 description",
+    "style" : "background:blue; fill:blue; stroke:black; border: solid black 4px; stroke-width:4px;"
   }, {
     "svgId" : "11",
     "equipmentId" : "S2VL1_0",
     "nbNeighbours" : 0,
     "index" : 0,
     "vlNode" : "8",
-    "legend" : "S2VL1_0 description"
+    "legend" : "S2VL1_0 description",
+    "style" : "background:yellow; fill:yellow; stroke:black; border: solid black 4px; stroke-width:4px;"
   }, {
     "svgId" : "15",
     "equipmentId" : "S3VL1_0",
     "nbNeighbours" : 0,
     "index" : 0,
     "vlNode" : "12",
-    "legend" : "S3VL1_0 description"
+    "legend" : "S3VL1_0 description",
+    "style" : "background:green; fill:green; stroke:black; border: solid black 2px; stroke-width:2px;"
   }, {
     "svgId" : "19",
     "equipmentId" : "S4VL1_0",
     "nbNeighbours" : 0,
     "index" : 0,
     "vlNode" : "16",
-    "legend" : "S4VL1_0 description"
+    "legend" : "S4VL1_0 description",
+    "style" : "background:purple; fill:purple; stroke:black; border: solid black 2px; stroke-width:2px;"
   } ],
   "nodes" : [ {
     "svgId" : "0",
@@ -166,7 +174,9 @@
       "direction" : "OUT",
       "labelA" : "c3",
       "labelB" : "d3"
-    }
+    },
+    "style1" : "stroke:yellow; stroke-width:4px;",
+    "style2" : "stroke:blue; stroke-width:4px;"
   }, {
     "svgId" : "24",
     "equipmentId" : "HVDC2",
@@ -262,7 +272,9 @@
       "direction" : "OUT",
       "labelA" : "c1",
       "labelB" : "d1"
-    }
+    },
+    "style1" : "stroke:blue; stroke-width:16px; stroke-dasharray:12,12;",
+    "style2" : "stroke:blue; stroke-width:16px; stroke-dasharray:12,3,12;"
   }, {
     "svgId" : "36",
     "equipmentId" : "LINE_S3S4",
@@ -294,7 +306,9 @@
       "direction" : "OUT",
       "labelA" : "c2",
       "labelB" : "d2"
-    }
+    },
+    "style1" : "stroke:green; stroke-width:3px;",
+    "style2" : "stroke:green; stroke-width:3px;"
   } ],
   "textNodes" : [ {
     "svgId" : "1",

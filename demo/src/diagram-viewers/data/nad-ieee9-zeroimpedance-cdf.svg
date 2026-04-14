@@ -78,9 +78,9 @@
         <polyline id="8" points="-172.55,73.40 -131.89,67.30"/>
         <polyline id="13" points="-176.85,-314.35 -106.52,-324.90"/>
     </g>
-    <foreignObject height="1" width="1" class="nad-text-nodes">
-        <div xmlns="http://www.w3.org/1999/xhtml">
-            <div style="position: absolute; top: 293px; left: 174px" id="1" class="nad-vl70to120 nad-label-box">
+    <g class="nad-text-nodes">
+        <foreignObject id="1" y="293.18" x="173.67" height="1" width="1">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="nad-vl70to120 nad-label-box">
                 <div>VL2</div>
                 <div class="nad-bus-descr">
                     <span class="nad-bus-0 nad-legend-square"></span>102.5 kV / 9.3°</div>
@@ -89,18 +89,22 @@
                 <div class="nad-bus-descr">
                     <span class="nad-bus-1 nad-legend-square"></span>102.5 kV / 3.7°</div>
             </div>
-            <div style="position: absolute; top: 42px; left: -132px" id="7" class="nad-vl70to120 nad-label-box">
+        </foreignObject>
+        <foreignObject id="7" y="42.30" x="-131.89" height="1" width="1">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="nad-vl70to120 nad-label-box">
                 <div>VL3</div>
                 <div class="nad-bus-descr">
                     <span class="nad-bus-0 nad-legend-square"></span>102.5 kV / 4.7°</div>
                 <div class="nad-bus-descr">
                     <span class="nad-bus-1 nad-legend-square"></span>103.2 kV / 2.0°</div>
             </div>
-            <div style="position: absolute; top: -350px; left: -107px" id="12" class="nad-vl70to120 nad-label-box">
+        </foreignObject>
+        <foreignObject id="12" y="-349.90" x="-106.52" height="1" width="1">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="nad-vl70to120 nad-label-box">
                 <div>VL6</div>
                 <div class="nad-bus-descr">
                     <span class="nad-bus-0 nad-legend-square"></span>101.2 kV / -3.7°</div>
             </div>
-        </div>
-    </foreignObject>
+        </foreignObject>
+    </g>
 </svg>
