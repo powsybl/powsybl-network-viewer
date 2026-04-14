@@ -246,6 +246,8 @@ test('getHalfEdges', () => {
         injectionCircleRadius: 25,
         voltageLevelLegendsIncluded: true,
         edgeInfosIncluded: true,
+        doubleArrowShiftFactorArrows: 1.5,
+        doubleArrowShiftFactorText: 1.8,
     };
 
     const edge18: EdgeMetadata = {
@@ -289,6 +291,7 @@ test('getHalfEdges', () => {
             timeoutSeconds: 15,
             textNodeEdgeConnectionYShift: 25,
             injectionsAdded: false,
+            scaleFactor: 1,
         },
         svgParameters: svgParametersMetadata,
         busNodes: [

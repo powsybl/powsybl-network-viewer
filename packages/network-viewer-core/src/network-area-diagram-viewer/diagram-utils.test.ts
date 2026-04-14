@@ -125,6 +125,8 @@ test('getVoltageLevelCircleRadius', () => {
         injectionCircleRadius: 0,
         voltageLevelLegendsIncluded: false,
         edgeInfosIncluded: false,
+        doubleArrowShiftFactorArrows: 1.5,
+        doubleArrowShiftFactorText: 1.8,
     };
     const svgParameters = new SvgParameters(svgParametersMetadata);
     expect(DiagramUtils.getVoltageLevelCircleRadius(0, true, svgParameters)).toBe(15);
@@ -232,6 +234,8 @@ test('getArrowClass', () => {
         injectionCircleRadius: 0,
         voltageLevelLegendsIncluded: false,
         edgeInfosIncluded: false,
+        doubleArrowShiftFactorArrows: 1.5,
+        doubleArrowShiftFactorText: 1.8,
     };
     const svgParameters = new SvgParameters(svgParametersMetadata);
     expect(DiagramUtils.getArrowPath('IN', svgParameters)).toBe(arrowPathIn);
@@ -289,6 +293,8 @@ test('getEdgeInfoValuePrecision', () => {
         injectionCircleRadius: 0,
         voltageLevelLegendsIncluded: false,
         edgeInfosIncluded: false,
+        doubleArrowShiftFactorArrows: 1.5,
+        doubleArrowShiftFactorText: 1.8,
     };
     const svgParameters = new SvgParameters(svgParametersMetadata);
     expect(DiagramUtils.getEdgeInfoValuePrecision('ActivePower', svgParameters)).toBe(2);
@@ -347,6 +353,8 @@ test('getFormattedInfoLabel', () => {
         injectionCircleRadius: 0,
         voltageLevelLegendsIncluded: false,
         edgeInfosIncluded: false,
+        doubleArrowShiftFactorArrows: 1.5,
+        doubleArrowShiftFactorText: 1.8,
     };
     const svgParameters = new SvgParameters(svgParametersMetadata);
     expect(DiagramUtils.getFormattedInfoLabel('444', 'ActivePower', svgParameters)).toBe('444.00');
