@@ -1,6 +1,6 @@
 {
     "name": "@powsybl/network-viewer",
-    "version": "3.4.0-dev.0",
+    "version": "3.4.0",
     "description": "TypeScript library to integrate PowSyBl network viewers in a JavaScript project.",
     "author": "PowSyBl team",
     "homepage": "https://www.powsybl.org/",
@@ -65,8 +65,8 @@
         "@luma.gl/core": "~9.2.0",
         "@luma.gl/engine": "~9.2.0",
         "@mapbox/mapbox-gl-draw": "<1.5.0",
-        "@powsybl/network-map-layers": "^3.4.0-dev.0",
-        "@powsybl/network-viewer-core": "^3.4.0-dev.0",
+        "@powsybl/network-map-layers": "^3.4.0",
+        "@powsybl/network-viewer-core": "^3.4.0",
         "@turf/boolean-point-in-polygon": "^7.2.0",
         "cheap-ruler": "^4.0.0",
         "geolib": "^3.3.4",
