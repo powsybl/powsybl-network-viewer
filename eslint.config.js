@@ -58,7 +58,9 @@ export default defineConfig([
         extends: tsEslint.configs.recommendedTypeChecked,
         languageOptions: {
             parserOptions: {
-                projectService: true,
+                projectService: {
+                    allowDefaultProject: ['./setupBrowserTests.ts'],
+                },
                 tsconfigRootDir: import.meta.dirname,
             },
         },
