@@ -311,6 +311,7 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
         if (centerOnSubstation === null) {
             return;
         }
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setCentered({
             lastCenteredSubstation: null,
             centeredSubstationId: centerOnSubstation?.to,
@@ -695,6 +696,7 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
     // unmount/mount the Map with 'key', so we need also to reset all state
     // associated with uncontrolled state of the map
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setCentered(INITIAL_CENTERED);
     }, [mapLib?.key]);
 
