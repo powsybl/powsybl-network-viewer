@@ -148,3 +148,10 @@ you need to follow the steps below:
     - `@mapbox/jsonlint-lines-primitives@2.0.2` is a special license
     - `cartocolor@4.0.2` is Creative Commons but not correctly described in the package
     - `rw@0.1.4` is BSD-3-Clause but not correctly described in the package
+
+## Contributing
+
+See [Contributing.md](https://github.com/powsybl/.github/blob/main/CONTRIBUTING.md) for explanations
+on how to contribute to the code.
+
+See [Security.md](https://github.com/powsybl/.github/blob/main/SECURITY.md) to read about the security policy.
