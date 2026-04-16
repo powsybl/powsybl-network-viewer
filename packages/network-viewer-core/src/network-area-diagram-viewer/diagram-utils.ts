@@ -6,7 +6,7 @@
  */
 
 import { Point } from '@svgdotjs/svg.js';
-import { SvgParameters } from './svg-parameters';
+import { EdgeInfoEnum, SvgParameters } from './svg-parameters';
 import { EdgeType, NodeRadius } from './diagram-types';
 
 export function getDistance(point1: Point, point2: Point): number {
@@ -225,15 +225,21 @@ export function getTextEdgeEnd(
     return new Point(textNodePosition.x, textNodePosition.y + detailedTextNodeYShift);
 }
 
+const EdgeInfoClassMap: Record<string, string> = {
+    ActivePower: 'nad-active',
+    ReactivePower: 'nad-reactive',
+    Current: 'nad-current',
+    Name: 'nad-name',
+    PermanentLimitPercentage: 'nad-permanent-limit-percentage',
+};
+
 // get edge info element class, based on type
 export function getEdgeInfoClass(edgeInfoType: string | undefined): string | null {
-    const classMap: Record<string, string> = {
-        ActivePower: 'nad-active',
-        ReactivePower: 'nad-reactive',
-        Current: 'nad-current',
-        Name: 'nad-name',
-    };
-    return edgeInfoType ? classMap[edgeInfoType] : null;
+    return edgeInfoType ? (EdgeInfoClassMap[edgeInfoType] ?? null) : null;
+}
+
+export function getEdgeInfoClasses(): string[] {
+    return Object.values(EdgeInfoClassMap);
 }
 
 // get arrow element direction, based on p value
@@ -330,6 +336,32 @@ export function getEdgeStart(
 
 export function shiftRhoTheta(point: Point, rho: number, theta: number) {
     return new Point(point.x + rho * Math.cos(theta), point.y + rho * Math.sin(theta));
+}
+
+export function getEdgeInfoValuePrecision(edgeInfoType: string | undefined, svgParameters: SvgParameters) {
+    switch (svgParameters.getEdgeInfoDisplayed(edgeInfoType)) {
+        case EdgeInfoEnum.ACTIVE_POWER:
+        case EdgeInfoEnum.REACTIVE_POWER:
+            return svgParameters.getPowerValuePrecision();
+        case EdgeInfoEnum.CURRENT:
+            return svgParameters.getCurrentValuePrecision();
+        case EdgeInfoEnum.PERMANENT_LIMIT_PERCENTAGE:
+            return svgParameters.getPercentageValuePrecision();
+        default:
+            return 0;
+    }
+}
+
+export function getFormattedInfoLabel(
+    label: string | undefined,
+    type: string | undefined,
+    svgParameters: SvgParameters
+): string {
+    const edgeValueMiddle = Number(label ?? null);
+    const value: number | string = Number.isNaN(edgeValueMiddle) ? (label ?? '') : edgeValueMiddle;
+    const formattedValue =
+        typeof value === 'number' ? value.toFixed(getEdgeInfoValuePrecision(type, svgParameters)) : value;
+    return formattedValue;
 }
 
 export function getLabelShiftAndStyle(

@@ -13,14 +13,15 @@ import {
     degToRad,
     getAngle,
     getConverterStationPoints,
+    getEdgeNameAngle,
     getEdgeStart,
+    getFormattedPolyline,
+    getLabelShiftAndStyle,
     getMidPosition,
     getPointAtDistance,
     getPointAtDistanceWithAngle,
-    getFormattedPolyline,
     isTransformerEdge,
     radToDeg,
-    getLabelShiftAndStyle,
 } from './diagram-utils';
 import { getBusNodeMetadata, getEdgePoints, getEdgeType, getNodeMetadata, getNodeRadius } from './metadata-utils';
 import { HalfEdge, LabelData } from './diagram-types';
@@ -426,4 +427,34 @@ function getLoopHalfEdge(
         edgePoints: [edgeStart, fork, control1a, control1b, middle1],
     };
     return halfEdge;
+}
+
+export function getInfoPointAndAngle(
+    halfEdge1: HalfEdge | null,
+    halfEdge2: HalfEdge | null
+): [Point, number] | undefined {
+    if (halfEdge1 && halfEdge2) {
+        const p1: Point = halfEdge1.edgePoints.at(-1)!;
+        const p2: Point = halfEdge2.edgePoints.at(-1)!;
+        return [getMidPosition(p1, p2), getEdgeNameAngle(halfEdge1.edgePoints.at(-2)!, halfEdge2.edgePoints.at(-1)!)];
+    } else {
+        const visibleHalfEdge = halfEdge1 ?? halfEdge2 ?? null;
+        if (!visibleHalfEdge) return undefined;
+        return [
+            visibleHalfEdge.edgePoints.at(-1)!,
+            getEdgeNameAngle(visibleHalfEdge.edgePoints.at(-2)!, visibleHalfEdge.edgePoints.at(-1)!),
+        ];
+    }
+}
+
+export function getMiddleLabelData(
+    halfEdge1: HalfEdge | null,
+    halfEdge2: HalfEdge | null,
+    externalLabel: boolean,
+    arrowLabelShift: number
+): [number, string | undefined] {
+    if (!halfEdge1 && !halfEdge2) return [0, undefined];
+    const halfEdge = halfEdge1 ?? halfEdge2!;
+    const edgeAngle = getAngle(halfEdge.edgePoints.at(-2)!, halfEdge.edgePoints.at(-1)!);
+    return getLabelShiftAndStyle(edgeAngle, externalLabel, arrowLabelShift);
 }

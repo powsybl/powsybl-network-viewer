@@ -7,7 +7,7 @@
  */
 
 import { Point } from '@svgdotjs/svg.js';
-import { BusNodeMetadata, DiagramMetadata, EdgeMetadata, NodeMetadata } from './diagram-metadata';
+import { BusNodeMetadata, DiagramMetadata, EdgeInfoMetadata, EdgeMetadata, NodeMetadata } from './diagram-metadata';
 import * as DiagramUtils from './diagram-utils';
 import { SvgParameters } from './svg-parameters';
 import * as MetadataUtils from './metadata-utils';
@@ -19,6 +19,7 @@ export class SvgWriter {
     static readonly NODES_CLASS = 'nad-vl-nodes';
     static readonly BUS_CLASS = 'nad-busnode';
     static readonly EDGES_CLASS = 'nad-branch-edges';
+    static readonly EDGE_INFOS_CLASS = 'nad-edge-infos';
     static readonly THREEWT_EDGES_CLASS = 'nad-3wt-edges';
     static readonly TEXT_NODES_CLASS = 'nad-text-nodes';
     static readonly TEXT_EDGES_CLASS = 'nad-text-edges';
@@ -49,8 +50,10 @@ export class SvgWriter {
         xmlDoc.appendChild(svg);
         // add nodes
         svg.appendChild(this.getNodes());
-        // add edges
-        svg.appendChild(this.getEdges());
+        // add edges and infos
+        const edgesAndInfos = this.getEdgesAndInfos();
+        svg.appendChild(edgesAndInfos.edges);
+        svg.appendChild(edgesAndInfos.edgeInfos);
         // add 3wt edges
         const threeWtEdges = MetadataUtils.getThreeWtEdges(this.diagramMetadata.edges);
         if (threeWtEdges && threeWtEdges.length > 0) {
@@ -159,17 +162,29 @@ export class SvgWriter {
         });
     }
 
-    private getEdges(): SVGGElement {
+    private getEdgesAndInfos(): { edges: SVGGElement; edgeInfos: SVGGElement } {
         // create g edges element
         const gEdgesElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
         gEdgesElement.classList.add(SvgWriter.EDGES_CLASS);
+        // create g edge infos element
+        const gEdgeInfosElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        gEdgeInfosElement.classList.add(SvgWriter.EDGE_INFOS_CLASS);
         // add edges
         this.diagramMetadata.edges.forEach((edge) => {
             if (!MetadataUtils.isThreeWtEdge(edge)) {
                 gEdgesElement.appendChild(this.getEdge(edge));
+                if (edge.edgeInfo1 && !edge.invisible1) {
+                    gEdgeInfosElement.appendChild(this.getEdgeSideInfo(edge, '1', edge.edgeInfo1));
+                }
+                if (edge.edgeInfo2 && !edge.invisible2) {
+                    gEdgeInfosElement.appendChild(this.getEdgeSideInfo(edge, '2', edge.edgeInfo2));
+                }
+                if (edge.edgeInfoMiddle) {
+                    gEdgeInfosElement.appendChild(this.getEdgeMiddleInfo(edge, edge.edgeInfoMiddle));
+                }
             }
         });
-        return gEdgesElement;
+        return { edges: gEdgesElement, edgeInfos: gEdgeInfosElement };
     }
 
     private getEdge(edge: EdgeMetadata): SVGGElement {
@@ -296,6 +311,149 @@ export class SvgWriter {
         polylineElement.classList.add(SvgWriter.EDGE_CLASS);
         polylineElement.setAttribute('points', DiagramUtils.getFormattedPolyline(points));
         return polylineElement;
+    }
+
+    private getEdgeSideInfo(edge: EdgeMetadata, side: string, info: EdgeInfoMetadata): SVGGElement {
+        // create info element
+        const gEdgeInfoElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        gEdgeInfoElement.id = info.svgId;
+        const arrowCenter = this.edgeRouter?.getEdgeSideinfoPoint(edge.svgId, side);
+        if (arrowCenter) {
+            gEdgeInfoElement.setAttribute(
+                'transform',
+                'translate(' + DiagramUtils.getFormattedPoint(arrowCenter) + ')'
+            );
+        }
+        // add arrow element
+        if (info.direction) {
+            gEdgeInfoElement.appendChild(
+                this.getEdgeInfoArrow(
+                    this.edgeRouter?.getEdgeSideInfoAngle(edge.svgId, side),
+                    info.direction,
+                    info.infoTypeB
+                )
+            );
+        }
+        const labelData = this.edgeRouter?.getEdgeSideLabelData(edge.svgId, side);
+        if (labelData === undefined) return gEdgeInfoElement;
+        // add labelB element
+        if (info.labelB) {
+            gEdgeInfoElement.appendChild(
+                this.getEdgeInfoLabel(
+                    labelData.angle,
+                    labelData.external.shift,
+                    labelData.external.style,
+                    info.labelB,
+                    info.infoTypeB
+                )
+            );
+        }
+        // add labelA element
+        if (info.labelA) {
+            gEdgeInfoElement.appendChild(
+                this.getEdgeInfoLabel(
+                    labelData.angle,
+                    labelData.internal.shift,
+                    labelData.internal.style,
+                    info.labelA,
+                    info.infoTypeA
+                )
+            );
+        }
+        return gEdgeInfoElement;
+    }
+
+    private getEdgeInfoArrow(
+        arrowAngle: number | undefined,
+        direction: string,
+        type: string | undefined
+    ): SVGPathElement {
+        const edgeInfoArrowElement = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        if (arrowAngle) {
+            edgeInfoArrowElement.setAttribute(
+                'transform',
+                'rotate(' + DiagramUtils.getFormattedValue(arrowAngle) + ')'
+            );
+        }
+        const arrowPath = DiagramUtils.getArrowPath(direction, this.svgParameters);
+        if (arrowPath) {
+            edgeInfoArrowElement.setAttribute('d', arrowPath);
+        }
+        const edgeInfoClass = DiagramUtils.getEdgeInfoClass(type);
+        if (edgeInfoClass) {
+            edgeInfoArrowElement.classList.add(edgeInfoClass);
+        }
+        const arrowClass = DiagramUtils.getArrowClass(direction);
+        if (arrowClass) {
+            edgeInfoArrowElement.classList.add(arrowClass);
+        }
+        return edgeInfoArrowElement;
+    }
+
+    private getEdgeInfoLabel(
+        angle: number,
+        shift: number,
+        style: string | undefined,
+        label: string | undefined,
+        type: string | undefined
+    ): SVGTextElement {
+        const edgeInfoLabelElement = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        edgeInfoLabelElement.innerHTML = DiagramUtils.getFormattedInfoLabel(label, type, this.svgParameters);
+        edgeInfoLabelElement.setAttribute('transform', 'rotate(' + DiagramUtils.getFormattedValue(angle) + ')');
+        edgeInfoLabelElement.setAttribute('x', DiagramUtils.getFormattedValue(shift));
+        if (style) {
+            edgeInfoLabelElement.setAttribute('style', style);
+        }
+        const edgeInfoClass = DiagramUtils.getEdgeInfoClass(type);
+        if (edgeInfoClass) {
+            edgeInfoLabelElement.classList.add(edgeInfoClass);
+        }
+        return edgeInfoLabelElement;
+    }
+
+    private getEdgeMiddleInfo(edge: EdgeMetadata, info: EdgeInfoMetadata): SVGGElement {
+        const gEdgeMiddleInfoElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        gEdgeMiddleInfoElement.id = info.svgId;
+        const middleInfoPoint = this.edgeRouter?.getEdgeMiddleInfoPoint(edge.svgId);
+        if (middleInfoPoint) {
+            gEdgeMiddleInfoElement.setAttribute(
+                'transform',
+                'translate(' + DiagramUtils.getFormattedPoint(middleInfoPoint) + ')'
+            );
+        }
+        // add arrow element
+        if (info.direction) {
+            gEdgeMiddleInfoElement.appendChild(
+                this.getEdgeInfoArrow(
+                    this.edgeRouter?.getEdgeMiddleInfoAngle(edge.svgId),
+                    info.direction,
+                    info.infoTypeB
+                )
+            );
+        }
+        let x = 0;
+        let style: string | undefined = 'text-anchor:middle';
+        const labelData = this.edgeRouter?.getEdgeMiddleLabelData(edge.svgId);
+        if (labelData === undefined) return gEdgeMiddleInfoElement;
+        // add labelB element
+        if (info.labelB && info.labelA) {
+            gEdgeMiddleInfoElement.appendChild(
+                this.getEdgeInfoLabel(
+                    labelData.angle,
+                    labelData.external.shift,
+                    labelData.external.style,
+                    info.labelB,
+                    info.infoTypeB
+                )
+            );
+            x = labelData.internal.shift;
+            style = labelData.internal.style;
+        }
+        // add labelA element
+        gEdgeMiddleInfoElement.appendChild(
+            this.getEdgeInfoLabel(labelData.angle, x, style, info.labelA, info.infoTypeA)
+        );
+        return gEdgeMiddleInfoElement;
     }
 
     private getTextNodesAndEdges(): { textNodes: SVGForeignObjectElement; textEdges: SVGGElement } {
