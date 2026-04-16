@@ -7,12 +7,12 @@
 
 /// <reference types="./vite-plugin-checker.d.ts" />
 
-import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import svgr from 'vite-plugin-svgr';
-import dts from 'vite-plugin-dts';
-import * as path from 'node:path';
 import { copyFileSync } from 'node:fs';
+import * as path from 'node:path';
+import { defineConfig } from 'vite';
+import dts from 'vite-plugin-dts';
+import svgr from 'vite-plugin-svgr';
 import { viteEslintChecker } from './utils/viteEslintChecker';
 
 export default defineConfig((config) => ({
@@ -24,7 +24,7 @@ export default defineConfig((config) => ({
             include: ['src'],
             exclude: ['**/*.{spec,test}.{ts,tsx}'],
             rollupTypes: true,
-            tsconfigPath: './tsconfig.json',
+            tsconfigPath: './tsconfig.build.json',
             afterBuild: () => {
                 copyFileSync('dist/index.d.ts', 'dist/index.d.cts');
             },

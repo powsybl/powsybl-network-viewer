@@ -8,10 +8,15 @@ This library contains three viewers:
 - network-map-viewer, to display the substations / voltage levels on a map
 
 The library is built with the Vite bundler.
-Node from v22+ is required to build with Vite.
-
+[Node v24+](https://nodejs.org/en/download) is required to build with Vite. Use fnm or nvm to select the correct Node version when entering the project directory.
 > **_Note:_**  
 > A .nvmrc file is present in the repository, please run `nvm use` to use the expected NodeJS version.
+
+The current package manager is set in the `"packageManager"` field in `package.json`.  
+To install it, run:
+```bash
+corepack install
+```
 
 ## Installation
 
@@ -85,7 +90,13 @@ For development purpose, to install this library locally from an app, you should
 Then in the app project :
 
 - npm install {PATH_TO_LIBRARY}/powsybl-network-map-layers-{LIBRARY_VERSION}.tgz
+- npm install {PATH_TO_LIBRARY}/powsybl-network-viewer-core-{LIBRARY_VERSION}.tgz
 - npm install {PATH_TO_LIBRARY}/powsybl-network-viewer-{LIBRARY_VERSION}.tgz
+
+_Warning_ : You could encounter ERESOLVE errors from peer dependencies during installation.  
+Please run `npm install --legacy-peer-deps` to fix this for developpement context.  
+Do not merge later changes, it won't happen with version installation from the npmjs repository.  
+See : https://github.com/npm/cli/issues/8647
 
 _Warning_ : with Create React App, we realised the library was not updating correctly if you try to install the library multiple times.
 To fix this, run this command from the app **after** running "npm install"
@@ -96,49 +107,88 @@ To fix this, run this command from the app **after** running "npm install"
 
 (Optional) [Test your package from library dependent directory](https://docs.npmjs.com/creating-and-publishing-scoped-public-packages#testing-your-package)
 
-If you want to deploy a new version of powsybl-network-viewer in the [NPM package registry](https://www.npmjs.com/package/@powsybl/powsybl-network-viewer),
-you need to follow the steps below:
+According to PowSyBl [branching and release strategy](https://github.com/powsybl/.github/blob/main/BRANCHING_RELEASE_STRATEGY.md), 
+if you want to publish a new release of powsybl-network-viewer in the 
+[NPM package registry](https://www.npmjs.com/package/@powsybl/powsybl-network-viewer), you need to follow the steps below:
 
 ---
+##### 1/ Update your main branch to the latest version:
 
-##### 1/ Prepare released version
+```shell
+$ cd powsybl-network-viewer
+$ git checkout main
+$ git pull
+```
 
-- Update to the new version in both packages (example `3.2.0`):  
-  `npm --workspaces --include-workspace-root --no-git-tag-version version 3.2.0`  
-  **Remarks**: without `--no-git-tag-version` the commit doesn't contain both package.json and the complete package-lock.json files then we do it manually next
-- Change the version of dependencies in the root `package.json` to `^3.2.0`
-- `npm i` to update package-lock accordingly
-- Commit the package.json and package-lock.json files, push to a branch, make a PR, have it reviewed and merged to main with title `Bump to 3.2.0`.
-- Pull and checkout main on your last commit.
-- [Tag (with -s signed) your last commit](https://semver.org/) :  
-  `git tag -s <tag>` (example: `git tag -s v3.2.0`)
-- Push tag :  
-  `git push origin <tag>`
+##### 2/ Prepare the temporary branch
 
----
+- Create your temporary branch preparing the release X.Y.0 and bump to your release version.
+```shell
+$ git checkout -b tmp_prepare_release
+$ npm --workspaces --include-workspace-root --no-git-tag-version version X.Y.0
+```
 
-##### 2/ Publish version
+- Manually change the version of dependencies in the root `package.json` to `^X.Y.0`
+- Update package-lock accordingly and commit the changes.
 
-- Checkout the tag in a fresh repo copy :  
-  `cd $(mktemp -d) && git clone https://github.com/powsybl/powsybl-network-viewer.git` then `cd powsybl-network-viewer && git checkout <tag>`
-- Install your packages:  
-  `npm install --workspaces --include-workspace-root`
-- Build the packages - npm will publish the README.md, the package.json files and the dist directory you just generate :  
-  `npm run build:all`
-- [Login on the command line to the npm registry](https://docs.npmjs.com/logging-in-to-an-npm-enterprise-registry-from-the-command-line):  
-  `npm login`
-- [Publish the package](https://docs.npmjs.com/creating-and-publishing-scoped-public-packages#publishing-scoped-public-packages):  
-  `npm run publish:all`
+```shell
+$ npm i
+$ git commit -s -a -S -m "Bump to vX.Y.0"
+$ git push -u origin tmp_prepare_release
+```
 
----
+- Create a pull request from your temporary branch into the `main` branch.
+- Wait until all the CI criteria are fully validated. Then add a commit for your next snapshot version, including the
+change in the root `package.json` to `^X.Y+1.0-dev.0`.
+- You can then push again.
 
-##### 3/ Prepare next version
+```shell
+$ npm --workspaces --include-workspace-root --no-git-tag-version version X.Y+1.0-dev.0
+$ npm i
+$ git commit -s -a -S -m "Bump to vX.Y+1.0-dev.0"
+$ git push -u origin tmp_prepare_release
+```
 
-- Update to the next version in both packages (example `3.3.0-dev.0`):  
-  `npm --workspaces --include-workspace-root --no-git-tag-version version 3.3.0-dev.0`
-- Change the version of dependencies in the root `package.json` to `^3.3.0-dev.0`
-- `npm i` to update package-lock accordingly
-- Commit the package.json and package-lock.json files, push to a branch, make a PR, have it reviewed and merge to main with title `Bump to 3.3.0-dev.0`.
+- Tag another maintainer as a reviewer to your pull request so they can approve it.
+
+##### 3/ Merge the pull request
+
+Once it is approved, locally merge it by following these steps:
+```shell
+$ git checkout main
+$ git pull
+$ git merge --ff tmp_prepare_release
+$ git push
+```
+After that, create your tag:
+```shell
+$ git tag -s vX.Y.0 <hash of the corresponding commit (bumping to vX.Y.0)>
+$ git push origin vX.Y.0
+```
+NB: the tag must respect the pattern `vX.Y.0`.
+
+You can then publish a Release note pointing to your newly created tag.
+
+Please make sure that your release note is comprehensive to all new features and bug fixes of the release and that the migration guide has been updated if necessary.
+
+##### 4/ Publish the new version
+
+- Check out the tag in a fresh repo copy
+- Install your packages
+- Build the packages – npm will publish the README.md, the package.json files and the dist directory you generated
+- [Login on the command line to the npm registry](https://docs.npmjs.com/logging-in-to-an-npm-enterprise-registry-from-the-command-line)
+- [Publish the package](https://docs.npmjs.com/creating-and-publishing-scoped-public-packages#publishing-scoped-public-packages)
+
+```shell
+$ cd $(mktemp -d)
+$ git clone https://github.com/powsybl/powsybl-network-viewer.git
+$ cd powsybl-network-viewer
+$ git checkout vX.Y.0
+$ npm install --workspaces --include-workspace-root
+$ npm run build:all
+$ npm login
+$ npm run publish:all
+```
 
 ### Notes :
 

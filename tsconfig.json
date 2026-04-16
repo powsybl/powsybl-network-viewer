@@ -15,11 +15,10 @@
         "demo", // we can let demo because the file generation is managed by vite and we have noEmit anyway
         "utils",
         "setupTests.ts",
-        "svgTransform.ts",
         // We must list config files in typescript because needed by prettier when called by eslint as plugin
         "eslint.config.js",
-        "jest.config.ts",
         "prettier.config.js",
+        "vitest.config.ts",
         "vite.config.ts"
     ]
 }

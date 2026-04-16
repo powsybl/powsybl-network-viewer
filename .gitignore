@@ -18,5 +18,5 @@
 # ESLint
 /.eslintcache
 
-# jest
+# Vitest
 /coverage
