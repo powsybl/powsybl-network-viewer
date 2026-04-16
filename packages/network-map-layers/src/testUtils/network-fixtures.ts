@@ -458,7 +458,9 @@ export function createLineForLineLayer(overrides: Partial<MapLineWithType> = {})
     };
 }
 
-export function createMapLineWithType(overrides: Partial<MapLine> = {}): MapAdditionalProperties & MapLineWithType {
+export function createMapLineWithType(
+    overrides: Partial<MapLine & MapAdditionalProperties> = {}
+): MapAdditionalProperties & MapLineWithType {
     return {
         id: 'line-visual-1',
         equipmentType: EQUIPMENT_TYPES.LINE,
