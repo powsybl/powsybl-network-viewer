@@ -155,3 +155,4 @@ See [Contributing.md](https://github.com/powsybl/.github/blob/main/CONTRIBUTING.
 on how to contribute to the code.
 
 See [Security.md](https://github.com/powsybl/.github/blob/main/SECURITY.md) to read about the security policy.
+
