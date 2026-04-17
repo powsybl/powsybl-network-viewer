@@ -21,8 +21,8 @@ import NadSvgMultibusVLNodesLimitPercentageExample from './data/nad-ieee9-zeroim
 import NadSvgMultibusVLNodesLimitPercentageExampleMeta from './data/nad-ieee9-zeroimpedance-cdf-limit-percentage_metadata.json';
 import NadSvgMultibusVLNodes14Example from './data/nad-ieee14cdf-solved.svg';
 import NadSvgMultibusVLNodes14ExampleMeta from './data/nad-ieee14cdf-solved_metadata.json';
-import NadSvgThreeWTDanglingLineUnknownBusExample from './data/nad-scada.svg';
-import NadSvgThreeWTDanglingLineUnknownBusExampleMeta from './data/nad-scada_metadata.json';
+import NadSvgThreeWTBoundaryLineUnknownBusExample from './data/nad-scada.svg';
+import NadSvgThreeWTBoundaryLineUnknownBusExampleMeta from './data/nad-scada_metadata.json';
 import NadSvgPartialNetworkExample from './data/nad-ieee300cdf-VL9006.svg';
 import NadSvgPartialNetworkExampleMeta from './data/nad-ieee300cdf-VL9006_metadata.json';
 import NadSvgPegaseNetworkExample from './data/case1354pegase.svg';
@@ -273,7 +273,7 @@ export const addNadToDemo = () => {
             );
         });
 
-    fetch(NadSvgThreeWTDanglingLineUnknownBusExample)
+    fetch(NadSvgThreeWTBoundaryLineUnknownBusExample)
         .then((response) => response.text())
         .then((svgContent) => {
             const nadViewerParametersOptions: NadViewerParametersOptions = {
@@ -289,7 +289,7 @@ export const addNadToDemo = () => {
             new NetworkAreaDiagramViewer(
                 document.getElementById('svg-container-nad-threewt-dl-ub')!,
                 svgContent,
-                NadSvgThreeWTDanglingLineUnknownBusExampleMeta,
+                NadSvgThreeWTBoundaryLineUnknownBusExampleMeta,
                 nadViewerParametersOptions
             );
         });
