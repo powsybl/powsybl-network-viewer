@@ -268,6 +268,9 @@ export class NetworkAreaDiagramViewer {
                 this.updateNodeMetadata(elemToMove, new Point(x, y));
                 // update and redraw element
                 this.updateElement(elemToMove);
+                // reset initial position now that node is moved
+                // to avoid wrong offset if the node is moved again before mouse up
+                this.initialPosition = null;
             }
         }
     }
@@ -311,6 +314,9 @@ export class NetworkAreaDiagramViewer {
 
         //update and redraw element
         this.updateElement(elemToMove);
+        // reset initial position now that text node is moved
+        // to avoid wrong offset if the text node is moved again before mouse up
+        this.initialPosition = null;
     }
 
     private hasNodeInteraction(): boolean {
@@ -1315,7 +1321,9 @@ export class NetworkAreaDiagramViewer {
         edgeInfo.setAttribute('transform', 'translate(' + DiagramUtils.getFormattedPoint(arrowCenter) + ')');
         const arrowAngle = HalfEdgeUtils.getArrowRotation(halfEdge);
         const arrowElement = edgeInfo.querySelector('path') as SVGGraphicsElement;
-        arrowElement.setAttribute('transform', 'rotate(' + DiagramUtils.getFormattedValue(arrowAngle) + ')');
+        if (arrowElement) {
+            arrowElement.setAttribute('transform', 'rotate(' + DiagramUtils.getFormattedValue(arrowAngle) + ')');
+        }
 
         // move edge labels
         const labelData = HalfEdgeUtils.getLabelData(halfEdge, this.svgParameters.getArrowLabelShift());
@@ -1752,7 +1760,7 @@ export class NetworkAreaDiagramViewer {
         const visibleNodeIds = new Set<string>();
 
         for (const node of nodes) {
-            if (node.x >= minX && node.x <= maxX && node.y >= minY && node.y <= maxY) {
+            if (!node.invisible && node.x >= minX && node.x <= maxX && node.y >= minY && node.y <= maxY) {
                 visibleNodes.push(node);
                 visibleNodeIds.add(node.svgId);
             }
@@ -1869,7 +1877,10 @@ export class NetworkAreaDiagramViewer {
                     nbGroupedEdges = groupedEdges.length;
                 }
             }
-            halfEdges = this.getHalfEdges(edge, iEdge, nbGroupedEdges);
+            // We don't need to consider this.initialPosition and this.draggedElement here,
+            // during the adaptiveTextZoom update, edges are not moved by dragging.
+            // getHalfEdgesForEdgeInfos is only used for edge infos position update.
+            halfEdges = this.getHalfEdges(edge, iEdge, nbGroupedEdges, undefined, undefined, null);
         }
         return halfEdges;
     }
@@ -1906,12 +1917,11 @@ export class NetworkAreaDiagramViewer {
 
     private createEdgesInfos(edges: EdgeMetadata[]): void {
         for (const edge of edges) {
-            const edgeInfo = edge.edgeInfo1 ?? edge.edgeInfo2 ?? edge.edgeInfoMiddle;
-            if (!edgeInfo) {
-                continue;
-            }
-
-            if (!this.hasEdgeInfo(edgeInfo)) {
+            if (
+                (edge.edgeInfo1 && !this.hasEdgeInfo(edge.edgeInfo1)) ||
+                (edge.edgeInfo2 && !this.hasEdgeInfo(edge.edgeInfo2)) ||
+                (edge.edgeInfoMiddle && !this.hasEdgeInfo(edge.edgeInfoMiddle))
+            ) {
                 this.createEdgeInfos(edge);
             }
         }
@@ -2779,7 +2789,14 @@ export class NetworkAreaDiagramViewer {
         }
     }
 
-    private getHalfEdges(edge: EdgeMetadata, iEdge: number, groupedEdgesCount: number, point1?: Point, point2?: Point) {
+    private getHalfEdges(
+        edge: EdgeMetadata,
+        iEdge: number,
+        groupedEdgesCount: number,
+        point1?: Point,
+        point2?: Point,
+        initialPosition: Point | null = this.initialPosition
+    ) {
         // Detect if the edge is linked to an invisible node (not in DOM)
         const invisibleSide = MetadataUtils.getInvisibleSide(edge);
 
@@ -2792,7 +2809,7 @@ export class NetworkAreaDiagramViewer {
                 visibleSide,
                 groupedEdgesCount > 1,
                 this.diagramMetadata,
-                this.initialPosition,
+                initialPosition,
                 this.svgParameters
             );
         } else {
