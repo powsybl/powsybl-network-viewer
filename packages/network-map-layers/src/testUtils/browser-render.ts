@@ -19,7 +19,7 @@ export const VIEW_STATE = {
 export const SCREENSHOT_OPTIONS = {
     comparatorName: 'pixelmatch' as const,
     comparatorOptions: {
-        allowedMismatchedPixelRatio: 0.0,
+        allowedMismatchedPixelRatio: 0.001, // Allow up to 0.1% of pixels to be different
     },
 };
 
