@@ -17,6 +17,8 @@
 
 # ESLint
 /.eslintcache
+packages/network-map-layers/.eslintcache
+packages/network-viewer-core/.eslintcache
 
 # Vitest
 /coverage
