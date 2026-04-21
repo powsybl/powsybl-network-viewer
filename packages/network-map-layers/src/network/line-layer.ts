@@ -9,7 +9,6 @@ import {
     type Color,
     CompositeLayer,
     type CompositeLayerProps,
-    COORDINATE_SYSTEM,
     type DefaultProps,
     type Layer,
     type LayerContext,
@@ -747,7 +746,7 @@ export class LineLayer extends CompositeLayer<Required<_LineLayerProps>> {
 
     getProximityFactor(firstPosition: LonLat, secondPosition: LonLat) {
         let dist;
-        if (this.props.coordinateSystem === COORDINATE_SYSTEM.CARTESIAN) {
+        if (this.props.coordinateSystem === 'cartesian') {
             dist = Math.hypot(secondPosition[0] - firstPosition[0], secondPosition[1] - firstPosition[1]);
         } else {
             dist = getDistance(firstPosition, secondPosition);
@@ -760,7 +759,7 @@ export class LineLayer extends CompositeLayer<Required<_LineLayerProps>> {
     }
 
     computeAngle(props: this['props'], position1: LonLat, position2: LonLat) {
-        if (props.coordinateSystem === COORDINATE_SYSTEM.CARTESIAN) {
+        if (props.coordinateSystem === 'cartesian') {
             const [x1, y1] = position1;
             const [x2, y2] = position2;
             return (3 * Math.PI) / 2 - Math.atan2(y2 - y1, x2 - x1);
