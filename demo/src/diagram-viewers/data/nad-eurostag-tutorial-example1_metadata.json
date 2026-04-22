@@ -6,6 +6,7 @@
       "y" : -40.0
     },
     "maxSteps" : 1000,
+    "timeoutSeconds" : 15.0,
     "textNodeEdgeConnectionYShift" : 25.0,
     "injectionsAdded" : false
   },
@@ -38,22 +39,16 @@
     "loopEdgesAperture" : 60.0,
     "loopControlDistance" : 40.0,
     "edgeInfoAlongEdge" : true,
-    "edgeNameDisplayed" : true,
     "interAnnulusSpace" : 5.0,
     "svgPrefix" : "",
-    "idDisplayed" : false,
-    "substationDescriptionDisplayed" : false,
     "arrowPathIn" : "M-10 -10 H10 L0 10z",
     "arrowPathOut" : "M-10 10 H10 L0 -10z",
-    "busLegend" : true,
-    "voltageLevelDetails" : false,
     "languageTag" : "en",
     "voltageValuePrecision" : 1,
     "powerValuePrecision" : 0,
     "angleValuePrecision" : 1,
     "currentValuePrecision" : 0,
     "percentageValuePrecision" : 0,
-    "edgeInfoDisplayed" : "ACTIVE_POWER",
     "pstArrowHeadSize" : 8.0,
     "undefinedValueSymbol" : "",
     "highlightGraph" : false,
@@ -133,34 +128,63 @@
     "busNode1" : "3",
     "busNode2" : "7",
     "type" : "TwoWtEdge",
-    "label" : "NGEN_NHV1"
+    "edgeInfoMiddle" : {
+      "svgId" : "17",
+      "infoTypeA" : "Name",
+      "labelA" : "NGEN_NHV1"
+    }
   }, {
-    "svgId" : "17",
+    "svgId" : "18",
     "equipmentId" : "NHV1_NHV2_1",
     "node1" : "4",
     "node2" : "8",
     "busNode1" : "7",
     "busNode2" : "11",
     "type" : "LineEdge",
-    "label" : "NHV1_NHV2_1"
+    "edgeInfoMiddle" : {
+      "svgId" : "19",
+      "infoTypeA" : "Name",
+      "labelA" : "NHV1_NHV2_1"
+    }
   }, {
-    "svgId" : "18",
+    "svgId" : "20",
     "equipmentId" : "NHV1_NHV2_2",
+    "node1" : "4",
+    "node2" : "8",
+    "busNode1" : "7",
+    "busNode2" : "11",
+    "type" : "LineEdge",
+    "edgeInfoMiddle" : {
+      "svgId" : "21",
+      "infoTypeA" : "Name",
+      "labelA" : "NHV1_NHV2_2"
+    }
+  }, {
+    "svgId" : "22",
+    "equipmentId" : "NHV1_NHV2_3",
     "node1" : "8",
     "node2" : "4",
     "busNode1" : "11",
     "busNode2" : "7",
     "type" : "LineEdge",
-    "label" : "NHV1_NHV2_2"
+    "edgeInfoMiddle" : {
+      "svgId" : "23",
+      "infoTypeA" : "Name",
+      "labelA" : "NHV1_NHV2_3"
+    }
   }, {
-    "svgId" : "19",
+    "svgId" : "24",
     "equipmentId" : "NHV2_NLOAD",
     "node1" : "8",
     "node2" : "12",
     "busNode1" : "11",
     "busNode2" : "15",
     "type" : "TwoWtEdge",
-    "label" : "NHV2_NLOAD"
+    "edgeInfoMiddle" : {
+      "svgId" : "25",
+      "infoTypeA" : "Name",
+      "labelA" : "NHV2_NLOAD"
+    }
   } ],
   "textNodes" : [ {
     "svgId" : "1",

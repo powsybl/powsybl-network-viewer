@@ -1,28 +1,24 @@
 {
+    "extends": "./tsconfig.base.json",
     "compilerOptions": {
-        "module": "esnext",
-        "moduleResolution": "bundler",
-        "target": "es6",
-        "declaration": true,
+        "baseUrl": ".",
+        "paths": {
+            "@powsybl/network-viewer-core": ["packages/network-viewer-core/src/"],
+            "@powsybl/network-map-layers": ["packages/network-map-layers/src/"],
+            "vite-plugin-checker": ["node_modules/vite-plugin-checker/dist/main.d.ts"]
+        },
         "outDir": "./dist",
-        "strict": true,
-        "skipLibCheck": true,
-        "esModuleInterop": true,
-        "forceConsistentCasingInFileNames": true,
-        "allowSyntheticDefaultImports": true,
-        "noFallthroughCasesInSwitch": true,
-        "resolveJsonModule": true,
-        "noEmit": true,
         "jsx": "react-jsx"
     },
     "include": [
         "src",
         "demo", // we can let demo because the file generation is managed by vite and we have noEmit anyway
+        "utils",
         "setupTests.ts",
-        "svgTransform.ts",
         // We must list config files in typescript because needed by prettier when called by eslint as plugin
-        "jest.config.ts",
+        "eslint.config.js",
         "prettier.config.js",
+        "vitest.config.ts",
         "vite.config.ts"
     ]
 }

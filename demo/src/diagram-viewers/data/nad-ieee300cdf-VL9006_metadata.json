@@ -6,6 +6,7 @@
       "y" : -40.0
     },
     "maxSteps" : 1000,
+    "timeoutSeconds" : 15.0,
     "textNodeEdgeConnectionYShift" : 25.0,
     "injectionsAdded" : true
   },
@@ -38,22 +39,16 @@
     "loopEdgesAperture" : 60.0,
     "loopControlDistance" : 40.0,
     "edgeInfoAlongEdge" : true,
-    "edgeNameDisplayed" : false,
     "interAnnulusSpace" : 5.0,
     "svgPrefix" : "",
-    "idDisplayed" : false,
-    "substationDescriptionDisplayed" : false,
     "arrowPathIn" : "M-10 -10 H10 L0 10z",
     "arrowPathOut" : "M-10 10 H10 L0 -10z",
-    "busLegend" : true,
-    "voltageLevelDetails" : false,
     "languageTag" : "en",
     "voltageValuePrecision" : 1,
     "powerValuePrecision" : 0,
     "angleValuePrecision" : 1,
     "currentValuePrecision" : 0,
     "percentageValuePrecision" : 0,
-    "edgeInfoDisplayed" : "ACTIVE_POWER",
     "pstArrowHeadSize" : 8.0,
     "undefinedValueSymbol" : "",
     "highlightGraph" : false,
@@ -327,6 +322,7 @@
     "equipmentId" : "VL15",
     "x" : 1174.06,
     "y" : -237.85,
+    "invisible" : true,
     "legendSvgId" : "37",
     "legendEdgeSvgId" : "38",
     "legendHeader" : [ "VL15" ]
@@ -335,6 +331,7 @@
     "equipmentId" : "VL38",
     "x" : 1172.11,
     "y" : -655.15,
+    "invisible" : true,
     "legendSvgId" : "42",
     "legendEdgeSvgId" : "43",
     "legendHeader" : [ "VL38" ]
@@ -343,6 +340,7 @@
     "equipmentId" : "VL40",
     "x" : 650.79,
     "y" : -994.74,
+    "invisible" : true,
     "legendSvgId" : "46",
     "legendEdgeSvgId" : "47",
     "legendHeader" : [ "VL40" ]
@@ -351,6 +349,7 @@
     "equipmentId" : "VL41",
     "x" : 262.66,
     "y" : -288.42,
+    "invisible" : true,
     "legendSvgId" : "50",
     "legendEdgeSvgId" : "51",
     "legendHeader" : [ "VL41" ]
@@ -359,6 +358,7 @@
     "equipmentId" : "VL49",
     "x" : 290.91,
     "y" : -733.98,
+    "invisible" : true,
     "legendSvgId" : "54",
     "legendEdgeSvgId" : "55",
     "legendHeader" : [ "VL49" ]
@@ -367,6 +367,7 @@
     "equipmentId" : "VL89",
     "x" : 588.59,
     "y" : 109.54,
+    "invisible" : true,
     "legendSvgId" : "58",
     "legendEdgeSvgId" : "59",
     "legendHeader" : [ "VL89" ]
@@ -375,6 +376,7 @@
     "equipmentId" : "VL90",
     "x" : 983.96,
     "y" : 103.34,
+    "invisible" : true,
     "legendSvgId" : "62",
     "legendEdgeSvgId" : "63",
     "legendHeader" : [ "VL90" ]
@@ -383,6 +385,7 @@
     "equipmentId" : "VL9005",
     "x" : 800.81,
     "y" : -657.26,
+    "invisible" : true,
     "legendSvgId" : "66",
     "legendEdgeSvgId" : "67",
     "legendHeader" : [ "VL9005" ]
@@ -391,6 +394,7 @@
     "equipmentId" : "VL9021",
     "x" : 19.76,
     "y" : 1247.29,
+    "invisible" : true,
     "legendSvgId" : "70",
     "legendEdgeSvgId" : "71",
     "legendHeader" : [ "VL9021" ]
@@ -399,6 +403,7 @@
     "equipmentId" : "VL9024",
     "x" : -529.95,
     "y" : 1193.31,
+    "invisible" : true,
     "legendSvgId" : "74",
     "legendEdgeSvgId" : "75",
     "legendHeader" : [ "VL9024" ]
@@ -407,6 +412,7 @@
     "equipmentId" : "VL9031",
     "x" : -956.12,
     "y" : -644.58,
+    "invisible" : true,
     "legendSvgId" : "78",
     "legendEdgeSvgId" : "79",
     "legendHeader" : [ "VL9031" ]
@@ -415,6 +421,7 @@
     "equipmentId" : "VL9036",
     "x" : -510.41,
     "y" : -604.32,
+    "invisible" : true,
     "legendSvgId" : "88",
     "legendEdgeSvgId" : "89",
     "legendHeader" : [ "VL9036" ]
@@ -423,6 +430,7 @@
     "equipmentId" : "VL9044",
     "x" : -1158.33,
     "y" : -213.76,
+    "invisible" : true,
     "legendSvgId" : "92",
     "legendEdgeSvgId" : "93",
     "legendHeader" : [ "VL9044" ]
@@ -431,6 +439,7 @@
     "equipmentId" : "VL9071",
     "x" : -1026.69,
     "y" : 455.81,
+    "invisible" : true,
     "legendSvgId" : "96",
     "legendEdgeSvgId" : "97",
     "legendHeader" : [ "VL9071" ]
@@ -443,9 +452,9 @@
     "vlNodeId" : "0",
     "edgeInfo" : {
       "svgId" : "4",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "OUT",
-      "externalLabel" : "85"
+      "labelB" : "85"
     }
   }, {
     "svgId" : "10",
@@ -455,9 +464,9 @@
     "vlNodeId" : "7",
     "edgeInfo" : {
       "svgId" : "11",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "OUT",
-      "externalLabel" : "-0"
+      "labelB" : "-0"
     }
   }, {
     "svgId" : "16",
@@ -467,9 +476,9 @@
     "vlNodeId" : "13",
     "edgeInfo" : {
       "svgId" : "17",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "OUT",
-      "externalLabel" : "3"
+      "labelB" : "3"
     }
   }, {
     "svgId" : "18",
@@ -479,9 +488,9 @@
     "vlNodeId" : "13",
     "edgeInfo" : {
       "svgId" : "19",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "OUT",
-      "externalLabel" : "0"
+      "labelB" : "0"
     }
   }, {
     "svgId" : "33",
@@ -491,9 +500,9 @@
     "vlNodeId" : "30",
     "edgeInfo" : {
       "svgId" : "34",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "OUT",
-      "externalLabel" : "4"
+      "labelB" : "4"
     }
   } ],
   "edges" : [ {
@@ -504,17 +513,18 @@
     "busNode1" : "39",
     "busNode2" : "5",
     "type" : "LineEdge",
+    "invisible1" : true,
     "edgeInfo1" : {
       "svgId" : "101",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "OUT",
-      "externalLabel" : "51"
+      "labelB" : "51"
     },
     "edgeInfo2" : {
       "svgId" : "102",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "IN",
-      "externalLabel" : "-49"
+      "labelB" : "-49"
     }
   }, {
     "svgId" : "103",
@@ -524,17 +534,18 @@
     "busNode1" : "5",
     "busNode2" : "44",
     "type" : "LineEdge",
+    "invisible2" : true,
     "edgeInfo1" : {
       "svgId" : "104",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "OUT",
-      "externalLabel" : "7"
+      "labelB" : "7"
     },
     "edgeInfo2" : {
       "svgId" : "105",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "IN",
-      "externalLabel" : "-7"
+      "labelB" : "-7"
     }
   }, {
     "svgId" : "106",
@@ -544,17 +555,18 @@
     "busNode1" : "5",
     "busNode2" : "48",
     "type" : "LineEdge",
+    "invisible2" : true,
     "edgeInfo1" : {
       "svgId" : "107",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "OUT",
-      "externalLabel" : "9"
+      "labelB" : "9"
     },
     "edgeInfo2" : {
       "svgId" : "108",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "IN",
-      "externalLabel" : "-9"
+      "labelB" : "-9"
     }
   }, {
     "svgId" : "109",
@@ -564,17 +576,18 @@
     "busNode1" : "5",
     "busNode2" : "52",
     "type" : "LineEdge",
+    "invisible2" : true,
     "edgeInfo1" : {
       "svgId" : "110",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "IN",
-      "externalLabel" : "-82"
+      "labelB" : "-82"
     },
     "edgeInfo2" : {
       "svgId" : "111",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "OUT",
-      "externalLabel" : "83"
+      "labelB" : "83"
     }
   }, {
     "svgId" : "112",
@@ -584,17 +597,18 @@
     "busNode1" : "5",
     "busNode2" : "56",
     "type" : "LineEdge",
+    "invisible2" : true,
     "edgeInfo1" : {
       "svgId" : "113",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "OUT",
-      "externalLabel" : "38"
+      "labelB" : "38"
     },
     "edgeInfo2" : {
       "svgId" : "114",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "IN",
-      "externalLabel" : "-37"
+      "labelB" : "-37"
     }
   }, {
     "svgId" : "115",
@@ -604,17 +618,18 @@
     "busNode1" : "5",
     "busNode2" : "60",
     "type" : "LineEdge",
+    "invisible2" : true,
     "edgeInfo1" : {
       "svgId" : "116",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "IN",
-      "externalLabel" : "-23"
+      "labelB" : "-23"
     },
     "edgeInfo2" : {
       "svgId" : "117",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "OUT",
-      "externalLabel" : "24"
+      "labelB" : "24"
     }
   }, {
     "svgId" : "118",
@@ -624,17 +639,18 @@
     "busNode1" : "5",
     "busNode2" : "64",
     "type" : "LineEdge",
+    "invisible2" : true,
     "edgeInfo1" : {
       "svgId" : "119",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "IN",
-      "externalLabel" : "-28"
+      "labelB" : "-28"
     },
     "edgeInfo2" : {
       "svgId" : "120",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "OUT",
-      "externalLabel" : "28"
+      "labelB" : "28"
     }
   }, {
     "svgId" : "121",
@@ -644,17 +660,18 @@
     "busNode1" : "6",
     "busNode2" : "68",
     "type" : "LineEdge",
+    "invisible2" : true,
     "edgeInfo1" : {
       "svgId" : "122",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "OUT",
-      "externalLabel" : "6"
+      "labelB" : "6"
     },
     "edgeInfo2" : {
       "svgId" : "123",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "IN",
-      "externalLabel" : "-6"
+      "labelB" : "-6"
     }
   }, {
     "svgId" : "124",
@@ -666,15 +683,15 @@
     "type" : "TwoWtEdge",
     "edgeInfo1" : {
       "svgId" : "125",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "OUT",
-      "externalLabel" : "44"
+      "labelB" : "44"
     },
     "edgeInfo2" : {
       "svgId" : "126",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "IN",
-      "externalLabel" : "-44"
+      "labelB" : "-44"
     }
   }, {
     "svgId" : "127",
@@ -686,15 +703,15 @@
     "type" : "TwoWtEdge",
     "edgeInfo1" : {
       "svgId" : "128",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "OUT",
-      "externalLabel" : "25"
+      "labelB" : "25"
     },
     "edgeInfo2" : {
       "svgId" : "129",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "IN",
-      "externalLabel" : "-25"
+      "labelB" : "-25"
     }
   }, {
     "svgId" : "130",
@@ -706,15 +723,15 @@
     "type" : "TwoWtEdge",
     "edgeInfo1" : {
       "svgId" : "131",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "OUT",
-      "externalLabel" : "13"
+      "labelB" : "13"
     },
     "edgeInfo2" : {
       "svgId" : "132",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "IN",
-      "externalLabel" : "-12"
+      "labelB" : "-12"
     }
   }, {
     "svgId" : "133",
@@ -724,17 +741,18 @@
     "busNode1" : "12",
     "busNode2" : "72",
     "type" : "LineEdge",
+    "invisible2" : true,
     "edgeInfo1" : {
       "svgId" : "134",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "OUT",
-      "externalLabel" : "7"
+      "labelB" : "7"
     },
     "edgeInfo2" : {
       "svgId" : "135",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "IN",
-      "externalLabel" : "-7"
+      "labelB" : "-7"
     }
   }, {
     "svgId" : "136",
@@ -746,15 +764,15 @@
     "type" : "LineEdge",
     "edgeInfo1" : {
       "svgId" : "137",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "OUT",
-      "externalLabel" : "4"
+      "labelB" : "4"
     },
     "edgeInfo2" : {
       "svgId" : "138",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "IN",
-      "externalLabel" : "-4"
+      "labelB" : "-4"
     }
   }, {
     "svgId" : "139",
@@ -766,15 +784,15 @@
     "type" : "LineEdge",
     "edgeInfo1" : {
       "svgId" : "140",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "OUT",
-      "externalLabel" : "4"
+      "labelB" : "4"
     },
     "edgeInfo2" : {
       "svgId" : "141",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "IN",
-      "externalLabel" : "-4"
+      "labelB" : "-4"
     }
   }, {
     "svgId" : "142",
@@ -784,17 +802,18 @@
     "busNode1" : "12",
     "busNode2" : "76",
     "type" : "TwoWtEdge",
+    "invisible2" : true,
     "edgeInfo1" : {
       "svgId" : "143",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "OUT",
-      "externalLabel" : "1"
+      "labelB" : "1"
     },
     "edgeInfo2" : {
       "svgId" : "144",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "IN",
-      "externalLabel" : "-1"
+      "labelB" : "-1"
     }
   }, {
     "svgId" : "145",
@@ -804,17 +823,18 @@
     "busNode1" : "20",
     "busNode2" : "94",
     "type" : "LineEdge",
+    "invisible2" : true,
     "edgeInfo1" : {
       "svgId" : "146",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "OUT",
-      "externalLabel" : "4"
+      "labelB" : "4"
     },
     "edgeInfo2" : {
       "svgId" : "147",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "IN",
-      "externalLabel" : "-4"
+      "labelB" : "-4"
     }
   }, {
     "svgId" : "148",
@@ -826,15 +846,15 @@
     "type" : "LineEdge",
     "edgeInfo1" : {
       "svgId" : "149",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "OUT",
-      "externalLabel" : "8"
+      "labelB" : "8"
     },
     "edgeInfo2" : {
       "svgId" : "150",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "IN",
-      "externalLabel" : "-8"
+      "labelB" : "-8"
     }
   }, {
     "svgId" : "151",
@@ -846,15 +866,15 @@
     "type" : "LineEdge",
     "edgeInfo1" : {
       "svgId" : "152",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "OUT",
-      "externalLabel" : "8"
+      "labelB" : "8"
     },
     "edgeInfo2" : {
       "svgId" : "153",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "IN",
-      "externalLabel" : "-8"
+      "labelB" : "-8"
     }
   }, {
     "svgId" : "154",
@@ -866,15 +886,15 @@
     "type" : "LineEdge",
     "edgeInfo1" : {
       "svgId" : "155",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "OUT",
-      "externalLabel" : "7"
+      "labelB" : "7"
     },
     "edgeInfo2" : {
       "svgId" : "156",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "IN",
-      "externalLabel" : "-7"
+      "labelB" : "-7"
     }
   }, {
     "svgId" : "157",
@@ -884,17 +904,18 @@
     "busNode1" : "20",
     "busNode2" : "80",
     "type" : "TwoWtEdge",
+    "invisible2" : true,
     "edgeInfo1" : {
       "svgId" : "158",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "OUT",
-      "externalLabel" : "2"
+      "labelB" : "2"
     },
     "edgeInfo2" : {
       "svgId" : "159",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "IN",
-      "externalLabel" : "-2"
+      "labelB" : "-2"
     }
   }, {
     "svgId" : "160",
@@ -904,17 +925,18 @@
     "busNode1" : "20",
     "busNode2" : "81",
     "type" : "TwoWtEdge",
+    "invisible2" : true,
     "edgeInfo1" : {
       "svgId" : "161",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "OUT",
-      "externalLabel" : "1"
+      "labelB" : "1"
     },
     "edgeInfo2" : {
       "svgId" : "162",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "IN",
-      "externalLabel" : "-1"
+      "labelB" : "-1"
     }
   }, {
     "svgId" : "163",
@@ -924,17 +946,18 @@
     "busNode1" : "20",
     "busNode2" : "82",
     "type" : "TwoWtEdge",
+    "invisible2" : true,
     "edgeInfo1" : {
       "svgId" : "164",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "OUT",
-      "externalLabel" : "2"
+      "labelB" : "2"
     },
     "edgeInfo2" : {
       "svgId" : "165",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "IN",
-      "externalLabel" : "-2"
+      "labelB" : "-2"
     }
   }, {
     "svgId" : "166",
@@ -944,17 +967,18 @@
     "busNode1" : "20",
     "busNode2" : "83",
     "type" : "TwoWtEdge",
+    "invisible2" : true,
     "edgeInfo1" : {
       "svgId" : "167",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "OUT",
-      "externalLabel" : "2"
+      "labelB" : "2"
     },
     "edgeInfo2" : {
       "svgId" : "168",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "IN",
-      "externalLabel" : "-2"
+      "labelB" : "-2"
     }
   }, {
     "svgId" : "169",
@@ -964,17 +988,18 @@
     "busNode1" : "20",
     "busNode2" : "84",
     "type" : "TwoWtEdge",
+    "invisible2" : true,
     "edgeInfo1" : {
       "svgId" : "170",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "OUT",
-      "externalLabel" : "2"
+      "labelB" : "2"
     },
     "edgeInfo2" : {
       "svgId" : "171",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "IN",
-      "externalLabel" : "-2"
+      "labelB" : "-2"
     }
   }, {
     "svgId" : "172",
@@ -984,17 +1009,18 @@
     "busNode1" : "20",
     "busNode2" : "90",
     "type" : "TwoWtEdge",
+    "invisible2" : true,
     "edgeInfo1" : {
       "svgId" : "173",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "OUT",
-      "externalLabel" : "3"
+      "labelB" : "3"
     },
     "edgeInfo2" : {
       "svgId" : "174",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "IN",
-      "externalLabel" : "-3"
+      "labelB" : "-3"
     }
   }, {
     "svgId" : "175",
@@ -1004,17 +1030,18 @@
     "busNode1" : "20",
     "busNode2" : "85",
     "type" : "TwoWtEdge",
+    "invisible2" : true,
     "edgeInfo1" : {
       "svgId" : "176",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "OUT",
-      "externalLabel" : "2"
+      "labelB" : "2"
     },
     "edgeInfo2" : {
       "svgId" : "177",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "IN",
-      "externalLabel" : "-2"
+      "labelB" : "-2"
     }
   }, {
     "svgId" : "178",
@@ -1024,17 +1051,18 @@
     "busNode1" : "20",
     "busNode2" : "86",
     "type" : "TwoWtEdge",
+    "invisible2" : true,
     "edgeInfo1" : {
       "svgId" : "179",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "OUT",
-      "externalLabel" : "3"
+      "labelB" : "3"
     },
     "edgeInfo2" : {
       "svgId" : "180",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "IN",
-      "externalLabel" : "-3"
+      "labelB" : "-3"
     }
   }, {
     "svgId" : "181",
@@ -1046,15 +1074,15 @@
     "type" : "LineEdge",
     "edgeInfo1" : {
       "svgId" : "182",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "OUT",
-      "externalLabel" : "9"
+      "labelB" : "9"
     },
     "edgeInfo2" : {
       "svgId" : "183",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "IN",
-      "externalLabel" : "-9"
+      "labelB" : "-9"
     }
   }, {
     "svgId" : "184",
@@ -1066,15 +1094,15 @@
     "type" : "LineEdge",
     "edgeInfo1" : {
       "svgId" : "185",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "OUT",
-      "externalLabel" : "4"
+      "labelB" : "4"
     },
     "edgeInfo2" : {
       "svgId" : "186",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "IN",
-      "externalLabel" : "-4"
+      "labelB" : "-4"
     }
   }, {
     "svgId" : "187",
@@ -1084,17 +1112,18 @@
     "busNode1" : "29",
     "busNode2" : "98",
     "type" : "TwoWtEdge",
+    "invisible2" : true,
     "edgeInfo1" : {
       "svgId" : "188",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "OUT",
-      "externalLabel" : "1"
+      "labelB" : "1"
     },
     "edgeInfo2" : {
       "svgId" : "189",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "IN",
-      "externalLabel" : "-1"
+      "labelB" : "-1"
     }
   }, {
     "svgId" : "190",
@@ -1104,17 +1133,18 @@
     "busNode1" : "29",
     "busNode2" : "99",
     "type" : "TwoWtEdge",
+    "invisible2" : true,
     "edgeInfo1" : {
       "svgId" : "191",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "OUT",
-      "externalLabel" : "1"
+      "labelB" : "1"
     },
     "edgeInfo2" : {
       "svgId" : "192",
-      "infoType" : "ActivePower",
+      "infoTypeB" : "ActivePower",
       "direction" : "IN",
-      "externalLabel" : "-1"
+      "labelB" : "-1"
     }
   } ],
   "textNodes" : [ {

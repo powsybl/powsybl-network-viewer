@@ -6,8 +6,8 @@
  */
 
 import { GL } from '@luma.gl/constants';
-import { Geometry, Model } from '@luma.gl/engine';
 import { Device, RenderPass, Texture, TextureFormat, TextureProps, UniformValue } from '@luma.gl/core';
+import { Geometry, Model } from '@luma.gl/engine';
 
 import {
     type Accessor,
@@ -21,10 +21,48 @@ import {
     project32,
     type UpdateParameters,
 } from '@deck.gl/core';
+import { ShaderModule } from '@luma.gl/shadertools';
 import { type MapAnyLineWithType } from '../../equipment-types';
 
-import vs from './arrow-layer-vertex.vert?raw';
 import fs from './arrow-layer-fragment.frag?raw';
+import vs from './arrow-layer-vertex.vert?raw';
+
+const arrowUniformBlock = `\
+uniform arrowUniforms {
+    float sizeMinPixels;
+    float sizeMaxPixels;
+    float timestamp;
+    float maxParallelOffset;
+    float minParallelOffset;
+    highp ivec2 linePositionsTextureSize;
+    highp ivec2 lineDistancesTextureSize;
+} arrow;
+`;
+
+type ArrowUniforms = {
+    sizeMinPixels: number;
+    sizeMaxPixels: number;
+    timestamp: number;
+    maxParallelOffset: number;
+    minParallelOffset: number;
+    linePositionsTextureSize: [number, number];
+    lineDistancesTextureSize: [number, number];
+};
+
+const arrowUniforms = {
+    name: 'arrow',
+    vs: arrowUniformBlock,
+    fs: arrowUniformBlock,
+    uniformTypes: {
+        sizeMinPixels: 'f32',
+        sizeMaxPixels: 'f32',
+        timestamp: 'f32',
+        maxParallelOffset: 'f32',
+        minParallelOffset: 'f32',
+        linePositionsTextureSize: 'vec2<i32>',
+        lineDistancesTextureSize: 'vec2<i32>',
+    },
+} as const satisfies ShaderModule<ArrowUniforms>;
 
 const DEFAULT_COLOR = [0, 0, 0, 255] satisfies Color;
 
@@ -84,7 +122,7 @@ const defaultProps: DefaultProps<ArrowLayerProps> = {
     getLinePositions: { type: 'accessor', value: (line) => line.positions ?? [] },
     getSize: { type: 'accessor', value: 1 },
     getColor: { type: 'accessor', value: DEFAULT_COLOR },
-    getSpeedFactor: { type: 'accessor', value: 1.0 },
+    getSpeedFactor: { type: 'accessor', value: 1 },
     getDirection: { type: 'accessor', value: ArrowDirection.NONE },
     animated: { type: 'boolean', value: true },
     getLineParallelIndex: { type: 'accessor', value: 0 },
@@ -116,7 +154,7 @@ export default class ArrowLayer extends Layer<Required<_ArrowLayerProps>> {
     };
 
     override getShaders() {
-        return super.getShaders({ vs, fs, modules: [project32, picking] });
+        return super.getShaders({ vs, fs, modules: [project32, picking, arrowUniforms] });
     }
 
     getArrowLineAttributes(arrow: Arrow) {
@@ -157,7 +195,7 @@ export default class ArrowLayer extends Layer<Required<_ArrowLayerProps>> {
                 type: 'float32',
                 transition: true,
                 accessor: 'getSpeedFactor',
-                defaultValue: 1.0,
+                defaultValue: 1,
             },
             instanceArrowDistance: {
                 size: 1,
@@ -174,16 +212,16 @@ export default class ArrowLayer extends Layer<Required<_ArrowLayerProps>> {
                 transform: (direction) => {
                     switch (direction) {
                         case ArrowDirection.NONE:
-                            return 0.0;
+                            return 0;
                         case ArrowDirection.FROM_SIDE_1_TO_SIDE_2:
-                            return 1.0;
+                            return 1;
                         case ArrowDirection.FROM_SIDE_2_TO_SIDE_1:
-                            return 2.0;
+                            return 2;
                         default:
                             throw new Error('impossible');
                     }
                 },
-                defaultValue: 0.0,
+                defaultValue: 0,
             },
             instanceLineDistance: {
                 size: 1,
@@ -312,8 +350,7 @@ export default class ArrowLayer extends Layer<Required<_ArrowLayerProps>> {
             if (positions.length > 0) {
                 positions.forEach((position) => {
                     // fill line positions texture
-                    linePositionsTextureData.push(position[0]);
-                    linePositionsTextureData.push(position[1]);
+                    linePositionsTextureData.push(position[0], position[1]);
                     linePointCount++;
                 });
                 lineDistancesTextureData.push(...(line.cumulativeDistances ?? []));
@@ -426,10 +463,10 @@ export default class ArrowLayer extends Layer<Required<_ArrowLayerProps>> {
     }
 
     startAnimation() {
-        window.requestAnimationFrame((timestamp) => this.animate(timestamp));
+        globalThis.requestAnimationFrame((timestamp) => this.animate(timestamp));
     }
 
-    draw({ uniforms, renderPass }: { uniforms: Record<string, UniformValue>; renderPass: RenderPass }) {
+    draw({ renderPass }: { uniforms: Record<string, UniformValue>; renderPass: RenderPass }) {
         const { sizeMinPixels, sizeMaxPixels } = this.props;
 
         const {
@@ -446,20 +483,17 @@ export default class ArrowLayer extends Layer<Required<_ArrowLayerProps>> {
             lineDistancesTexture,
         });
 
-        model!.setUniforms({
-            ...uniforms,
+        const arrow: ArrowUniforms = {
             sizeMinPixels,
             sizeMaxPixels,
-            // maxTextureSize,
-            // @ts-expect-error TODO TS2339: Properties width and height does not exists on type Texture2D
-            linePositionsTextureSize: [linePositionsTexture.width, linePositionsTexture.height],
-            // @ts-expect-error TODO TS2339: Properties width and height does not exists on type Texture2D
-            lineDistancesTextureSize: [lineDistancesTexture.width, lineDistancesTexture.height],
-            // @ts-expect-error TODO TS2339: Properties width and height does not exists on type Texture2D
-            timestamp,
+            timestamp: timestamp || 0,
             maxParallelOffset: this.props.maxParallelOffset,
             minParallelOffset: this.props.minParallelOffset,
-        });
+            linePositionsTextureSize: [linePositionsTexture!.width, linePositionsTexture!.height],
+            lineDistancesTextureSize: [lineDistancesTexture!.width, lineDistancesTexture!.height],
+        };
+        model!.shaderInputs.setProps({ arrow });
+
         model!.draw(renderPass);
     }
 

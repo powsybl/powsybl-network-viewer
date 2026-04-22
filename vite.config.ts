@@ -5,27 +5,26 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import { defineConfig } from 'vite';
+/// <reference types="./vite-plugin-checker.d.ts" />
+
 import react from '@vitejs/plugin-react';
-import svgr from 'vite-plugin-svgr';
-// @ts-expect-error See https://github.com/gxmari007/vite-plugin-eslint/issues/79
-import eslint from 'vite-plugin-eslint';
-import dts from 'vite-plugin-dts';
-import * as path from 'node:path';
 import { copyFileSync } from 'node:fs';
+import * as path from 'node:path';
+import { defineConfig } from 'vite';
+import dts from 'vite-plugin-dts';
+import svgr from 'vite-plugin-svgr';
+import { viteEslintChecker } from './utils/viteEslintChecker';
 
 export default defineConfig((config) => ({
     plugins: [
+        viteEslintChecker(config.isPreview, config.command),
         react(),
         svgr(), // works on every import with the pattern "**/*.svg?react"
-        eslint({
-            failOnWarning: config.mode !== 'development',
-        }),
         dts({
             include: ['src'],
             exclude: ['**/*.{spec,test}.{ts,tsx}'],
             rollupTypes: true,
-            tsconfigPath: './tsconfig.json',
+            tsconfigPath: './tsconfig.build.json',
             afterBuild: () => {
                 copyFileSync('dist/index.d.ts', 'dist/index.d.cts');
             },
@@ -43,7 +42,7 @@ export default defineConfig((config) => ({
         rollupOptions: {
             //https://stackoverflow.com/questions/59134241/using-deck-gl-as-webpack-external
             //https://github.com/visgl/deck.gl/blob/94bad4bb209a5da0686fb03f107e86b18199c108/website/webpack.config.js#L128-L141
-            external: (id: string) => !id.startsWith('.') && !path.isAbsolute(id),
+            external: (id) => !id.startsWith('.') && !path.isAbsolute(id),
             output: {
                 // preserveModules: true,
                 // entryFileNames: '[name].js', // override vite and allow to keep the original tree and .js extension even in ESM
@@ -75,6 +74,8 @@ export default defineConfig((config) => ({
                     '@svgdotjs/svg.js': 'SvgJs',
                     '@mapbox/mapbox-gl-draw': 'MapboxGlDraw',
                     '@turf/boolean-point-in-polygon': 'BooleanPointInPolygon',
+                    '@powsybl/network-viewer-core': 'PowsyblNetworkViewerCore',
+                    '@powsybl/network-map-layers': 'PowsyblNetworkMapLayers',
                 },
             },
         },

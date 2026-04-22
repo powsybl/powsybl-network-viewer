@@ -21,42 +21,46 @@
             <g>
                 <circle class="nad-vl0to30 nad-winding" cx="-354.51" cy="-128.15" r="20.00"/>
                 <circle class="nad-vl300to500 nad-winding" cx="-343.35" cy="-111.56" r="20.00"/>
-                <g class="nad-edge-label" transform="translate(-348.93,-119.86)">
-                    <text transform="rotate(56.08)" x="0.00" style="text-anchor:middle">NGEN_NHV1</text>
-                </g>
-            </g>
-        </g>
-        <g id="17">
-            <polyline class="nad-vl300to500 nad-edge-path" points="-222.36,49.52 -178.64,78.58 -54.98,86.38"/>
-            <polyline class="nad-vl300to500 nad-edge-path" points="115.70,70.84 68.67,94.17 -54.98,86.38"/>
-            <g>
-                <g class="nad-edge-label" transform="translate(-54.98,86.38)">
-                    <text transform="rotate(3.61)" x="0.00" style="text-anchor:middle">NHV1_NHV2_1</text>
-                </g>
             </g>
         </g>
         <g id="18">
+            <polyline class="nad-vl300to500 nad-edge-path" points="-222.36,49.52 -178.64,78.58 -54.98,86.38"/>
+            <polyline class="nad-vl300to500 nad-edge-path" points="115.70,70.84 68.67,94.17 -54.98,86.38"/>
+        </g>
+        <g id="20">
+            <polyline class="nad-vl300to500 nad-edge-path" points="-217.82,36.03 -165.42,39.33 -52.46,46.45"/>
+            <polyline class="nad-vl300to500 nad-edge-path" points="112.89,56.88 60.49,53.58 -52.46,46.45"/>
+        </g>
+        <g id="22">
             <polyline class="nad-vl300to500 nad-edge-path" points="117.43,43.39 73.71,14.33 -49.95,6.53"/>
             <polyline class="nad-vl300to500 nad-edge-path" points="-220.63,22.07 -173.60,-1.26 -49.95,6.53"/>
-            <g>
-                <g class="nad-edge-label" transform="translate(-49.95,6.53)">
-                    <text transform="rotate(3.61)" x="0.00" style="text-anchor:middle">NHV1_NHV2_2</text>
-                </g>
-            </g>
         </g>
-        <g id="19">
+        <g id="24">
             <polyline class="nad-vl300to500 nad-edge-path" points="161.80,41.42 262.20,-38.97"/>
             <polyline class="nad-vl120to180 nad-edge-path" points="409.44,-156.86 309.04,-76.47"/>
             <g>
                 <circle class="nad-vl300to500 nad-winding" cx="277.81" cy="-51.47" r="20.00"/>
                 <circle class="nad-vl120to180 nad-winding" cx="293.43" cy="-63.97" r="20.00"/>
-                <g class="nad-edge-label" transform="translate(285.62,-57.72)">
-                    <text transform="rotate(-38.68)" x="0.00" style="text-anchor:middle">NHV2_NLOAD</text>
-                </g>
             </g>
         </g>
     </g>
-    <g class="nad-edge-infos"></g>
+    <g class="nad-edge-infos">
+        <g id="17" transform="translate(-348.93,-119.86)">
+            <text transform="rotate(56.08)" class="nad-name" x="0.00" style="text-anchor:middle">NGEN_NHV1</text>
+        </g>
+        <g id="19" transform="translate(-54.98,86.38)">
+            <text transform="rotate(3.61)" class="nad-name" x="0.00" style="text-anchor:middle">NHV1_NHV2_1</text>
+        </g>
+        <g id="21" transform="translate(-52.46,46.45)">
+            <text transform="rotate(3.61)" class="nad-name" x="0.00" style="text-anchor:middle">NHV1_NHV2_2</text>
+        </g>
+        <g id="23" transform="translate(-49.95,6.53)">
+            <text transform="rotate(-356.39)" class="nad-name" x="0.00" style="text-anchor:middle">NHV1_NHV2_3</text>
+        </g>
+        <g id="25" transform="translate(285.62,-57.72)">
+            <text transform="rotate(-38.68)" class="nad-name" x="0.00" style="text-anchor:middle">NHV2_NLOAD</text>
+        </g>
+    </g>
     <g class="nad-text-edges">
         <polyline id="2" points="-422.92,-278.46 -352.59,-289.01"/>
         <polyline id="6" points="-215.60,29.85 -145.26,19.30"/>
