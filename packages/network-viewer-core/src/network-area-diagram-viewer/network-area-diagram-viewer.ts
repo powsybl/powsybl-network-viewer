@@ -2221,16 +2221,8 @@ export class NetworkAreaDiagramViewer {
             edgeInfo.classList.add(edgeInfoClass);
         }
 
-        if (typeof value === 'number') {
-            const arrowPath = DiagramUtils.getArrowPath(edgeInfoMetadata.direction, this.svgParameters);
-            if (arrowPath) {
-                const edgeInfoArrow = this.getOrCreateEdgeInfoArrow(edgeInfo);
-                edgeInfoArrow.setAttribute('d', arrowPath);
-                const edgeInfoClass = DiagramUtils.getArrowClass(edgeInfoMetadata.direction);
-                if (edgeInfoClass) {
-                    edgeInfoArrow.classList.add(edgeInfoClass);
-                }
-            }
+        if (edgeInfoMetadata.direction) {
+            this.addBranchSideArrowElement(edgeInfo, edgeInfoMetadata.direction);
         }
 
         const branchLabelBElement = this.getOrCreateEdgeInfoText(edgeInfo, 1);
@@ -2242,6 +2234,18 @@ export class NetworkAreaDiagramViewer {
         }
 
         this.redrawEdgeArrowAndLabels(halfEdge, edgeInfo);
+    }
+
+    private addBranchSideArrowElement(edgeInfo: SVGElement, direction: string | undefined) {
+        const arrowPath = DiagramUtils.getArrowPath(direction, this.svgParameters);
+        if (arrowPath) {
+            const edgeInfoArrow = this.getOrCreateEdgeInfoArrow(edgeInfo);
+            edgeInfoArrow.setAttribute('d', arrowPath);
+            const edgeInfoClass = DiagramUtils.getArrowClass(direction);
+            if (edgeInfoClass) {
+                edgeInfoArrow.classList.add(edgeInfoClass);
+            }
+        }
     }
 
     private setBranchMiddleLabel(
