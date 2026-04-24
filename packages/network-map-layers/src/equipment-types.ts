@@ -129,8 +129,9 @@ export type MapEquipment = MapVoltageLevel | MapSubstation | MapAnyLine;
 export type MapLineWithType = MapLine & { equipmentType: EQUIPMENT_TYPES.LINE };
 export type MapTieLineWithType = MapTieLine & { equipmentType: EQUIPMENT_TYPES.TIE_LINE };
 export type MapHvdcLineWithType = MapHvdcLine & { equipmentType: EQUIPMENT_TYPES.HVDC_LINE };
-export type MapAnyLineWithType = (MapLineWithType | MapTieLineWithType | MapHvdcLineWithType) & {
-    // additional properties from line-layer
+
+// additional properties from line-layer
+export type MapAdditionalProperties = {
     origin?: LonLat;
     end?: LonLat;
     substationIndexStart?: number;
@@ -144,3 +145,5 @@ export type MapAnyLineWithType = (MapLineWithType | MapTieLineWithType | MapHvdc
     cumulativeDistances?: number[];
     positions?: LonLat[];
 };
+
+export type MapAnyLineWithType = (MapLineWithType | MapTieLineWithType | MapHvdcLineWithType) & MapAdditionalProperties;

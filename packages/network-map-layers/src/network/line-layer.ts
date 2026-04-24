@@ -5,12 +5,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import { PathStyleExtension } from '@deck.gl/extensions';
 import {
     type Color,
     CompositeLayer,
     type CompositeLayerProps,
-    COORDINATE_SYSTEM,
     type DefaultProps,
     type Layer,
     type LayerContext,
@@ -18,19 +16,21 @@ import {
     type Position,
     type UpdateParameters,
 } from '@deck.gl/core';
+import { PathStyleExtension } from '@deck.gl/extensions';
+import { IconLayer, type IconLayerProps, TextLayer, type TextLayerProps } from '@deck.gl/layers';
 import { getDistance } from 'geolib';
 import type { LiteralUnion } from 'type-fest';
 import { type LonLat, type MapAnyLine, type MapAnyLineWithType } from '../equipment-types';
 import BoltIcon from '../images/bolt_black_24dp.svg?url';
 import PadlockIcon from '../images/lock_black_24dp.svg?url';
 import { INVALID_FLOW_OPACITY } from '../utils/colors';
+import { ArrowDirection } from './arrow-direction';
 import { SUBSTATION_RADIUS, SUBSTATION_RADIUS_MAX_PIXEL, SUBSTATION_RADIUS_MIN_PIXEL } from './constants';
 import { type GeoData } from './geo-data';
-import ArrowLayer, { type Arrow, ArrowDirection, type ArrowLayerProps } from './layers/arrow-layer';
+import ArrowLayer, { type Arrow, type ArrowLayerProps } from './layers/arrow-layer';
 import ForkLineLayer, { type ForkLineLayerProps } from './layers/fork-line-layer';
 import ParallelPathLayer, { type ParallelPathLayerProps } from './layers/parallel-path-layer';
 import { MapEquipments } from './map-equipments';
-import { IconLayer, type IconLayerProps, TextLayer, type TextLayerProps } from '@deck.gl/layers';
 
 // isn't exported in @deck.gl/layers lib
 type UnpackedIcon = Exclude<ReturnType<NonNullable<IconLayerProps['getIcon']>>, string>;
@@ -746,7 +746,7 @@ export class LineLayer extends CompositeLayer<Required<_LineLayerProps>> {
 
     getProximityFactor(firstPosition: LonLat, secondPosition: LonLat) {
         let dist;
-        if (this.props.coordinateSystem === COORDINATE_SYSTEM.CARTESIAN) {
+        if (this.props.coordinateSystem === 'cartesian') {
             dist = Math.hypot(secondPosition[0] - firstPosition[0], secondPosition[1] - firstPosition[1]);
         } else {
             dist = getDistance(firstPosition, secondPosition);
@@ -759,7 +759,7 @@ export class LineLayer extends CompositeLayer<Required<_LineLayerProps>> {
     }
 
     computeAngle(props: this['props'], position1: LonLat, position2: LonLat) {
-        if (props.coordinateSystem === COORDINATE_SYSTEM.CARTESIAN) {
+        if (props.coordinateSystem === 'cartesian') {
             const [x1, y1] = position1;
             const [x2, y2] = position2;
             return (3 * Math.PI) / 2 - Math.atan2(y2 - y1, x2 - x1);
@@ -864,8 +864,8 @@ export class LineLayer extends CompositeLayer<Required<_LineLayerProps>> {
                         // @ts-expect-error TODO: manage undefined case
                         getLineAngles: (arrow) => [arrow.line.angleStart, arrow.line.angle, arrow.line.angleEnd],
                         getProximityFactors: (arrow: Arrow) => [
-                            arrow.line.proximityFactorStart,
-                            arrow.line.proximityFactorEnd,
+                            arrow.line.proximityFactorStart!,
+                            arrow.line.proximityFactorEnd!,
                         ],
                         getDistanceBetweenLines: this.props.distanceBetweenLines,
                         maxParallelOffset: this.props.maxParallelOffset,

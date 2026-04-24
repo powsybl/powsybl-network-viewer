@@ -27,6 +27,16 @@ jobs:
           npm run test:coverage
           npm run build:all
 
+      - name: Upload browser failure screenshots
+        if: failure() && !cancelled()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: browser-failure-screenshots-${{ github.event.pull_request.number }}
+          retention-days: 7
+          if-no-files-found: ignore
+          path: |
+            packages/**/__screenshots__/**/*.png
+
       - name: Save build artifacts and coverage report
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:

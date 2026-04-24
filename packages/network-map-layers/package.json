@@ -44,15 +44,17 @@
         "type-fest": "^5.5.0"
     },
     "peerDependencies": {
-        "@deck.gl/core": "~9.2.0",
-        "@deck.gl/extensions": "~9.2.0",
-        "@deck.gl/layers": "~9.2.0",
-        "@luma.gl/constants": "~9.2.0",
-        "@luma.gl/core": "~9.2.0",
-        "@luma.gl/engine": "~9.2.0",
-        "@luma.gl/shadertools": "~9.2.0"
+        "@deck.gl/core": "~9.3.0",
+        "@deck.gl/extensions": "~9.3.0",
+        "@deck.gl/layers": "~9.3.0",
+        "@luma.gl/constants": "~9.3.0",
+        "@luma.gl/core": "~9.3.0",
+        "@luma.gl/engine": "~9.3.0",
+        "@luma.gl/shadertools": "~9.3.0"
     },
     "devDependencies": {
+        "@luma.gl/test-utils": "~9.3.0",
+        "@deck.gl/test-utils": "~9.3.0",
         "@arethetypeswrong/cli": "^0.17.4",
         "typescript": "^5.8.3",
         "typescript-eslint": "^8.31.0",
