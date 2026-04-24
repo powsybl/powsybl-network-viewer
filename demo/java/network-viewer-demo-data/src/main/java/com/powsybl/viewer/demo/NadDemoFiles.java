@@ -211,13 +211,26 @@ public final class NadDemoFiles {
                         new DefaultLabelProvider(n, s.createValueFormatter(), parameters));
     }
 
+    private static NadParameters getNadParametersWithDefaultLabelProviderFilledDoubleArrow(EdgeInfoParameters edgeInfoParameters) {
+        SvgParameters svgParameters = new SvgParameters()
+            .setCssLocation(SvgParameters.CssLocation.EXTERNAL_NO_IMPORT);
+        LabelProviderParameters parameters = new LabelProviderParameters();
+        parameters.setEdgeInfoParameters(edgeInfoParameters)
+            .setDoubleArrowsDisplayed(true);
+        return new NadParameters()
+            .setSvgParameters(svgParameters)
+            .setLayoutFactory(new BasicForceLayoutFactory())
+            .setLabelProviderFactory((n, s) ->
+                new DefaultLabelProvider(n, s.createValueFormatter(), parameters));
+    }
+
     private static NadParameters getNadParametersWithDefaultLabelProviderFilledAndMultipleLabels() {
         EdgeInfoParameters edgeInfoParameters = new EdgeInfoParameters(
                 EdgeInfoEnum.ACTIVE_POWER,
                 EdgeInfoEnum.NAME,
                 EdgeInfoEnum.CURRENT,
                 EdgeInfoEnum.REACTIVE_POWER);
-        return getNadParametersWithDefaultLabelProviderFilled(edgeInfoParameters);
+        return getNadParametersWithDefaultLabelProviderFilledDoubleArrow(edgeInfoParameters);
     }
 
     private static NadParameters getNadParametersWithDefaultLabelProvider() {

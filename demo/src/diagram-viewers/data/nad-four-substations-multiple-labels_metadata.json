@@ -160,7 +160,8 @@
       "svgId" : "21",
       "infoTypeA" : "ReactivePower",
       "infoTypeB" : "ActivePower",
-      "direction" : "IN",
+      "directionA" : "IN",
+      "directionB" : "IN",
       "labelA" : "-10",
       "labelB" : "-80"
     },
@@ -168,7 +169,8 @@
       "svgId" : "22",
       "infoTypeA" : "ReactivePower",
       "infoTypeB" : "ActivePower",
-      "direction" : "OUT",
+      "directionA" : "OUT",
+      "directionB" : "OUT",
       "labelA" : "5",
       "labelB" : "80"
     },
@@ -224,7 +226,8 @@
       "svgId" : "29",
       "infoTypeA" : "ReactivePower",
       "infoTypeB" : "ActivePower",
-      "direction" : "OUT",
+      "directionA" : "IN",
+      "directionB" : "OUT",
       "labelA" : "-512",
       "labelB" : "10"
     },
@@ -232,7 +235,8 @@
       "svgId" : "30",
       "infoTypeA" : "ReactivePower",
       "infoTypeB" : "ActivePower",
-      "direction" : "IN",
+      "directionA" : "IN",
+      "directionB" : "IN",
       "labelA" : "-120",
       "labelB" : "-10"
     },
@@ -258,7 +262,8 @@
       "svgId" : "33",
       "infoTypeA" : "ReactivePower",
       "infoTypeB" : "ActivePower",
-      "direction" : "OUT",
+      "directionA" : "OUT",
+      "directionB" : "OUT",
       "labelA" : "190",
       "labelB" : "110"
     },
@@ -266,7 +271,8 @@
       "svgId" : "34",
       "infoTypeA" : "ReactivePower",
       "infoTypeB" : "ActivePower",
-      "direction" : "IN",
+      "directionA" : "IN",
+      "directionB" : "IN",
       "labelA" : "-185",
       "labelB" : "-110"
     },
@@ -292,7 +298,8 @@
       "svgId" : "37",
       "infoTypeA" : "ReactivePower",
       "infoTypeB" : "ActivePower",
-      "direction" : "OUT",
+      "directionA" : "OUT",
+      "directionB" : "OUT",
       "labelA" : "2",
       "labelB" : "240"
     },
@@ -300,7 +307,8 @@
       "svgId" : "38",
       "infoTypeA" : "ReactivePower",
       "infoTypeB" : "ActivePower",
-      "direction" : "IN",
+      "directionA" : "OUT",
+      "directionB" : "IN",
       "labelA" : "3",
       "labelB" : "-240"
     },
