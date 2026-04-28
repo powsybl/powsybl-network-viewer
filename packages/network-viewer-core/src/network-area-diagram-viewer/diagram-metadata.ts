@@ -156,6 +156,8 @@ export interface EdgeInfoMetadata {
     infoTypeA?: string;
     infoTypeB?: string;
     direction?: string;
+    directionA?: string;
+    directionB?: string;
     labelA?: string;
     labelB?: string;
 }

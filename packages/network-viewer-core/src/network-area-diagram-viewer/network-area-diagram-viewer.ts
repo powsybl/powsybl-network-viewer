@@ -1254,7 +1254,8 @@ export class NetworkAreaDiagramViewer {
                 halfEdge1,
                 halfEdge2,
                 edgeInfoElement,
-                edge.edgeInfoMiddle.direction,
+                edge.edgeInfoMiddle.direction ?? edge.edgeInfoMiddle.directionB,
+                edge.edgeInfoMiddle.directionA,
                 hasBothLabels
             );
         }
@@ -1304,25 +1305,50 @@ export class NetworkAreaDiagramViewer {
             if (!edgeInfo) return;
         }
 
-        // move edge arrow
-        const arrowCenter = HalfEdgeUtils.getArrowCenter(halfEdge, this.svgParameters);
-        edgeInfo.setAttribute('transform', 'translate(' + DiagramUtils.getFormattedPoint(arrowCenter) + ')');
-        const arrowAngle = HalfEdgeUtils.getArrowRotation(halfEdge);
-        const arrowElement = edgeInfo.querySelector('path') as SVGGraphicsElement;
-        if (arrowElement) {
-            arrowElement.setAttribute('transform', 'rotate(' + DiagramUtils.getFormattedValue(arrowAngle) + ')');
-        }
+        // move edge info
+        const infoPoint = HalfEdgeUtils.getInfoPoint(halfEdge, this.svgParameters);
+        edgeInfo.setAttribute('transform', 'translate(' + DiagramUtils.getFormattedPoint(infoPoint) + ')');
+
+        // move edge arrows
+        const arrowsNum = this.redrawArrows(edgeInfo, HalfEdgeUtils.getArrowRotation(halfEdge));
 
         // move edge labels
         const labelData = HalfEdgeUtils.getLabelData(halfEdge, this.svgParameters.getArrowLabelShift());
+        const factor: number = arrowsNum == 2 ? this.svgParameters.getDoubleArrowShiftFactorText() : 1;
         // move edge labelB
         const labelBElement = edgeInfo.querySelector('text:nth-of-type(1)') as SVGGraphicsElement;
-        this.redrawLabel(labelBElement, labelData.angle, labelData.external.shift, labelData.external.style);
+        this.redrawLabel(labelBElement, labelData.angle, labelData.external.shift * factor, labelData.external.style);
         // move edge labelA
         const labelAElement = edgeInfo.querySelector('text:nth-of-type(2)') as SVGGraphicsElement;
-        this.redrawLabel(labelAElement, labelData.angle, labelData.internal.shift, labelData.internal.style);
+        this.redrawLabel(labelAElement, labelData.angle, labelData.internal.shift * factor, labelData.internal.style);
     }
 
+    private redrawArrows(edgeInfo: SVGElement, arrowAngle: number, secondArrowAngle?: number): number {
+        const arrowElements: NodeListOf<SVGGraphicsElement> = edgeInfo.querySelectorAll('path');
+        let arrowRotateString: string = 'rotate(' + DiagramUtils.getFormattedValue(arrowAngle) + ')';
+        if (arrowElements.length == 1) {
+            arrowElements.item(0).setAttribute('transform', arrowRotateString);
+        } else if (arrowElements.length == 2) {
+            const shift: number =
+                this.svgParameters.getArrowLabelShift() / this.svgParameters.getDoubleArrowShiftFactorArrows();
+            arrowElements
+                .item(0)
+                .setAttribute(
+                    'transform',
+                    arrowRotateString + ' translate(' + DiagramUtils.getFormattedPoint(new Point(0, -shift)) + ')'
+                );
+            if (secondArrowAngle) {
+                arrowRotateString = 'rotate(' + DiagramUtils.getFormattedValue(secondArrowAngle) + ')';
+            }
+            arrowElements
+                .item(1)
+                .setAttribute(
+                    'transform',
+                    arrowRotateString + ' translate(' + DiagramUtils.getFormattedPoint(new Point(0, shift)) + ')'
+                );
+        }
+        return arrowElements.length;
+    }
     private redrawLabel(
         labelElement: SVGGraphicsElement | null,
         angle: number,
@@ -1345,6 +1371,7 @@ export class NetworkAreaDiagramViewer {
         halfEdge2: HalfEdge | null,
         edgeInfo: SVGElement,
         direction: string | undefined,
+        directionA: string | undefined,
         bothLabels: boolean
     ) {
         if (!edgeInfo) {
@@ -1357,12 +1384,14 @@ export class NetworkAreaDiagramViewer {
 
         edgeInfo.setAttribute('transform', 'translate(' + DiagramUtils.getFormattedPoint(infoPoint) + ')');
 
+        let factor: number = 1;
         if (direction) {
-            const arrowElement = edgeInfo.querySelector('path');
-            if (arrowElement) {
-                const arrowAngle = HalfEdgeUtils.getMiddleArrowRotation(halfEdge1, halfEdge2, direction);
-                arrowElement.setAttribute('transform', `rotate(${DiagramUtils.getFormattedValue(arrowAngle)})`);
-            }
+            const arrowAngle = HalfEdgeUtils.getMiddleArrowRotation(halfEdge1, halfEdge2, direction);
+            const secondArrowAngle: number | undefined = directionA
+                ? HalfEdgeUtils.getMiddleArrowRotation(halfEdge1, halfEdge2, directionA)
+                : undefined;
+            const arrowsNum = this.redrawArrows(edgeInfo, arrowAngle, secondArrowAngle);
+            factor = arrowsNum == 2 ? this.svgParameters.getDoubleArrowShiftFactorText() : 1;
         }
 
         let x = '0.0';
@@ -1376,7 +1405,7 @@ export class NetworkAreaDiagramViewer {
                 true,
                 this.svgParameters.getArrowLabelShift()
             );
-            x = DiagramUtils.getFormattedValue(middleLabelBData[0]);
+            x = DiagramUtils.getFormattedValue(middleLabelBData[0] * factor);
             style = middleLabelBData[1];
             labelBElement.setAttribute('transform', 'rotate(' + DiagramUtils.getFormattedValue(infoAngle) + ')');
             labelBElement.setAttribute('x', x);
@@ -1392,7 +1421,7 @@ export class NetworkAreaDiagramViewer {
                 false,
                 this.svgParameters.getArrowLabelShift()
             );
-            x = DiagramUtils.getFormattedValue(middleLabelAData[0]);
+            x = DiagramUtils.getFormattedValue(middleLabelAData[0] * factor);
             style = middleLabelAData[1];
         }
 
@@ -2190,12 +2219,14 @@ export class NetworkAreaDiagramViewer {
             } else {
                 edge.edgeInfo2 = edgeInfoMetadata;
             }
+            edgeInfoMetadata.labelB =
+                typeof value === 'number'
+                    ? value.toFixed(
+                          DiagramUtils.getEdgeInfoValuePrecision(edgeInfoMetadata.infoTypeB, this.svgParameters)
+                      )
+                    : value;
+            edgeInfoMetadata.direction = typeof value === 'number' ? DiagramUtils.getArrowDirection(value) : undefined;
         }
-        edgeInfoMetadata.labelB =
-            typeof value === 'number'
-                ? value.toFixed(DiagramUtils.getEdgeInfoValuePrecision(edgeInfoMetadata.infoTypeB, this.svgParameters))
-                : value;
-        edgeInfoMetadata.direction = typeof value === 'number' ? DiagramUtils.getArrowDirection(value) : undefined;
 
         const edgeInfo = this.getOrCreateEdgeInfo(edgeInfoMetadata);
         if (!halfEdge.edgeInfoId) {
@@ -2203,17 +2234,26 @@ export class NetworkAreaDiagramViewer {
         }
 
         edgeInfo.classList.remove(...DiagramUtils.getEdgeInfoClasses());
-        const edgeInfoClass = DiagramUtils.getEdgeInfoClass(edgeInfoMetadata.infoTypeB);
+        const edgeInfoClass = DiagramUtils.getEdgeInfoTypeClass(edgeInfoMetadata.infoTypeB);
         if (edgeInfoClass) {
             edgeInfo.classList.add(edgeInfoClass);
         }
 
-        if (edgeInfoMetadata.direction) {
-            this.addBranchSideArrowElement(edgeInfo, edgeInfoMetadata.direction);
+        if (edgeInfoMetadata.direction || edgeInfoMetadata.directionB) {
+            this.addBranchArrowElement(
+                edgeInfo,
+                edgeInfoMetadata.direction ?? edgeInfoMetadata.directionB,
+                edgeInfoMetadata.infoTypeB,
+                1
+            );
+        }
+
+        if (edgeInfoMetadata.directionA) {
+            this.addBranchArrowElement(edgeInfo, edgeInfoMetadata.directionA, edgeInfoMetadata.infoTypeA, 2);
         }
 
         const branchLabelBElement = this.getOrCreateEdgeInfoText(edgeInfo, 1);
-        branchLabelBElement.innerHTML = edgeInfoMetadata.labelB;
+        branchLabelBElement.innerHTML = edgeInfoMetadata.labelB ?? '';
 
         if (edgeInfoMetadata.labelA) {
             const branchLabelAElement = this.getOrCreateEdgeInfoText(edgeInfo, 2);
@@ -2223,14 +2263,24 @@ export class NetworkAreaDiagramViewer {
         this.redrawEdgeArrowAndLabels(halfEdge, edgeInfo);
     }
 
-    private addBranchSideArrowElement(edgeInfo: SVGElement, direction: string | undefined) {
+    private addBranchArrowElement(
+        edgeInfo: SVGElement,
+        direction: string | undefined,
+        type: string | undefined,
+        i: number
+    ) {
         const arrowPath = DiagramUtils.getArrowPath(direction, this.svgParameters);
         if (arrowPath) {
-            const edgeInfoArrow = this.getOrCreateEdgeInfoArrow(edgeInfo);
+            const edgeInfoArrow = this.getOrCreateEdgeInfoArrow(edgeInfo, i);
             edgeInfoArrow.setAttribute('d', arrowPath);
-            const edgeInfoClass = DiagramUtils.getArrowClass(direction);
-            if (edgeInfoClass) {
-                edgeInfoArrow.classList.add(edgeInfoClass);
+            edgeInfoArrow.classList.remove(...DiagramUtils.getEdgeInfoClasses());
+            const edgeInfoDirectionClass = DiagramUtils.getEdgeInfoDirectionClass(direction);
+            if (edgeInfoDirectionClass) {
+                edgeInfoArrow.classList.add(edgeInfoDirectionClass);
+            }
+            const edgeInfoTypeClass = DiagramUtils.getEdgeInfoTypeClass(type);
+            if (edgeInfoTypeClass) {
+                edgeInfoArrow.classList.add(edgeInfoTypeClass);
             }
         }
     }
@@ -2255,8 +2305,17 @@ export class NetworkAreaDiagramViewer {
 
         const edgeInfo = this.getOrCreateEdgeInfo(edgeInfoMetadata);
 
-        if (edgeInfoMetadata.direction) {
-            this.addBranchMiddleArrowElement(edgeInfo, edgeInfoMetadata.direction, edgeInfoMetadata.infoTypeB);
+        if (edgeInfoMetadata.direction || edgeInfoMetadata.directionB) {
+            this.addBranchArrowElement(
+                edgeInfo,
+                edgeInfoMetadata.direction ?? edgeInfoMetadata.directionB,
+                edgeInfoMetadata.infoTypeB,
+                1
+            );
+        }
+
+        if (edgeInfoMetadata.directionA) {
+            this.addBranchArrowElement(edgeInfo, edgeInfoMetadata.directionA, edgeInfoMetadata.infoTypeA, 2);
         }
 
         let i = 1;
@@ -2275,26 +2334,10 @@ export class NetworkAreaDiagramViewer {
             halfEdge1,
             halfEdge2,
             edgeInfo,
-            edgeInfoMetadata.direction,
+            edgeInfoMetadata.direction ?? edgeInfoMetadata.directionB,
+            edgeInfoMetadata.directionA,
             edgeInfoMetadata.labelA !== undefined && edgeInfoMetadata.labelB !== undefined
         );
-    }
-
-    private addBranchMiddleArrowElement(edgeInfo: SVGElement, direction: string | undefined, type: string | undefined) {
-        const arrowPath = DiagramUtils.getArrowPath(direction, this.svgParameters);
-        if (arrowPath) {
-            const edgeInfoArrow = this.getOrCreateEdgeInfoArrow(edgeInfo);
-            edgeInfoArrow.setAttribute('d', arrowPath);
-            edgeInfoArrow.classList.remove(...DiagramUtils.getEdgeInfoClasses());
-            let edgeInfoClass = DiagramUtils.getArrowClass(direction);
-            if (edgeInfoClass) {
-                edgeInfoArrow.classList.add(edgeInfoClass);
-            }
-            edgeInfoClass = DiagramUtils.getEdgeInfoClass(type) ?? undefined;
-            if (edgeInfoClass) {
-                edgeInfoArrow.classList.add(edgeInfoClass);
-            }
-        }
     }
 
     private addBranchMiddleLabelElement(
@@ -2305,7 +2348,7 @@ export class NetworkAreaDiagramViewer {
     ) {
         const branchLabelElement = this.getOrCreateEdgeInfoText(edgeInfo, i);
         branchLabelElement.classList.remove('nad-active', 'nad-reactive', 'nad-current', 'nad-name');
-        const edgeInfoClass = DiagramUtils.getEdgeInfoClass(type);
+        const edgeInfoClass = DiagramUtils.getEdgeInfoTypeClass(type);
         if (edgeInfoClass) {
             branchLabelElement.classList.add(edgeInfoClass);
         }
@@ -2326,8 +2369,8 @@ export class NetworkAreaDiagramViewer {
         return newEdgeInfo;
     }
 
-    private getOrCreateEdgeInfoArrow(edgeInfo: SVGElement): SVGPathElement {
-        let edgeInfoArrow = edgeInfo.querySelector('path');
+    private getOrCreateEdgeInfoArrow(edgeInfo: SVGElement, i: number): SVGPathElement {
+        let edgeInfoArrow = edgeInfo.querySelector('path:nth-of-type(' + i + ')') as SVGPathElement;
         if (!edgeInfoArrow) {
             edgeInfoArrow = document.createElementNS('http://www.w3.org/2000/svg', 'path');
             edgeInfo.appendChild(edgeInfoArrow);

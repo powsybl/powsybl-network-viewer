@@ -85,6 +85,11 @@
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
+            <artifactId>powsybl-diagram-test</artifactId>
+            <version>${diagram.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.powsybl</groupId>
             <artifactId>powsybl-open-loadflow</artifactId>
             <version>${olf.version}</version>
         </dependency>

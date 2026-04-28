@@ -14,7 +14,7 @@ import { SvgParameters } from './svg-parameters';
 import { round } from './diagram-utils';
 import { getEdgeNodePoints } from './metadata-utils';
 
-test('getArrowAngle', () => {
+test('getArrowRotation', () => {
     const halfEdge1: HalfEdge = {
         side: '1',
         fork: false,

@@ -8,6 +8,7 @@
 package com.powsybl.viewer.demo;
 
 import com.powsybl.computation.local.LocalComputationManager;
+import com.powsybl.diagram.test.Networks;
 import com.powsybl.ieeecdf.converter.IeeeCdfNetworkFactory;
 import com.powsybl.iidm.network.ImportConfig;
 import com.powsybl.iidm.network.Line;
@@ -326,6 +327,31 @@ public final class NadDemoFiles {
 
         NetworkAreaDiagram.draw(network, demoResourcesDirectory.resolve("nad-four-substations_custom.svg"),
                 nadParameters,
+                VoltageLevelFilter.NO_FILTER);
+    }
+
+    private static NadParameters getNadParametersWithDoubleArrows() {
+        SvgParameters svgParameters = new SvgParameters()
+            .setCssLocation(SvgParameters.CssLocation.EXTERNAL_NO_IMPORT);
+        NadParameters nadParameters = new NadParameters()
+                .setSvgParameters(svgParameters)
+                .setLayoutFactory(new BasicForceLayoutFactory())
+                //.setStyleProviderFactory(this::getStyleProvider)
+                .setLabelProviderFactory((network1, svgParameters1) -> new DefaultLabelProvider.Builder()
+                    .setDoubleArrowsDisplayed(true)
+                    .setInfoSideInternal(EdgeInfoEnum.REACTIVE_POWER)
+                    .setInfoSideExternal(EdgeInfoEnum.ACTIVE_POWER)
+                    .setInfoMiddleSide1(EdgeInfoEnum.REACTIVE_POWER)
+                    .setInfoMiddleSide2(EdgeInfoEnum.ACTIVE_POWER)
+                    .build(network1, svgParameters1)
+                );
+        return nadParameters;
+    }
+
+    public static void drawNetworkWithSvcVscScDlDoubleArrows(Path demoResourcesDirectory) {
+        Network network = Networks.createNetworkWithSvcVscScDl();
+        NetworkAreaDiagram.draw(network, demoResourcesDirectory.resolve("nad-double-arrows-with-middle-values"),
+                getNadParametersWithDoubleArrows(),
                 VoltageLevelFilter.NO_FILTER);
     }
 }
