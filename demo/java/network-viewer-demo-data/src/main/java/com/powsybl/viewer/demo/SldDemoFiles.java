@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
- package com.powsybl.viewer.demo;
+package com.powsybl.viewer.demo;
 
 import com.powsybl.cgmes.conformity.ReliCapGridCatalog;
 import com.powsybl.iidm.network.Network;
@@ -24,7 +24,6 @@ public final class SldDemoFiles {
     private SldDemoFiles() {
         /* This utility class should not be instantiated */
     }
-
 
     public static void drawSldExample(Path demoResourcesDirectory) {
         Network n8 = Network.read(ReliCapGridCatalog.belgovia().dataSource(), getProperties());
