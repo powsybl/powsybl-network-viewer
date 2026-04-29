@@ -2221,22 +2221,31 @@ export class NetworkAreaDiagramViewer {
             edgeInfo.classList.add(edgeInfoClass);
         }
 
-        if (typeof value === 'number') {
-            const arrowPath = DiagramUtils.getArrowPath(edgeInfoMetadata.direction, this.svgParameters);
-            if (arrowPath) {
-                const edgeInfoArrow = this.getOrCreateEdgeInfoArrow(edgeInfo);
-                edgeInfoArrow.setAttribute('d', arrowPath);
-                const edgeInfoClass = DiagramUtils.getArrowClass(edgeInfoMetadata.direction);
-                if (edgeInfoClass) {
-                    edgeInfoArrow.classList.add(edgeInfoClass);
-                }
-            }
+        if (edgeInfoMetadata.direction) {
+            this.addBranchSideArrowElement(edgeInfo, edgeInfoMetadata.direction);
         }
 
-        const branchLabelElement = this.getOrCreateEdgeInfoText(edgeInfo);
-        branchLabelElement.innerHTML = edgeInfoMetadata.labelB;
+        const branchLabelBElement = this.getOrCreateEdgeInfoText(edgeInfo, 1);
+        branchLabelBElement.innerHTML = edgeInfoMetadata.labelB;
+
+        if (edgeInfoMetadata.labelA) {
+            const branchLabelAElement = this.getOrCreateEdgeInfoText(edgeInfo, 2);
+            branchLabelAElement.innerHTML = edgeInfoMetadata.labelA;
+        }
 
         this.redrawEdgeArrowAndLabels(halfEdge, edgeInfo);
+    }
+
+    private addBranchSideArrowElement(edgeInfo: SVGElement, direction: string | undefined) {
+        const arrowPath = DiagramUtils.getArrowPath(direction, this.svgParameters);
+        if (arrowPath) {
+            const edgeInfoArrow = this.getOrCreateEdgeInfoArrow(edgeInfo);
+            edgeInfoArrow.setAttribute('d', arrowPath);
+            const edgeInfoClass = DiagramUtils.getArrowClass(direction);
+            if (edgeInfoClass) {
+                edgeInfoArrow.classList.add(edgeInfoClass);
+            }
+        }
     }
 
     private setBranchMiddleLabel(
@@ -2307,7 +2316,7 @@ export class NetworkAreaDiagramViewer {
         type: string | undefined,
         label: string | undefined
     ) {
-        const branchLabelElement = this.getOrCreateEdgeMiddleInfoText(edgeInfo, i);
+        const branchLabelElement = this.getOrCreateEdgeInfoText(edgeInfo, i);
         branchLabelElement.classList.remove('nad-active', 'nad-reactive', 'nad-current', 'nad-name');
         const edgeInfoClass = DiagramUtils.getEdgeInfoClass(type);
         if (edgeInfoClass) {
@@ -2339,16 +2348,7 @@ export class NetworkAreaDiagramViewer {
         return edgeInfoArrow;
     }
 
-    private getOrCreateEdgeInfoText(edgeInfo: SVGElement): SVGTextElement {
-        let edgeInfoText = edgeInfo.querySelector('text');
-        if (!edgeInfoText) {
-            edgeInfoText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-            edgeInfo.appendChild(edgeInfoText);
-        }
-        return edgeInfoText;
-    }
-
-    private getOrCreateEdgeMiddleInfoText(edgeInfo: SVGElement, i: number): SVGTextElement {
+    private getOrCreateEdgeInfoText(edgeInfo: SVGElement, i: number): SVGTextElement {
         let edgeInfoText = edgeInfo.querySelector('text:nth-of-type(' + i + ')') as SVGTextElement;
         if (!edgeInfoText) {
             edgeInfoText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
