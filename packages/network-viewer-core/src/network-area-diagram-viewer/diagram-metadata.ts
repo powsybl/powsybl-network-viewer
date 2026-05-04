@@ -160,4 +160,5 @@ export interface EdgeInfoMetadata {
     directionB?: string;
     labelA?: string;
     labelB?: string;
+    componentType?: string;
 }
