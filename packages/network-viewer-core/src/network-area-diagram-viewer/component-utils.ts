@@ -7,24 +7,31 @@
  */
 
 import { LibraryComponent } from './library-component';
-import LockSvg from '../resources/default-library/lock.svg';
-import FlashSvg from '../resources/default-library/flash.svg';
-import UnknownComponentSvg from '../resources/default-library/unknown-component.svg';
 import { SVG } from '@svgdotjs/svg.js';
 
-const ComponentSvgMapping: { [key: string]: string } = {
-    'lock.svg': LockSvg,
-    'flash.svg': FlashSvg,
-    'unknown-component.svg': UnknownComponentSvg,
-};
+const svgModules = import.meta.glob('../resources/default-library/*.svg', {
+    query: '?url',
+    import: 'default',
+    eager: true,
+});
+
+const DefaultComponentSvgMapping: Record<string, string> = Object.fromEntries(
+    Object.entries(svgModules).map(([modulePath, url]) => {
+        const fileName = modulePath.split('/').at(-1)!;
+        return [fileName, url as string];
+    })
+);
 
 export function getComponent(componentLibrary: LibraryComponent[], type: string): LibraryComponent | undefined {
     return componentLibrary.find((component) => component.type == type);
 }
 
-export async function getComponentPath(componentFilename: string): Promise<SVGPathElement> {
-    const svg = ComponentSvgMapping[componentFilename];
-    const response = await fetch(svg);
+export async function getComponentPath(
+    componentFilename: string,
+    svgUrlResolver?: (fileName: string) => string
+): Promise<SVGPathElement> {
+    const url = svgUrlResolver ? svgUrlResolver(componentFilename) : DefaultComponentSvgMapping[componentFilename];
+    const response = await fetch(url);
     const svgContent = await response.text();
     const path = <SVGPathElement>SVG().svg(svgContent).node.firstElementChild?.firstElementChild;
     return path;

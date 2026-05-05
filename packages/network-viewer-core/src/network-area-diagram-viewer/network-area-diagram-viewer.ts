@@ -36,7 +36,7 @@ import * as MetadataUtils from './metadata-utils';
 import * as HalfEdgeUtils from './half-edge-utils';
 import { Dimensions, EdgeType, ElementType, HalfEdge, ViewBox } from './diagram-types';
 import { LibraryComponent } from './library-component';
-import LibraryComponents from '../resources/default-library/components.json';
+import DefaultLibraryComponents from '../resources/default-library/components.json';
 import * as ComponentUtils from './component-utils';
 
 // Type for cancelable debounced functions (replaces @mui/utils Cancelable)
@@ -145,7 +145,7 @@ export class NetworkAreaDiagramViewer {
 
     nodeMap: Map<string, NodeMetadata> | null = null;
 
-    componentLibrary: LibraryComponent[] = LibraryComponents;
+    componentLibrary: LibraryComponent[] = DefaultLibraryComponents;
 
     static readonly ZOOM_CLASS_PREFIX = 'nad-zoom-';
 
@@ -186,6 +186,7 @@ export class NetworkAreaDiagramViewer {
         this.init();
         this.layoutParameters = new LayoutParameters(this.diagramMetadata?.layoutParameters);
         this.previousMaxDisplayedSize = 0;
+        this.componentLibrary = this.nadViewerParameters.getComponentLibrary() ?? DefaultLibraryComponents;
     }
 
     public setWidth(width: number): void {
@@ -2283,9 +2284,10 @@ export class NetworkAreaDiagramViewer {
             edgeInfoComponent.setAttribute('transform', 'translate(' + DiagramUtils.getFormattedPoint(trans) + ')');
             edgeInfoComponent.classList.add(component.styleClass);
             component.subComponents.forEach((subComponent) => {
-                void ComponentUtils.getComponentPath(subComponent.fileName).then((path) =>
-                    edgeInfoComponent.appendChild(path)
-                );
+                void ComponentUtils.getComponentPath(
+                    subComponent.fileName,
+                    this.nadViewerParameters.getSvgUrlResolver()
+                ).then((path) => edgeInfoComponent.appendChild(path));
             });
         }
     }
