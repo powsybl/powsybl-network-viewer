@@ -8,7 +8,8 @@
     "maxSteps" : 1000,
     "timeoutSeconds" : 15.0,
     "textNodeEdgeConnectionYShift" : 25.0,
-    "injectionsAdded" : false
+    "injectionsAdded" : false,
+    "scaleFactor" : 1.0
   },
   "svgParameters" : {
     "diagramPadding" : {
@@ -56,7 +57,9 @@
     "injectionEdgeLength" : 145.0,
     "injectionCircleRadius" : 25.0,
     "voltageLevelLegendsIncluded" : true,
-    "edgeInfosIncluded" : true
+    "edgeInfosIncluded" : true,
+    "doubleArrowShiftFactorArrows" : 1.5,
+    "doubleArrowShiftFactorText" : 1.8
   },
   "busNodes" : [ {
     "svgId" : "3",
@@ -64,98 +67,112 @@
     "nbNeighbours" : 0,
     "index" : 0,
     "vlNode" : "0",
-    "legend" : "1.1 kV / 0.0°"
+    "legend" : "1.1 kV / 0.0°",
+    "classes" : [ "nad-bus-0" ]
   }, {
     "svgId" : "7",
     "equipmentId" : "VL10_0",
     "nbNeighbours" : 0,
     "index" : 0,
     "vlNode" : "4",
-    "legend" : "1.1 kV / -15.1°"
+    "legend" : "1.1 kV / -15.1°",
+    "classes" : [ "nad-bus-0" ]
   }, {
     "svgId" : "11",
     "equipmentId" : "VL11_0",
     "nbNeighbours" : 0,
     "index" : 0,
     "vlNode" : "8",
-    "legend" : "1.1 kV / -14.8°"
+    "legend" : "1.1 kV / -14.8°",
+    "classes" : [ "nad-bus-0" ]
   }, {
     "svgId" : "15",
     "equipmentId" : "VL12_0",
     "nbNeighbours" : 0,
     "index" : 0,
     "vlNode" : "12",
-    "legend" : "1.1 kV / -15.1°"
+    "legend" : "1.1 kV / -15.1°",
+    "classes" : [ "nad-bus-0" ]
   }, {
     "svgId" : "19",
     "equipmentId" : "VL13_0",
     "nbNeighbours" : 0,
     "index" : 0,
     "vlNode" : "16",
-    "legend" : "1.1 kV / -15.2°"
+    "legend" : "1.1 kV / -15.2°",
+    "classes" : [ "nad-bus-0" ]
   }, {
     "svgId" : "23",
     "equipmentId" : "VL14_0",
     "nbNeighbours" : 0,
     "index" : 0,
     "vlNode" : "20",
-    "legend" : "1.0 kV / -16.0°"
+    "legend" : "1.0 kV / -16.0°",
+    "classes" : [ "nad-bus-0" ]
   }, {
     "svgId" : "27",
     "equipmentId" : "VL2_0",
     "nbNeighbours" : 0,
     "index" : 0,
     "vlNode" : "24",
-    "legend" : "1.0 kV / -5.0°"
+    "legend" : "1.0 kV / -5.0°",
+    "classes" : [ "nad-bus-0" ]
   }, {
     "svgId" : "31",
     "equipmentId" : "VL3_0",
     "nbNeighbours" : 0,
     "index" : 0,
     "vlNode" : "28",
-    "legend" : "1.0 kV / -12.7°"
+    "legend" : "1.0 kV / -12.7°",
+    "classes" : [ "nad-bus-0" ]
   }, {
     "svgId" : "36",
     "equipmentId" : "VL4_1",
     "nbNeighbours" : 2,
     "index" : 0,
     "vlNode" : "32",
-    "legend" : "1.1 kV / -13.4°"
+    "legend" : "1.1 kV / -13.4°",
+    "classes" : [ "nad-bus-1" ]
   }, {
     "svgId" : "37",
     "equipmentId" : "VL4_2",
     "nbNeighbours" : 2,
     "index" : 1,
     "vlNode" : "32",
-    "legend" : "1.1 kV / -14.9°"
+    "legend" : "1.1 kV / -14.9°",
+    "classes" : [ "nad-bus-2" ]
   }, {
     "svgId" : "35",
     "equipmentId" : "VL4_0",
     "nbNeighbours" : 2,
     "index" : 2,
     "vlNode" : "32",
-    "legend" : "1.0 kV / -10.3°"
+    "legend" : "1.0 kV / -10.3°",
+    "classes" : [ "nad-bus-0" ]
   }, {
     "svgId" : "41",
     "equipmentId" : "VL5_0",
     "nbNeighbours" : 1,
     "index" : 0,
     "vlNode" : "38",
-    "legend" : "1.0 kV / -8.8°"
+    "legend" : "1.0 kV / -8.8°",
+    "classes" : [ "nad-bus-0" ]
   }, {
     "svgId" : "42",
     "equipmentId" : "VL5_1",
     "nbNeighbours" : 1,
     "index" : 1,
     "vlNode" : "38",
-    "legend" : "1.1 kV / -14.2°"
+    "legend" : "1.1 kV / -14.2°",
+    "classes" : [ "nad-bus-1" ]
   }, {
     "svgId" : "46",
     "equipmentId" : "VL8_0",
     "nbNeighbours" : 0,
     "index" : 0,
     "vlNode" : "43",
-    "legend" : "1.1 kV / -13.4°"
+    "legend" : "1.1 kV / -13.4°",
+    "classes" : [ "nad-bus-0" ]
   } ],
   "nodes" : [ {
     "svgId" : "0",
@@ -164,7 +181,8 @@
     "y" : -669.23,
     "legendSvgId" : "1",
     "legendEdgeSvgId" : "2",
-    "legendHeader" : [ "VL1" ]
+    "legendHeader" : [ "VL1" ],
+    "classes" : [ "nad-vl0to30" ]
   }, {
     "svgId" : "4",
     "equipmentId" : "VL10",
@@ -172,7 +190,8 @@
     "y" : 100.52,
     "legendSvgId" : "5",
     "legendEdgeSvgId" : "6",
-    "legendHeader" : [ "VL10" ]
+    "legendHeader" : [ "VL10" ],
+    "classes" : [ "nad-vl0to30" ]
   }, {
     "svgId" : "8",
     "equipmentId" : "VL11",
@@ -180,7 +199,8 @@
     "y" : 308.31,
     "legendSvgId" : "9",
     "legendEdgeSvgId" : "10",
-    "legendHeader" : [ "VL11" ]
+    "legendHeader" : [ "VL11" ],
+    "classes" : [ "nad-vl0to30" ]
   }, {
     "svgId" : "12",
     "equipmentId" : "VL12",
@@ -188,7 +208,8 @@
     "y" : 76.12,
     "legendSvgId" : "13",
     "legendEdgeSvgId" : "14",
-    "legendHeader" : [ "VL12" ]
+    "legendHeader" : [ "VL12" ],
+    "classes" : [ "nad-vl0to30" ]
   }, {
     "svgId" : "16",
     "equipmentId" : "VL13",
@@ -196,7 +217,8 @@
     "y" : 333.92,
     "legendSvgId" : "17",
     "legendEdgeSvgId" : "18",
-    "legendHeader" : [ "VL13" ]
+    "legendHeader" : [ "VL13" ],
+    "classes" : [ "nad-vl0to30" ]
   }, {
     "svgId" : "20",
     "equipmentId" : "VL14",
@@ -204,7 +226,8 @@
     "y" : 419.24,
     "legendSvgId" : "21",
     "legendEdgeSvgId" : "22",
-    "legendHeader" : [ "VL14" ]
+    "legendHeader" : [ "VL14" ],
+    "classes" : [ "nad-vl0to30" ]
   }, {
     "svgId" : "24",
     "equipmentId" : "VL2",
@@ -212,7 +235,8 @@
     "y" : -384.58,
     "legendSvgId" : "25",
     "legendEdgeSvgId" : "26",
-    "legendHeader" : [ "VL2" ]
+    "legendHeader" : [ "VL2" ],
+    "classes" : [ "nad-vl0to30" ]
   }, {
     "svgId" : "28",
     "equipmentId" : "VL3",
@@ -220,7 +244,8 @@
     "y" : -360.27,
     "legendSvgId" : "29",
     "legendEdgeSvgId" : "30",
-    "legendHeader" : [ "VL3" ]
+    "legendHeader" : [ "VL3" ],
+    "classes" : [ "nad-vl0to30" ]
   }, {
     "svgId" : "32",
     "equipmentId" : "VL4",
@@ -228,7 +253,8 @@
     "y" : -108.15,
     "legendSvgId" : "33",
     "legendEdgeSvgId" : "34",
-    "legendHeader" : [ "VL4" ]
+    "legendHeader" : [ "VL4" ],
+    "classes" : [ "nad-vl0to30" ]
   }, {
     "svgId" : "38",
     "equipmentId" : "VL5",
@@ -236,7 +262,8 @@
     "y" : -30.06,
     "legendSvgId" : "39",
     "legendEdgeSvgId" : "40",
-    "legendHeader" : [ "VL5" ]
+    "legendHeader" : [ "VL5" ],
+    "classes" : [ "nad-vl0to30" ]
   }, {
     "svgId" : "43",
     "equipmentId" : "VL8",
@@ -244,7 +271,8 @@
     "y" : -451.48,
     "legendSvgId" : "44",
     "legendEdgeSvgId" : "45",
-    "legendHeader" : [ "VL8" ]
+    "legendHeader" : [ "VL8" ],
+    "classes" : [ "nad-vl0to30" ]
   } ],
   "edges" : [ {
     "svgId" : "47",
@@ -253,7 +281,9 @@
     "node2" : "24",
     "busNode1" : "3",
     "busNode2" : "27",
-    "type" : "LineEdge"
+    "type" : "LineEdge",
+    "classes1" : [ "nad-vl0to30" ],
+    "classes2" : [ "nad-vl0to30" ]
   }, {
     "svgId" : "48",
     "equipmentId" : "L1-5-1",
@@ -261,7 +291,9 @@
     "node2" : "38",
     "busNode1" : "3",
     "busNode2" : "41",
-    "type" : "LineEdge"
+    "type" : "LineEdge",
+    "classes1" : [ "nad-vl0to30" ],
+    "classes2" : [ "nad-vl0to30" ]
   }, {
     "svgId" : "49",
     "equipmentId" : "L10-11-1",
@@ -269,7 +301,9 @@
     "node2" : "8",
     "busNode1" : "7",
     "busNode2" : "11",
-    "type" : "LineEdge"
+    "type" : "LineEdge",
+    "classes1" : [ "nad-vl0to30" ],
+    "classes2" : [ "nad-vl0to30" ]
   }, {
     "svgId" : "50",
     "equipmentId" : "L9-10-1",
@@ -277,7 +311,9 @@
     "node2" : "4",
     "busNode1" : "37",
     "busNode2" : "7",
-    "type" : "LineEdge"
+    "type" : "LineEdge",
+    "classes1" : [ "nad-vl0to30" ],
+    "classes2" : [ "nad-vl0to30" ]
   }, {
     "svgId" : "51",
     "equipmentId" : "L6-11-1",
@@ -285,7 +321,9 @@
     "node2" : "8",
     "busNode1" : "42",
     "busNode2" : "11",
-    "type" : "LineEdge"
+    "type" : "LineEdge",
+    "classes1" : [ "nad-vl0to30" ],
+    "classes2" : [ "nad-vl0to30" ]
   }, {
     "svgId" : "52",
     "equipmentId" : "L12-13-1",
@@ -293,7 +331,9 @@
     "node2" : "16",
     "busNode1" : "15",
     "busNode2" : "19",
-    "type" : "LineEdge"
+    "type" : "LineEdge",
+    "classes1" : [ "nad-vl0to30" ],
+    "classes2" : [ "nad-vl0to30" ]
   }, {
     "svgId" : "53",
     "equipmentId" : "L6-12-1",
@@ -301,7 +341,9 @@
     "node2" : "12",
     "busNode1" : "42",
     "busNode2" : "15",
-    "type" : "LineEdge"
+    "type" : "LineEdge",
+    "classes1" : [ "nad-vl0to30" ],
+    "classes2" : [ "nad-vl0to30" ]
   }, {
     "svgId" : "54",
     "equipmentId" : "L13-14-1",
@@ -309,7 +351,9 @@
     "node2" : "20",
     "busNode1" : "19",
     "busNode2" : "23",
-    "type" : "LineEdge"
+    "type" : "LineEdge",
+    "classes1" : [ "nad-vl0to30" ],
+    "classes2" : [ "nad-vl0to30" ]
   }, {
     "svgId" : "55",
     "equipmentId" : "L6-13-1",
@@ -317,7 +361,9 @@
     "node2" : "16",
     "busNode1" : "42",
     "busNode2" : "19",
-    "type" : "LineEdge"
+    "type" : "LineEdge",
+    "classes1" : [ "nad-vl0to30" ],
+    "classes2" : [ "nad-vl0to30" ]
   }, {
     "svgId" : "56",
     "equipmentId" : "L9-14-1",
@@ -325,7 +371,9 @@
     "node2" : "20",
     "busNode1" : "37",
     "busNode2" : "23",
-    "type" : "LineEdge"
+    "type" : "LineEdge",
+    "classes1" : [ "nad-vl0to30" ],
+    "classes2" : [ "nad-vl0to30" ]
   }, {
     "svgId" : "57",
     "equipmentId" : "L2-3-1",
@@ -333,7 +381,9 @@
     "node2" : "28",
     "busNode1" : "27",
     "busNode2" : "31",
-    "type" : "LineEdge"
+    "type" : "LineEdge",
+    "classes1" : [ "nad-vl0to30" ],
+    "classes2" : [ "nad-vl0to30" ]
   }, {
     "svgId" : "58",
     "equipmentId" : "L2-4-1",
@@ -341,7 +391,9 @@
     "node2" : "32",
     "busNode1" : "27",
     "busNode2" : "35",
-    "type" : "LineEdge"
+    "type" : "LineEdge",
+    "classes1" : [ "nad-vl0to30" ],
+    "classes2" : [ "nad-vl0to30" ]
   }, {
     "svgId" : "59",
     "equipmentId" : "L2-5-1",
@@ -349,7 +401,9 @@
     "node2" : "38",
     "busNode1" : "27",
     "busNode2" : "41",
-    "type" : "LineEdge"
+    "type" : "LineEdge",
+    "classes1" : [ "nad-vl0to30" ],
+    "classes2" : [ "nad-vl0to30" ]
   }, {
     "svgId" : "60",
     "equipmentId" : "L3-4-1",
@@ -357,7 +411,9 @@
     "node2" : "32",
     "busNode1" : "31",
     "busNode2" : "35",
-    "type" : "LineEdge"
+    "type" : "LineEdge",
+    "classes1" : [ "nad-vl0to30" ],
+    "classes2" : [ "nad-vl0to30" ]
   }, {
     "svgId" : "61",
     "equipmentId" : "L4-5-1",
@@ -365,7 +421,9 @@
     "node2" : "38",
     "busNode1" : "35",
     "busNode2" : "41",
-    "type" : "LineEdge"
+    "type" : "LineEdge",
+    "classes1" : [ "nad-vl0to30" ],
+    "classes2" : [ "nad-vl0to30" ]
   }, {
     "svgId" : "62",
     "equipmentId" : "L7-8-1",
@@ -373,7 +431,9 @@
     "node2" : "43",
     "busNode1" : "36",
     "busNode2" : "46",
-    "type" : "LineEdge"
+    "type" : "LineEdge",
+    "classes1" : [ "nad-vl0to30" ],
+    "classes2" : [ "nad-vl0to30" ]
   }, {
     "svgId" : "63",
     "equipmentId" : "L7-9-1",
@@ -381,7 +441,9 @@
     "node2" : "32",
     "busNode1" : "36",
     "busNode2" : "37",
-    "type" : "LineEdge"
+    "type" : "LineEdge",
+    "classes1" : [ "nad-vl0to30" ],
+    "classes2" : [ "nad-vl0to30" ]
   }, {
     "svgId" : "64",
     "equipmentId" : "T4-7-1",
@@ -389,7 +451,9 @@
     "node2" : "32",
     "busNode1" : "35",
     "busNode2" : "36",
-    "type" : "TwoWtEdge"
+    "type" : "TwoWtEdge",
+    "classes1" : [ "nad-vl0to30" ],
+    "classes2" : [ "nad-vl0to30" ]
   }, {
     "svgId" : "65",
     "equipmentId" : "T4-9-1",
@@ -397,7 +461,9 @@
     "node2" : "32",
     "busNode1" : "35",
     "busNode2" : "37",
-    "type" : "TwoWtEdge"
+    "type" : "TwoWtEdge",
+    "classes1" : [ "nad-vl0to30" ],
+    "classes2" : [ "nad-vl0to30" ]
   }, {
     "svgId" : "66",
     "equipmentId" : "T5-6-1",
@@ -405,7 +471,9 @@
     "node2" : "38",
     "busNode1" : "41",
     "busNode2" : "42",
-    "type" : "TwoWtEdge"
+    "type" : "TwoWtEdge",
+    "classes1" : [ "nad-vl0to30" ],
+    "classes2" : [ "nad-vl0to30" ]
   } ],
   "textNodes" : [ {
     "svgId" : "1",

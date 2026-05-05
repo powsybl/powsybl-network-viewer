@@ -19,7 +19,7 @@ const FEEDER_COMPONENT_TYPES = new Set([
     'LINE',
     'LOAD',
     'BATTERY',
-    'DANGLING_LINE',
+    'BOUNDARY_LINE',
     'TIE_LINE',
     'GENERATOR',
     'VSC_CONVERTER_STATION',

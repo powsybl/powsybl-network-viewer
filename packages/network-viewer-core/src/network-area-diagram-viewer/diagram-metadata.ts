@@ -23,6 +23,7 @@ export interface LayoutParametersMetadata {
     maxSteps: number;
     timeoutSeconds: number;
     injectionsAdded: boolean;
+    scaleFactor: number;
 }
 
 export interface SvgParametersMetadata {
@@ -67,6 +68,8 @@ export interface SvgParametersMetadata {
     injectionCircleRadius: number;
     voltageLevelLegendsIncluded: boolean;
     edgeInfosIncluded: boolean;
+    doubleArrowShiftFactorArrows: number;
+    doubleArrowShiftFactorText: number;
 }
 
 export interface DiagramPaddingMetadata {
@@ -83,6 +86,8 @@ export interface BusNodeMetadata {
     index: number;
     vlNode: string;
     legend?: string;
+    classes?: string[];
+    style?: string;
 }
 
 export interface NodeMetadata {
@@ -96,6 +101,9 @@ export interface NodeMetadata {
     legendHeader?: string[];
     legendFooter?: string[];
     invisible?: boolean;
+    type?: string;
+    unknownBus?: boolean;
+    classes?: string[];
 }
 
 export interface EdgeMetadata {
@@ -112,6 +120,11 @@ export interface EdgeMetadata {
     edgeInfo2?: EdgeInfoMetadata;
     invisible1?: boolean;
     invisible2?: boolean;
+    side?: string;
+    classes1?: string[];
+    classes2?: string[];
+    style1?: string;
+    style2?: string;
 }
 
 export interface PointMetadata {
@@ -143,6 +156,8 @@ export interface EdgeInfoMetadata {
     infoTypeA?: string;
     infoTypeB?: string;
     direction?: string;
+    directionA?: string;
+    directionB?: string;
     labelA?: string;
     labelB?: string;
 }
