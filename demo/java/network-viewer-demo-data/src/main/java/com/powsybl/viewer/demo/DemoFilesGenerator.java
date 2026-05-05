@@ -32,6 +32,7 @@ public final class DemoFilesGenerator {
         NadDemoFiles.draw9ZeroImpedanceLimitPercentage(demoResources);
         NadDemoFiles.drawFourSubstationsCustomLabelAndStyle(demoResources);
         NadDemoFiles.drawNetworkWithSvcVscScDlDoubleArrows(demoResources);
+        NadDemoFiles.drawNetworkWithTwoVoltageLevelsAndComponents(demoResources);
 
         SldDemoFiles.drawSldExample(demoResources);
         SldDemoFiles.drawSldSubExample(demoResources);
