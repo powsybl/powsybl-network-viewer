@@ -35,6 +35,9 @@ import * as SvgUtils from './svg-utils';
 import * as MetadataUtils from './metadata-utils';
 import * as HalfEdgeUtils from './half-edge-utils';
 import { Dimensions, EdgeType, ElementType, HalfEdge, ViewBox } from './diagram-types';
+import { LibraryComponent } from './library-component';
+import DefaultLibraryComponents from '../resources/default-library/components.json';
+import * as ComponentUtils from './component-utils';
 
 // Type for cancelable debounced functions (replaces @mui/utils Cancelable)
 interface Cancelable {
@@ -142,6 +145,8 @@ export class NetworkAreaDiagramViewer {
 
     nodeMap: Map<string, NodeMetadata> | null = null;
 
+    componentLibrary: LibraryComponent[] = DefaultLibraryComponents;
+
     static readonly ZOOM_CLASS_PREFIX = 'nad-zoom-';
 
     /**
@@ -181,6 +186,7 @@ export class NetworkAreaDiagramViewer {
         this.init();
         this.layoutParameters = new LayoutParameters(this.diagramMetadata?.layoutParameters);
         this.previousMaxDisplayedSize = 0;
+        this.componentLibrary = this.nadViewerParameters.getComponentLibrary() ?? DefaultLibraryComponents;
     }
 
     public setWidth(width: number): void {
@@ -1324,7 +1330,7 @@ export class NetworkAreaDiagramViewer {
     }
 
     private redrawArrows(edgeInfo: SVGElement, arrowAngle: number, secondArrowAngle?: number): number {
-        const arrowElements: NodeListOf<SVGGraphicsElement> = edgeInfo.querySelectorAll('path');
+        const arrowElements: NodeListOf<SVGGraphicsElement> = edgeInfo.querySelectorAll(':scope > path');
         let arrowRotateString: string = 'rotate(' + DiagramUtils.getFormattedValue(arrowAngle) + ')';
         if (arrowElements.length == 1) {
             arrowElements.item(0).setAttribute('transform', arrowRotateString);
@@ -2210,22 +2216,12 @@ export class NetworkAreaDiagramViewer {
         if (!halfEdge) return;
 
         if (!edgeInfoMetadata) {
-            edgeInfoMetadata = {
-                svgId: crypto.randomUUID(),
-                infoTypeB: 'ActivePower',
-            };
+            edgeInfoMetadata = this.getEdgeInfoMetadata(value);
             if (side == '1') {
                 edge.edgeInfo1 = edgeInfoMetadata;
             } else {
                 edge.edgeInfo2 = edgeInfoMetadata;
             }
-            edgeInfoMetadata.labelB =
-                typeof value === 'number'
-                    ? value.toFixed(
-                          DiagramUtils.getEdgeInfoValuePrecision(edgeInfoMetadata.infoTypeB, this.svgParameters)
-                      )
-                    : value;
-            edgeInfoMetadata.direction = typeof value === 'number' ? DiagramUtils.getArrowDirection(value) : undefined;
         }
 
         const edgeInfo = this.getOrCreateEdgeInfo(edgeInfoMetadata);
@@ -2239,17 +2235,21 @@ export class NetworkAreaDiagramViewer {
             edgeInfo.classList.add(edgeInfoClass);
         }
 
-        if (edgeInfoMetadata.direction || edgeInfoMetadata.directionB) {
-            this.addBranchArrowElement(
-                edgeInfo,
-                edgeInfoMetadata.direction ?? edgeInfoMetadata.directionB,
-                edgeInfoMetadata.infoTypeB,
-                1
-            );
-        }
+        if (edgeInfoMetadata.componentType) {
+            this.addBranchComponentElement(edgeInfo, edgeInfoMetadata.componentType);
+        } else {
+            if (edgeInfoMetadata.direction || edgeInfoMetadata.directionB) {
+                this.addBranchArrowElement(
+                    edgeInfo,
+                    edgeInfoMetadata.direction ?? edgeInfoMetadata.directionB,
+                    edgeInfoMetadata.infoTypeB,
+                    1
+                );
+            }
 
-        if (edgeInfoMetadata.directionA) {
-            this.addBranchArrowElement(edgeInfo, edgeInfoMetadata.directionA, edgeInfoMetadata.infoTypeA, 2);
+            if (edgeInfoMetadata.directionA) {
+                this.addBranchArrowElement(edgeInfo, edgeInfoMetadata.directionA, edgeInfoMetadata.infoTypeA, 2);
+            }
         }
 
         const branchLabelBElement = this.getOrCreateEdgeInfoText(edgeInfo, 1);
@@ -2261,6 +2261,35 @@ export class NetworkAreaDiagramViewer {
         }
 
         this.redrawEdgeArrowAndLabels(halfEdge, edgeInfo);
+    }
+
+    private getEdgeInfoMetadata(value: number | string): EdgeInfoMetadata {
+        const edgeInfoMetadata: EdgeInfoMetadata = {
+            svgId: crypto.randomUUID(),
+            infoTypeB: 'ActivePower',
+        };
+        edgeInfoMetadata.labelB =
+            typeof value === 'number'
+                ? value.toFixed(DiagramUtils.getEdgeInfoValuePrecision(edgeInfoMetadata.infoTypeB, this.svgParameters))
+                : value;
+        edgeInfoMetadata.direction = typeof value === 'number' ? DiagramUtils.getArrowDirection(value) : undefined;
+        return edgeInfoMetadata;
+    }
+
+    private addBranchComponentElement(edgeInfo: SVGElement, componentType: string) {
+        const component = ComponentUtils.getComponent(this.componentLibrary, componentType);
+        if (component) {
+            const edgeInfoComponent = this.getOrCreateEdgeInfoComponent(edgeInfo);
+            const trans = new Point(-component.size.width / 2, -component.size.height / 2);
+            edgeInfoComponent.setAttribute('transform', 'translate(' + DiagramUtils.getFormattedPoint(trans) + ')');
+            edgeInfoComponent.classList.add(component.styleClass);
+            component.subComponents.forEach((subComponent) => {
+                void ComponentUtils.getComponentPath(
+                    subComponent.fileName,
+                    this.nadViewerParameters.getSvgUrlResolver()
+                ).then((path) => edgeInfoComponent.appendChild(path));
+            });
+        }
     }
 
     private addBranchArrowElement(
@@ -2305,17 +2334,21 @@ export class NetworkAreaDiagramViewer {
 
         const edgeInfo = this.getOrCreateEdgeInfo(edgeInfoMetadata);
 
-        if (edgeInfoMetadata.direction || edgeInfoMetadata.directionB) {
-            this.addBranchArrowElement(
-                edgeInfo,
-                edgeInfoMetadata.direction ?? edgeInfoMetadata.directionB,
-                edgeInfoMetadata.infoTypeB,
-                1
-            );
-        }
+        if (edgeInfoMetadata.componentType) {
+            this.addBranchComponentElement(edgeInfo, edgeInfoMetadata.componentType);
+        } else {
+            if (edgeInfoMetadata.direction || edgeInfoMetadata.directionB) {
+                this.addBranchArrowElement(
+                    edgeInfo,
+                    edgeInfoMetadata.direction ?? edgeInfoMetadata.directionB,
+                    edgeInfoMetadata.infoTypeB,
+                    1
+                );
+            }
 
-        if (edgeInfoMetadata.directionA) {
-            this.addBranchArrowElement(edgeInfo, edgeInfoMetadata.directionA, edgeInfoMetadata.infoTypeA, 2);
+            if (edgeInfoMetadata.directionA) {
+                this.addBranchArrowElement(edgeInfo, edgeInfoMetadata.directionA, edgeInfoMetadata.infoTypeA, 2);
+            }
         }
 
         let i = 1;
@@ -2385,6 +2418,15 @@ export class NetworkAreaDiagramViewer {
             edgeInfo.appendChild(edgeInfoText);
         }
         return edgeInfoText;
+    }
+
+    private getOrCreateEdgeInfoComponent(edgeInfo: SVGElement) {
+        let edgeInfoComponent = edgeInfo.querySelector(':scope > g');
+        if (!edgeInfoComponent) {
+            edgeInfoComponent = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+            edgeInfo.appendChild(edgeInfoComponent);
+        }
+        return edgeInfoComponent;
     }
 
     private setBranchSideConnection(branchId: string, side: string, edgeId: string, connected: boolean | undefined) {

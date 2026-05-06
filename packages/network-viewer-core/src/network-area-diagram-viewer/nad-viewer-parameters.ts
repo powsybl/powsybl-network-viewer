@@ -5,6 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 import { ViewBoxLike, Point } from '@svgdotjs/svg.js';
+import { LibraryComponent } from './library-component';
 
 export type OnMoveNodeCallbackType = (
     equipmentId: string,
@@ -112,6 +113,14 @@ export interface NadViewerParametersOptions {
 
     // Threshold for the adaptiveZoom.
     adaptiveTextZoomThreshold?: number;
+
+    // Custom component library to use instead of the default one.
+    // If not provided, the default library is used.
+    componentLibrary?: LibraryComponent[];
+
+    // Resolver that maps an SVG filename to its URL, for use with a custom component library.
+    // If not provided, the default library SVG files are used.
+    svgUrlResolver?: (fileName: string) => string;
 }
 
 export class NadViewerParameters {
@@ -201,5 +210,13 @@ export class NadViewerParameters {
             this.nadViewerParametersOptions?.adaptiveTextZoomThreshold ??
             NadViewerParameters.THRESHOLD_ADAPTIVE_ZOOM_DEFAULT
         );
+    }
+
+    public getComponentLibrary(): LibraryComponent[] | undefined {
+        return this.nadViewerParametersOptions?.componentLibrary;
+    }
+
+    public getSvgUrlResolver(): ((fileName: string) => string) | undefined {
+        return this.nadViewerParametersOptions?.svgUrlResolver;
     }
 }

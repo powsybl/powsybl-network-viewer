@@ -23,6 +23,8 @@ import com.powsybl.nad.NadParameters;
 import com.powsybl.nad.NetworkAreaDiagram;
 import com.powsybl.nad.build.iidm.VoltageLevelFilter;
 import com.powsybl.nad.layout.BasicForceLayoutFactory;
+import com.powsybl.nad.model.BranchEdge;
+import com.powsybl.nad.model.ThreeWtEdge;
 import com.powsybl.nad.svg.CustomLabelProvider;
 import com.powsybl.nad.svg.CustomStyleProvider;
 import com.powsybl.nad.svg.EdgeInfo;
@@ -39,6 +41,7 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 
 /**
@@ -352,6 +355,40 @@ public final class NadDemoFiles {
         Network network = Networks.createNetworkWithSvcVscScDl();
         NetworkAreaDiagram.draw(network, demoResourcesDirectory.resolve("nad-double-arrows-with-middle-values"),
                 getNadParametersWithDoubleArrows(),
+                VoltageLevelFilter.NO_FILTER);
+    }
+    
+    private static NadParameters getNadParametersWithComponents() {
+        SvgParameters svgParameters = new SvgParameters()
+                .setCssLocation(SvgParameters.CssLocation.EXTERNAL_NO_IMPORT);
+        NadParameters nadParameters = new NadParameters()
+                .setSvgParameters(svgParameters)
+                .setLayoutFactory(new BasicForceLayoutFactory())
+                .setLabelProviderFactory((network1, svgParameters1) -> new DefaultLabelProvider(network1, svgParameters1) {
+
+                    @Override
+                    public Optional<EdgeInfo> getBranchEdgeInfo(String branchId, BranchEdge.Side side, String branchType) {
+                        return Optional.of(new EdgeInfo("Name", "Name", EdgeInfo.Direction.OUT, "int", "ext", "FLASH"));
+                    }
+
+                    @Override
+                    public Optional<EdgeInfo> getBranchEdgeInfo(String branchId, String branchType) {
+                        return Optional.of(new EdgeInfo("Name", "Name", 1, "side1", "side2", "LOCK"));
+                    }
+
+                    @Override
+                    public Optional<EdgeInfo> getThreeWindingTransformerEdgeInfo(String threeWindingTransformerId, ThreeWtEdge.Side side) {
+                        return Optional.of(new EdgeInfo("Name", "Name", EdgeInfo.Direction.IN, "int", "ext"));
+                    }
+                }
+                        );
+        return nadParameters;
+    }
+    
+    public static void drawNetworkWithTwoVoltageLevelsAndComponents(Path demoResourcesDirectory) {
+        Network network = Networks.createTwoVoltageLevels();
+        NetworkAreaDiagram.draw(network, demoResourcesDirectory.resolve("nad-edge-info-components"),
+                getNadParametersWithComponents(),
                 VoltageLevelFilter.NO_FILTER);
     }
 }

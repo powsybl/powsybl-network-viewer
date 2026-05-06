@@ -29,6 +29,8 @@ import NadSvgPegaseNetworkExample from './data/case1354pegase.svg';
 import NadSvgPegaseNetworkExampleMeta from './data/case1354pegase_metadata.json';
 import NadSvgDoubleArrowsExample from './data/nad-double-arrows-with-middle-values.svg';
 import NadSvgDoubleArrowsExampleMeta from './data/nad-double-arrows-with-middle-values_metadata.json';
+import NadSvgComponentsExample from './data/nad-edge-info-components.svg';
+import NadSvgComponentsExampleMeta from './data/nad-edge-info-components_metadata.json';
 import SldSvgExample from './data/sld-example.svg';
 import SldSvgExampleMeta from './data/sld-example_metadata.json';
 import SldSvgSubExample from './data/sld-sub-example.svg';
@@ -620,6 +622,29 @@ export const addNadToDemo = () => {
                 document.getElementById('svg-container-nad-double-arrows')!,
                 svgContent,
                 NadSvgDoubleArrowsExampleMeta,
+                nadViewerParametersOptions
+            );
+        });
+
+    fetch(NadSvgComponentsExample)
+        .then((response) => response.text())
+        .then((svgContent) => {
+            const nadViewerParametersOptions: NadViewerParametersOptions = {
+                enableDragInteraction: true,
+                addButtons: true,
+                onMoveNodeCallback: handleNodeMove,
+                onMoveTextNodeCallback: handleTextNodeMove,
+                onSelectNodeCallback: handleNodeSelect,
+                onToggleHoverCallback: handleToggleNadHover,
+                onRightClickCallback: handleRightClick,
+                onBendLineCallback: handleLineBending,
+                enableAdaptiveTextZoom: true,
+                adaptiveTextZoomThreshold: 1100,
+            };
+            new NetworkAreaDiagramViewer(
+                document.getElementById('svg-container-nad-components')!,
+                svgContent,
+                NadSvgComponentsExampleMeta,
                 nadViewerParametersOptions
             );
         });
