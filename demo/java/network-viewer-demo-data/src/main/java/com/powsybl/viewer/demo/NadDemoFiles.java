@@ -5,9 +5,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
- package com.powsybl.viewer.demo;
+package com.powsybl.viewer.demo;
 
 import com.powsybl.computation.local.LocalComputationManager;
+import com.powsybl.diagram.test.Networks;
 import com.powsybl.ieeecdf.converter.IeeeCdfNetworkFactory;
 import com.powsybl.iidm.network.ImportConfig;
 import com.powsybl.iidm.network.Line;
@@ -21,9 +22,14 @@ import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.nad.NadParameters;
 import com.powsybl.nad.NetworkAreaDiagram;
 import com.powsybl.nad.build.iidm.VoltageLevelFilter;
+import com.powsybl.nad.layout.BasicForceLayoutFactory;
+import com.powsybl.nad.model.BranchEdge;
+import com.powsybl.nad.model.ThreeWtEdge;
 import com.powsybl.nad.svg.CustomLabelProvider;
 import com.powsybl.nad.svg.CustomStyleProvider;
 import com.powsybl.nad.svg.EdgeInfo;
+import com.powsybl.nad.svg.EdgeInfoEnum;
+import com.powsybl.nad.svg.EdgeInfoParameters;
 import com.powsybl.nad.svg.LabelProvider;
 import com.powsybl.nad.svg.LabelProviderParameters;
 import com.powsybl.nad.svg.StyleProvider;
@@ -35,6 +41,7 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 
 /**
@@ -87,11 +94,11 @@ public final class NadDemoFiles {
     public static void draw9ZeroImpedanceMiddleArrow(Path demoResources) {
         Network network = IeeeCdfNetworkFactory.create9zeroimpedance();
         LoadFlow.run(network);
-        DefaultLabelProvider.EdgeInfoParameters edgeInfoParameters = new DefaultLabelProvider.EdgeInfoParameters(
-                DefaultLabelProvider.EdgeInfoEnum.ACTIVE_POWER,
-                DefaultLabelProvider.EdgeInfoEnum.NAME,
-                DefaultLabelProvider.EdgeInfoEnum.CURRENT,
-                DefaultLabelProvider.EdgeInfoEnum.EMPTY);
+        EdgeInfoParameters edgeInfoParameters = new EdgeInfoParameters(
+                EdgeInfoEnum.ACTIVE_POWER,
+                EdgeInfoEnum.NAME,
+                EdgeInfoEnum.CURRENT,
+                EdgeInfoEnum.EMPTY);
         NetworkAreaDiagram.draw(network, demoResources.resolve("nad-ieee9-zeroimpedance-cdf-middle-arrow.svg"),
                 getNadParametersWithDefaultLabelProviderFilled(edgeInfoParameters),
                 VoltageLevelFilter.createVoltageLevelDepthFilter(network, "VL2", 1));
@@ -130,17 +137,17 @@ public final class NadDemoFiles {
                 .endTemporaryLimit()
                 .add();
 
-        DefaultLabelProvider.EdgeInfoParameters edgeInfoParameters = new DefaultLabelProvider.EdgeInfoParameters(
-                DefaultLabelProvider.EdgeInfoEnum.ACTIVE_POWER,
-                DefaultLabelProvider.EdgeInfoEnum.NAME,
-                DefaultLabelProvider.EdgeInfoEnum.VALUE_PERMANENT_LIMIT_PERCENTAGE,
-                DefaultLabelProvider.EdgeInfoEnum.EMPTY);
+        EdgeInfoParameters edgeInfoParameters = new EdgeInfoParameters(
+                EdgeInfoEnum.ACTIVE_POWER,
+                EdgeInfoEnum.NAME,
+                EdgeInfoEnum.VALUE_PERMANENT_LIMIT_PERCENTAGE,
+                EdgeInfoEnum.EMPTY);
+
         NetworkAreaDiagram.draw(network, demoResources.resolve("nad-ieee9-zeroimpedance-cdf-limit-percentage.svg"),
                 getNadParametersWithDefaultLabelProviderFilled(edgeInfoParameters),
                 VoltageLevelFilter.createVoltageLevelDepthFilter(network, "VL2", 1));
 
     }
-
 
     public static void drawScada(Path demoResourcesDirectory) {
         Network network = ScadaNetworkFactory.create();
@@ -183,35 +190,51 @@ public final class NadDemoFiles {
             .setCssLocation(SvgParameters.CssLocation.EXTERNAL_NO_IMPORT)
             .setSvgWidthAndHeightAdded(true);
         return new NadParameters()
-            .setSvgParameters(svgParameters);
+            .setSvgParameters(svgParameters)
+            .setLayoutFactory(new BasicForceLayoutFactory());
     }
 
     private static NadParameters getNadParametersWithDefaultLabelProviderFilled() {
-        DefaultLabelProvider.EdgeInfoParameters edgeInfoParameters = new DefaultLabelProvider.EdgeInfoParameters(
-                DefaultLabelProvider.EdgeInfoEnum.ACTIVE_POWER,
-                DefaultLabelProvider.EdgeInfoEnum.NAME,
-                DefaultLabelProvider.EdgeInfoEnum.EMPTY,
-                DefaultLabelProvider.EdgeInfoEnum.EMPTY);
+        EdgeInfoParameters edgeInfoParameters = new EdgeInfoParameters(
+                EdgeInfoEnum.ACTIVE_POWER,
+                EdgeInfoEnum.NAME,
+                EdgeInfoEnum.EMPTY,
+                EdgeInfoEnum.EMPTY);
         return getNadParametersWithDefaultLabelProviderFilled(edgeInfoParameters);
     }
 
-    private static NadParameters getNadParametersWithDefaultLabelProviderFilled(DefaultLabelProvider.EdgeInfoParameters edgeInfoParameters) {
+    private static NadParameters getNadParametersWithDefaultLabelProviderFilled(EdgeInfoParameters edgeInfoParameters) {
         SvgParameters svgParameters = new SvgParameters()
                 .setCssLocation(SvgParameters.CssLocation.EXTERNAL_NO_IMPORT);
         LabelProviderParameters parameters = new LabelProviderParameters();
+        parameters.setEdgeInfoParameters(edgeInfoParameters);
         return new NadParameters()
                 .setSvgParameters(svgParameters)
+                .setLayoutFactory(new BasicForceLayoutFactory())
                 .setLabelProviderFactory((n, s) ->
-                        new DefaultLabelProvider(n, edgeInfoParameters, s.createValueFormatter(), parameters));
+                        new DefaultLabelProvider(n, s.createValueFormatter(), parameters));
+    }
+
+    private static NadParameters getNadParametersWithDefaultLabelProviderFilledDoubleArrow(EdgeInfoParameters edgeInfoParameters) {
+        SvgParameters svgParameters = new SvgParameters()
+            .setCssLocation(SvgParameters.CssLocation.EXTERNAL_NO_IMPORT);
+        LabelProviderParameters parameters = new LabelProviderParameters();
+        parameters.setEdgeInfoParameters(edgeInfoParameters)
+            .setDoubleArrowsDisplayed(true);
+        return new NadParameters()
+            .setSvgParameters(svgParameters)
+            .setLayoutFactory(new BasicForceLayoutFactory())
+            .setLabelProviderFactory((n, s) ->
+                new DefaultLabelProvider(n, s.createValueFormatter(), parameters));
     }
 
     private static NadParameters getNadParametersWithDefaultLabelProviderFilledAndMultipleLabels() {
-        DefaultLabelProvider.EdgeInfoParameters edgeInfoParameters = new DefaultLabelProvider.EdgeInfoParameters(
-            DefaultLabelProvider.EdgeInfoEnum.ACTIVE_POWER,
-            DefaultLabelProvider.EdgeInfoEnum.NAME,
-            DefaultLabelProvider.EdgeInfoEnum.CURRENT,
-            DefaultLabelProvider.EdgeInfoEnum.REACTIVE_POWER);
-        return getNadParametersWithDefaultLabelProviderFilled(edgeInfoParameters);
+        EdgeInfoParameters edgeInfoParameters = new EdgeInfoParameters(
+                EdgeInfoEnum.ACTIVE_POWER,
+                EdgeInfoEnum.NAME,
+                EdgeInfoEnum.CURRENT,
+                EdgeInfoEnum.REACTIVE_POWER);
+        return getNadParametersWithDefaultLabelProviderFilledDoubleArrow(edgeInfoParameters);
     }
 
     private static NadParameters getNadParametersWithDefaultLabelProvider() {
@@ -219,6 +242,7 @@ public final class NadDemoFiles {
             .setCssLocation(SvgParameters.CssLocation.EXTERNAL_NO_IMPORT);
         return new NadParameters()
             .setSvgParameters(svgParameters)
+            .setLayoutFactory(new BasicForceLayoutFactory())
             .setLabelProviderFactory(DefaultLabelProvider::new);
     }
 
@@ -227,6 +251,7 @@ public final class NadDemoFiles {
             .setCssLocation(SvgParameters.CssLocation.EXTERNAL_NO_IMPORT);
         NadParameters nadParameters = new NadParameters()
             .setSvgParameters(svgParameters)
+            .setLayoutFactory(new BasicForceLayoutFactory())
             .setLabelProviderFactory(DefaultLabelProvider::new);
         nadParameters.getLayoutParameters().setInjectionsAdded(true);
         return nadParameters;
@@ -299,11 +324,71 @@ public final class NadDemoFiles {
 
         NadParameters nadParameters = new NadParameters()
                 .setSvgParameters(svgParameters)
+                .setLayoutFactory(new BasicForceLayoutFactory())
                 .setLabelProviderFactory((n, s) -> labelProvider)
                 .setStyleProviderFactory(n -> styleProvider);
 
         NetworkAreaDiagram.draw(network, demoResourcesDirectory.resolve("nad-four-substations_custom.svg"),
                 nadParameters,
+                VoltageLevelFilter.NO_FILTER);
+    }
+
+    private static NadParameters getNadParametersWithDoubleArrows() {
+        SvgParameters svgParameters = new SvgParameters()
+            .setCssLocation(SvgParameters.CssLocation.EXTERNAL_NO_IMPORT);
+        NadParameters nadParameters = new NadParameters()
+                .setSvgParameters(svgParameters)
+                .setLayoutFactory(new BasicForceLayoutFactory())
+                //.setStyleProviderFactory(this::getStyleProvider)
+                .setLabelProviderFactory((network1, svgParameters1) -> new DefaultLabelProvider.Builder()
+                    .setDoubleArrowsDisplayed(true)
+                    .setInfoSideInternal(EdgeInfoEnum.REACTIVE_POWER)
+                    .setInfoSideExternal(EdgeInfoEnum.ACTIVE_POWER)
+                    .setInfoMiddleSide1(EdgeInfoEnum.REACTIVE_POWER)
+                    .setInfoMiddleSide2(EdgeInfoEnum.ACTIVE_POWER)
+                    .build(network1, svgParameters1)
+                );
+        return nadParameters;
+    }
+
+    public static void drawNetworkWithSvcVscScDlDoubleArrows(Path demoResourcesDirectory) {
+        Network network = Networks.createNetworkWithSvcVscScDl();
+        NetworkAreaDiagram.draw(network, demoResourcesDirectory.resolve("nad-double-arrows-with-middle-values"),
+                getNadParametersWithDoubleArrows(),
+                VoltageLevelFilter.NO_FILTER);
+    }
+    
+    private static NadParameters getNadParametersWithComponents() {
+        SvgParameters svgParameters = new SvgParameters()
+                .setCssLocation(SvgParameters.CssLocation.EXTERNAL_NO_IMPORT);
+        NadParameters nadParameters = new NadParameters()
+                .setSvgParameters(svgParameters)
+                .setLayoutFactory(new BasicForceLayoutFactory())
+                .setLabelProviderFactory((network1, svgParameters1) -> new DefaultLabelProvider(network1, svgParameters1) {
+
+                    @Override
+                    public Optional<EdgeInfo> getBranchEdgeInfo(String branchId, BranchEdge.Side side, String branchType) {
+                        return Optional.of(new EdgeInfo("Name", "Name", EdgeInfo.Direction.OUT, "int", "ext", "FLASH"));
+                    }
+
+                    @Override
+                    public Optional<EdgeInfo> getBranchEdgeInfo(String branchId, String branchType) {
+                        return Optional.of(new EdgeInfo("Name", "Name", 1, "side1", "side2", "LOCK"));
+                    }
+
+                    @Override
+                    public Optional<EdgeInfo> getThreeWindingTransformerEdgeInfo(String threeWindingTransformerId, ThreeWtEdge.Side side) {
+                        return Optional.of(new EdgeInfo("Name", "Name", EdgeInfo.Direction.IN, "int", "ext"));
+                    }
+                }
+                        );
+        return nadParameters;
+    }
+    
+    public static void drawNetworkWithTwoVoltageLevelsAndComponents(Path demoResourcesDirectory) {
+        Network network = Networks.createTwoVoltageLevels();
+        NetworkAreaDiagram.draw(network, demoResourcesDirectory.resolve("nad-edge-info-components"),
+                getNadParametersWithComponents(),
                 VoltageLevelFilter.NO_FILTER);
     }
 }

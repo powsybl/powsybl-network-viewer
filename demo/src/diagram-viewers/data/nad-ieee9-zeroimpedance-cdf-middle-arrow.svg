@@ -140,9 +140,9 @@
         <polyline id="8" points="-157.20,287.42 -116.54,281.32"/>
         <polyline id="13" points="139.01,-318.36 209.34,-328.91"/>
     </g>
-    <foreignObject height="1" width="1" class="nad-text-nodes">
-        <div xmlns="http://www.w3.org/1999/xhtml">
-            <div style="position: absolute; top: -134px; left: -114px" id="1" class="nad-vl70to120 nad-label-box">
+    <g class="nad-text-nodes">
+        <foreignObject id="1" y="-133.81" x="-114.48" height="1" width="1">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="nad-vl70to120 nad-label-box">
                 <div>VL2</div>
                 <div class="nad-bus-descr">
                     <span class="nad-bus-0 nad-legend-square"></span>102.5 kV / 8.2°</div>
@@ -151,18 +151,22 @@
                 <div class="nad-bus-descr">
                     <span class="nad-bus-1 nad-legend-square"></span>101.9 kV / 2.6°</div>
             </div>
-            <div style="position: absolute; top: 256px; left: -117px" id="7" class="nad-vl70to120 nad-label-box">
+        </foreignObject>
+        <foreignObject id="7" y="256.32" x="-116.54" height="1" width="1">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="nad-vl70to120 nad-label-box">
                 <div>VL3</div>
                 <div class="nad-bus-descr">
                     <span class="nad-bus-0 nad-legend-square"></span>102.5 kV / 6.0°</div>
                 <div class="nad-bus-descr">
                     <span class="nad-bus-1 nad-legend-square"></span>103.3 kV / 3.3°</div>
             </div>
-            <div style="position: absolute; top: -354px; left: 209px" id="12" class="nad-vl70to120 nad-label-box">
+        </foreignObject>
+        <foreignObject id="12" y="-353.91" x="209.34" height="1" width="1">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="nad-vl70to120 nad-label-box">
                 <div>VL5</div>
                 <div class="nad-bus-descr">
                     <span class="nad-bus-0 nad-legend-square"></span>99.3 kV / -4.4°</div>
             </div>
-        </div>
-    </foreignObject>
+        </foreignObject>
+    </g>
 </svg>

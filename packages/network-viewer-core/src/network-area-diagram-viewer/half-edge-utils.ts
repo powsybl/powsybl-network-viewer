@@ -65,7 +65,7 @@ export function getMiddleArrowRotation(
     return radToDeg(flipArrow ? angleMiddleArrow - Math.PI : angleMiddleArrow);
 }
 
-export function getArrowCenter(halfEdge: HalfEdge, svgParameters: SvgParameters): Point {
+export function getInfoPoint(halfEdge: HalfEdge, svgParameters: SvgParameters): Point {
     if (halfEdge.fork) {
         return getPointAtDistance(halfEdge.edgePoints[1], halfEdge.edgePoints[2], svgParameters.getArrowShift());
     } else {

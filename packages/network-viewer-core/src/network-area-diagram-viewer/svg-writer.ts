@@ -193,7 +193,7 @@ export class SvgWriter {
         gEdgeElement.id = edge.svgId;
         if (DiagramUtils.isHVDCLineEdge(edgeType)) {
             gEdgeElement.classList.add(SvgWriter.HVDC_EDGE_CLASS);
-        } else if (DiagramUtils.isDanglingLineEdge(edgeType)) {
+        } else if (DiagramUtils.isBoundaryLineEdge(edgeType)) {
             gEdgeElement.classList.add(SvgWriter.DANGLING_LINE_EDGE_CLASS);
         }
         const halfEdgePoints1 = this.edgeRouter?.getEdgePoints(edge.svgId, '1');
@@ -379,13 +379,13 @@ export class SvgWriter {
         if (arrowPath) {
             edgeInfoArrowElement.setAttribute('d', arrowPath);
         }
-        const edgeInfoClass = DiagramUtils.getEdgeInfoClass(type);
-        if (edgeInfoClass) {
-            edgeInfoArrowElement.classList.add(edgeInfoClass);
+        const edgeInfoTypeClass = DiagramUtils.getEdgeInfoTypeClass(type);
+        if (edgeInfoTypeClass) {
+            edgeInfoArrowElement.classList.add(edgeInfoTypeClass);
         }
-        const arrowClass = DiagramUtils.getArrowClass(direction);
-        if (arrowClass) {
-            edgeInfoArrowElement.classList.add(arrowClass);
+        const edgeInfoDirectionClass = DiagramUtils.getEdgeInfoDirectionClass(direction);
+        if (edgeInfoDirectionClass) {
+            edgeInfoArrowElement.classList.add(edgeInfoDirectionClass);
         }
         return edgeInfoArrowElement;
     }
@@ -404,9 +404,9 @@ export class SvgWriter {
         if (style) {
             edgeInfoLabelElement.setAttribute('style', style);
         }
-        const edgeInfoClass = DiagramUtils.getEdgeInfoClass(type);
-        if (edgeInfoClass) {
-            edgeInfoLabelElement.classList.add(edgeInfoClass);
+        const edgeInfoTypeClass = DiagramUtils.getEdgeInfoTypeClass(type);
+        if (edgeInfoTypeClass) {
+            edgeInfoLabelElement.classList.add(edgeInfoTypeClass);
         }
         return edgeInfoLabelElement;
     }
