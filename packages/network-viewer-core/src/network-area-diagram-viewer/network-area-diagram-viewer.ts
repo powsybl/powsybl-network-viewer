@@ -2216,13 +2216,17 @@ export class NetworkAreaDiagramViewer {
         if (!halfEdge) return;
 
         if (!edgeInfoMetadata) {
-            edgeInfoMetadata = this.getEdgeInfoMetadata(value);
+            edgeInfoMetadata = {
+                svgId: crypto.randomUUID(),
+                infoTypeB: 'ActivePower',
+            };
             if (side == '1') {
                 edge.edgeInfo1 = edgeInfoMetadata;
             } else {
                 edge.edgeInfo2 = edgeInfoMetadata;
             }
         }
+        this.updateEdgeInfoMetadata(edgeInfoMetadata, value);
 
         const edgeInfo = this.getOrCreateEdgeInfo(edgeInfoMetadata);
         if (!halfEdge.edgeInfoId) {
@@ -2263,17 +2267,17 @@ export class NetworkAreaDiagramViewer {
         this.redrawEdgeArrowAndLabels(halfEdge, edgeInfo);
     }
 
-    private getEdgeInfoMetadata(value: number | string): EdgeInfoMetadata {
-        const edgeInfoMetadata: EdgeInfoMetadata = {
-            svgId: crypto.randomUUID(),
-            infoTypeB: 'ActivePower',
-        };
+    private updateEdgeInfoMetadata(edgeInfoMetadata: EdgeInfoMetadata, value: number | string) {
         edgeInfoMetadata.labelB =
             typeof value === 'number'
                 ? value.toFixed(DiagramUtils.getEdgeInfoValuePrecision(edgeInfoMetadata.infoTypeB, this.svgParameters))
                 : value;
-        edgeInfoMetadata.direction = typeof value === 'number' ? DiagramUtils.getArrowDirection(value) : undefined;
-        return edgeInfoMetadata;
+        const direction = typeof value === 'number' ? DiagramUtils.getArrowDirection(value) : undefined;
+        if (edgeInfoMetadata.directionB) {
+            edgeInfoMetadata.directionB = direction;
+        } else {
+            edgeInfoMetadata.direction = direction;
+        }
     }
 
     private addBranchComponentElement(edgeInfo: SVGElement, componentType: string) {
