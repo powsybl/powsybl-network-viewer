@@ -17,16 +17,16 @@ import lposdata from './map-viewer/data/lpos.json';
 import smapdata from './map-viewer/data/smap.json';
 import lmapdata from './map-viewer/data/lmap.json';
 
+// Called after a click (right mouse click) on some equipment (line or substation)
+function showEquipmentMenu(equipment: MapEquipment, x: number, y: number, type: string) {
+    console.log('# Show equipment menu: ' + JSON.stringify(equipment) + ', type: ' + type);
+}
+
 export default function App() {
     const INITIAL_ZOOM = 9;
     const LABELS_ZOOM_THRESHOLD = 9;
     const ARROWS_ZOOM_THRESHOLD = 7;
     const useName = true;
-
-    //called after a click (right mouse click) on an equipment (line or substation)
-    function showEquipmentMenu(equipment: MapEquipment, x: number, y: number, type: string) {
-        console.log('# Show equipment menu: ' + JSON.stringify(equipment) + ', type: ' + type);
-    }
 
     const darkTheme = createTheme({
         palette: {
@@ -127,10 +127,8 @@ export default function App() {
                                     );
                                 }}
                                 getNominalVoltageColor={(nominalVoltage: number) => {
-                                    if (nominalVoltage >= 200) {
-                                        return [255, 0, 0]; // Red for high voltage
-                                    }
-                                    return [0, 0, 255]; // Blue for others
+                                    // Red for high voltage, blue for others
+                                    return nominalVoltage >= 200 ? [255, 0, 0] : [0, 0, 255];
                                 }}
                             />
                             <button onClick={() => networkMapRef.current?.resetZoomAndPosition()}>

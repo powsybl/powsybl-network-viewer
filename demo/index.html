@@ -32,33 +32,87 @@
             <div id="nad-viewers" class="viewer-section">
                 <h2>Network Area Diagram Viewers</h2>
                 <div class="break"></div>
-                <div id="svg-container-nad"></div>
-                <div id="svg-container-nad-no-moving"></div>
+                <figure class="diagram-figure">
+                    <figcaption>Basic</figcaption>
+                    <div id="svg-container-nad"></div>
+                </figure>
+                <figure class="diagram-figure">
+                    <figcaption>Nodes cannot move</figcaption>
+                    <div id="svg-container-nad-no-moving"></div>
+                </figure>
                 <div class="break"></div>
-                <div id="svg-container-nad-multibus-vlnodes"></div>
-                <div id="svg-container-nad-multibus-vlnodes14"></div>
+                <figure class="diagram-figure">
+                    <figcaption>Slider with callback</figcaption>
+                    <div id="svg-container-nad-multibus-vlnodes"></div>
+                </figure>
+                <figure class="diagram-figure">
+                    <figcaption>Another basic network</figcaption>
+                    <div id="svg-container-nad-multibus-vlnodes14"></div>
+                </figure>
                 <div class="break"></div>
-                <div id="svg-container-nad-pst-hvdc"></div>
-                <div id="svg-container-nad-threewt-dl-ub"></div>
+                <figure class="diagram-figure">
+                    <figcaption>With HVDC</figcaption>
+                    <div id="svg-container-nad-pst-hvdc"></div>
+                </figure>
+                <figure class="diagram-figure">
+                    <figcaption>With three windings transformer and boundary line</figcaption>
+                    <div id="svg-container-nad-threewt-dl-ub"></div>
+                </figure>
                 <div class="break"></div>
-                <div id="svg-container-nad-partial-network"></div>
-                <div id="svg-container-nad-partial-network-custom-view-box"></div>
+                <figure class="diagram-figure">
+                    <figcaption>Partial network</figcaption>
+                    <div id="svg-container-nad-partial-network"></div>
+                </figure>
+                <figure class="diagram-figure">
+                    <figcaption>Partial network with custom view box</figcaption>
+                    <div id="svg-container-nad-partial-network-custom-view-box"></div>
+                </figure>
                 <div class="break"></div>
-                <div id="svg-container-nad-pegase-network"></div>
+                <figure class="diagram-figure">
+                    <figcaption>Pegase network</figcaption>
+                    <div id="svg-container-nad-pegase-network"></div>
+                </figure>
                 <div class="break"></div>
-                <div id="svg-container-nad-pegase-network-adaptive-zoom"></div>
+                <figure class="diagram-figure">
+                    <figcaption>Pegase network with adaptive zoom</figcaption>
+                    <div id="svg-container-nad-pegase-network-adaptive-zoom"></div>
+                </figure>
                 <div class="break"></div>
-                <div id="svg-container-nad-partial-network-adaptive-zoom"></div>
-                <div id="svg-container-nad-multibus-vlnodes-middle-arrow"></div>
+                <figure class="diagram-figure">
+                    <figcaption>Partial network with adaptive zoom</figcaption>
+                    <div id="svg-container-nad-partial-network-adaptive-zoom"></div>
+                </figure>
+                <figure class="diagram-figure">
+                    <figcaption>Edge info with middle arrows</figcaption>
+                    <div id="svg-container-nad-multibus-vlnodes-middle-arrow"></div>
+                </figure>
                 <div class="break"></div>
-                <div id="svg-container-nad-multibus-vlnodes-limit-percentage"></div>
-                <div id="svg-container-nad-pst-hvdc-multiple-labels"></div>
+                <figure class="diagram-figure">
+                    <figcaption>Edge info with limit percentage and blinking display</figcaption>
+                    <div id="svg-container-nad-multibus-vlnodes-limit-percentage"></div>
+                </figure>
+                <figure class="diagram-figure">
+                    <figcaption>Edge info with multiple labels</figcaption>
+                    <div id="svg-container-nad-pst-hvdc-multiple-labels"></div>
+                </figure>
                 <div class="break"></div>
-                <div id="svg-container-nad-hoverCallback"></div>
-                <div id="svg-container-nad-pst-hvdc-custom"></div>
+                <figure class="diagram-figure">
+                    <figcaption>Hover callbacks</figcaption>
+                    <div id="svg-container-nad-hoverCallback"></div>
+                </figure>
+                <figure class="diagram-figure">
+                    <figcaption>Custom style provider</figcaption>
+                    <div id="svg-container-nad-pst-hvdc-custom"></div>
+                </figure>
                 <div class="break"></div>
-                <div id="svg-container-nad-double-arrows"></div>
-                <div id="svg-container-nad-components"></div>
+                <figure class="diagram-figure">
+                    <figcaption>Edge info with double arrows</figcaption>
+                    <div id="svg-container-nad-double-arrows"></div>
+                </figure>
+                <figure class="diagram-figure">
+                    <figcaption>Edge info with components</figcaption>
+                    <div id="svg-container-nad-components"></div>
+                </figure>
             </div>
         </div>
         <script type="module" src="./src/nad.ts"></script>
