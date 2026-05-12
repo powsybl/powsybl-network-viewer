@@ -1,8 +1,9 @@
-/**
- * Copyright (c) 2023, RTE (http://www.rte-france.com)
+/*
+ * Copyright (c) 2023, RTE (https://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 import { useEffect, useRef } from 'react';
@@ -11,7 +12,6 @@ import { IntlProvider } from 'react-intl';
 import { DEFAULT_INTL_CONFIG } from 'react-intl/src/utils';
 import { GeoData, type MapEquipment, MapEquipments, NetworkMap, type NetworkMapRef } from '../../src';
 
-import { addNadToDemo, addSldToDemo } from './diagram-viewers/add-diagrams';
 import sposdata from './map-viewer/data/spos.json';
 import lposdata from './map-viewer/data/lpos.json';
 import smapdata from './map-viewer/data/smap.json';
@@ -22,11 +22,6 @@ export default function App() {
     const LABELS_ZOOM_THRESHOLD = 9;
     const ARROWS_ZOOM_THRESHOLD = 7;
     const useName = true;
-
-    useEffect(() => {
-        addNadToDemo();
-        addSldToDemo();
-    }, []);
 
     //called after a click (right mouse click) on an equipment (line or substation)
     function showEquipmentMenu(equipment: MapEquipment, x: number, y: number, type: string) {
