@@ -2233,12 +2233,6 @@ export class NetworkAreaDiagramViewer {
             halfEdge.edgeInfoId = edgeInfo.id;
         }
 
-        edgeInfo.classList.remove(...DiagramUtils.getEdgeInfoClasses());
-        const edgeInfoClass = DiagramUtils.getEdgeInfoTypeClass(edgeInfoMetadata.infoTypeB);
-        if (edgeInfoClass) {
-            edgeInfo.classList.add(edgeInfoClass);
-        }
-
         if (edgeInfoMetadata.componentType) {
             this.addBranchComponentElement(edgeInfo, edgeInfoMetadata.componentType);
         } else {
@@ -2256,12 +2250,10 @@ export class NetworkAreaDiagramViewer {
             }
         }
 
-        const branchLabelBElement = this.getOrCreateEdgeInfoText(edgeInfo, 1);
-        branchLabelBElement.innerHTML = edgeInfoMetadata.labelB ?? '';
+        this.addBranchLabelElement(edgeInfo, 1, edgeInfoMetadata.infoTypeB, edgeInfoMetadata.labelB);
 
         if (edgeInfoMetadata.labelA) {
-            const branchLabelAElement = this.getOrCreateEdgeInfoText(edgeInfo, 2);
-            branchLabelAElement.innerHTML = edgeInfoMetadata.labelA;
+            this.addBranchLabelElement(edgeInfo, 2, edgeInfoMetadata.infoTypeA, edgeInfoMetadata.labelA);
         }
 
         this.redrawEdgeArrowAndLabels(halfEdge, edgeInfo);
@@ -2357,10 +2349,10 @@ export class NetworkAreaDiagramViewer {
 
         let i = 1;
         if (edgeInfoMetadata.labelA && edgeInfoMetadata.labelB) {
-            this.addBranchMiddleLabelElement(edgeInfo, i++, edgeInfoMetadata.infoTypeB, edgeInfoMetadata.labelB);
+            this.addBranchLabelElement(edgeInfo, i++, edgeInfoMetadata.infoTypeB, edgeInfoMetadata.labelB);
         }
 
-        this.addBranchMiddleLabelElement(
+        this.addBranchLabelElement(
             edgeInfo,
             i,
             edgeInfoMetadata.infoTypeA ?? edgeInfoMetadata.infoTypeB,
@@ -2377,14 +2369,14 @@ export class NetworkAreaDiagramViewer {
         );
     }
 
-    private addBranchMiddleLabelElement(
+    private addBranchLabelElement(
         edgeInfo: SVGElement,
         i: number,
         type: string | undefined,
         label: string | undefined
     ) {
         const branchLabelElement = this.getOrCreateEdgeInfoText(edgeInfo, i);
-        branchLabelElement.classList.remove('nad-active', 'nad-reactive', 'nad-current', 'nad-name');
+        branchLabelElement.classList.remove(...DiagramUtils.getEdgeInfoClasses());
         const edgeInfoClass = DiagramUtils.getEdgeInfoTypeClass(type);
         if (edgeInfoClass) {
             branchLabelElement.classList.add(edgeInfoClass);
