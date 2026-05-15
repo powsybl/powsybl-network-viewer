@@ -661,6 +661,13 @@ export const addNadToDemo = () => {
             );
         });
 
+    new NetworkAreaDiagramViewer(
+        document.getElementById('svg-container-nad-double-arrows-c')!,
+        '',
+        NadSvgDoubleArrowsExampleMeta,
+        nadViewerParametersOptions
+    );
+
     fetch(NadSvgComponentsExample)
         .then((response) => response.text())
         .then((svgContent) => {
