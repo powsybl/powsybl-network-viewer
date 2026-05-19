@@ -750,6 +750,7 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
         if (!map) {
             return null;
         }
+
         return {
             zoom: map.getZoom(),
             center: map.getCenter(),

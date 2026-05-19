@@ -6,16 +6,19 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 
-import { useEffect, useRef } from 'react';
 import { createTheme, StyledEngineProvider, ThemeProvider } from '@mui/material/styles';
+import { useEffect, useRef } from 'react';
 import { IntlProvider } from 'react-intl';
 import { DEFAULT_INTL_CONFIG } from 'react-intl/src/utils';
-import { GeoData, type MapEquipment, MapEquipments, NetworkMap, type NetworkMapRef } from '../../src';
+import { type MapEquipment, NetworkMap, type NetworkMapRef } from '../../src';
 
-import sposdata from './map-viewer/data/spos.json';
-import lposdata from './map-viewer/data/lpos.json';
-import smapdata from './map-viewer/data/smap.json';
-import lmapdata from './map-viewer/data/lmap.json';
+import {
+    createLargeGeoData,
+    createLargeNetwork,
+} from '../../packages/network-map-layers/src/testUtils/network-fixtures';
+
+const largeNetwork = createLargeNetwork();
+const largeGeoData = createLargeGeoData();
 
 // Called after a click (right mouse click) on some equipment (line or substation)
 function showEquipmentMenu(equipment: MapEquipment, x: number, y: number, type: string) {
@@ -35,13 +38,9 @@ export default function App() {
     });
 
     //declare data to be displayed: coordinates and network data
-    const geoData = new GeoData(new Map(), new Map());
-    geoData.setSubstationPositions(sposdata);
-    geoData.setLinePositions(lposdata);
+    const geoData = largeGeoData;
 
-    const mapEquipments = new MapEquipments();
-    mapEquipments.updateSubstations(smapdata, true);
-    mapEquipments.updateLines(lmapdata, true);
+    const mapEquipments = largeNetwork;
 
     useEffect(() => {
         const handleContextmenu = (e: MouseEvent) => {
@@ -54,7 +53,6 @@ export default function App() {
     }, []);
 
     const networkMapRef = useRef<NetworkMapRef>(null);
-    const filteredNominalVoltages = [380.0, 225.0, 110.0];
 
     return (
         <div className="App">
@@ -99,8 +97,7 @@ export default function App() {
                                     );
                                 }}
                                 mapLibrary={'cartonolabel'}
-                                mapTheme={'dark'}
-                                filteredNominalVoltages={filteredNominalVoltages}
+                                mapTheme={'light'}
                                 onDrawPolygonModeActive={(active) => {
                                     console.log('polygon drawing mode active: ', active ? 'active' : 'inactive');
                                 }}
