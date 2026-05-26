@@ -11,6 +11,7 @@ import {
     getAngle,
     getFormattedPoint,
     getFormattedPolyline,
+    getFormattedValue,
     getPointAtDistance,
     getVoltageLevelCircleRadius,
 } from './diagram-utils';
@@ -142,7 +143,7 @@ export function getRightClickableFrom(element: SVGElement): SVGElement | undefin
 
 // check if a DOM element is a text node
 export function isTextNode(element: SVGElement | null): boolean {
-    return element != null && hasId(element) && element.classList.contains('nad-label-box');
+    return element?.parentElement?.classList.contains('nad-text-nodes') ?? false;
 }
 
 /**
@@ -298,7 +299,10 @@ export function getTextNodeCenterFromTopLeftCorner(
 
 // Get text node size
 export function getTextNodeSize(textNode: SVGGraphicsElement | null): { width: number; height: number } {
-    return { width: textNode?.scrollWidth ?? 0, height: textNode?.scrollHeight ?? 0 };
+    return {
+        width: textNode?.firstElementChild?.scrollWidth ?? 0,
+        height: textNode?.firstElementChild?.scrollHeight ?? 0,
+    };
 }
 
 // Get the top left corner position of a text box using the box's center position
@@ -315,8 +319,8 @@ export function getTextNodeTranslatedPosition(textNode: SVGGraphicsElement | nul
 
 // get text node position
 export function getTextNodePosition(textNode: SVGGraphicsElement | null): Point {
-    const textNodeX = textNode?.style.left.replace('px', '') ?? '0';
-    const textNodeY = textNode?.style.top.replace('px', '') ?? '0';
+    const textNodeX = textNode?.getAttribute('x') ?? '0';
+    const textNodeY = textNode?.getAttribute('y') ?? '0';
     return new Point(+textNodeX, +textNodeY);
 }
 
@@ -427,17 +431,21 @@ export function createTextNode(
     textNode: TextNodeMetadata,
     node: NodeMetadata,
     busNodes: BusNodeMetadata[]
-): HTMLElement {
-    const newTextElement = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
-    newTextElement.style.position = 'absolute';
-    newTextElement.style.top = (node.y + textNode.shiftY).toFixed(0) + 'px';
-    newTextElement.style.left = (node.x + textNode.shiftX).toFixed(0) + 'px';
+): SVGForeignObjectElement {
+    const newTextElement = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject');
+    newTextElement.setAttribute('y', getFormattedValue(node.y + textNode.shiftY));
+    newTextElement.setAttribute('x', getFormattedValue(node.x + textNode.shiftX));
+    newTextElement.setAttribute('height', '1');
+    newTextElement.setAttribute('width', '1');
     newTextElement.id = textNode.svgId;
-    newTextElement.classList.add('nad-label-box');
+
+    const newDivElement = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
+    newDivElement.classList.add('nad-label-box');
+    newTextElement.appendChild(newDivElement);
 
     const newVlNameElement = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
     newVlNameElement.textContent = textNode.equipmentId;
-    newTextElement.appendChild(newVlNameElement);
+    newDivElement.appendChild(newVlNameElement);
 
     for (const busNode of busNodes) {
         const newBusDivElement = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
@@ -449,7 +457,7 @@ export function createTextNode(
         newBusDivElement.appendChild(newBusLegendElement);
         newBusDivElement.appendChild(textNode);
 
-        newTextElement.appendChild(newBusDivElement);
+        newDivElement.appendChild(newBusDivElement);
     }
 
     return newTextElement;

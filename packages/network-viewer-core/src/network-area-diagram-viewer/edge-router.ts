@@ -194,11 +194,11 @@ export class EdgeRouter {
         }
         this.edgeSideData[edgeId] = [
             [
-                HalfEdgeUtils.getArrowCenter(halfEdges[0], this.svgParameters),
+                HalfEdgeUtils.getInfoPoint(halfEdges[0], this.svgParameters),
                 HalfEdgeUtils.getArrowRotation(halfEdges[0]),
             ],
             [
-                HalfEdgeUtils.getArrowCenter(halfEdges[1], this.svgParameters),
+                HalfEdgeUtils.getInfoPoint(halfEdges[1], this.svgParameters),
                 HalfEdgeUtils.getArrowRotation(halfEdges[1]),
             ],
         ];

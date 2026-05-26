@@ -28,7 +28,7 @@ const EdgeTypeMapping: { [key: string]: EdgeType } = {
     PstEdge: EdgeType.PHASE_SHIFT_TRANSFORMER,
     HvdcLineVscEdge: EdgeType.HVDC_LINE_VSC,
     HvdcLineLccEdge: EdgeType.HVDC_LINE_LCC,
-    DanglingLineEdge: EdgeType.DANGLING_LINE,
+    BoundaryLineEdge: EdgeType.BOUNDARY_LINE,
     TieLineEdge: EdgeType.TIE_LINE,
     ThreeWtEdge: EdgeType.THREE_WINDINGS_TRANSFORMER,
     ThreeWtPstEdge: EdgeType.THREE_WINDINGS_PHASE_SHIFT_TRANSFORMER,

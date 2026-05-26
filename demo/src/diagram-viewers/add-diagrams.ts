@@ -21,12 +21,16 @@ import NadSvgMultibusVLNodesLimitPercentageExample from './data/nad-ieee9-zeroim
 import NadSvgMultibusVLNodesLimitPercentageExampleMeta from './data/nad-ieee9-zeroimpedance-cdf-limit-percentage_metadata.json';
 import NadSvgMultibusVLNodes14Example from './data/nad-ieee14cdf-solved.svg';
 import NadSvgMultibusVLNodes14ExampleMeta from './data/nad-ieee14cdf-solved_metadata.json';
-import NadSvgThreeWTDanglingLineUnknownBusExample from './data/nad-scada.svg';
-import NadSvgThreeWTDanglingLineUnknownBusExampleMeta from './data/nad-scada_metadata.json';
+import NadSvgThreeWTBoundaryLineUnknownBusExample from './data/nad-scada.svg';
+import NadSvgThreeWTBoundaryLineUnknownBusExampleMeta from './data/nad-scada_metadata.json';
 import NadSvgPartialNetworkExample from './data/nad-ieee300cdf-VL9006.svg';
 import NadSvgPartialNetworkExampleMeta from './data/nad-ieee300cdf-VL9006_metadata.json';
 import NadSvgPegaseNetworkExample from './data/case1354pegase.svg';
 import NadSvgPegaseNetworkExampleMeta from './data/case1354pegase_metadata.json';
+import NadSvgDoubleArrowsExample from './data/nad-double-arrows-with-middle-values.svg';
+import NadSvgDoubleArrowsExampleMeta from './data/nad-double-arrows-with-middle-values_metadata.json';
+import NadSvgComponentsExample from './data/nad-edge-info-components.svg';
+import NadSvgComponentsExampleMeta from './data/nad-edge-info-components_metadata.json';
 import SldSvgExample from './data/sld-example.svg';
 import SldSvgExampleMeta from './data/sld-example_metadata.json';
 import SldSvgSubExample from './data/sld-sub-example.svg';
@@ -281,6 +285,8 @@ export const addNadToDemo = () => {
                 onToggleHoverCallback: handleToggleNadHover,
                 onRightClickCallback: handleRightClick,
                 onBendLineCallback: handleLineBending,
+                enableAdaptiveTextZoom: true,
+                adaptiveTextZoomThreshold: 1500,
             };
             new NetworkAreaDiagramViewer(
                 document.getElementById('svg-container-nad-pst-hvdc-multiple-labels')!,
@@ -297,7 +303,7 @@ export const addNadToDemo = () => {
         nadViewerParametersOptions
     );
 
-    fetch(NadSvgThreeWTDanglingLineUnknownBusExample)
+    fetch(NadSvgThreeWTBoundaryLineUnknownBusExample)
         .then((response) => response.text())
         .then((svgContent) => {
             const nadViewerParametersOptions: NadViewerParametersOptions = {
@@ -313,7 +319,7 @@ export const addNadToDemo = () => {
             new NetworkAreaDiagramViewer(
                 document.getElementById('svg-container-nad-threewt-dl-ub')!,
                 svgContent,
-                NadSvgThreeWTDanglingLineUnknownBusExampleMeta,
+                NadSvgThreeWTBoundaryLineUnknownBusExampleMeta,
                 nadViewerParametersOptions
             );
         });
@@ -321,7 +327,7 @@ export const addNadToDemo = () => {
     new NetworkAreaDiagramViewer(
         document.getElementById('svg-container-nad-threewt-dl-ub-c')!,
         '',
-        NadSvgThreeWTDanglingLineUnknownBusExampleMeta,
+        NadSvgThreeWTBoundaryLineUnknownBusExampleMeta,
         nadViewerParametersOptions
     );
 
@@ -628,6 +634,59 @@ export const addNadToDemo = () => {
                 document.getElementById('svg-container-nad-pst-hvdc-custom')!,
                 svgContent,
                 NadSvgPstHvdcCustomExampleMeta,
+                nadViewerParametersOptions
+            );
+        });
+
+    fetch(NadSvgDoubleArrowsExample)
+        .then((response) => response.text())
+        .then((svgContent) => {
+            const nadViewerParametersOptions: NadViewerParametersOptions = {
+                enableDragInteraction: true,
+                addButtons: true,
+                onMoveNodeCallback: handleNodeMove,
+                onMoveTextNodeCallback: handleTextNodeMove,
+                onSelectNodeCallback: handleNodeSelect,
+                onToggleHoverCallback: handleToggleNadHover,
+                onRightClickCallback: handleRightClick,
+                onBendLineCallback: handleLineBending,
+                enableAdaptiveTextZoom: true,
+                adaptiveTextZoomThreshold: 1100,
+            };
+            new NetworkAreaDiagramViewer(
+                document.getElementById('svg-container-nad-double-arrows')!,
+                svgContent,
+                NadSvgDoubleArrowsExampleMeta,
+                nadViewerParametersOptions
+            );
+        });
+
+    new NetworkAreaDiagramViewer(
+        document.getElementById('svg-container-nad-double-arrows-c')!,
+        '',
+        NadSvgDoubleArrowsExampleMeta,
+        nadViewerParametersOptions
+    );
+
+    fetch(NadSvgComponentsExample)
+        .then((response) => response.text())
+        .then((svgContent) => {
+            const nadViewerParametersOptions: NadViewerParametersOptions = {
+                enableDragInteraction: true,
+                addButtons: true,
+                onMoveNodeCallback: handleNodeMove,
+                onMoveTextNodeCallback: handleTextNodeMove,
+                onSelectNodeCallback: handleNodeSelect,
+                onToggleHoverCallback: handleToggleNadHover,
+                onRightClickCallback: handleRightClick,
+                onBendLineCallback: handleLineBending,
+                enableAdaptiveTextZoom: true,
+                adaptiveTextZoomThreshold: 1100,
+            };
+            new NetworkAreaDiagramViewer(
+                document.getElementById('svg-container-nad-components')!,
+                svgContent,
+                NadSvgComponentsExampleMeta,
                 nadViewerParametersOptions
             );
         });

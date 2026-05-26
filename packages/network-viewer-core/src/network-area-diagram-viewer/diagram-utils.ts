@@ -234,7 +234,7 @@ const EdgeInfoClassMap: Record<string, string> = {
 };
 
 // get edge info element class, based on type
-export function getEdgeInfoClass(edgeInfoType: string | undefined): string | null {
+export function getEdgeInfoTypeClass(edgeInfoType: string | undefined): string | null {
     return edgeInfoType ? (EdgeInfoClassMap[edgeInfoType] ?? null) : null;
 }
 
@@ -260,7 +260,7 @@ export function getArrowPath(direction: string | undefined, svgParameters: SvgPa
 }
 
 // get arrow element path, based on direction
-export function getArrowClass(direction: string | undefined): string | undefined {
+export function getEdgeInfoDirectionClass(direction: string | undefined): string | undefined {
     switch (direction) {
         case 'IN':
             return 'nad-arrow-in';
@@ -309,8 +309,8 @@ export function isHVDCLineEdge(edgeType: EdgeType): boolean {
     return edgeType == EdgeType.HVDC_LINE_LCC || edgeType == EdgeType.HVDC_LINE_VSC;
 }
 
-export function isDanglingLineEdge(edgeType: EdgeType): boolean {
-    return edgeType == EdgeType.DANGLING_LINE;
+export function isBoundaryLineEdge(edgeType: EdgeType): boolean {
+    return edgeType == EdgeType.BOUNDARY_LINE;
 }
 
 // get the points of a converter station of an HVDC line edge
