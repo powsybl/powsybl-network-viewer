@@ -219,7 +219,8 @@ export function getRightClickableElementData(
 export function getViewBox(
     nodes: NodeMetadata[] | undefined,
     textNodes: TextNodeMetadata[] | undefined,
-    svgParameters: SvgParameters
+    svgParameters: SvgParameters,
+    textBoxSize?: { width: number; height: number }
 ): ViewBox {
     const size = { minX: Number.MAX_VALUE, maxX: -Number.MAX_VALUE, minY: Number.MAX_VALUE, maxY: -Number.MAX_VALUE };
     const nodesMap: Map<string, NodeMetadata> = new Map<string, NodeMetadata>();
@@ -234,9 +235,12 @@ export function getViewBox(
         const node = nodesMap.get(textNode.equipmentId);
         if (node !== undefined) {
             size.minX = Math.min(size.minX, node.x + textNode.shiftX);
-            size.maxX = Math.max(size.maxX, node.x + textNode.shiftX + TEXT_BOX_WIDTH_DEFAULT);
+            size.maxX = Math.max(size.maxX, node.x + textNode.shiftX + (textBoxSize?.width ?? TEXT_BOX_WIDTH_DEFAULT));
             size.minY = Math.min(size.minY, node.y + textNode.shiftY);
-            size.maxY = Math.max(size.maxY, node.y + textNode.shiftY + TEXT_BOX_HEIGHT_DEFAULT);
+            size.maxY = Math.max(
+                size.maxY,
+                node.y + textNode.shiftY + (textBoxSize?.height ?? TEXT_BOX_HEIGHT_DEFAULT)
+            );
         }
     });
     return {

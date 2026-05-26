@@ -13,7 +13,7 @@ import { SvgWriter } from './svg-writer';
 import { getSvgFromFile } from './test-utils';
 
 test('testIEE14CdfNetwork', () => {
-    const actual = new SvgWriter(IEE14CdfNetworkMetadata).getSvg();
+    const actual = new SvgWriter(IEE14CdfNetworkMetadata).getSvg({ width: 0, height: 0 });
     const expected = getSvgFromFile('../resources/test-data/nad-ieee14cdf-solved.svg');
     expect(actual).toEqualSvg(expected, { epsilon: 0.1 });
 });

@@ -40,13 +40,13 @@ export class SvgWriter {
         this.svgParameters = new SvgParameters(this.diagramMetadata.svgParameters);
     }
 
-    public getSvg(): string {
+    public getSvg(textBoxSize?: { width: number; height: number }): string {
         // get edge router, for computing edges points
         this.edgeRouter = new EdgeRouter(this.diagramMetadata);
         // create XML doc
         const xmlDoc = this.getXmlDoc();
         // add SVG root element
-        const svg = this.getSvgRootElement();
+        const svg = this.getSvgRootElement(textBoxSize);
         xmlDoc.appendChild(svg);
         // add nodes
         svg.appendChild(this.getNodes());
@@ -73,12 +73,13 @@ export class SvgWriter {
         return xmlDoc;
     }
 
-    private getSvgRootElement(): SVGSVGElement {
+    private getSvgRootElement(textBoxSize?: { width: number; height: number }): SVGSVGElement {
         const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
         const viewBox = MetadataUtils.getViewBox(
             this.diagramMetadata.nodes,
             this.diagramMetadata.textNodes,
-            this.svgParameters
+            this.svgParameters,
+            textBoxSize
         );
         svg.setAttribute('viewBox', [viewBox.x, viewBox.y, viewBox.width, viewBox.height].join(' '));
         return svg;
