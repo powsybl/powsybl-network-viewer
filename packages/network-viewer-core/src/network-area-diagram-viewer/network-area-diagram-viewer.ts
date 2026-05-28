@@ -115,6 +115,7 @@ export class NetworkAreaDiagramViewer {
     draggedElementType: DraggedElementType | null = null;
     enableDragInteraction: boolean = false;
     isDragging: boolean = false;
+    cursorOverlayRect: SVGRectElement | null = null;
     endTextEdge: Point = new Point(0, 0);
     onMoveNodeCallback: OnMoveNodeCallbackType | null;
     onMoveTextNodeCallback: OnMoveTextNodeCallbackType | null;
@@ -371,6 +372,16 @@ export class NetworkAreaDiagramViewer {
         this.textEdgesSection = this.getOrCreateTextEdgesSection();
         this.edgeInfosSection = this.getOrCreateEdgeInfosSection();
 
+        // Create a transparent overlay rect for cursor changes.
+        // Setting cursor on svgDraw.node or drawnSvg.parentElement.style (ancestor of all NAD nodes) triggers a full CSS style
+        // recalculation across thousands of descendants (inherited property cascade) causing
+        // a multi-second freeze on large diagrams. Using a leaf rect with no children avoids this.
+        const overlay = this.svgDraw
+            .rect()
+            .attr({ x: -1000000, y: -1000000, width: 2000000, height: 2000000, fill: 'none' });
+        overlay.node.style.pointerEvents = 'none';
+        this.cursorOverlayRect = overlay.node;
+
         // add events
         const hasMetadata = this.diagramMetadata !== null;
         if (this.hasNodeInteraction() && hasMetadata) {
@@ -406,20 +417,20 @@ export class NetworkAreaDiagramViewer {
             });
         }
 
-        const drawnSvg = this.innerSvg;
-        this.svgDraw.on('panStart', function () {
-            if (drawnSvg.parentElement != undefined) {
-                drawnSvg.parentElement.style.cursor = 'move';
+        this.svgDraw.on('panStart', () => {
+            if (this.cursorOverlayRect) {
+                this.cursorOverlayRect.style.cursor = 'move';
+                this.cursorOverlayRect.style.pointerEvents = 'all';
             }
         });
         this.svgDraw.on('panEnd', () => {
-            if (drawnSvg.parentElement != undefined) {
-                drawnSvg.parentElement.style.removeProperty('cursor');
-
-                //if the adaptive zoom feature is enabled, updates the diagram
-                if (this.nadViewerParameters.getEnableAdaptiveTextZoom()) {
-                    this.adaptiveZoomViewboxUpdate(this.getCurrentlyMaxDisplayedSize());
-                }
+            if (this.cursorOverlayRect) {
+                this.cursorOverlayRect.style.removeProperty('cursor');
+                this.cursorOverlayRect.style.pointerEvents = 'none';
+            }
+            //if the adaptive zoom feature is enabled, updates the diagram
+            if (this.nadViewerParameters.getEnableAdaptiveTextZoom()) {
+                this.adaptiveZoomViewboxUpdate(this.getCurrentlyMaxDisplayedSize());
             }
         });
 
@@ -709,8 +720,10 @@ export class NetworkAreaDiagramViewer {
         this.isDragging = true;
 
         // change cursor style
-        const svg: HTMLElement = <HTMLElement>this.svgDraw?.node.firstElementChild?.parentElement;
-        svg.style.cursor = 'grabbing';
+        if (this.cursorOverlayRect) {
+            this.cursorOverlayRect.style.cursor = 'grabbing';
+            this.cursorOverlayRect.style.pointerEvents = 'all';
+        }
 
         this.ctm = this.svgDraw?.node.getScreenCTM(); // used to compute mouse movement
         this.edgeAngles1 = new Map<string, number>(); // used for node redrawing
@@ -897,8 +910,10 @@ export class NetworkAreaDiagramViewer {
         this.originalTextNodeConnectionShift = new Point(0, 0);
 
         // change cursor style back to normal
-        const svg: HTMLElement = <HTMLElement>this.svgDraw?.node.firstElementChild?.parentElement;
-        svg.style.removeProperty('cursor');
+        if (this.cursorOverlayRect) {
+            this.cursorOverlayRect.style.removeProperty('cursor');
+            this.cursorOverlayRect.style.pointerEvents = 'none';
+        }
     }
 
     private onDragEnd() {
