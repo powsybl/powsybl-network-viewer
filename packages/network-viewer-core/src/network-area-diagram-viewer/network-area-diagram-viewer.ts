@@ -2208,7 +2208,12 @@ export class NetworkAreaDiagramViewer {
             typeof value === 'number'
                 ? value.toFixed(DiagramUtils.getEdgeInfoValuePrecision(edgeInfoMetadata.infoTypeB, this.svgParameters))
                 : value;
-        edgeInfoMetadata.direction = typeof value === 'number' ? DiagramUtils.getArrowDirection(value) : undefined;
+        if (!edgeInfoMetadata.direction) {
+            // set direction based on the value sign if missing
+            // Do not override edgeInfoMetadata.direction if present based on value sign
+            // Because it's ok to have a positive value and an IN direction
+            edgeInfoMetadata.direction = typeof value === 'number' ? DiagramUtils.getArrowDirection(value) : undefined;
+        }
 
         const edgeInfo = this.getOrCreateEdgeInfo(edgeInfoMetadata);
         if (!halfEdge.edgeInfoId) {
