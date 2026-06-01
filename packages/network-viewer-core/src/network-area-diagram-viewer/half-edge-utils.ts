@@ -42,11 +42,7 @@ export function getArrowEdgeAngle(halfEdge: HalfEdge): number {
         : getAngle(halfEdge.edgePoints[0], halfEdge.edgePoints[1]);
 }
 
-export function getMiddleArrowRotation(
-    halfEdge1: HalfEdge | null,
-    halfEdge2: HalfEdge | null,
-    direction: string
-): number {
+export function getMiddleArrowRotation(halfEdge1: HalfEdge | null, halfEdge2: HalfEdge | null): number {
     if (!halfEdge1 && !halfEdge2) return 0;
     const halfEdge = halfEdge1 ?? halfEdge2!;
     let angleMiddleArrow =
@@ -58,7 +54,9 @@ export function getMiddleArrowRotation(
             : getArrowEdgeAngle(halfEdge);
 
     angleMiddleArrow += angleMiddleArrow > Math.PI / 2 ? (-3 * Math.PI) / 2 : Math.PI / 2;
-    const flipArrow = halfEdge === halfEdge1 ? direction === 'IN' : direction === 'OUT';
+    // only the side-2 half edge has a reversed edge angle vs the canonical node1->node2
+    // direction, so flip it back; IN/OUT is already encoded by the arrow path shape
+    const flipArrow = !halfEdge1;
     return radToDeg(flipArrow ? angleMiddleArrow - Math.PI : angleMiddleArrow);
 }
 

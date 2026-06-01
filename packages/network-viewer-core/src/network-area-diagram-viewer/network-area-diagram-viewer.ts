@@ -1367,7 +1367,7 @@ export class NetworkAreaDiagramViewer {
         if (direction) {
             const arrowElement = edgeInfo.querySelector('path');
             if (arrowElement) {
-                const arrowAngle = HalfEdgeUtils.getMiddleArrowRotation(halfEdge1, halfEdge2, direction);
+                const arrowAngle = HalfEdgeUtils.getMiddleArrowRotation(halfEdge1, halfEdge2);
                 arrowElement.setAttribute('transform', `rotate(${DiagramUtils.getFormattedValue(arrowAngle)})`);
             }
         }
