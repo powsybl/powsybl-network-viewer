@@ -145,9 +145,6 @@ export class NetworkAreaDiagramViewer {
 
     static readonly ZOOM_CLASS_PREFIX = 'nad-zoom-';
 
-    // Size of the transparent cursor overlay rect. Oversized on purpose so it always covers the viewport at any pan/zoom
-    static readonly CURSOR_OVERLAY_SIZE = 2000000;
-
     /**
      * @param container - The HTML element that will contain the SVG diagram.
      * @param svgContent - The SVG content to be rendered in the viewer.
@@ -375,17 +372,6 @@ export class NetworkAreaDiagramViewer {
         this.textEdgesSection = this.getOrCreateTextEdgesSection();
         this.edgeInfosSection = this.getOrCreateEdgeInfosSection();
 
-        // Create a transparent overlay rect for cursor changes.
-        // Setting cursor on svgDraw.node or drawnSvg.parentElement.style (ancestor of all NAD nodes) triggers a full CSS style
-        // recalculation across thousands of descendants (inherited property cascade) causing
-        // a multi-second freeze on large diagrams. Using a leaf rect with no children avoids this.
-        const overlaySize = NetworkAreaDiagramViewer.CURSOR_OVERLAY_SIZE;
-        const overlay = this.svgDraw
-            .rect()
-            .attr({ x: -overlaySize / 2, y: -overlaySize / 2, width: overlaySize, height: overlaySize, fill: 'none' });
-        overlay.node.style.pointerEvents = 'none';
-        this.cursorOverlayRect = overlay.node;
-
         // add events
         const hasMetadata = this.diagramMetadata !== null;
         if (this.hasNodeInteraction() && hasMetadata) {
@@ -422,16 +408,10 @@ export class NetworkAreaDiagramViewer {
         }
 
         this.svgDraw.on('panStart', () => {
-            if (this.cursorOverlayRect) {
-                this.cursorOverlayRect.style.cursor = 'move';
-                this.cursorOverlayRect.style.pointerEvents = 'all';
-            }
+            this.attachCursorOverlay('move');
         });
         this.svgDraw.on('panEnd', () => {
-            if (this.cursorOverlayRect) {
-                this.cursorOverlayRect.style.removeProperty('cursor');
-                this.cursorOverlayRect.style.pointerEvents = 'none';
-            }
+            this.detachCursorOverlay();
             //if the adaptive zoom feature is enabled, updates the diagram
             if (this.nadViewerParameters.getEnableAdaptiveTextZoom()) {
                 this.adaptiveZoomViewboxUpdate(this.getCurrentlyMaxDisplayedSize());
@@ -720,14 +700,35 @@ export class NetworkAreaDiagramViewer {
         }
     }
 
+    // Appends a transparent overlay rect on top of svgDraw with the given cursor.
+    // Setting cursor on svgDraw.node or any ancestor of NAD nodes triggers a full CSS style
+    // recalculation across thousands of descendants (inherited property cascade) causing
+    // a multi-second freeze on large diagrams. Using a leaf rect with no children avoids this.
+    // The rect is created on demand so it is absent from the DOM (and from SVG exports) at rest.
+    private attachCursorOverlay(cursor: string) {
+        if (!this.svgDraw) {
+            return;
+        }
+        // Size of the transparent cursor overlay rect. Oversized on purpose so it always covers the viewport at any pan/zoom
+        const size = 2000000;
+        const overlay = this.svgDraw
+            .rect()
+            .attr({ x: -size / 2, y: -size / 2, width: size, height: size, fill: 'none' });
+        overlay.node.style.cursor = cursor;
+        overlay.node.style.pointerEvents = 'all';
+        this.cursorOverlayRect = overlay.node;
+    }
+
+    private detachCursorOverlay() {
+        this.cursorOverlayRect?.remove();
+        this.cursorOverlayRect = null;
+    }
+
     private onDragStart() {
         this.isDragging = true;
 
         // change cursor style
-        if (this.cursorOverlayRect) {
-            this.cursorOverlayRect.style.cursor = 'grabbing';
-            this.cursorOverlayRect.style.pointerEvents = 'all';
-        }
+        this.attachCursorOverlay('grabbing');
 
         this.ctm = this.svgDraw?.node.getScreenCTM(); // used to compute mouse movement
         this.edgeAngles1 = new Map<string, number>(); // used for node redrawing
@@ -914,10 +915,7 @@ export class NetworkAreaDiagramViewer {
         this.originalTextNodeConnectionShift = new Point(0, 0);
 
         // change cursor style back to normal
-        if (this.cursorOverlayRect) {
-            this.cursorOverlayRect.style.removeProperty('cursor');
-            this.cursorOverlayRect.style.pointerEvents = 'none';
-        }
+        this.detachCursorOverlay();
     }
 
     private onDragEnd() {
