@@ -708,6 +708,9 @@ export class NetworkAreaDiagramViewer {
         if (!this.svgDraw) {
             return;
         }
+        // Detach any existing overlay before creating a new one
+        this.detachCursorOverlay();
+
         // Size of the transparent cursor overlay rect. Oversized on purpose so it always covers the viewport at any pan/zoom
         const size = 2000000;
         const overlay = this.svgDraw
