@@ -8,12 +8,14 @@
 import react from '@vitejs/plugin-react';
 import * as path from 'node:path';
 import { defineConfig } from 'vite';
+import glsl from 'vite-plugin-glsl';
 import { viteEslintChecker } from '../utils/viteEslintChecker';
+
 const workspaceRoot = path.resolve(__dirname, '..');
 
 export default defineConfig((config) => ({
     root: __dirname,
-    plugins: [viteEslintChecker(config.isPreview, config.command), react()],
+    plugins: [viteEslintChecker(config.isPreview, config.command), react(), glsl()],
     resolve: {
         alias: {
             // Use source files from the workspace packages during demo dev for HMR
