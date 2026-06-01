@@ -2,7 +2,7 @@ name: CI
 on:
   push:
     branches:
-      - "main"
+      - 'main'
   pull_request:
 
 jobs:
@@ -35,13 +35,33 @@ jobs:
         with:
           node-version: 24
 
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Run tests
+        run: npm run test:coverage
+
+      - name: Upload browser failure screenshots
+        if: failure() && !cancelled()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: browser-failure-screenshots-${{ github.run_id }}
+          retention-days: 7
+          if-no-files-found: ignore
+          path: |
+            packages/**/__screenshots__/**/*.png
+
+      - name: Licenses check
+        run: npm run licenses-check
+
       - name: Build
-        run: |
-          npm ci
-          npm run build:all
-          npm run licenses-check
-          npm run lint
-          npm run test:coverage
+        run: npm run build:all
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarqube-scan-action@1a6d90ebcb0e6a6b1d87e37ba693fe453195ae25 #v5.3.1

@@ -107,6 +107,13 @@ To fix this, run this command from the app **after** running "npm install"
 
 (Optional) [Test your package from library dependent directory](https://docs.npmjs.com/creating-and-publishing-scoped-public-packages#testing-your-package)
 
+## Testing
+
+- Full test suite: `npm run test`
+- Unit tests (fast): `npm run test:unit`
+- Browser visual screenshots (Vitest browser mode): `npm run test:browser`
+- Update screenshot baselines: `npm run test:browser -- -u`
+
 According to PowSyBl [branching and release strategy](https://github.com/powsybl/.github/blob/main/BRANCHING_RELEASE_STRATEGY.md), 
 if you want to publish a new release of powsybl-network-viewer in the 
 [NPM package registry](https://www.npmjs.com/package/@powsybl/powsybl-network-viewer), you need to follow the steps below:
