@@ -2227,7 +2227,6 @@ export class NetworkAreaDiagramViewer {
             }
         }
         this.updateEdgeInfoMetadata(edgeInfoMetadata, value);
-
         const edgeInfo = this.getOrCreateEdgeInfo(edgeInfoMetadata);
         if (!halfEdge.edgeInfoId) {
             halfEdge.edgeInfoId = edgeInfo.id;
@@ -2264,11 +2263,11 @@ export class NetworkAreaDiagramViewer {
             typeof value === 'number'
                 ? value.toFixed(DiagramUtils.getEdgeInfoValuePrecision(edgeInfoMetadata.infoTypeB, this.svgParameters))
                 : value;
-        const direction = typeof value === 'number' ? DiagramUtils.getArrowDirection(value) : undefined;
-        if (edgeInfoMetadata.directionB) {
-            edgeInfoMetadata.directionB = direction;
-        } else {
-            edgeInfoMetadata.direction = direction;
+        // set direction based on the value sign if missing
+        // Do not override direction if present based on value sign
+        // Because it's ok to have a positive value and an IN direction
+        if (!edgeInfoMetadata.directionB && !edgeInfoMetadata.direction) {
+            edgeInfoMetadata.direction = typeof value === 'number' ? DiagramUtils.getArrowDirection(value) : undefined;
         }
     }
 
