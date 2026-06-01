@@ -1392,9 +1392,9 @@ export class NetworkAreaDiagramViewer {
 
         let factor: number = 1;
         if (direction) {
-            const arrowAngle = HalfEdgeUtils.getMiddleArrowRotation(halfEdge1, halfEdge2, direction);
+            const arrowAngle = HalfEdgeUtils.getMiddleArrowRotation(halfEdge1, halfEdge2);
             const secondArrowAngle: number | undefined = directionA
-                ? HalfEdgeUtils.getMiddleArrowRotation(halfEdge1, halfEdge2, directionA)
+                ? HalfEdgeUtils.getMiddleArrowRotation(halfEdge1, halfEdge2)
                 : undefined;
             const arrowsNum = this.redrawArrows(edgeInfo, arrowAngle, secondArrowAngle);
             factor = arrowsNum == 2 ? this.svgParameters.getDoubleArrowShiftFactorText() : 1;
