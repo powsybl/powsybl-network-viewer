@@ -2263,9 +2263,6 @@ export class NetworkAreaDiagramViewer {
             typeof value === 'number'
                 ? value.toFixed(DiagramUtils.getEdgeInfoValuePrecision(edgeInfoMetadata.infoTypeB, this.svgParameters))
                 : value;
-        // set direction based on the value sign if missing
-        // Do not override direction if present based on value sign
-        // Because it's ok to have a positive value and an IN direction
         if (!edgeInfoMetadata.directionB && !edgeInfoMetadata.direction) {
             edgeInfoMetadata.direction = typeof value === 'number' ? DiagramUtils.getArrowDirection(value) : undefined;
         }
