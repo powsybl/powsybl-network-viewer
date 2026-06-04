@@ -22,7 +22,7 @@ export class EdgeRouter {
     edgeSideLabelData: Record<string, [LabelData, LabelData]> = {};
     edgeMiddleData: Record<string, [Point, number]> = {};
     edgeMiddleLabelData: Record<string, LabelData> = {};
-    threeWtEdgePoints: Record<string, [Point, Point]> = {};
+    threeWTEdgePoints: Record<string, [Point, Point]> = {};
     nodeAngles: Record<string, number[]> = {};
 
     constructor(diagramMetadata: DiagramMetadata) {
@@ -92,8 +92,8 @@ export class EdgeRouter {
         return this.edgeMiddleLabelData[edgeId];
     }
 
-    public getThreeWtEdgePoints(edgeId: string): Point[] | undefined {
-        return this.threeWtEdgePoints[edgeId];
+    public getThreeWTEdgePoints(edgeId: string): Point[] | undefined {
+        return this.threeWTEdgePoints[edgeId];
     }
 
     private init() {
@@ -112,7 +112,7 @@ export class EdgeRouter {
         const loopEdges: Record<string, EdgeMetadata[]> = {};
         const threeWtEdges: Record<string, EdgeMetadata[]> = {};
         this.diagramMetadata.edges.forEach((edge) => {
-            const is3wtEdge = MetadataUtils.isThreeWtEdge(edge);
+            const is3wtEdge = MetadataUtils.isThreeWTEdge(edge);
             const isLoop = edge.node1 === edge.node2;
             let key: string;
             let targetMap: Record<string, EdgeMetadata[]>;
@@ -445,6 +445,6 @@ export class EdgeRouter {
         );
         const anchorAngle = leadingAngle + (index * 2 * Math.PI) / 3;
         const threeWtAnchor: Point = DiagramUtils.shiftRhoTheta(pointTwt, dNodeToAnchor, anchorAngle);
-        this.threeWtEdgePoints[edge.svgId] = [edgeStart, threeWtAnchor];
+        this.threeWTEdgePoints[edge.svgId] = [edgeStart, threeWtAnchor];
     }
 }

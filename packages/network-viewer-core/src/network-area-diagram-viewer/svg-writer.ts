@@ -25,15 +25,25 @@ export class SvgWriter {
     static readonly TEXT_EDGES_CLASS = 'nad-text-edges';
     static readonly EDGE_CLASS = 'nad-edge-path';
     static readonly HVDC_EDGE_CLASS = 'nad-hvdc-edge';
-    static readonly DANGLING_LINE_EDGE_CLASS = 'nad-dangling-line-edge';
+    static readonly BOUNDARY_LINE_EDGE_CLASS = 'nad-boundary-line-edge';
     static readonly WINDING_CLASS = 'nad-winding';
     static readonly HVDC_CLASS = 'nad-hvdc';
     static readonly PST_CLASS = 'nad-pst-arrow';
+    static readonly UNKNOWN_BUS_CLASS = 'nad-unknown-busnode';
+    static readonly BOUNDARY_BUS_CLASS = 'nad-boundary-node';
+    static readonly THREEWTS_CLASS = 'nad-3wt-nodes';
     static readonly PST_ARROW_PATH = 'M60.00,0 0,60.00 M52.00,0 60.00,0 60.00,8.00';
 
     diagramMetadata: DiagramMetadata;
     svgParameters: SvgParameters;
     edgeRouter: EdgeRouter | undefined;
+    threeWindingsTransformers: NodeMetadata[] = [];
+    threeWindingsTransformerEdges: EdgeMetadata[] = [];
+    windingSideMapping: { [key: number]: string } = {
+        1: 'ONE',
+        2: 'TWO',
+        3: 'THREE',
+    };
 
     constructor(diagramMetadata: DiagramMetadata) {
         this.diagramMetadata = diagramMetadata;
@@ -55,9 +65,12 @@ export class SvgWriter {
         svg.appendChild(edgesAndInfos.edges);
         svg.appendChild(edgesAndInfos.edgeInfos);
         // add 3wt edges
-        const threeWtEdges = MetadataUtils.getThreeWtEdges(this.diagramMetadata.edges);
-        if (threeWtEdges && threeWtEdges.length > 0) {
-            svg.appendChild(this.getThreeWtEdges(threeWtEdges));
+        if (this.threeWindingsTransformerEdges.length > 0) {
+            svg.appendChild(this.getThreeWTEdges(this.threeWindingsTransformerEdges));
+        }
+        // add 3wt nodes
+        if (this.threeWindingsTransformers.length > 0) {
+            svg.appendChild(this.getThreeWTs(this.threeWindingsTransformers));
         }
         // add text nodes and edges
         const textNodeAndEdges = this.getTextNodesAndEdges();
@@ -91,7 +104,11 @@ export class SvgWriter {
         // add nodes
         this.diagramMetadata.nodes.forEach((node) => {
             if (!node.invisible) {
-                gNodesElement.appendChild(this.getNode(node));
+                if (MetadataUtils.isThreeWTNode(node)) {
+                    this.threeWindingsTransformers.push(node);
+                } else {
+                    gNodesElement.appendChild(this.getNode(node));
+                }
             }
         });
         return gNodesElement;
@@ -101,24 +118,50 @@ export class SvgWriter {
         // create node
         const gNodeElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
         gNodeElement.id = node.svgId;
+        if (MetadataUtils.isBoundaryNode(node)) {
+            gNodeElement.classList.add(SvgWriter.BOUNDARY_BUS_CLASS);
+        }
         gNodeElement.setAttribute(
             'transform',
             'translate(' + DiagramUtils.getFormattedPoint(new Point(node.x, node.y)) + ')'
         );
         // add buses
-        const busNodes = MetadataUtils.getBusNodesMetadata(node.svgId, this.diagramMetadata.busNodes);
-        const busEgdes = MetadataUtils.getBusEdgesMetadata(node.svgId, this.diagramMetadata.edges);
-        const traversingBusEdgesAngles: number[] = [];
-        busNodes.forEach((busNode) => {
-            gNodeElement.appendChild(this.getBusNode(busNode, node, traversingBusEdgesAngles));
-            this.addBusEdgeAngles(node, busNode, busEgdes.get(busNode.svgId) ?? [], traversingBusEdgesAngles);
-        });
+        if (node.unknownBus) {
+            const circleElement = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            circleElement.classList.add(SvgWriter.UNKNOWN_BUS_CLASS);
+            circleElement.setAttribute(
+                'r',
+                DiagramUtils.getFormattedValue(
+                    this.svgParameters.getVoltageLevelCircleRadius() + this.svgParameters.getUnknownBusNodeExtraRadius()
+                )
+            );
+            gNodeElement.appendChild(circleElement);
+        } else {
+            const busNodes = MetadataUtils.getBusNodesMetadata(node.svgId, this.diagramMetadata.busNodes);
+            const busEgdes = MetadataUtils.getBusEdgesMetadata(node.svgId, this.diagramMetadata.edges);
+            const traversingBusEdgesAngles: number[] = [];
+            busNodes.forEach((busNode) => {
+                gNodeElement.appendChild(this.getBusNode(busNode, node, traversingBusEdgesAngles));
+                this.addBusEdgeAngles(node, busNode, busEgdes.get(busNode.svgId) ?? [], traversingBusEdgesAngles);
+            });
+        }
         return gNodeElement;
     }
 
     private getBusNode(busNode: BusNodeMetadata, node: NodeMetadata, traversingBusEdgesAngles: number[]): SVGElement {
         const nodeRadius = MetadataUtils.getNodeRadius(busNode, node, this.svgParameters);
-        if (busNode.index == 0) {
+        if (MetadataUtils.isBoundaryNode(node)) {
+            const pathElement = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            pathElement.id = busNode.svgId;
+            pathElement.classList.add(SvgWriter.BUS_CLASS);
+            const edges: EdgeMetadata[] = MetadataUtils.getNodeEdgesMetadata(node.svgId, this.diagramMetadata.edges);
+            const edgeAngle = this.edgeRouter?.getEdgeAngle(edges[0].svgId, '2');
+            const path: string = edgeAngle
+                ? DiagramUtils.getBoundarySemicircle(edgeAngle, nodeRadius.busOuterRadius)
+                : '';
+            pathElement.setAttribute('d', path);
+            return pathElement;
+        } else if (busNode.index == 0) {
             const circleElement = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
             circleElement.id = busNode.svgId;
             circleElement.classList.add(SvgWriter.BUS_CLASS);
@@ -171,7 +214,9 @@ export class SvgWriter {
         gEdgeInfosElement.classList.add(SvgWriter.EDGE_INFOS_CLASS);
         // add edges
         this.diagramMetadata.edges.forEach((edge) => {
-            if (!MetadataUtils.isThreeWtEdge(edge)) {
+            if (MetadataUtils.isThreeWTEdge(edge)) {
+                this.threeWindingsTransformerEdges.push(edge);
+            } else {
                 gEdgesElement.appendChild(this.getEdge(edge));
                 if (edge.edgeInfo1 && !edge.invisible1) {
                     gEdgeInfosElement.appendChild(this.getEdgeSideInfo(edge, '1', edge.edgeInfo1));
@@ -194,7 +239,7 @@ export class SvgWriter {
         if (DiagramUtils.isHVDCLineEdge(edgeType)) {
             gEdgeElement.classList.add(SvgWriter.HVDC_EDGE_CLASS);
         } else if (DiagramUtils.isBoundaryLineEdge(edgeType)) {
-            gEdgeElement.classList.add(SvgWriter.DANGLING_LINE_EDGE_CLASS);
+            gEdgeElement.classList.add(SvgWriter.BOUNDARY_LINE_EDGE_CLASS);
         }
         const halfEdgePoints1 = this.edgeRouter?.getEdgePoints(edge.svgId, '1');
         if (halfEdgePoints1 && !edge.invisible1) {
@@ -285,32 +330,102 @@ export class SvgWriter {
         return gHVDCLineElement;
     }
 
-    private getThreeWtEdges(threeWtEdges: EdgeMetadata[]): SVGGElement {
+    private getThreeWTEdges(threeWTEdges: EdgeMetadata[]): SVGGElement {
         // create g 3wt edges element
-        const gThreeWtEdgesElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-        gThreeWtEdgesElement.classList.add(SvgWriter.THREEWT_EDGES_CLASS);
+        const gThreeWTEdgesElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        gThreeWTEdgesElement.classList.add(SvgWriter.THREEWT_EDGES_CLASS);
         // add 3wt edges
-        threeWtEdges.forEach((edge) => {
-            const points = this.edgeRouter?.getThreeWtEdgePoints(edge.svgId);
+        threeWTEdges.forEach((edge) => {
+            const points = this.edgeRouter?.getThreeWTEdgePoints(edge.svgId);
             if (points) {
-                gThreeWtEdgesElement.appendChild(this.getThreeWtEdge(edge, points));
+                gThreeWTEdgesElement.appendChild(this.getThreeWTEdge(edge, points));
             }
         });
-        return gThreeWtEdgesElement;
+        return gThreeWTEdgesElement;
     }
 
-    private getThreeWtEdge(edge: EdgeMetadata, points: Point[]): SVGGElement {
-        const gTreeWtEdgeElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-        gTreeWtEdgeElement.id = edge.svgId;
-        gTreeWtEdgeElement.appendChild(this.getThreeWtPolyline(points));
-        return gTreeWtEdgeElement;
+    private getThreeWTEdge(edge: EdgeMetadata, points: Point[]): SVGGElement {
+        const gThreeWTEdgeElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        gThreeWTEdgeElement.id = edge.svgId;
+        gThreeWTEdgeElement.appendChild(this.getThreeWTPolyline(points));
+        return gThreeWTEdgeElement;
     }
 
-    private getThreeWtPolyline(points: Point[]): SVGPolylineElement {
+    private getThreeWTPolyline(points: Point[]): SVGPolylineElement {
         const polylineElement = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
         polylineElement.classList.add(SvgWriter.EDGE_CLASS);
         polylineElement.setAttribute('points', DiagramUtils.getFormattedPolyline(points));
         return polylineElement;
+    }
+
+    private getThreeWTs(threeWTs: NodeMetadata[]): SVGGElement {
+        // create g 3wts element
+        const gThreeWTsElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        gThreeWTsElement.classList.add(SvgWriter.THREEWTS_CLASS);
+        // add 3wts
+        threeWTs.forEach((threeWT) => {
+            if (!threeWT.invisible) {
+                gThreeWTsElement.appendChild(this.getThreeWT(threeWT));
+            }
+        });
+        return gThreeWTsElement;
+    }
+
+    private getThreeWT(threeWT: NodeMetadata): SVGGElement {
+        // create 3wt
+        const gThreeWTElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        gThreeWTElement.id = threeWT.svgId;
+        gThreeWTElement.setAttribute(
+            'transform',
+            'translate(' + DiagramUtils.getFormattedPoint(new Point(threeWT.x, threeWT.y)) + ')'
+        );
+        // add windings
+        const twtEdges = MetadataUtils.getNodeEdgesMetadata(threeWT.svgId, this.diagramMetadata.edges);
+        for (let index = 0; index < twtEdges.length; index++) {
+            const twtEdge = twtEdges[index];
+            const points = this.edgeRouter?.getThreeWTEdgePoints(twtEdge.svgId);
+            if (points) {
+                const threeWTPoint: Point = new Point(threeWT.x, threeWT.y);
+                gThreeWTElement.appendChild(this.getThreeWTWinding(threeWTPoint, points));
+                if (MetadataUtils.isPSThreeWTEdge(twtEdge)) {
+                    gThreeWTElement.appendChild(
+                        this.getThreeWTArrow(threeWTPoint, points, twtEdge.side ?? this.windingSideMapping[index])
+                    );
+                }
+            }
+        }
+        return gThreeWTElement;
+    }
+
+    private getThreeWTWinding(threeWTPoint: Point, points: Point[]): SVGCircleElement {
+        const transformerCircleElement = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        transformerCircleElement.classList.add(SvgWriter.WINDING_CLASS);
+        const circleCenter = DiagramUtils.getPointAtDistance(
+            points[1],
+            threeWTPoint,
+            this.svgParameters.getTransformerCircleRadius()
+        );
+        transformerCircleElement.setAttribute('cx', DiagramUtils.getFormattedValue(circleCenter.x - threeWTPoint.x));
+        transformerCircleElement.setAttribute('cy', DiagramUtils.getFormattedValue(circleCenter.y - threeWTPoint.y));
+        transformerCircleElement.setAttribute(
+            'r',
+            DiagramUtils.getFormattedValue(this.svgParameters.getTransformerCircleRadius())
+        );
+        return transformerCircleElement;
+    }
+
+    private getThreeWTArrow(threeWTPoint: Point, points: Point[], side: string): SVGPathElement {
+        const arrowPathElement = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        arrowPathElement.classList.add(SvgWriter.WINDING_CLASS);
+        const matrix: string = DiagramUtils.getThreeWTArrowMatrixString(
+            threeWTPoint,
+            points,
+            side,
+            this.svgParameters.getTransformerCircleRadius()
+        );
+        arrowPathElement.setAttribute('transform', 'matrix(' + matrix + ')');
+        arrowPathElement.setAttribute('d', SvgWriter.PST_ARROW_PATH);
+        return arrowPathElement;
     }
 
     private getEdgeSideInfo(edge: EdgeMetadata, side: string, info: EdgeInfoMetadata): SVGGElement {
