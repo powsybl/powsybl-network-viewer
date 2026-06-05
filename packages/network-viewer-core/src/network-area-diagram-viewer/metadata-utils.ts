@@ -405,5 +405,5 @@ export function isBoundaryNode(node: NodeMetadata): boolean {
 
 // get the type of a node
 export function getNodeType(node: NodeMetadata): NodeType {
-    return node.type === undefined ? NodeType.UNKNOWN : NodeTypeMapping[node.type];
+    return node.type === undefined ? NodeType.UNKNOWN : (NodeTypeMapping[node.type] ?? NodeType.UNKNOWN);
 }

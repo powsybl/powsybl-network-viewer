@@ -128,7 +128,7 @@ export function getThreeWTArrowMatrixString(
         default:
             break;
     }
-    if (delta) {
+    if (delta !== undefined) {
         const rotationAngle = getAngle(points[0], points[1]) + delta;
         const circleCenter: Point = getPointAtDistance(points[1], threeWTPoint, transformerCircleRadius);
         const transformerCenter = new Point(circleCenter.x - threeWTPoint.x, circleCenter.y - threeWTPoint.y);
