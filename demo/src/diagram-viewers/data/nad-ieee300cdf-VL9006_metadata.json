@@ -8,7 +8,8 @@
     "maxSteps" : 1000,
     "timeoutSeconds" : 15.0,
     "textNodeEdgeConnectionYShift" : 25.0,
-    "injectionsAdded" : true
+    "injectionsAdded" : true,
+    "scaleFactor" : 1.0
   },
   "svgParameters" : {
     "diagramPadding" : {
@@ -56,7 +57,9 @@
     "injectionEdgeLength" : 145.0,
     "injectionCircleRadius" : 25.0,
     "voltageLevelLegendsIncluded" : true,
-    "edgeInfosIncluded" : true
+    "edgeInfosIncluded" : true,
+    "doubleArrowShiftFactorArrows" : 1.5,
+    "doubleArrowShiftFactorText" : 1.8
   },
   "busNodes" : [ {
     "svgId" : "6",
@@ -64,210 +67,240 @@
     "nbNeighbours" : 1,
     "index" : 0,
     "vlNode" : "0",
-    "legend" : "116.5 kV / 1.9°"
+    "legend" : "116.5 kV / 1.9°",
+    "classes" : [ "nad-bus-1" ]
   }, {
     "svgId" : "5",
     "equipmentId" : "VL37_0",
     "nbNeighbours" : 1,
     "index" : 1,
     "vlNode" : "0",
-    "legend" : "117.5 kV / 1.9°"
+    "legend" : "117.5 kV / 1.9°",
+    "classes" : [ "nad-bus-0" ]
   }, {
     "svgId" : "12",
     "equipmentId" : "VL9002_0",
     "nbNeighbours" : 0,
     "index" : 0,
     "vlNode" : "7",
-    "legend" : "6.6 kV / -3.5°"
+    "legend" : "6.6 kV / -3.5°",
+    "classes" : [ "nad-bus-0" ]
   }, {
     "svgId" : "20",
     "equipmentId" : "VL9003_0",
     "nbNeighbours" : 0,
     "index" : 0,
     "vlNode" : "13",
-    "legend" : "6.5 kV / -6.2°"
+    "legend" : "6.5 kV / -6.2°",
+    "classes" : [ "nad-bus-0" ]
   }, {
     "svgId" : "24",
     "equipmentId" : "VL9006_0",
     "nbNeighbours" : 1,
     "index" : 0,
     "vlNode" : "21",
-    "legend" : "6.6 kV / -4.0°"
+    "legend" : "6.6 kV / -4.0°",
+    "classes" : [ "nad-bus-0" ]
   }, {
     "svgId" : "25",
     "equipmentId" : "VL9006_1",
     "nbNeighbours" : 1,
     "index" : 1,
     "vlNode" : "21",
-    "legend" : "6.6 kV / -2.5°"
+    "legend" : "6.6 kV / -2.5°",
+    "classes" : [ "nad-bus-1" ]
   }, {
     "svgId" : "29",
     "equipmentId" : "VL9007_0",
     "nbNeighbours" : 0,
     "index" : 0,
     "vlNode" : "26",
-    "legend" : "6.6 kV / -5.2°"
+    "legend" : "6.6 kV / -5.2°",
+    "classes" : [ "nad-bus-0" ]
   }, {
     "svgId" : "35",
     "equipmentId" : "VL9121_0",
     "nbNeighbours" : 0,
     "index" : 0,
     "vlNode" : "30",
-    "legend" : "6.5 kV / -4.5°"
+    "legend" : "6.5 kV / -4.5°",
+    "classes" : [ "nad-bus-0" ]
   }, {
     "svgId" : "40",
     "equipmentId" : "VL15_1",
     "nbNeighbours" : 1,
     "index" : 0,
     "vlNode" : "36",
-    "legend" : "122.0 kV / 4.6°"
+    "legend" : "122.0 kV / 4.6°",
+    "classes" : [ "nad-bus-1" ]
   }, {
     "svgId" : "39",
     "equipmentId" : "VL15_0",
     "nbNeighbours" : 1,
     "index" : 1,
     "vlNode" : "36",
-    "legend" : "118.3 kV / 9.1°"
+    "legend" : "118.3 kV / 9.1°",
+    "classes" : [ "nad-bus-0" ]
   }, {
     "svgId" : "44",
     "equipmentId" : "VL38_0",
     "nbNeighbours" : 0,
     "index" : 0,
     "vlNode" : "41",
-    "legend" : "117.6 kV / 1.7°"
+    "legend" : "117.6 kV / 1.7°",
+    "classes" : [ "nad-bus-0" ]
   }, {
     "svgId" : "48",
     "equipmentId" : "VL40_0",
     "nbNeighbours" : 0,
     "index" : 0,
     "vlNode" : "45",
-    "legend" : "117.9 kV / 1.5°"
+    "legend" : "117.9 kV / 1.5°",
+    "classes" : [ "nad-bus-0" ]
   }, {
     "svgId" : "52",
     "equipmentId" : "VL41_0",
     "nbNeighbours" : 0,
     "index" : 0,
     "vlNode" : "49",
-    "legend" : "118.9 kV / 3.5°"
+    "legend" : "118.9 kV / 3.5°",
+    "classes" : [ "nad-bus-0" ]
   }, {
     "svgId" : "56",
     "equipmentId" : "VL49_0",
     "nbNeighbours" : 0,
     "index" : 0,
     "vlNode" : "53",
-    "legend" : "119.6 kV / -0.0°"
+    "legend" : "119.6 kV / -0.0°",
+    "classes" : [ "nad-bus-0" ]
   }, {
     "svgId" : "60",
     "equipmentId" : "VL89_0",
     "nbNeighbours" : 0,
     "index" : 0,
     "vlNode" : "57",
-    "legend" : "118.4 kV / 5.5°"
+    "legend" : "118.4 kV / 5.5°",
+    "classes" : [ "nad-bus-0" ]
   }, {
     "svgId" : "64",
     "equipmentId" : "VL90_0",
     "nbNeighbours" : 0,
     "index" : 0,
     "vlNode" : "61",
-    "legend" : "118.2 kV / 4.0°"
+    "legend" : "118.2 kV / 4.0°",
+    "classes" : [ "nad-bus-0" ]
   }, {
     "svgId" : "68",
     "equipmentId" : "VL9005_0",
     "nbNeighbours" : 0,
     "index" : 0,
     "vlNode" : "65",
-    "legend" : "116.5 kV / 1.9°"
+    "legend" : "116.5 kV / 1.9°",
+    "classes" : [ "nad-bus-0" ]
   }, {
     "svgId" : "72",
     "equipmentId" : "VL9021_0",
     "nbNeighbours" : 0,
     "index" : 0,
     "vlNode" : "69",
-    "legend" : "6.5 kV / -3.7°"
+    "legend" : "6.5 kV / -3.7°",
+    "classes" : [ "nad-bus-0" ]
   }, {
     "svgId" : "76",
     "equipmentId" : "VL9024_0",
     "nbNeighbours" : 0,
     "index" : 0,
     "vlNode" : "73",
-    "legend" : "0.6 kV / -6.0°"
+    "legend" : "0.6 kV / -6.0°",
+    "classes" : [ "nad-bus-0" ]
   }, {
     "svgId" : "80",
     "equipmentId" : "VL9031_0",
     "nbNeighbours" : 6,
     "index" : 0,
     "vlNode" : "77",
-    "legend" : "0.6 kV / -11.2°"
+    "legend" : "0.6 kV / -11.2°",
+    "classes" : [ "nad-bus-0" ]
   }, {
     "svgId" : "81",
     "equipmentId" : "VL9031_1",
     "nbNeighbours" : 6,
     "index" : 1,
     "vlNode" : "77",
-    "legend" : "0.6 kV / -10.1°"
+    "legend" : "0.6 kV / -10.1°",
+    "classes" : [ "nad-bus-1" ]
   }, {
     "svgId" : "82",
     "equipmentId" : "VL9031_2",
     "nbNeighbours" : 6,
     "index" : 2,
     "vlNode" : "77",
-    "legend" : "0.6 kV / -11.5°"
+    "legend" : "0.6 kV / -11.5°",
+    "classes" : [ "nad-bus-2" ]
   }, {
     "svgId" : "83",
     "equipmentId" : "VL9031_3",
     "nbNeighbours" : 6,
     "index" : 3,
     "vlNode" : "77",
-    "legend" : "0.6 kV / -7.5°"
+    "legend" : "0.6 kV / -7.5°",
+    "classes" : [ "nad-bus-3" ]
   }, {
     "svgId" : "84",
     "equipmentId" : "VL9031_4",
     "nbNeighbours" : 6,
     "index" : 4,
     "vlNode" : "77",
-    "legend" : "0.6 kV / -9.5°"
+    "legend" : "0.6 kV / -9.5°",
+    "classes" : [ "nad-bus-4" ]
   }, {
     "svgId" : "85",
     "equipmentId" : "VL9031_5",
     "nbNeighbours" : 6,
     "index" : 5,
     "vlNode" : "77",
-    "legend" : "0.6 kV / -8.9°"
+    "legend" : "0.6 kV / -8.9°",
+    "classes" : [ "nad-bus-5" ]
   }, {
     "svgId" : "86",
     "equipmentId" : "VL9031_6",
     "nbNeighbours" : 6,
     "index" : 6,
     "vlNode" : "77",
-    "legend" : "0.6 kV / -10.6°"
+    "legend" : "0.6 kV / -10.6°",
+    "classes" : [ "nad-bus-6" ]
   }, {
     "svgId" : "90",
     "equipmentId" : "VL9036_0",
     "nbNeighbours" : 0,
     "index" : 0,
     "vlNode" : "87",
-    "legend" : "2.2 kV / -9.1°"
+    "legend" : "2.2 kV / -9.1°",
+    "classes" : [ "nad-bus-0" ]
   }, {
     "svgId" : "94",
     "equipmentId" : "VL9044_0",
     "nbNeighbours" : 0,
     "index" : 0,
     "vlNode" : "91",
-    "legend" : "6.5 kV / -6.3°"
+    "legend" : "6.5 kV / -6.3°",
+    "classes" : [ "nad-bus-0" ]
   }, {
     "svgId" : "98",
     "equipmentId" : "VL9071_0",
     "nbNeighbours" : 1,
     "index" : 0,
     "vlNode" : "95",
-    "legend" : "0.6 kV / -6.9°"
+    "legend" : "0.6 kV / -6.9°",
+    "classes" : [ "nad-bus-0" ]
   }, {
     "svgId" : "99",
     "equipmentId" : "VL9071_1",
     "nbNeighbours" : 1,
     "index" : 1,
     "vlNode" : "95",
-    "legend" : "0.6 kV / -6.4°"
+    "legend" : "0.6 kV / -6.4°",
+    "classes" : [ "nad-bus-1" ]
   } ],
   "nodes" : [ {
     "svgId" : "0",
@@ -276,7 +309,8 @@
     "y" : -338.93,
     "legendSvgId" : "1",
     "legendEdgeSvgId" : "2",
-    "legendHeader" : [ "VL37" ]
+    "legendHeader" : [ "VL37" ],
+    "classes" : [ "nad-vl70to120" ]
   }, {
     "svgId" : "7",
     "equipmentId" : "VL9002",
@@ -284,7 +318,8 @@
     "y" : 877.48,
     "legendSvgId" : "8",
     "legendEdgeSvgId" : "9",
-    "legendHeader" : [ "VL9002" ]
+    "legendHeader" : [ "VL9002" ],
+    "classes" : [ "nad-vl0to30" ]
   }, {
     "svgId" : "13",
     "equipmentId" : "VL9003",
@@ -292,7 +327,8 @@
     "y" : -222.95,
     "legendSvgId" : "14",
     "legendEdgeSvgId" : "15",
-    "legendHeader" : [ "VL9003" ]
+    "legendHeader" : [ "VL9003" ],
+    "classes" : [ "nad-vl0to30" ]
   }, {
     "svgId" : "21",
     "equipmentId" : "VL9006",
@@ -300,7 +336,8 @@
     "y" : 169.17,
     "legendSvgId" : "22",
     "legendEdgeSvgId" : "23",
-    "legendHeader" : [ "VL9006" ]
+    "legendHeader" : [ "VL9006" ],
+    "classes" : [ "nad-vl0to30" ]
   }, {
     "svgId" : "26",
     "equipmentId" : "VL9007",
@@ -308,7 +345,8 @@
     "y" : 200.12,
     "legendSvgId" : "27",
     "legendEdgeSvgId" : "28",
-    "legendHeader" : [ "VL9007" ]
+    "legendHeader" : [ "VL9007" ],
+    "classes" : [ "nad-vl0to30" ]
   }, {
     "svgId" : "30",
     "equipmentId" : "VL9121",
@@ -316,7 +354,8 @@
     "y" : 479.2,
     "legendSvgId" : "31",
     "legendEdgeSvgId" : "32",
-    "legendHeader" : [ "VL9121" ]
+    "legendHeader" : [ "VL9121" ],
+    "classes" : [ "nad-vl0to30" ]
   }, {
     "svgId" : "36",
     "equipmentId" : "VL15",
@@ -325,7 +364,8 @@
     "invisible" : true,
     "legendSvgId" : "37",
     "legendEdgeSvgId" : "38",
-    "legendHeader" : [ "VL15" ]
+    "legendHeader" : [ "VL15" ],
+    "classes" : [ "nad-vl70to120" ]
   }, {
     "svgId" : "41",
     "equipmentId" : "VL38",
@@ -334,7 +374,8 @@
     "invisible" : true,
     "legendSvgId" : "42",
     "legendEdgeSvgId" : "43",
-    "legendHeader" : [ "VL38" ]
+    "legendHeader" : [ "VL38" ],
+    "classes" : [ "nad-vl70to120" ]
   }, {
     "svgId" : "45",
     "equipmentId" : "VL40",
@@ -343,7 +384,8 @@
     "invisible" : true,
     "legendSvgId" : "46",
     "legendEdgeSvgId" : "47",
-    "legendHeader" : [ "VL40" ]
+    "legendHeader" : [ "VL40" ],
+    "classes" : [ "nad-vl70to120" ]
   }, {
     "svgId" : "49",
     "equipmentId" : "VL41",
@@ -352,7 +394,8 @@
     "invisible" : true,
     "legendSvgId" : "50",
     "legendEdgeSvgId" : "51",
-    "legendHeader" : [ "VL41" ]
+    "legendHeader" : [ "VL41" ],
+    "classes" : [ "nad-vl70to120" ]
   }, {
     "svgId" : "53",
     "equipmentId" : "VL49",
@@ -361,7 +404,8 @@
     "invisible" : true,
     "legendSvgId" : "54",
     "legendEdgeSvgId" : "55",
-    "legendHeader" : [ "VL49" ]
+    "legendHeader" : [ "VL49" ],
+    "classes" : [ "nad-vl70to120" ]
   }, {
     "svgId" : "57",
     "equipmentId" : "VL89",
@@ -370,7 +414,8 @@
     "invisible" : true,
     "legendSvgId" : "58",
     "legendEdgeSvgId" : "59",
-    "legendHeader" : [ "VL89" ]
+    "legendHeader" : [ "VL89" ],
+    "classes" : [ "nad-vl70to120" ]
   }, {
     "svgId" : "61",
     "equipmentId" : "VL90",
@@ -379,7 +424,8 @@
     "invisible" : true,
     "legendSvgId" : "62",
     "legendEdgeSvgId" : "63",
-    "legendHeader" : [ "VL90" ]
+    "legendHeader" : [ "VL90" ],
+    "classes" : [ "nad-vl70to120" ]
   }, {
     "svgId" : "65",
     "equipmentId" : "VL9005",
@@ -388,7 +434,8 @@
     "invisible" : true,
     "legendSvgId" : "66",
     "legendEdgeSvgId" : "67",
-    "legendHeader" : [ "VL9005" ]
+    "legendHeader" : [ "VL9005" ],
+    "classes" : [ "nad-vl70to120" ]
   }, {
     "svgId" : "69",
     "equipmentId" : "VL9021",
@@ -397,7 +444,8 @@
     "invisible" : true,
     "legendSvgId" : "70",
     "legendEdgeSvgId" : "71",
-    "legendHeader" : [ "VL9021" ]
+    "legendHeader" : [ "VL9021" ],
+    "classes" : [ "nad-vl0to30" ]
   }, {
     "svgId" : "73",
     "equipmentId" : "VL9024",
@@ -406,7 +454,8 @@
     "invisible" : true,
     "legendSvgId" : "74",
     "legendEdgeSvgId" : "75",
-    "legendHeader" : [ "VL9024" ]
+    "legendHeader" : [ "VL9024" ],
+    "classes" : [ "nad-vl0to30" ]
   }, {
     "svgId" : "77",
     "equipmentId" : "VL9031",
@@ -415,7 +464,8 @@
     "invisible" : true,
     "legendSvgId" : "78",
     "legendEdgeSvgId" : "79",
-    "legendHeader" : [ "VL9031" ]
+    "legendHeader" : [ "VL9031" ],
+    "classes" : [ "nad-vl0to30" ]
   }, {
     "svgId" : "87",
     "equipmentId" : "VL9036",
@@ -424,7 +474,8 @@
     "invisible" : true,
     "legendSvgId" : "88",
     "legendEdgeSvgId" : "89",
-    "legendHeader" : [ "VL9036" ]
+    "legendHeader" : [ "VL9036" ],
+    "classes" : [ "nad-vl0to30" ]
   }, {
     "svgId" : "91",
     "equipmentId" : "VL9044",
@@ -433,7 +484,8 @@
     "invisible" : true,
     "legendSvgId" : "92",
     "legendEdgeSvgId" : "93",
-    "legendHeader" : [ "VL9044" ]
+    "legendHeader" : [ "VL9044" ],
+    "classes" : [ "nad-vl0to30" ]
   }, {
     "svgId" : "95",
     "equipmentId" : "VL9071",
@@ -442,7 +494,8 @@
     "invisible" : true,
     "legendSvgId" : "96",
     "legendEdgeSvgId" : "97",
-    "legendHeader" : [ "VL9071" ]
+    "legendHeader" : [ "VL9071" ],
+    "classes" : [ "nad-vl0to30" ]
   } ],
   "injections" : [ {
     "svgId" : "3",
@@ -525,7 +578,9 @@
       "infoTypeB" : "ActivePower",
       "direction" : "IN",
       "labelB" : "-49"
-    }
+    },
+    "classes1" : [ "nad-vl70to120" ],
+    "classes2" : [ "nad-vl70to120" ]
   }, {
     "svgId" : "103",
     "equipmentId" : "L37-38-1",
@@ -546,7 +601,9 @@
       "infoTypeB" : "ActivePower",
       "direction" : "IN",
       "labelB" : "-7"
-    }
+    },
+    "classes1" : [ "nad-vl70to120" ],
+    "classes2" : [ "nad-vl70to120" ]
   }, {
     "svgId" : "106",
     "equipmentId" : "L37-40-1",
@@ -567,7 +624,9 @@
       "infoTypeB" : "ActivePower",
       "direction" : "IN",
       "labelB" : "-9"
-    }
+    },
+    "classes1" : [ "nad-vl70to120" ],
+    "classes2" : [ "nad-vl70to120" ]
   }, {
     "svgId" : "109",
     "equipmentId" : "L37-41-1",
@@ -588,7 +647,9 @@
       "infoTypeB" : "ActivePower",
       "direction" : "OUT",
       "labelB" : "83"
-    }
+    },
+    "classes1" : [ "nad-vl70to120" ],
+    "classes2" : [ "nad-vl70to120" ]
   }, {
     "svgId" : "112",
     "equipmentId" : "L37-49-1",
@@ -609,7 +670,9 @@
       "infoTypeB" : "ActivePower",
       "direction" : "IN",
       "labelB" : "-37"
-    }
+    },
+    "classes1" : [ "nad-vl70to120" ],
+    "classes2" : [ "nad-vl70to120" ]
   }, {
     "svgId" : "115",
     "equipmentId" : "L37-89-1",
@@ -630,7 +693,9 @@
       "infoTypeB" : "ActivePower",
       "direction" : "OUT",
       "labelB" : "24"
-    }
+    },
+    "classes1" : [ "nad-vl70to120" ],
+    "classes2" : [ "nad-vl70to120" ]
   }, {
     "svgId" : "118",
     "equipmentId" : "L37-90-1",
@@ -651,7 +716,9 @@
       "infoTypeB" : "ActivePower",
       "direction" : "OUT",
       "labelB" : "28"
-    }
+    },
+    "classes1" : [ "nad-vl70to120" ],
+    "classes2" : [ "nad-vl70to120" ]
   }, {
     "svgId" : "121",
     "equipmentId" : "L9001-9005-1",
@@ -672,7 +739,9 @@
       "infoTypeB" : "ActivePower",
       "direction" : "IN",
       "labelB" : "-6"
-    }
+    },
+    "classes1" : [ "nad-vl70to120" ],
+    "classes2" : [ "nad-vl70to120" ]
   }, {
     "svgId" : "124",
     "equipmentId" : "T37-9001-1",
@@ -692,7 +761,9 @@
       "infoTypeB" : "ActivePower",
       "direction" : "IN",
       "labelB" : "-44"
-    }
+    },
+    "classes1" : [ "nad-vl70to120" ],
+    "classes2" : [ "nad-vl70to120" ]
   }, {
     "svgId" : "127",
     "equipmentId" : "T9001-9006-1",
@@ -712,7 +783,9 @@
       "infoTypeB" : "ActivePower",
       "direction" : "IN",
       "labelB" : "-25"
-    }
+    },
+    "classes1" : [ "nad-vl70to120" ],
+    "classes2" : [ "nad-vl0to30" ]
   }, {
     "svgId" : "130",
     "equipmentId" : "T9001-9012-1",
@@ -732,7 +805,9 @@
       "infoTypeB" : "ActivePower",
       "direction" : "IN",
       "labelB" : "-12"
-    }
+    },
+    "classes1" : [ "nad-vl70to120" ],
+    "classes2" : [ "nad-vl0to30" ]
   }, {
     "svgId" : "133",
     "equipmentId" : "L9002-9021-1",
@@ -753,7 +828,9 @@
       "infoTypeB" : "ActivePower",
       "direction" : "IN",
       "labelB" : "-7"
-    }
+    },
+    "classes1" : [ "nad-vl0to30" ],
+    "classes2" : [ "nad-vl0to30" ]
   }, {
     "svgId" : "136",
     "equipmentId" : "L9012-9002-1",
@@ -773,7 +850,9 @@
       "infoTypeB" : "ActivePower",
       "direction" : "IN",
       "labelB" : "-4"
-    }
+    },
+    "classes1" : [ "nad-vl0to30" ],
+    "classes2" : [ "nad-vl0to30" ]
   }, {
     "svgId" : "139",
     "equipmentId" : "L9012-9002-2",
@@ -793,7 +872,9 @@
       "infoTypeB" : "ActivePower",
       "direction" : "IN",
       "labelB" : "-4"
-    }
+    },
+    "classes1" : [ "nad-vl0to30" ],
+    "classes2" : [ "nad-vl0to30" ]
   }, {
     "svgId" : "142",
     "equipmentId" : "T9002-9024-1",
@@ -814,7 +895,9 @@
       "infoTypeB" : "ActivePower",
       "direction" : "IN",
       "labelB" : "-1"
-    }
+    },
+    "classes1" : [ "nad-vl0to30" ],
+    "classes2" : [ "nad-vl0to30" ]
   }, {
     "svgId" : "145",
     "equipmentId" : "L9003-9044-1",
@@ -835,7 +918,9 @@
       "infoTypeB" : "ActivePower",
       "direction" : "IN",
       "labelB" : "-4"
-    }
+    },
+    "classes1" : [ "nad-vl0to30" ],
+    "classes2" : [ "nad-vl0to30" ]
   }, {
     "svgId" : "148",
     "equipmentId" : "L9006-9003-1",
@@ -855,7 +940,9 @@
       "infoTypeB" : "ActivePower",
       "direction" : "IN",
       "labelB" : "-8"
-    }
+    },
+    "classes1" : [ "nad-vl0to30" ],
+    "classes2" : [ "nad-vl0to30" ]
   }, {
     "svgId" : "151",
     "equipmentId" : "L9006-9003-2",
@@ -875,7 +962,9 @@
       "infoTypeB" : "ActivePower",
       "direction" : "IN",
       "labelB" : "-8"
-    }
+    },
+    "classes1" : [ "nad-vl0to30" ],
+    "classes2" : [ "nad-vl0to30" ]
   }, {
     "svgId" : "154",
     "equipmentId" : "L9007-9003-1",
@@ -895,7 +984,9 @@
       "infoTypeB" : "ActivePower",
       "direction" : "IN",
       "labelB" : "-7"
-    }
+    },
+    "classes1" : [ "nad-vl0to30" ],
+    "classes2" : [ "nad-vl0to30" ]
   }, {
     "svgId" : "157",
     "equipmentId" : "T9003-9031-1",
@@ -916,7 +1007,9 @@
       "infoTypeB" : "ActivePower",
       "direction" : "IN",
       "labelB" : "-2"
-    }
+    },
+    "classes1" : [ "nad-vl0to30" ],
+    "classes2" : [ "nad-vl0to30" ]
   }, {
     "svgId" : "160",
     "equipmentId" : "T9003-9032-1",
@@ -937,7 +1030,9 @@
       "infoTypeB" : "ActivePower",
       "direction" : "IN",
       "labelB" : "-1"
-    }
+    },
+    "classes1" : [ "nad-vl0to30" ],
+    "classes2" : [ "nad-vl0to30" ]
   }, {
     "svgId" : "163",
     "equipmentId" : "T9003-9033-1",
@@ -958,7 +1053,9 @@
       "infoTypeB" : "ActivePower",
       "direction" : "IN",
       "labelB" : "-2"
-    }
+    },
+    "classes1" : [ "nad-vl0to30" ],
+    "classes2" : [ "nad-vl0to30" ]
   }, {
     "svgId" : "166",
     "equipmentId" : "T9003-9034-1",
@@ -979,7 +1076,9 @@
       "infoTypeB" : "ActivePower",
       "direction" : "IN",
       "labelB" : "-2"
-    }
+    },
+    "classes1" : [ "nad-vl0to30" ],
+    "classes2" : [ "nad-vl0to30" ]
   }, {
     "svgId" : "169",
     "equipmentId" : "T9003-9035-1",
@@ -1000,7 +1099,9 @@
       "infoTypeB" : "ActivePower",
       "direction" : "IN",
       "labelB" : "-2"
-    }
+    },
+    "classes1" : [ "nad-vl0to30" ],
+    "classes2" : [ "nad-vl0to30" ]
   }, {
     "svgId" : "172",
     "equipmentId" : "T9003-9036-1",
@@ -1021,7 +1122,9 @@
       "infoTypeB" : "ActivePower",
       "direction" : "IN",
       "labelB" : "-3"
-    }
+    },
+    "classes1" : [ "nad-vl0to30" ],
+    "classes2" : [ "nad-vl0to30" ]
   }, {
     "svgId" : "175",
     "equipmentId" : "T9003-9037-1",
@@ -1042,7 +1145,9 @@
       "infoTypeB" : "ActivePower",
       "direction" : "IN",
       "labelB" : "-2"
-    }
+    },
+    "classes1" : [ "nad-vl0to30" ],
+    "classes2" : [ "nad-vl0to30" ]
   }, {
     "svgId" : "178",
     "equipmentId" : "T9003-9038-1",
@@ -1063,7 +1168,9 @@
       "infoTypeB" : "ActivePower",
       "direction" : "IN",
       "labelB" : "-3"
-    }
+    },
+    "classes1" : [ "nad-vl0to30" ],
+    "classes2" : [ "nad-vl0to30" ]
   }, {
     "svgId" : "181",
     "equipmentId" : "L9006-9007-1",
@@ -1083,7 +1190,9 @@
       "infoTypeB" : "ActivePower",
       "direction" : "IN",
       "labelB" : "-9"
-    }
+    },
+    "classes1" : [ "nad-vl0to30" ],
+    "classes2" : [ "nad-vl0to30" ]
   }, {
     "svgId" : "184",
     "equipmentId" : "L9012-9121-1",
@@ -1103,7 +1212,9 @@
       "infoTypeB" : "ActivePower",
       "direction" : "IN",
       "labelB" : "-4"
-    }
+    },
+    "classes1" : [ "nad-vl0to30" ],
+    "classes2" : [ "nad-vl0to30" ]
   }, {
     "svgId" : "187",
     "equipmentId" : "T9007-9071-1",
@@ -1124,7 +1235,9 @@
       "infoTypeB" : "ActivePower",
       "direction" : "IN",
       "labelB" : "-1"
-    }
+    },
+    "classes1" : [ "nad-vl0to30" ],
+    "classes2" : [ "nad-vl0to30" ]
   }, {
     "svgId" : "190",
     "equipmentId" : "T9007-9072-1",
@@ -1145,7 +1258,9 @@
       "infoTypeB" : "ActivePower",
       "direction" : "IN",
       "labelB" : "-1"
-    }
+    },
+    "classes1" : [ "nad-vl0to30" ],
+    "classes2" : [ "nad-vl0to30" ]
   } ],
   "textNodes" : [ {
     "svgId" : "1",

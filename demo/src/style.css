@@ -114,7 +114,7 @@ button:hover:not(:disabled) {
     fill: black;
     dominant-baseline: central;
 }
-foreignObject.nad-text-nodes {
+.nad-text-nodes foreignObject {
     overflow: visible;
     color: black;
 }

@@ -68,6 +68,8 @@ export class SvgParameters {
     static readonly CSS_LOCATION_DEFAULT = CssLocationEnum.EXTERNAL_NO_IMPORT;
     static readonly ARROW_PATH_IN_DEFAULT = 'M-10 -10 H10 L0 10z';
     static readonly ARROW_PATH_OUT_DEFAULT = 'M-10 10 H10 L0 -10z';
+    static readonly DOUBLE_ARROW_SHIFT_FACTOR_ARROWS_DEFAULT = 1.5;
+    static readonly DOUBLE_ARROW_SHIFT_FACTOR_TEXT_DEFAULT = 1.8;
 
     svgParametersMetadata: SvgParametersMetadata | undefined;
 
@@ -171,5 +173,19 @@ export class SvgParameters {
         return this.svgParametersMetadata?.cssLocation
             ? CssLocationEnumMapping[this.svgParametersMetadata?.cssLocation]
             : SvgParameters.CSS_LOCATION_DEFAULT;
+    }
+
+    public getDoubleArrowShiftFactorArrows(): number {
+        return (
+            this.svgParametersMetadata?.doubleArrowShiftFactorArrows ??
+            SvgParameters.DOUBLE_ARROW_SHIFT_FACTOR_ARROWS_DEFAULT
+        );
+    }
+
+    public getDoubleArrowShiftFactorText(): number {
+        return (
+            this.svgParametersMetadata?.doubleArrowShiftFactorText ??
+            SvgParameters.DOUBLE_ARROW_SHIFT_FACTOR_TEXT_DEFAULT
+        );
     }
 }

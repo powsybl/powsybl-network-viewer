@@ -160,6 +160,17 @@
       "height" : 0.0
     }
   }, {
+    "type" : "BOUNDARY_LINE",
+    "anchorPoints" : [ {
+      "x" : 0.0,
+      "y" : 0.0,
+      "orientation" : "NONE"
+    } ],
+    "size" : {
+      "width" : 0.0,
+      "height" : 0.0
+    }
+  }, {
     "type" : "TWO_WINDINGS_TRANSFORMER_LEG",
     "anchorPoints" : [ {
       "x" : 0.0,
@@ -216,17 +227,6 @@
       "DOWN" : "FLIP"
     },
     "styleClass" : "sld-three-wt"
-  }, {
-    "type" : "DANGLING_LINE",
-    "anchorPoints" : [ {
-      "x" : 0.0,
-      "y" : 0.0,
-      "orientation" : "NONE"
-    } ],
-    "size" : {
-      "width" : 0.0,
-      "height" : 0.0
-    }
   }, {
     "type" : "LINE",
     "anchorPoints" : [ {
@@ -360,7 +360,7 @@
   }, {
     "id" : "id7e253493_45_0bb4_45_4306_45_95b3_45_374075834b98",
     "vid" : "469df5f7-058f-4451-a998-57a48e8a56fe",
-    "componentType" : "DANGLING_LINE",
+    "componentType" : "BOUNDARY_LINE",
     "open" : false,
     "direction" : "TOP",
     "vlabel" : false,
@@ -659,7 +659,7 @@
   }, {
     "id" : "idb18cd1aa_45_7808_45_49b9_45_a7cf_45_605eaf07b006",
     "vid" : "469df5f7-058f-4451-a998-57a48e8a56fe",
-    "componentType" : "DANGLING_LINE",
+    "componentType" : "BOUNDARY_LINE",
     "open" : false,
     "direction" : "TOP",
     "vlabel" : false,
@@ -671,7 +671,7 @@
   }, {
     "id" : "id78736387_45_5f60_45_4832_45_b3fe_45_d50daf81b0a6",
     "vid" : "469df5f7-058f-4451-a998-57a48e8a56fe",
-    "componentType" : "DANGLING_LINE",
+    "componentType" : "BOUNDARY_LINE",
     "open" : false,
     "direction" : "BOTTOM",
     "vlabel" : false,
@@ -932,7 +932,7 @@
   }, {
     "id" : "idd9622e7f_45_5bf0_45_4e7e_45_b766_45_b8596c6fe4ae",
     "vid" : "b10b171b-3bc5-4849-bb1f-61ed9ea1ec7c",
-    "componentType" : "DANGLING_LINE",
+    "componentType" : "BOUNDARY_LINE",
     "open" : false,
     "direction" : "TOP",
     "vlabel" : false,
@@ -1057,7 +1057,7 @@
   }, {
     "id" : "ided0c5d75_45_4a54_45_43c8_45_b782_45_b20d7431630b",
     "vid" : "469df5f7-058f-4451-a998-57a48e8a56fe",
-    "componentType" : "DANGLING_LINE",
+    "componentType" : "BOUNDARY_LINE",
     "open" : false,
     "direction" : "BOTTOM",
     "vlabel" : false,
@@ -1103,7 +1103,7 @@
   }, {
     "id" : "id2d6d13d9_45_fb6e_45_4da2_45_8ddf_45_31ae98dcff8f",
     "vid" : "469df5f7-058f-4451-a998-57a48e8a56fe",
-    "componentType" : "DANGLING_LINE",
+    "componentType" : "BOUNDARY_LINE",
     "open" : false,
     "direction" : "BOTTOM",
     "vlabel" : false,
@@ -2413,9 +2413,6 @@
     "busbarsAlignment" : "FIRST",
     "componentsOnBusbars" : [ "DISCONNECTOR" ],
     "removeFictitiousSwitchNodes" : false,
-    "cgmesScaleFactor" : 1.0,
-    "cgmesDiagramName" : null,
-    "cgmesUseNames" : true,
     "zoneLayoutSnakeLinePadding" : 90
   },
   "svgParams" : {

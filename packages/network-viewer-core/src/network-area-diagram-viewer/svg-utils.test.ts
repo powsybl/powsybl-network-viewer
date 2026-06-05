@@ -79,8 +79,8 @@ test('getTextNodeSize', () => {
     const mockGetSvgTextNode = getSvgTextNode();
 
     // Mock the scrollWidth and scrollHeight
-    Object.defineProperty(mockGetSvgTextNode, 'scrollWidth', { value: 100, writable: true });
-    Object.defineProperty(mockGetSvgTextNode, 'scrollHeight', { value: 50, writable: true });
+    Object.defineProperty(mockGetSvgTextNode.firstElementChild, 'scrollWidth', { value: 100, writable: true });
+    Object.defineProperty(mockGetSvgTextNode.firstElementChild, 'scrollHeight', { value: 50, writable: true });
 
     const textNodeSize = SvgUtils.getTextNodeSize(mockGetSvgTextNode);
     expect(textNodeSize.height).toBe(50);
@@ -95,8 +95,8 @@ test('getTextNodeTopLeftCornerFromCenter', () => {
     const mockGetSvgTextNode = getSvgTextNode();
 
     // Mock the scrollWidth and scrollHeight
-    Object.defineProperty(mockGetSvgTextNode, 'scrollWidth', { value: 100, writable: true });
-    Object.defineProperty(mockGetSvgTextNode, 'scrollHeight', { value: 50, writable: true });
+    Object.defineProperty(mockGetSvgTextNode.firstElementChild, 'scrollWidth', { value: 100, writable: true });
+    Object.defineProperty(mockGetSvgTextNode.firstElementChild, 'scrollHeight', { value: 50, writable: true });
 
     const textNodeTopLeftCorner = SvgUtils.getTextNodeTopLeftCornerFromCenter(mockGetSvgTextNode, new Point(240, -310));
     expect(textNodeTopLeftCorner.x).toBe(240 - 100 / 2);
@@ -111,8 +111,8 @@ test('getTextNodeCenterFromTopLeftCorner', () => {
     const mockGetSvgTextNode = getSvgTextNode();
 
     // Mock the scrollWidth and scrollHeight
-    Object.defineProperty(mockGetSvgTextNode, 'scrollWidth', { value: 100, writable: true });
-    Object.defineProperty(mockGetSvgTextNode, 'scrollHeight', { value: 50, writable: true });
+    Object.defineProperty(mockGetSvgTextNode.firstElementChild, 'scrollWidth', { value: 100, writable: true });
+    Object.defineProperty(mockGetSvgTextNode.firstElementChild, 'scrollHeight', { value: 50, writable: true });
 
     const textNodeCenter = SvgUtils.getTextNodeCenterFromTopLeftCorner(mockGetSvgTextNode, new Point(290, -285));
     expect(textNodeCenter.x).toBe(290 + 100 / 2);
@@ -121,14 +121,14 @@ test('getTextNodeCenterFromTopLeftCorner', () => {
 
 test('getTextNodeTranslatedPosition', () => {
     const textNodePosition = SvgUtils.getTextNodeTranslatedPosition(getSvgTextNode(), new Point(10, 10));
-    expect(textNodePosition.x).toBe(-343);
-    expect(textNodePosition.y).toBe(-304);
+    expect(textNodePosition.x).toBe(-342.59);
+    expect(textNodePosition.y).toBe(-304.01);
 });
 
 test('getTextNodePosition', () => {
     const textNodePosition = SvgUtils.getTextNodePosition(getSvgTextNode());
-    expect(textNodePosition.x).toBe(-353);
-    expect(textNodePosition.y).toBe(-314);
+    expect(textNodePosition.x).toBe(-352.59);
+    expect(textNodePosition.y).toBe(-314.01);
 });
 
 test('getHoverableFrom', () => {
@@ -178,10 +178,11 @@ function getSvgNode(): SVGGraphicsElement {
 
 function getSvgTextNode(): SVGGraphicsElement {
     const textNodeSvg =
-        '<foreignObject height="1" width="1" class="nad-text-nodes"><div xmlns="http://www.w3.org/1999/xhtml">' +
-        '<div class="nad-label-box" style="position: absolute; top: -314px; left: -353px" id="0-textnode">' +
-        '<div>vl</div><div><span class="nad-vl300to500-0 nad-legend-square"/> kV / °</div></div></div></foreignObject>';
-    return <SVGGraphicsElement>SVG().svg(textNodeSvg).node.firstElementChild?.firstElementChild?.firstElementChild;
+        '<g class="nad-text-nodes"><foreignObject id="1" y="-314.01" x="-352.59" height="1" width="1">' +
+        '<div xmlns="http://www.w3.org/1999/xhtml" class="nad-vl0to30 nad-label-box"><div>VLGEN</div>' +
+        '<div class="nad-bus-descr"><span class="nad-bus-0 nad-legend-square"></span> kV / °</div>' +
+        '</div></foreignObject></g>';
+    return <SVGGraphicsElement>SVG().svg(textNodeSvg).node.firstElementChild?.firstElementChild;
 }
 
 function getSvgLoopEdge(): SVGGraphicsElement {

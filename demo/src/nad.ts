@@ -1,58 +1,56 @@
-/**
- * Copyright (c) 2022, RTE (http://www.rte-france.com)
+/*
+ * Copyright (c) 2026, RTE (https://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
-import NadSvgExample from './data/nad-eurostag-tutorial-example1.svg';
-import NadSvgExampleMeta from './data/nad-eurostag-tutorial-example1_metadata.json';
-import NadSvgPstHvdcExample from './data/nad-four-substations.svg';
-import NadSvgPstHvdcExampleMeta from './data/nad-four-substations_metadata.json';
-import NadSvgPstHvdcCustomExample from './data/nad-four-substations_custom.svg';
-import NadSvgPstHvdcCustomExampleMeta from './data/nad-four-substations_custom_metadata.json';
-import NadSvgPstHvdcMultipleLabelsExample from './data/nad-four-substations-multiple-labels.svg';
-import NadSvgPstHvdcMultipleLabelsExampleMeta from './data/nad-four-substations-multiple-labels_metadata.json';
-import NadSvgMultibusVLNodesExample from './data/nad-ieee9-zeroimpedance-cdf.svg';
-import NadSvgMultibusVLNodesExampleMeta from './data/nad-ieee9-zeroimpedance-cdf_metadata.json';
-import NadSvgMultibusVLNodesMiddleArrowExample from './data/nad-ieee9-zeroimpedance-cdf-middle-arrow.svg';
-import NadSvgMultibusVLNodesMiddleArrowExampleMeta from './data/nad-ieee9-zeroimpedance-cdf-middle-arrow_metadata.json';
-import NadSvgMultibusVLNodesLimitPercentageExample from './data/nad-ieee9-zeroimpedance-cdf-limit-percentage.svg';
-import NadSvgMultibusVLNodesLimitPercentageExampleMeta from './data/nad-ieee9-zeroimpedance-cdf-limit-percentage_metadata.json';
-import NadSvgMultibusVLNodes14Example from './data/nad-ieee14cdf-solved.svg';
-import NadSvgMultibusVLNodes14ExampleMeta from './data/nad-ieee14cdf-solved_metadata.json';
-import NadSvgThreeWTDanglingLineUnknownBusExample from './data/nad-scada.svg';
-import NadSvgThreeWTDanglingLineUnknownBusExampleMeta from './data/nad-scada_metadata.json';
-import NadSvgPartialNetworkExample from './data/nad-ieee300cdf-VL9006.svg';
-import NadSvgPartialNetworkExampleMeta from './data/nad-ieee300cdf-VL9006_metadata.json';
-import NadSvgPegaseNetworkExample from './data/case1354pegase.svg';
-import NadSvgPegaseNetworkExampleMeta from './data/case1354pegase_metadata.json';
-import SldSvgExample from './data/sld-example.svg';
-import SldSvgExampleMeta from './data/sld-example_metadata.json';
-import SldSvgSubExample from './data/sld-sub-example.svg';
-import SldSvgSubExampleMeta from './data/sld-sub-example_metadata.json';
+import NadSvgExample from './diagram-viewers/data/nad-eurostag-tutorial-example1.svg';
+import NadSvgExampleMeta from './diagram-viewers/data/nad-eurostag-tutorial-example1_metadata.json';
+import NadSvgPstHvdcExample from './diagram-viewers/data/nad-four-substations.svg';
+import NadSvgPstHvdcExampleMeta from './diagram-viewers/data/nad-four-substations_metadata.json';
+import NadSvgPstHvdcCustomExample from './diagram-viewers/data/nad-four-substations_custom.svg';
+import NadSvgPstHvdcCustomExampleMeta from './diagram-viewers/data/nad-four-substations_custom_metadata.json';
+import NadSvgPstHvdcMultipleLabelsExample from './diagram-viewers/data/nad-four-substations-multiple-labels.svg';
+import NadSvgPstHvdcMultipleLabelsExampleMeta from './diagram-viewers/data/nad-four-substations-multiple-labels_metadata.json';
+import NadSvgMultibusVLNodesExample from './diagram-viewers/data/nad-ieee9-zeroimpedance-cdf.svg';
+import NadSvgMultibusVLNodesExampleMeta from './diagram-viewers/data/nad-ieee9-zeroimpedance-cdf_metadata.json';
+import NadSvgMultibusVLNodesMiddleArrowExample from './diagram-viewers/data/nad-ieee9-zeroimpedance-cdf-middle-arrow.svg';
+import NadSvgMultibusVLNodesMiddleArrowExampleMeta from './diagram-viewers/data/nad-ieee9-zeroimpedance-cdf-middle-arrow_metadata.json';
+import NadSvgMultibusVLNodesLimitPercentageExample from './diagram-viewers/data/nad-ieee9-zeroimpedance-cdf-limit-percentage.svg';
+import NadSvgMultibusVLNodesLimitPercentageExampleMeta from './diagram-viewers/data/nad-ieee9-zeroimpedance-cdf-limit-percentage_metadata.json';
+import NadSvgMultibusVLNodes14Example from './diagram-viewers/data/nad-ieee14cdf-solved.svg';
+import NadSvgMultibusVLNodes14ExampleMeta from './diagram-viewers/data/nad-ieee14cdf-solved_metadata.json';
+import NadSvgThreeWTBoundaryLineUnknownBusExample from './diagram-viewers/data/nad-scada.svg';
+import NadSvgThreeWTBoundaryLineUnknownBusExampleMeta from './diagram-viewers/data/nad-scada_metadata.json';
+import NadSvgPartialNetworkExample from './diagram-viewers/data/nad-ieee300cdf-VL9006.svg';
+import NadSvgPartialNetworkExampleMeta from './diagram-viewers/data/nad-ieee300cdf-VL9006_metadata.json';
+import NadSvgPegaseNetworkExample from './diagram-viewers/data/case1354pegase.svg';
+import NadSvgPegaseNetworkExampleMeta from './diagram-viewers/data/case1354pegase_metadata.json';
+import NadSvgDoubleArrowsExample from './diagram-viewers/data/nad-double-arrows-with-middle-values.svg';
+import NadSvgDoubleArrowsExampleMeta from './diagram-viewers/data/nad-double-arrows-with-middle-values_metadata.json';
+import NadSvgComponentsExample from './diagram-viewers/data/nad-edge-info-components.svg';
+import NadSvgComponentsExampleMeta from './diagram-viewers/data/nad-edge-info-components_metadata.json';
 
 import {
     BranchState,
     NadViewerParametersOptions,
     NetworkAreaDiagramViewer,
-    OnBendLineCallbackType,
-    OnBreakerCallbackType,
-    OnBusCallbackType,
-    OnFeederCallbackType,
-    OnMoveNodeCallbackType,
-    OnMoveTextNodeCallbackType,
-    OnNextVoltageCallbackType,
-    OnRightClickCallbackType,
-    OnSelectNodeCallbackType,
     OnToggleNadHoverCallbackType,
-    OnToggleSldHoverCallbackType,
-    SingleLineDiagramViewer,
-} from '../../../src';
+} from '../../src';
+import {
+    handleNodeMove,
+    handleTextNodeMove,
+    handleNodeSelect,
+    handleToggleNadHover,
+    handleRightClick,
+    handleLineBending,
+} from './diagram-viewers/nad-callbacks';
 
 /* eslint-disable @typescript-eslint/no-floating-promises */
 
-export const addNadToDemo = () => {
+const addNadToDemo = () => {
     fetch(NadSvgExample)
         .then((response) => response.text())
         .then((svgContent) => {
@@ -264,6 +262,8 @@ export const addNadToDemo = () => {
                 onToggleHoverCallback: handleToggleNadHover,
                 onRightClickCallback: handleRightClick,
                 onBendLineCallback: handleLineBending,
+                enableAdaptiveTextZoom: true,
+                adaptiveTextZoomThreshold: 1500,
             };
             new NetworkAreaDiagramViewer(
                 document.getElementById('svg-container-nad-pst-hvdc-multiple-labels')!,
@@ -273,7 +273,7 @@ export const addNadToDemo = () => {
             );
         });
 
-    fetch(NadSvgThreeWTDanglingLineUnknownBusExample)
+    fetch(NadSvgThreeWTBoundaryLineUnknownBusExample)
         .then((response) => response.text())
         .then((svgContent) => {
             const nadViewerParametersOptions: NadViewerParametersOptions = {
@@ -289,7 +289,7 @@ export const addNadToDemo = () => {
             new NetworkAreaDiagramViewer(
                 document.getElementById('svg-container-nad-threewt-dl-ub')!,
                 svgContent,
-                NadSvgThreeWTDanglingLineUnknownBusExampleMeta,
+                NadSvgThreeWTBoundaryLineUnknownBusExampleMeta,
                 nadViewerParametersOptions
             );
         });
@@ -596,218 +596,52 @@ export const addNadToDemo = () => {
                 nadViewerParametersOptions
             );
         });
-};
 
-export const addSldToDemo = () => {
-    fetch(SldSvgExample)
+    fetch(NadSvgDoubleArrowsExample)
         .then((response) => response.text())
         .then((svgContent) => {
-            new SingleLineDiagramViewer(
-                document.getElementById('svg-container-sld')!,
-                svgContent, //svg content
-                null, //svg metadata
-                'voltage-level',
-                500,
-                600,
-                1000,
-                1200,
-                null, //callback on the next voltage arrows
-                null, //callback on the breakers
-                null, //callback on the feeders
-                null, //callback on the buses
-                // @ts-expect-error: TODO look if null is really possible in code
-                null, //arrows color
-                null //hovers on equipments callback
+            const nadViewerParametersOptions: NadViewerParametersOptions = {
+                enableDragInteraction: true,
+                addButtons: true,
+                onMoveNodeCallback: handleNodeMove,
+                onMoveTextNodeCallback: handleTextNodeMove,
+                onSelectNodeCallback: handleNodeSelect,
+                onToggleHoverCallback: handleToggleNadHover,
+                onRightClickCallback: handleRightClick,
+                onBendLineCallback: handleLineBending,
+                enableAdaptiveTextZoom: true,
+                adaptiveTextZoomThreshold: 1100,
+            };
+            new NetworkAreaDiagramViewer(
+                document.getElementById('svg-container-nad-double-arrows')!,
+                svgContent,
+                NadSvgDoubleArrowsExampleMeta,
+                nadViewerParametersOptions
             );
         });
 
-    fetch(SldSvgExample)
+    fetch(NadSvgComponentsExample)
         .then((response) => response.text())
         .then((svgContent) => {
-            new SingleLineDiagramViewer(
-                document.getElementById('svg-container-sld-with-callbacks')!,
-                svgContent, //svg content
-                // @ts-expect-error: incomplete data in example json
-                SldSvgExampleMeta, //svg metadata
-                'voltage-level',
-                500,
-                600,
-                1000,
-                1200,
-                handleNextVL, //callback on the next voltage arrows
-                handleSwitch, //callback on the breakers
-                handleFeeder, //callback on the feeders
-                handleBus, //callback on the buses
-                'lightblue', //arrows color
-                handleToggleSldHover //hovers on equipments callback
-            );
-        });
-
-    fetch(SldSvgSubExample)
-        .then((response) => response.text())
-        .then((svgContent) => {
-            new SingleLineDiagramViewer(
-                document.getElementById('svg-container-sldsub-with-callbacks')!,
-                svgContent, //svg content
-                // @ts-expect-error: incomplete data in example json
-                SldSvgSubExampleMeta, //svg metadata
-                'substation',
-                500,
-                600,
-                1200,
-                1200,
-                handleNextVL, //callback on the next voltage arrows
-                handleSwitch, //callback on the breakers
-                handleFeeder, //callback on the feeders
-                handleBus, //callback on the buses
-                'lightblue', //arrows color
-                handleToggleSldHover //hovers on equipments callback
+            const nadViewerParametersOptions: NadViewerParametersOptions = {
+                enableDragInteraction: true,
+                addButtons: true,
+                onMoveNodeCallback: handleNodeMove,
+                onMoveTextNodeCallback: handleTextNodeMove,
+                onSelectNodeCallback: handleNodeSelect,
+                onToggleHoverCallback: handleToggleNadHover,
+                onRightClickCallback: handleRightClick,
+                onBendLineCallback: handleLineBending,
+                enableAdaptiveTextZoom: true,
+                adaptiveTextZoomThreshold: 1100,
+            };
+            new NetworkAreaDiagramViewer(
+                document.getElementById('svg-container-nad-components')!,
+                svgContent,
+                NadSvgComponentsExampleMeta,
+                nadViewerParametersOptions
             );
         });
 };
 
-const handleNextVL: OnNextVoltageCallbackType = (id: string, event: MouseEvent) => {
-    const msg = (event.ctrlKey ? 'CTRL + ' : '') + 'Click on navigation arrow, dest VL is ' + id;
-    console.log(msg);
-};
-
-const handleSwitch: OnBreakerCallbackType = (id, switch_status, element) => {
-    const msg =
-        'Clicked on switch: ' +
-        id +
-        ', switch_status: ' +
-        (switch_status ? 'close' : 'open') +
-        '. elementId: ' +
-        element?.id;
-    console.log(msg);
-};
-
-const handleFeeder: OnFeederCallbackType = (id, feederType, svgId, x, y) => {
-    const msg =
-        'Clicked on feeder: ' + id + ', feeder type: ' + feederType + ', svgId: ' + svgId + 'x: ' + x + ', y: ' + y;
-    console.log(msg);
-};
-
-const handleBus: OnBusCallbackType = (id, svgId, x, y) => {
-    const msg = 'Clicked on bus: ' + id + ', svgId: ' + svgId + 'x: ' + x + ', y: ' + y;
-    console.log(msg);
-};
-
-const handleToggleSldHover: OnToggleSldHoverCallbackType = (hovered, anchorEl, equipmentId, equipmentType) => {
-    if (hovered) {
-        const msg = 'Hovers on equipment: ' + equipmentId + ', equipmentType: ' + equipmentType;
-        console.log(msg);
-    }
-};
-
-const handleNodeMove: OnMoveNodeCallbackType = (equipmentId, nodeId, x, y, xOrig, yOrig) => {
-    const msg =
-        'Node ' +
-        nodeId +
-        ' equipment ' +
-        equipmentId +
-        ' moved from [' +
-        xOrig +
-        ', ' +
-        yOrig +
-        '] to [' +
-        x +
-        ', ' +
-        y +
-        ']';
-    console.log(msg);
-};
-
-const handleTextNodeMove: OnMoveTextNodeCallbackType = (
-    equipmentId,
-    nodeId,
-    textNodeId,
-    shiftX,
-    shiftY,
-    shiftXOrig,
-    shiftYOrig,
-    connectionShiftX,
-    connectionShiftY,
-    connectionShiftXOrig,
-    connectionShiftYOrig
-) => {
-    const msg =
-        'TextNode ' +
-        textNodeId +
-        ' Node ' +
-        nodeId +
-        ' equipment ' +
-        equipmentId +
-        ' position shift changed from [' +
-        shiftXOrig +
-        ', ' +
-        shiftYOrig +
-        '] to [' +
-        shiftX +
-        ', ' +
-        shiftY +
-        '] connection shift changed from [' +
-        connectionShiftXOrig +
-        ', ' +
-        connectionShiftYOrig +
-        '] to [' +
-        connectionShiftX +
-        ', ' +
-        connectionShiftY +
-        ']';
-    console.log(msg);
-};
-
-const handleNodeSelect: OnSelectNodeCallbackType = (equipmentId, nodeId, mousePosition) => {
-    let msg = 'Node ' + nodeId + ' equipment ' + equipmentId + ' selected';
-    if (mousePosition) {
-        msg += ' on mousePosition: x = ' + mousePosition.x + ', y = ' + mousePosition.y;
-    }
-    console.log(msg);
-};
-
-const handleToggleNadHover: OnToggleNadHoverCallbackType = (hovered, mousePosition, equipmentId, equipmentType) => {
-    let msg = 'ToggleNadHoverCallback called';
-    if (hovered) {
-        msg +=
-            ' with hover on equipment: ' +
-            equipmentId +
-            ', equipmentType: ' +
-            equipmentType +
-            ', mousePosition : x =' +
-            mousePosition?.x +
-            ', y=' +
-            mousePosition?.y;
-    }
-    console.log(msg);
-};
-
-const handleRightClick: OnRightClickCallbackType = (svgId, equipmentId, equipmentType, mousePosition) => {
-    const msg =
-        'Right click on element : ' +
-        svgId +
-        ', equipment: ' +
-        equipmentId +
-        ', equipmentType: ' +
-        equipmentType +
-        ', mousePosition : x =' +
-        mousePosition?.x +
-        ', y=' +
-        mousePosition?.y;
-    console.log(msg);
-};
-
-const handleLineBending: OnBendLineCallbackType = (svgId, equipmentId, equipmentType, linePoints, lineOperation) => {
-    const msg =
-        'Bent line: ' +
-        svgId +
-        ', equipment: ' +
-        equipmentId +
-        ', equipmentType: ' +
-        equipmentType +
-        ', linePoints: [' +
-        linePoints?.map((point: { x: number; y: number }) => point.x + ',' + point.y).join(' ') +
-        '], operation: ' +
-        lineOperation;
-    console.log(msg);
-};
+addNadToDemo();

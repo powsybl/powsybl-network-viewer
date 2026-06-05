@@ -69,6 +69,8 @@ test('getNodeRadius', () => {
         injectionCircleRadius: 0,
         voltageLevelLegendsIncluded: false,
         edgeInfosIncluded: false,
+        doubleArrowShiftFactorArrows: 1.5,
+        doubleArrowShiftFactorText: 1.8,
     };
     const svgParameters = new SvgParameters(svgParametersMetadata);
 

@@ -104,7 +104,7 @@ export class GeoData {
         }
         const voltageLevel2 = network.getVoltageLevel(line.voltageLevelId2);
         if (!voltageLevel2) {
-            throw new Error(`Voltage level side 2 '${line.voltageLevelId1}' not found`);
+            throw new Error(`Voltage level side 2 '${line.voltageLevelId2}' not found`);
         }
         const substationPosition1 = this.getSubstationPosition(voltageLevel1.substationId);
         const substationPosition2 = this.getSubstationPosition(voltageLevel2.substationId);

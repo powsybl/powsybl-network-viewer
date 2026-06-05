@@ -219,7 +219,7 @@ const EdgeInfoClassMap: Record<string, string> = {
 };
 
 // get edge info element class, based on type
-export function getEdgeInfoClass(edgeInfoType: string | undefined): string | null {
+export function getEdgeInfoTypeClass(edgeInfoType: string | undefined): string | null {
     return edgeInfoType ? (EdgeInfoClassMap[edgeInfoType] ?? null) : null;
 }
 
@@ -245,7 +245,7 @@ export function getArrowPath(direction: string | undefined, svgParameters: SvgPa
 }
 
 // get arrow element path, based on direction
-export function getArrowClass(direction: string | undefined): string | undefined {
+export function getEdgeInfoDirectionClass(direction: string | undefined): string | undefined {
     switch (direction) {
         case 'IN':
             return 'nad-arrow-in';
