@@ -54,9 +54,10 @@ export function getMiddleArrowRotation(halfEdge1: HalfEdge | null, halfEdge2: Ha
             : getArrowEdgeAngle(halfEdge);
 
     angleMiddleArrow += angleMiddleArrow > Math.PI / 2 ? (-3 * Math.PI) / 2 : Math.PI / 2;
-    // only the side-2 half edge has a reversed edge angle vs the canonical node1->node2
-    // direction, so flip it back; IN/OUT is already encoded by the arrow path shape
-    const flipArrow = !halfEdge1;
+    // halfEdge2 uses a reversed coordinate convention (node2→node1 instead of node1→node2),
+    // so apply a 180° rotation correction; the IN/OUT flow direction is already
+    // encoded in the SVG arrow path shape and must not be applied again here.
+    const flipArrow = halfEdge1 === null && halfEdge2 !== null;
     return radToDeg(flipArrow ? angleMiddleArrow - Math.PI : angleMiddleArrow);
 }
 
