@@ -1861,9 +1861,13 @@ export class NetworkAreaDiagramViewer {
 
         this.textNodesSection?.appendChild(newTextElement);
 
-        const newVlNameElement = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
-        newVlNameElement.textContent = textNode.equipmentId;
-        newDivElement.appendChild(newVlNameElement);
+        if (node.legendHeader) {
+            node.legendHeader.forEach((header) => {
+                newDivElement.appendChild(this.createTextHeader(header));
+            });
+        } else {
+            newDivElement.appendChild(this.createTextHeader(textNode.equipmentId));
+        }
 
         for (const busNode of busNodes) {
             const newBusDivElement = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
@@ -1881,6 +1885,12 @@ export class NetworkAreaDiagramViewer {
             newDivElement.appendChild(newBusDivElement);
         }
         return newTextElement;
+    }
+
+    private createTextHeader(header: string): HTMLElement {
+        const newHeaderElement = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
+        newHeaderElement.textContent = header;
+        return newHeaderElement;
     }
 
     private createLegendEdge(textNode: TextNodeMetadata, busNodes: BusNodeMetadata[], node: NodeMetadata) {
