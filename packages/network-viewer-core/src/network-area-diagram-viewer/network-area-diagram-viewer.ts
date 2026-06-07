@@ -118,6 +118,7 @@ export class NetworkAreaDiagramViewer {
     draggedElementType: DraggedElementType | null = null;
     enableDragInteraction: boolean = false;
     isDragging: boolean = false;
+    cursorOverlayRect: SVGRectElement | null = null;
     endTextEdge: Point = new Point(0, 0);
     onMoveNodeCallback: OnMoveNodeCallbackType | null;
     onMoveTextNodeCallback: OnMoveTextNodeCallbackType | null;
@@ -412,20 +413,14 @@ export class NetworkAreaDiagramViewer {
             });
         }
 
-        const drawnSvg = this.innerSvg;
-        this.svgDraw.on('panStart', function () {
-            if (drawnSvg.parentElement != undefined) {
-                drawnSvg.parentElement.style.cursor = 'move';
-            }
+        this.svgDraw.on('panStart', () => {
+            this.attachCursorOverlay('move');
         });
         this.svgDraw.on('panEnd', () => {
-            if (drawnSvg.parentElement != undefined) {
-                drawnSvg.parentElement.style.removeProperty('cursor');
-
-                //if the adaptive zoom feature is enabled, updates the diagram
-                if (this.nadViewerParameters.getEnableAdaptiveTextZoom()) {
-                    this.adaptiveZoomViewboxUpdate(this.getCurrentlyMaxDisplayedSize());
-                }
+            this.detachCursorOverlay();
+            //if the adaptive zoom feature is enabled, updates the diagram
+            if (this.nadViewerParameters.getEnableAdaptiveTextZoom()) {
+                this.adaptiveZoomViewboxUpdate(this.getCurrentlyMaxDisplayedSize());
             }
         });
 
@@ -704,12 +699,38 @@ export class NetworkAreaDiagramViewer {
         }
     }
 
+    // Appends a transparent overlay rect on top of svgDraw with the given cursor.
+    // Setting cursor on svgDraw.node or any ancestor of NAD nodes triggers a full CSS style
+    // recalculation across thousands of descendants (inherited property cascade) causing
+    // a multi-second freeze on large diagrams. Using a leaf rect with no children avoids this.
+    // The rect is created on demand so it is absent from the DOM (and from SVG exports) at rest.
+    private attachCursorOverlay(cursor: string) {
+        if (!this.svgDraw) {
+            return;
+        }
+        // Detach any existing overlay before creating a new one
+        this.detachCursorOverlay();
+
+        // Size of the transparent cursor overlay rect. Oversized on purpose so it always covers the viewport at any pan/zoom
+        const size = 2000000;
+        const overlay = this.svgDraw
+            .rect()
+            .attr({ x: -size / 2, y: -size / 2, width: size, height: size, fill: 'none' });
+        overlay.node.style.cursor = cursor;
+        overlay.node.style.pointerEvents = 'all';
+        this.cursorOverlayRect = overlay.node;
+    }
+
+    private detachCursorOverlay() {
+        this.cursorOverlayRect?.remove();
+        this.cursorOverlayRect = null;
+    }
+
     private onDragStart() {
         this.isDragging = true;
 
         // change cursor style
-        const svg: HTMLElement = <HTMLElement>this.svgDraw?.node.firstElementChild?.parentElement;
-        svg.style.cursor = 'grabbing';
+        this.attachCursorOverlay('grabbing');
 
         this.ctm = this.svgDraw?.node.getScreenCTM(); // used to compute mouse movement
         this.edgeAngles1 = new Map<string, number>(); // used for node redrawing
@@ -896,8 +917,7 @@ export class NetworkAreaDiagramViewer {
         this.originalTextNodeConnectionShift = new Point(0, 0);
 
         // change cursor style back to normal
-        const svg: HTMLElement = <HTMLElement>this.svgDraw?.node.firstElementChild?.parentElement;
-        svg.style.removeProperty('cursor');
+        this.detachCursorOverlay();
     }
 
     private onDragEnd() {
@@ -1841,9 +1861,13 @@ export class NetworkAreaDiagramViewer {
 
         this.textNodesSection?.appendChild(newTextElement);
 
-        const newVlNameElement = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
-        newVlNameElement.textContent = textNode.equipmentId;
-        newDivElement.appendChild(newVlNameElement);
+        if (node.legendHeader) {
+            node.legendHeader.forEach((header) => {
+                newDivElement.appendChild(this.createTextHeader(header));
+            });
+        } else {
+            newDivElement.appendChild(this.createTextHeader(textNode.equipmentId));
+        }
 
         for (const busNode of busNodes) {
             const newBusDivElement = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
@@ -1861,6 +1885,12 @@ export class NetworkAreaDiagramViewer {
             newDivElement.appendChild(newBusDivElement);
         }
         return newTextElement;
+    }
+
+    private createTextHeader(header: string): HTMLElement {
+        const newHeaderElement = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
+        newHeaderElement.textContent = header;
+        return newHeaderElement;
     }
 
     private createLegendEdge(textNode: TextNodeMetadata, busNodes: BusNodeMetadata[], node: NodeMetadata) {
