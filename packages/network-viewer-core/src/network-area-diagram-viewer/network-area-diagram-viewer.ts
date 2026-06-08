@@ -1974,7 +1974,8 @@ export class NetworkAreaDiagramViewer {
                 halfEdges[0],
                 edge.edgeInfo1,
                 '1',
-                Number.isNaN(edgeValue1) ? (edge.edgeInfo1?.labelB ?? '') : edgeValue1
+                Number.isNaN(edgeValue1) ? (edge.edgeInfo1?.labelB ?? '') : edgeValue1,
+                true
             );
         }
 
@@ -1985,7 +1986,8 @@ export class NetworkAreaDiagramViewer {
                 halfEdges[1],
                 edge.edgeInfo2,
                 '2',
-                Number.isNaN(edgeValue2) ? (edge.edgeInfo2?.labelB ?? '') : edgeValue2
+                Number.isNaN(edgeValue2) ? (edge.edgeInfo2?.labelB ?? '') : edgeValue2,
+                true
             );
         }
 
@@ -2241,7 +2243,8 @@ export class NetworkAreaDiagramViewer {
         halfEdge: HalfEdge | null,
         edgeInfoMetadata: EdgeInfoMetadata | undefined,
         side: string,
-        value: number | string
+        value: number | string,
+        preserveExistingDirection: boolean = false
     ) {
         if (!halfEdge) return;
 
@@ -2256,7 +2259,7 @@ export class NetworkAreaDiagramViewer {
                 edge.edgeInfo2 = edgeInfoMetadata;
             }
         }
-        this.updateEdgeInfoMetadata(edgeInfoMetadata, value);
+        this.updateEdgeInfoMetadata(edgeInfoMetadata, value, preserveExistingDirection);
         const edgeInfo = this.getOrCreateEdgeInfo(edgeInfoMetadata);
         if (!halfEdge.edgeInfoId) {
             halfEdge.edgeInfoId = edgeInfo.id;
@@ -2288,12 +2291,17 @@ export class NetworkAreaDiagramViewer {
         this.redrawEdgeArrowAndLabels(halfEdge, edgeInfo);
     }
 
-    private updateEdgeInfoMetadata(edgeInfoMetadata: EdgeInfoMetadata, value: number | string) {
+    private updateEdgeInfoMetadata(
+        edgeInfoMetadata: EdgeInfoMetadata,
+        value: number | string,
+        preserveExistingDirection: boolean
+    ) {
         edgeInfoMetadata.labelB =
             typeof value === 'number'
                 ? value.toFixed(DiagramUtils.getEdgeInfoValuePrecision(edgeInfoMetadata.infoTypeB, this.svgParameters))
                 : value;
-        if (!edgeInfoMetadata.directionB && !edgeInfoMetadata.direction) {
+        const keepExisting = preserveExistingDirection && (edgeInfoMetadata.directionB || edgeInfoMetadata.direction);
+        if (!keepExisting) {
             edgeInfoMetadata.direction = typeof value === 'number' ? DiagramUtils.getArrowDirection(value) : undefined;
         }
     }
