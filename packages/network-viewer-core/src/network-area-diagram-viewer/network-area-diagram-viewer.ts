@@ -1351,7 +1351,7 @@ export class NetworkAreaDiagramViewer {
 
     private redrawArrows(edgeInfo: SVGElement, arrowAngle: number): number {
         const arrowElements: NodeListOf<SVGGraphicsElement> = edgeInfo.querySelectorAll(':scope > path');
-        let arrowRotateString: string = 'rotate(' + DiagramUtils.getFormattedValue(arrowAngle) + ')';
+        const arrowRotateString: string = 'rotate(' + DiagramUtils.getFormattedValue(arrowAngle) + ')';
         if (arrowElements.length == 1) {
             arrowElements.item(0).setAttribute('transform', arrowRotateString);
         } else if (arrowElements.length == 2) {
@@ -1363,7 +1363,6 @@ export class NetworkAreaDiagramViewer {
                     'transform',
                     arrowRotateString + ' translate(' + DiagramUtils.getFormattedPoint(new Point(0, -shift)) + ')'
                 );
-            arrowRotateString = 'rotate(' + DiagramUtils.getFormattedValue(arrowAngle) + ')';
             arrowElements
                 .item(1)
                 .setAttribute(
