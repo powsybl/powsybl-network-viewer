@@ -1349,9 +1349,9 @@ export class NetworkAreaDiagramViewer {
         this.redrawLabel(labelAElement, labelData.angle, labelData.internal.shift * factor, labelData.internal.style);
     }
 
-    private redrawArrows(edgeInfo: SVGElement, arrowAngle: number, secondArrowAngle?: number): number {
+    private redrawArrows(edgeInfo: SVGElement, arrowAngle: number): number {
         const arrowElements: NodeListOf<SVGGraphicsElement> = edgeInfo.querySelectorAll(':scope > path');
-        let arrowRotateString: string = 'rotate(' + DiagramUtils.getFormattedValue(arrowAngle) + ')';
+        const arrowRotateString: string = 'rotate(' + DiagramUtils.getFormattedValue(arrowAngle) + ')';
         if (arrowElements.length == 1) {
             arrowElements.item(0).setAttribute('transform', arrowRotateString);
         } else if (arrowElements.length == 2) {
@@ -1363,9 +1363,6 @@ export class NetworkAreaDiagramViewer {
                     'transform',
                     arrowRotateString + ' translate(' + DiagramUtils.getFormattedPoint(new Point(0, -shift)) + ')'
                 );
-            if (secondArrowAngle) {
-                arrowRotateString = 'rotate(' + DiagramUtils.getFormattedValue(secondArrowAngle) + ')';
-            }
             arrowElements
                 .item(1)
                 .setAttribute(
@@ -1412,11 +1409,8 @@ export class NetworkAreaDiagramViewer {
 
         let factor: number = 1;
         if (direction) {
-            const arrowAngle = HalfEdgeUtils.getMiddleArrowRotation(halfEdge1, halfEdge2, direction);
-            const secondArrowAngle: number | undefined = directionA
-                ? HalfEdgeUtils.getMiddleArrowRotation(halfEdge1, halfEdge2, directionA)
-                : undefined;
-            const arrowsNum = this.redrawArrows(edgeInfo, arrowAngle, secondArrowAngle);
+            const arrowAngle = HalfEdgeUtils.getMiddleArrowRotation(halfEdge1, halfEdge2);
+            const arrowsNum = this.redrawArrows(edgeInfo, arrowAngle);
             factor = arrowsNum == 2 ? this.svgParameters.getDoubleArrowShiftFactorText() : 1;
         }
 
