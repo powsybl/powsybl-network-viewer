@@ -42,11 +42,7 @@ export function getArrowEdgeAngle(halfEdge: HalfEdge): number {
         : getAngle(halfEdge.edgePoints[0], halfEdge.edgePoints[1]);
 }
 
-export function getMiddleArrowRotation(
-    halfEdge1: HalfEdge | null,
-    halfEdge2: HalfEdge | null,
-    direction: string
-): number {
+export function getMiddleArrowRotation(halfEdge1: HalfEdge | null, halfEdge2: HalfEdge | null): number {
     if (!halfEdge1 && !halfEdge2) return 0;
     const halfEdge = halfEdge1 ?? halfEdge2!;
     let angleMiddleArrow =
@@ -58,7 +54,10 @@ export function getMiddleArrowRotation(
             : getArrowEdgeAngle(halfEdge);
 
     angleMiddleArrow += angleMiddleArrow > Math.PI / 2 ? (-3 * Math.PI) / 2 : Math.PI / 2;
-    const flipArrow = halfEdge === halfEdge1 ? direction === 'IN' : direction === 'OUT';
+    // halfEdge2 uses a reversed coordinate convention (node2→node1 instead of node1→node2),
+    // so apply a 180° rotation correction; the IN/OUT flow direction is already
+    // encoded in the SVG arrow path shape and must not be applied again here.
+    const flipArrow = halfEdge1 === null && halfEdge2 !== null;
     return radToDeg(flipArrow ? angleMiddleArrow - Math.PI : angleMiddleArrow);
 }
 
