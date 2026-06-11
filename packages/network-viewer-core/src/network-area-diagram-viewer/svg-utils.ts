@@ -440,7 +440,7 @@ export function createTextNode(
     newTextElement.id = textNode.svgId;
 
     const newDivElement = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
-    newDivElement.classList.add('nad-label-box');
+    addCssClasses(newDivElement, node.classes, 'nad-label-box');
     newTextElement.appendChild(newDivElement);
 
     const newVlNameElement = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
@@ -453,7 +453,7 @@ export function createTextNode(
         newDivElement.appendChild(newBusDivElement);
 
         const newBusLegendElement = document.createElementNS('http://www.w3.org/1999/xhtml', 'span');
-        newBusLegendElement.classList.add('nad-legend-square');
+        addCssClasses(newBusLegendElement, busNode.classes, 'nad-legend-square');
         newBusDivElement.appendChild(newBusLegendElement);
 
         const textNode = document.createTextNode(busNode.legend ?? '');
@@ -483,4 +483,13 @@ export function createTextEdge(
     newLegendEdgeElement.setAttribute('points', polyline);
 
     return newLegendEdgeElement;
+}
+
+export function addCssClasses(element: Element, cssClasses: string[] | undefined, elementCssClass?: string) {
+    cssClasses?.forEach((cssClass) => {
+        element.classList.add(cssClass);
+    });
+    if (elementCssClass) {
+        element.classList.add(elementCssClass);
+    }
 }
