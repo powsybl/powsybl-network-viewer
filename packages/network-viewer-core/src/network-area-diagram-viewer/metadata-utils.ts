@@ -17,7 +17,7 @@ import {
 } from './diagram-metadata';
 import { SvgParameters } from './svg-parameters';
 import { getDistance, getPointAtDistance, getVoltageLevelCircleRadius, round } from './diagram-utils';
-import { EdgeType, ElementData, ElementType, NodeMove, NodeRadius, ViewBox } from './diagram-types';
+import { EdgeType, ElementData, ElementType, NodeMove, NodeRadius, NodeType, ViewBox } from './diagram-types';
 
 const TEXT_BOX_WIDTH_DEFAULT = 200;
 const TEXT_BOX_HEIGHT_DEFAULT = 100;
@@ -32,6 +32,11 @@ const EdgeTypeMapping: { [key: string]: EdgeType } = {
     TieLineEdge: EdgeType.TIE_LINE,
     ThreeWtEdge: EdgeType.THREE_WINDINGS_TRANSFORMER,
     ThreeWtPstEdge: EdgeType.THREE_WINDINGS_PHASE_SHIFT_TRANSFORMER,
+};
+
+const NodeTypeMapping: { [key: string]: NodeType } = {
+    THREEWT: NodeType.THREEWT,
+    BOUNDARY: NodeType.BOUNDARY,
 };
 
 export function getBendableLines(edges: EdgeMetadata[] | undefined): EdgeMetadata[] {
@@ -360,15 +365,20 @@ function addBusNodeEdge(busNodeId: string, edge: EdgeMetadata, busNodeEdges: Map
     busNodeEdges.set(busNodeId, busEdgeGroup);
 }
 
-export function isThreeWtEdge(edge: EdgeMetadata): boolean {
+export function isThreeWTEdge(edge: EdgeMetadata): boolean {
     const edgeType = getEdgeType(edge);
     return (
         edgeType == EdgeType.THREE_WINDINGS_TRANSFORMER || edgeType == EdgeType.THREE_WINDINGS_PHASE_SHIFT_TRANSFORMER
     );
 }
 
-export function getThreeWtEdges(edges: EdgeMetadata[]): EdgeMetadata[] {
-    return edges.filter((edge) => isThreeWtEdge(edge));
+export function getThreeWTEdges(edges: EdgeMetadata[]): EdgeMetadata[] {
+    return edges.filter((edge) => isThreeWTEdge(edge));
+}
+
+export function isPSThreeWTEdge(edge: EdgeMetadata): boolean {
+    const edgeType = getEdgeType(edge);
+    return edgeType == EdgeType.THREE_WINDINGS_PHASE_SHIFT_TRANSFORMER;
 }
 
 export function getEdgeNodePoints(
@@ -383,4 +393,17 @@ export function getEdgeNodePoints(
     const point1 = new Point(node1.x, node1.y);
     const point2 = new Point(node2.x, node2.y);
     return [point1, point2];
+}
+
+export function isThreeWTNode(node: NodeMetadata): boolean {
+    return node.type !== undefined && getNodeType(node) == NodeType.THREEWT;
+}
+
+export function isBoundaryNode(node: NodeMetadata): boolean {
+    return node.type !== undefined && getNodeType(node) == NodeType.BOUNDARY;
+}
+
+// get the type of a node
+export function getNodeType(node: NodeMetadata): NodeType {
+    return node.type === undefined ? NodeType.UNKNOWN : (NodeTypeMapping[node.type] ?? NodeType.UNKNOWN);
 }

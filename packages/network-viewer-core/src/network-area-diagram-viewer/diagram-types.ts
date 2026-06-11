@@ -66,3 +66,9 @@ export type LabelData = {
     internal: { shift: number; style: string | undefined };
     external: { shift: number; style: string | undefined };
 };
+
+export enum NodeType {
+    THREEWT,
+    BOUNDARY,
+    UNKNOWN,
+}

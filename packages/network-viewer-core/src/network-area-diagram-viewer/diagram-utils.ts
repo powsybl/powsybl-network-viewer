@@ -108,6 +108,36 @@ export function getTransformerArrowMatrixString(
     return matrix.map((e) => getFormattedValue(e)).join(',');
 }
 
+export function getThreeWTArrowMatrixString(
+    threeWTPoint: Point,
+    points: Point[],
+    side: string,
+    transformerCircleRadius: number
+): string {
+    let delta: number | undefined = undefined;
+    switch (side) {
+        case 'ONE':
+            delta = 1.5 * Math.PI;
+            break;
+        case 'TWO':
+            delta = 0.75 * Math.PI;
+            break;
+        case 'THREE':
+            delta = Math.PI;
+            break;
+        default:
+            break;
+    }
+    if (delta !== undefined) {
+        const rotationAngle = getAngle(points[0], points[1]) + delta;
+        const circleCenter: Point = getPointAtDistance(points[1], threeWTPoint, transformerCircleRadius);
+        const transformerCenter = new Point(circleCenter.x - threeWTPoint.x, circleCenter.y - threeWTPoint.y);
+        const matrix: number[] = getTransformerArrowMatrix(rotationAngle, transformerCenter, transformerCircleRadius);
+        return matrix.map((e) => getFormattedValue(e)).join(',');
+    }
+    return '';
+}
+
 // get radius of voltage level
 export function getVoltageLevelCircleRadius(
     nbNeighbours: number,

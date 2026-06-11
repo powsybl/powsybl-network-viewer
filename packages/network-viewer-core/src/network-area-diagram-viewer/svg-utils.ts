@@ -450,14 +450,14 @@ export function createTextNode(
     for (const busNode of busNodes) {
         const newBusDivElement = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
         newBusDivElement.classList.add('nad-bus-descr');
+        newDivElement.appendChild(newBusDivElement);
 
         const newBusLegendElement = document.createElementNS('http://www.w3.org/1999/xhtml', 'span');
         newBusLegendElement.classList.add('nad-legend-square');
-        const textNode = document.createTextNode(busNode.legend ?? '');
         newBusDivElement.appendChild(newBusLegendElement);
-        newBusDivElement.appendChild(textNode);
 
-        newDivElement.appendChild(newBusDivElement);
+        const textNode = document.createTextNode(busNode.legend ?? '');
+        newBusDivElement.appendChild(textNode);
     }
 
     return newTextElement;
