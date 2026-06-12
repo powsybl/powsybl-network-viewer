@@ -379,6 +379,10 @@ export class NetworkAreaDiagramViewer {
         this.textEdgesSection = this.getOrCreateTextEdgesSection();
         this.edgeInfosSection = this.getOrCreateEdgeInfosSection();
 
+        // Tag the server-rendered edge infos with their side's voltage-level class so they are
+        // hidden consistently with their voltage level (voltage-level filtering, zoom-based hiding).
+        this.addVoltageLevelClassesToEdgeInfos();
+
         // add events
         const hasMetadata = this.diagramMetadata !== null;
         if (this.hasNodeInteraction() && hasMetadata) {
@@ -1911,6 +1915,39 @@ export class NetworkAreaDiagramViewer {
         return <SVGElement>this.edgeInfosSection?.querySelector(":scope > [id='" + edgeInfoSvgId + "']") ?? null;
     }
 
+    /**
+     * Edge infos (arrows and value labels) live in a flat 'nad-edge-infos' group and, unlike voltage
+     * level nodes and their labels, do not carry the voltage-level CSS class of the side they belong
+     * to. CSS rules that hide a voltage level (voltage-level filtering, zoom-based hiding) therefore
+     * leave these arrows/labels visible. We copy the voltage-level class(es) of the relevant node
+     * onto each edge info so it is hidden consistently with its voltage level.
+     */
+    private addVoltageLevelClassesToEdgeInfos(): void {
+        this.diagramMetadata?.edges.forEach((edge) => {
+            this.addVoltageLevelClassesToEdgeInfo(edge.edgeInfo1, edge.node1);
+            this.addVoltageLevelClassesToEdgeInfo(edge.edgeInfo2, edge.node2);
+            this.addVoltageLevelClassesToEdgeInfo(edge.edgeInfoMiddle, edge.node1);
+        });
+        this.diagramMetadata?.injections?.forEach((injection) => {
+            this.addVoltageLevelClassesToEdgeInfo(injection.edgeInfo, injection.vlNodeId);
+        });
+    }
+
+    private addVoltageLevelClassesToEdgeInfo(
+        edgeInfoMetadata: EdgeInfoMetadata | undefined,
+        nodeSvgId: string | undefined
+    ): void {
+        if (!edgeInfoMetadata || !nodeSvgId) {
+            return;
+        }
+        const node: NodeMetadata | undefined = this.diagramMetadata?.nodes.find((n) => n.svgId === nodeSvgId);
+        if (!node?.classes?.length) {
+            return;
+        }
+        const edgeInfo = this.getEdgeInfo(edgeInfoMetadata.svgId);
+        edgeInfo?.classList.add(...node.classes);
+    }
+
     private hasTextNode(textNode: TextNodeMetadata) {
         return !!this.textNodesSection?.querySelector(":scope > [id='" + textNode.svgId + "']");
     }
@@ -2298,6 +2335,7 @@ export class NetworkAreaDiagramViewer {
         }
         this.updateEdgeInfoMetadata(edgeInfoMetadata, value, preserveExistingDirection);
         const edgeInfo = this.getOrCreateEdgeInfo(edgeInfoMetadata);
+        this.addVoltageLevelClassesToEdgeInfo(edgeInfoMetadata, side == '1' ? edge.node1 : edge.node2);
         if (!halfEdge.edgeInfoId) {
             halfEdge.edgeInfoId = edgeInfo.id;
         }
@@ -2402,6 +2440,7 @@ export class NetworkAreaDiagramViewer {
         }
 
         const edgeInfo = this.getOrCreateEdgeInfo(edgeInfoMetadata);
+        this.addVoltageLevelClassesToEdgeInfo(edgeInfoMetadata, edge.node1);
 
         // componentType replaces the arrow, so it follows the same showArrow threshold
         if (showArrow) {
