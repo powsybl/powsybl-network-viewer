@@ -262,8 +262,7 @@ const addNadToDemo = () => {
                 onToggleHoverCallback: handleToggleNadHover,
                 onRightClickCallback: handleRightClick,
                 onBendLineCallback: handleLineBending,
-                enableAdaptiveTextZoom: true,
-                adaptiveTextZoomThreshold: 1500,
+                adaptiveTextZoom: { enabled: true, threshold: 1500 },
             };
             new NetworkAreaDiagramViewer(
                 document.getElementById('svg-container-nad-pst-hvdc-multiple-labels')!,
@@ -379,8 +378,10 @@ const addNadToDemo = () => {
                 onRightClickCallback: handleRightClick,
                 onBendLineCallback: handleLineBending,
 
-                enableAdaptiveTextZoom: true,
-                adaptiveTextZoomThreshold: 3000,
+                adaptiveTextZoom: {
+                    enabled: true,
+                    threshold: 3000,
+                },
             };
             const svgContainerNadPegase = document.getElementById('svg-container-nad-pegase-network-adaptive-zoom');
             new NetworkAreaDiagramViewer(
@@ -404,8 +405,7 @@ const addNadToDemo = () => {
                 onRightClickCallback: handleRightClick,
                 onBendLineCallback: handleLineBending,
 
-                enableAdaptiveTextZoom: true,
-                adaptiveTextZoomThreshold: 850,
+                adaptiveTextZoom: { enabled: true, threshold: 850 },
             };
             new NetworkAreaDiagramViewer(
                 document.getElementById('svg-container-nad-partial-network-adaptive-zoom')!,
@@ -428,13 +428,41 @@ const addNadToDemo = () => {
                 onRightClickCallback: handleRightClick,
                 onBendLineCallback: handleLineBending,
 
-                enableAdaptiveTextZoom: true,
-                adaptiveTextZoomThreshold: 850,
+                adaptiveTextZoom: { enabled: true, threshold: 850 },
             };
             new NetworkAreaDiagramViewer(
                 document.getElementById('svg-container-nad-multibus-vlnodes-middle-arrow')!,
                 svgContent,
                 NadSvgMultibusVLNodesMiddleArrowExampleMeta,
+                nadViewerParametersOptions
+            );
+        });
+
+    fetch(NadSvgMultibusVLNodesMiddleArrowExample)
+        .then((response) => response.text())
+        .then((svgContent) => {
+            const nadViewerParametersOptions: NadViewerParametersOptions = {
+                enableDragInteraction: true,
+                addButtons: true,
+                onMoveNodeCallback: handleNodeMove,
+                onMoveTextNodeCallback: handleTextNodeMove,
+                onSelectNodeCallback: handleNodeSelect,
+                onToggleHoverCallback: handleToggleNadHover,
+                onRightClickCallback: handleRightClick,
+                onBendLineCallback: handleLineBending,
+
+                adaptiveTextZoom: {
+                    enabled: true,
+                    edgeSideLabelThreshold: 1000,
+                    edgeMiddleArrowThreshold: 2000,
+                    edgeMiddleLabelThreshold: 1500,
+                    threshold: 2500,
+                },
+            };
+            new NetworkAreaDiagramViewer(
+                document.getElementById('svg-container-nad-multibus-vlnodes-adaptive-thresholds')!,
+                svgContent,
+                structuredClone(NadSvgMultibusVLNodesMiddleArrowExampleMeta),
                 nadViewerParametersOptions
             );
         });
@@ -452,8 +480,7 @@ const addNadToDemo = () => {
                 onRightClickCallback: handleRightClick,
                 onBendLineCallback: handleLineBending,
 
-                enableAdaptiveTextZoom: true,
-                adaptiveTextZoomThreshold: 3000,
+                adaptiveTextZoom: { enabled: true, threshold: 3000 },
             };
             const nadViewer = new NetworkAreaDiagramViewer(
                 document.getElementById('svg-container-nad-multibus-vlnodes-limit-percentage')!,
@@ -609,8 +636,7 @@ const addNadToDemo = () => {
                 onToggleHoverCallback: handleToggleNadHover,
                 onRightClickCallback: handleRightClick,
                 onBendLineCallback: handleLineBending,
-                enableAdaptiveTextZoom: true,
-                adaptiveTextZoomThreshold: 1100,
+                adaptiveTextZoom: { enabled: true, threshold: 1100 },
             };
             new NetworkAreaDiagramViewer(
                 document.getElementById('svg-container-nad-double-arrows')!,
@@ -632,8 +658,7 @@ const addNadToDemo = () => {
                 onToggleHoverCallback: handleToggleNadHover,
                 onRightClickCallback: handleRightClick,
                 onBendLineCallback: handleLineBending,
-                enableAdaptiveTextZoom: true,
-                adaptiveTextZoomThreshold: 1100,
+                adaptiveTextZoom: { enabled: true, threshold: 1100 },
             };
             new NetworkAreaDiagramViewer(
                 document.getElementById('svg-container-nad-components')!,

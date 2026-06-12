@@ -21,6 +21,7 @@ import {
 } from './diagram-metadata';
 import debounce from 'lodash.debounce';
 import {
+    AdaptiveTextZoomOptions,
     NadViewerParameters,
     NadViewerParametersOptions,
     OnBendLineCallbackType,
@@ -419,7 +420,7 @@ export class NetworkAreaDiagramViewer {
         this.svgDraw.on('panEnd', () => {
             this.detachCursorOverlay();
             //if the adaptive zoom feature is enabled, updates the diagram
-            if (this.nadViewerParameters.getEnableAdaptiveTextZoom()) {
+            if (this.nadViewerParameters.getAdaptiveTextZoom().enabled) {
                 this.adaptiveZoomViewboxUpdate(this.getCurrentlyMaxDisplayedSize());
             }
         });
@@ -436,7 +437,10 @@ export class NetworkAreaDiagramViewer {
         firstChild.removeAttribute('width');
         firstChild.removeAttribute('height');
 
-        if (this.nadViewerParameters.getEnableLevelOfDetail() || this.nadViewerParameters.getEnableAdaptiveTextZoom()) {
+        if (
+            this.nadViewerParameters.getEnableLevelOfDetail() ||
+            this.nadViewerParameters.getAdaptiveTextZoom().enabled
+        ) {
             this.svgDraw.fire('zoom'); // Forces a new dynamic zoom check to correctly update the dynamic CSS
 
             // We add an observer to track when the SVG's viewBox is updated by panzoom
@@ -1414,7 +1418,7 @@ export class NetworkAreaDiagramViewer {
             factor = arrowsNum == 2 ? this.svgParameters.getDoubleArrowShiftFactorText() : 1;
         }
 
-        let x = '0.0';
+        let shift = 0;
         let style: string | undefined = 'text-anchor:middle';
         let i = 1;
         if (bothLabels) {
@@ -1425,15 +1429,7 @@ export class NetworkAreaDiagramViewer {
                 true,
                 this.svgParameters.getArrowLabelShift()
             );
-            x = DiagramUtils.getFormattedValue(middleLabelBData[0] * factor);
-            style = middleLabelBData[1];
-            labelBElement.setAttribute('transform', 'rotate(' + DiagramUtils.getFormattedValue(infoAngle) + ')');
-            labelBElement.setAttribute('x', x);
-            if (style) {
-                labelBElement.setAttribute('style', style);
-            } else if (labelBElement.hasAttribute('style')) {
-                labelBElement.removeAttribute('style');
-            }
+            this.redrawLabel(labelBElement, infoAngle, middleLabelBData[0] * factor, middleLabelBData[1]);
 
             const middleLabelAData = HalfEdgeUtils.getMiddleLabelData(
                 halfEdge1,
@@ -1441,18 +1437,12 @@ export class NetworkAreaDiagramViewer {
                 false,
                 this.svgParameters.getArrowLabelShift()
             );
-            x = DiagramUtils.getFormattedValue(middleLabelAData[0] * factor);
+            shift = middleLabelAData[0];
             style = middleLabelAData[1];
         }
 
         const labelAElement = edgeInfo.querySelector('text:nth-of-type(' + i + ')') as SVGGraphicsElement;
-        labelAElement.setAttribute('transform', 'rotate(' + DiagramUtils.getFormattedValue(infoAngle) + ')');
-        labelAElement.setAttribute('x', x);
-        if (style) {
-            labelAElement.setAttribute('style', style);
-        } else if (labelAElement.hasAttribute('style')) {
-            labelAElement.removeAttribute('style');
-        }
+        this.redrawLabel(labelAElement, infoAngle, shift * factor, style);
     }
 
     private redrawTransformer(
@@ -1753,7 +1743,7 @@ export class NetworkAreaDiagramViewer {
         }
         this.setPreviousMaxDisplayedSize(maxDisplayedSize);
 
-        if (this.nadViewerParameters.getEnableAdaptiveTextZoom()) {
+        if (this.nadViewerParameters.getAdaptiveTextZoom().enabled) {
             this.adaptiveZoomViewboxUpdate(maxDisplayedSize);
         }
 
@@ -1958,10 +1948,11 @@ export class NetworkAreaDiagramViewer {
         return halfEdges;
     }
 
-    private createEdgeInfos(edge: EdgeMetadata): void {
+    private createEdgeInfos(edge: EdgeMetadata, maxDisplayedSize: number): void {
         const halfEdges = this.getHalfEdgesForEdgeInfos(edge);
+        const adaptiveTextZoom = this.nadViewerParameters.getAdaptiveTextZoom();
 
-        if (edge.edgeInfo1 && halfEdges[0]) {
+        if (edge.edgeInfo1 && halfEdges[0] && maxDisplayedSize <= adaptiveTextZoom.edgeSideLabelThreshold) {
             const edgeValue1 = Number(edge.edgeInfo1?.labelB);
             this.setBranchSideLabel(
                 edge,
@@ -1973,7 +1964,7 @@ export class NetworkAreaDiagramViewer {
             );
         }
 
-        if (edge.edgeInfo2 && halfEdges[1]) {
+        if (edge.edgeInfo2 && halfEdges[1] && maxDisplayedSize <= adaptiveTextZoom.edgeSideLabelThreshold) {
             const edgeValue2 = Number(edge.edgeInfo2?.labelB);
             this.setBranchSideLabel(
                 edge,
@@ -1985,19 +1976,25 @@ export class NetworkAreaDiagramViewer {
             );
         }
 
-        if (edge.edgeInfoMiddle) {
-            this.setBranchMiddleLabel(edge, halfEdges[0], halfEdges[1], edge.edgeInfoMiddle);
+        if (
+            edge.edgeInfoMiddle &&
+            maxDisplayedSize <=
+                Math.max(adaptiveTextZoom.edgeMiddleLabelThreshold, adaptiveTextZoom.edgeMiddleArrowThreshold)
+        ) {
+            const showArrow = maxDisplayedSize <= adaptiveTextZoom.edgeMiddleArrowThreshold;
+            const showLabel = maxDisplayedSize <= adaptiveTextZoom.edgeMiddleLabelThreshold;
+            this.setBranchMiddleLabel(edge, halfEdges[0], halfEdges[1], edge.edgeInfoMiddle, showArrow, showLabel);
         }
     }
 
-    private createEdgesInfos(edges: EdgeMetadata[]): void {
+    private createEdgesInfos(edges: EdgeMetadata[], maxDisplayedSize: number): void {
         for (const edge of edges) {
             if (
                 (edge.edgeInfo1 && !this.hasEdgeInfo(edge.edgeInfo1)) ||
                 (edge.edgeInfo2 && !this.hasEdgeInfo(edge.edgeInfo2)) ||
                 (edge.edgeInfoMiddle && !this.hasEdgeInfo(edge.edgeInfoMiddle))
             ) {
-                this.createEdgeInfos(edge);
+                this.createEdgeInfos(edge, maxDisplayedSize);
             }
         }
     }
@@ -2026,7 +2023,7 @@ export class NetworkAreaDiagramViewer {
         }
     }
 
-    private filterElements(nodeList: NodeMetadata[], viewBox: ViewBox | undefined): void {
+    private filterLegends(nodeList: NodeMetadata[]): void {
         const validLegendIds = new Set(nodeList.map((n) => n.legendSvgId));
         const validLegendEdgeIds = new Set(nodeList.map((n) => n.legendEdgeSvgId));
 
@@ -2047,52 +2044,98 @@ export class NetworkAreaDiagramViewer {
                     polyline.remove();
                 }
             });
+    }
 
-        // filter edge info items that fall outside the viewbox
+    // filter edge info items that fall outside the viewbox
+    private filterEdgeInfos(
+        edges: EdgeMetadata[],
+        viewBox: ViewBox | undefined,
+        maxDisplayedSize: number,
+        adaptiveTextZoom: Required<AdaptiveTextZoomOptions>
+    ): void {
         this.removeEdgeInfoItems(viewBox);
+
+        const shouldRemoveSideInfos = maxDisplayedSize > adaptiveTextZoom.edgeSideLabelThreshold;
+        const shouldRemoveMiddleInfo =
+            maxDisplayedSize >
+            Math.min(adaptiveTextZoom.edgeMiddleLabelThreshold, adaptiveTextZoom.edgeMiddleArrowThreshold);
+
+        for (const edge of edges) {
+            if (shouldRemoveSideInfos) {
+                if (edge.edgeInfo1) {
+                    this.getEdgeInfo(edge.edgeInfo1.svgId)?.remove();
+                }
+                if (edge.edgeInfo2) {
+                    this.getEdgeInfo(edge.edgeInfo2.svgId)?.remove();
+                }
+            }
+            if (shouldRemoveMiddleInfo && edge.edgeInfoMiddle) {
+                this.getEdgeInfo(edge.edgeInfoMiddle.svgId)?.remove();
+            }
+        }
+    }
+
+    private updateAdaptiveEdgeInfos(
+        edges: EdgeMetadata[],
+        viewBox: ViewBox | undefined,
+        maxDisplayedSize: number,
+        adaptiveTextZoom: Required<AdaptiveTextZoomOptions>
+    ): void {
+        this.filterEdgeInfos(edges, viewBox, maxDisplayedSize, adaptiveTextZoom);
+        this.createEdgesInfos(edges, maxDisplayedSize);
+    }
+
+    private updateAdaptiveLegends(
+        nodeList: NodeMetadata[],
+        maxDisplayedSize: number,
+        adaptiveTextZoom: Required<AdaptiveTextZoomOptions>
+    ): void {
+        if (maxDisplayedSize > adaptiveTextZoom.threshold) {
+            this.textNodesSection?.replaceChildren();
+            this.textEdgesSection?.replaceChildren();
+            return;
+        }
+
+        this.filterLegends(nodeList);
+
+        for (const node of nodeList) {
+            const textNode = this.diagramMetadata?.textNodes.find((tNode) => tNode.svgId === node.legendSvgId);
+            if (textNode) {
+                const busNodes: BusNodeMetadata[] =
+                    this.diagramMetadata?.busNodes.filter((busNode) => busNode.vlNode == node.svgId) ?? [];
+
+                this.createLegendBox(textNode, busNodes, node);
+                this.createLegendEdge(textNode, busNodes, node);
+            }
+        }
     }
 
     private adaptiveZoomViewboxUpdate(maxDisplayedSize: number) {
-        if (maxDisplayedSize > this.nadViewerParameters.getThresholdAdaptiveTextZoom()) {
+        const adaptiveTextZoom = this.nadViewerParameters.getAdaptiveTextZoom();
+
+        // above the largest configured threshold, nothing needs to be displayed: clear everything
+        const maxThreshold = Math.max(
+            adaptiveTextZoom.threshold,
+            adaptiveTextZoom.edgeSideLabelThreshold,
+            adaptiveTextZoom.edgeMiddleLabelThreshold,
+            adaptiveTextZoom.edgeMiddleArrowThreshold
+        );
+        if (maxDisplayedSize > maxThreshold) {
             this.edgeInfosSection?.replaceChildren();
             this.textEdgesSection?.replaceChildren();
             this.textNodesSection?.replaceChildren();
-        } else {
-            let start = performance.now();
-            const containerRect = this.container.getBoundingClientRect();
-            const viewBox = SvgUtils.computeVisibleArea(this.getViewBox(), containerRect.width, containerRect.height);
-
-            const containedElementList = this.getElementsInViewbox(viewBox, 50);
-            const containedNodeList = containedElementList.nodes;
-            const containedEdgeList = containedElementList.edges;
-
-            console.log('number of nodes in the current viewbox: ' + containedNodeList.length);
-            console.log('number of edges in the current viewbox: ' + containedEdgeList.length);
-            console.log(`number of elements in the current viewbox computing time: ${performance.now() - start} ms`);
-
-            start = performance.now();
-
-            this.filterElements(containedNodeList, viewBox);
-
-            console.log(`time to remove elements not in the current viewbox: ${performance.now() - start} ms`);
-
-            start = performance.now();
-            for (const node of containedNodeList) {
-                const textNode = this.diagramMetadata?.textNodes.find((tNode) => tNode.svgId === node.legendSvgId);
-                if (textNode) {
-                    const busNodes: BusNodeMetadata[] =
-                        this.diagramMetadata?.busNodes.filter((busNode) => busNode.vlNode == node.svgId) ?? [];
-
-                    this.createLegendBox(textNode, busNodes, node);
-                    this.createLegendEdge(textNode, busNodes, node);
-                }
-            }
-            console.log(`adaptive zoom mode adding legends elements time: ${performance.now() - start} ms`);
-
-            start = performance.now();
-            this.createEdgesInfos(containedEdgeList);
-            console.log(`adaptive zoom mode adding edges info elements time: ${performance.now() - start} ms`);
+            return;
         }
+
+        const containerRect = this.container.getBoundingClientRect();
+        const viewBox = SvgUtils.computeVisibleArea(this.getViewBox(), containerRect.width, containerRect.height);
+
+        const containedElementList = this.getElementsInViewbox(viewBox, 50);
+        const containedNodeList = containedElementList.nodes;
+        const containedEdgeList = containedElementList.edges;
+
+        this.updateAdaptiveLegends(containedNodeList, maxDisplayedSize, adaptiveTextZoom);
+        this.updateAdaptiveEdgeInfos(containedEdgeList, viewBox, maxDisplayedSize, adaptiveTextZoom);
     }
 
     public setJsonBranchStates(branchStates: string) {
@@ -2342,7 +2385,9 @@ export class NetworkAreaDiagramViewer {
         edge: EdgeMetadata,
         halfEdge1: HalfEdge | null,
         halfEdge2: HalfEdge | null,
-        edgeInfoMetadata: EdgeInfoMetadata | undefined
+        edgeInfoMetadata: EdgeInfoMetadata | undefined,
+        showArrow: boolean = true,
+        showLabel: boolean = true
     ) {
         if (!halfEdge1 && !halfEdge2) {
             return;
@@ -2358,23 +2403,46 @@ export class NetworkAreaDiagramViewer {
 
         const edgeInfo = this.getOrCreateEdgeInfo(edgeInfoMetadata);
 
-        if (edgeInfoMetadata.componentType) {
-            this.addBranchComponentElement(edgeInfo, edgeInfoMetadata.componentType);
-        } else {
-            if (edgeInfoMetadata.direction || edgeInfoMetadata.directionB) {
-                this.addBranchArrowElement(
-                    edgeInfo,
-                    edgeInfoMetadata.direction ?? edgeInfoMetadata.directionB,
-                    edgeInfoMetadata.infoTypeB,
-                    1
-                );
-            }
-
-            if (edgeInfoMetadata.directionA) {
-                this.addBranchArrowElement(edgeInfo, edgeInfoMetadata.directionA, edgeInfoMetadata.infoTypeA, 2);
-            }
+        // componentType replaces the arrow, so it follows the same showArrow threshold
+        if (showArrow) {
+            this.addBranchMiddleArrowOrComponent(edgeInfo, edgeInfoMetadata);
         }
 
+        if (showLabel) {
+            this.addBranchMiddleLabels(edgeInfo, edgeInfoMetadata);
+        }
+
+        this.redrawMiddleEdgeArrowAndLabels(
+            halfEdge1,
+            halfEdge2,
+            edgeInfo,
+            showArrow ? (edgeInfoMetadata.direction ?? edgeInfoMetadata.directionB) : undefined,
+            edgeInfoMetadata.directionA,
+            showLabel && edgeInfoMetadata.labelA !== undefined && edgeInfoMetadata.labelB !== undefined
+        );
+    }
+
+    private addBranchMiddleArrowOrComponent(edgeInfo: SVGElement, edgeInfoMetadata: EdgeInfoMetadata) {
+        if (edgeInfoMetadata.componentType) {
+            this.addBranchComponentElement(edgeInfo, edgeInfoMetadata.componentType);
+            return;
+        }
+
+        if (edgeInfoMetadata.direction || edgeInfoMetadata.directionB) {
+            this.addBranchArrowElement(
+                edgeInfo,
+                edgeInfoMetadata.direction ?? edgeInfoMetadata.directionB,
+                edgeInfoMetadata.infoTypeB,
+                1
+            );
+        }
+
+        if (edgeInfoMetadata.directionA) {
+            this.addBranchArrowElement(edgeInfo, edgeInfoMetadata.directionA, edgeInfoMetadata.infoTypeA, 2);
+        }
+    }
+
+    private addBranchMiddleLabels(edgeInfo: SVGElement, edgeInfoMetadata: EdgeInfoMetadata) {
         let i = 1;
         if (edgeInfoMetadata.labelA && edgeInfoMetadata.labelB) {
             this.addBranchLabelElement(edgeInfo, i++, edgeInfoMetadata.infoTypeB, edgeInfoMetadata.labelB);
@@ -2385,15 +2453,6 @@ export class NetworkAreaDiagramViewer {
             i,
             edgeInfoMetadata.infoTypeA ?? edgeInfoMetadata.infoTypeB,
             edgeInfoMetadata.labelA ?? edgeInfoMetadata.labelB
-        );
-
-        this.redrawMiddleEdgeArrowAndLabels(
-            halfEdge1,
-            halfEdge2,
-            edgeInfo,
-            edgeInfoMetadata.direction ?? edgeInfoMetadata.directionB,
-            edgeInfoMetadata.directionA,
-            edgeInfoMetadata.labelA !== undefined && edgeInfoMetadata.labelB !== undefined
         );
     }
 
