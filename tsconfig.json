@@ -5,6 +5,7 @@
         "paths": {
             "@powsybl/network-viewer-core": ["packages/network-viewer-core/src/"],
             "@powsybl/network-map-layers": ["packages/network-map-layers/src/"],
+            "@powsybl/sankey": ["packages/sankey/src/"],
             "vite-plugin-checker": ["node_modules/vite-plugin-checker/dist/main.d.ts"]
         },
         "outDir": "./dist",
