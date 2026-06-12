@@ -215,15 +215,13 @@ export class NadViewerParameters {
 
     public getAdaptiveTextZoom(): Required<AdaptiveTextZoomOptions> {
         const adaptiveTextZoom = this.nadViewerParametersOptions?.adaptiveTextZoom;
+        const threshold = adaptiveTextZoom?.threshold ?? NadViewerParameters.THRESHOLD_ADAPTIVE_ZOOM_DEFAULT;
         return {
             enabled: adaptiveTextZoom?.enabled ?? NadViewerParameters.ENABLE_ADAPTIVE_ZOOM_DEFAULT,
-            threshold: adaptiveTextZoom?.threshold ?? NadViewerParameters.THRESHOLD_ADAPTIVE_ZOOM_DEFAULT,
-            edgeSideLabelThreshold:
-                adaptiveTextZoom?.edgeSideLabelThreshold ?? NadViewerParameters.THRESHOLD_ADAPTIVE_ZOOM_DEFAULT,
-            edgeMiddleLabelThreshold:
-                adaptiveTextZoom?.edgeMiddleLabelThreshold ?? NadViewerParameters.THRESHOLD_ADAPTIVE_ZOOM_DEFAULT,
-            edgeMiddleArrowThreshold:
-                adaptiveTextZoom?.edgeMiddleArrowThreshold ?? NadViewerParameters.THRESHOLD_ADAPTIVE_ZOOM_DEFAULT,
+            threshold,
+            edgeSideLabelThreshold: adaptiveTextZoom?.edgeSideLabelThreshold ?? threshold,
+            edgeMiddleLabelThreshold: adaptiveTextZoom?.edgeMiddleLabelThreshold ?? threshold,
+            edgeMiddleArrowThreshold: adaptiveTextZoom?.edgeMiddleArrowThreshold ?? threshold,
         };
     }
 

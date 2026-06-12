@@ -2055,8 +2055,13 @@ export class NetworkAreaDiagramViewer {
     ): void {
         this.removeEdgeInfoItems(viewBox);
 
-        if (maxDisplayedSize > adaptiveTextZoom.edgeSideLabelThreshold) {
-            for (const edge of edges) {
+        const shouldRemoveSideInfos = maxDisplayedSize > adaptiveTextZoom.edgeSideLabelThreshold;
+        const shouldRemoveMiddleInfo =
+            maxDisplayedSize >
+            Math.min(adaptiveTextZoom.edgeMiddleLabelThreshold, adaptiveTextZoom.edgeMiddleArrowThreshold);
+
+        for (const edge of edges) {
+            if (shouldRemoveSideInfos) {
                 if (edge.edgeInfo1) {
                     this.getEdgeInfo(edge.edgeInfo1.svgId)?.remove();
                 }
@@ -2064,9 +2069,7 @@ export class NetworkAreaDiagramViewer {
                     this.getEdgeInfo(edge.edgeInfo2.svgId)?.remove();
                 }
             }
-        }
-        for (const edge of edges) {
-            if (edge.edgeInfoMiddle) {
+            if (shouldRemoveMiddleInfo && edge.edgeInfoMiddle) {
                 this.getEdgeInfo(edge.edgeInfoMiddle.svgId)?.remove();
             }
         }
@@ -2400,44 +2403,56 @@ export class NetworkAreaDiagramViewer {
 
         const edgeInfo = this.getOrCreateEdgeInfo(edgeInfoMetadata);
 
-        if (edgeInfoMetadata.componentType) {
-            this.addBranchComponentElement(edgeInfo, edgeInfoMetadata.componentType);
-        } else if (showArrow) {
-            if (edgeInfoMetadata.direction || edgeInfoMetadata.directionB) {
-                this.addBranchArrowElement(
-                    edgeInfo,
-                    edgeInfoMetadata.direction ?? edgeInfoMetadata.directionB,
-                    edgeInfoMetadata.infoTypeB,
-                    1
-                );
-            }
-
-            if (edgeInfoMetadata.directionA) {
-                this.addBranchArrowElement(edgeInfo, edgeInfoMetadata.directionA, edgeInfoMetadata.infoTypeA, 2);
-            }
+        // componentType replaces the arrow, so it follows the same showArrow threshold
+        if (showArrow) {
+            this.addBranchMiddleArrowOrComponent(edgeInfo, edgeInfoMetadata);
         }
 
         if (showLabel) {
-            let i = 1;
-            if (edgeInfoMetadata.labelA && edgeInfoMetadata.labelB) {
-                this.addBranchLabelElement(edgeInfo, i++, edgeInfoMetadata.infoTypeB, edgeInfoMetadata.labelB);
-            }
-
-            this.addBranchLabelElement(
-                edgeInfo,
-                i,
-                edgeInfoMetadata.infoTypeA ?? edgeInfoMetadata.infoTypeB,
-                edgeInfoMetadata.labelA ?? edgeInfoMetadata.labelB
-            );
+            this.addBranchMiddleLabels(edgeInfo, edgeInfoMetadata);
         }
 
         this.redrawMiddleEdgeArrowAndLabels(
             halfEdge1,
             halfEdge2,
             edgeInfo,
-            edgeInfoMetadata.direction ?? edgeInfoMetadata.directionB,
+            showArrow ? (edgeInfoMetadata.direction ?? edgeInfoMetadata.directionB) : undefined,
             edgeInfoMetadata.directionA,
             showLabel && edgeInfoMetadata.labelA !== undefined && edgeInfoMetadata.labelB !== undefined
+        );
+    }
+
+    private addBranchMiddleArrowOrComponent(edgeInfo: SVGElement, edgeInfoMetadata: EdgeInfoMetadata) {
+        if (edgeInfoMetadata.componentType) {
+            this.addBranchComponentElement(edgeInfo, edgeInfoMetadata.componentType);
+            return;
+        }
+
+        if (edgeInfoMetadata.direction || edgeInfoMetadata.directionB) {
+            this.addBranchArrowElement(
+                edgeInfo,
+                edgeInfoMetadata.direction ?? edgeInfoMetadata.directionB,
+                edgeInfoMetadata.infoTypeB,
+                1
+            );
+        }
+
+        if (edgeInfoMetadata.directionA) {
+            this.addBranchArrowElement(edgeInfo, edgeInfoMetadata.directionA, edgeInfoMetadata.infoTypeA, 2);
+        }
+    }
+
+    private addBranchMiddleLabels(edgeInfo: SVGElement, edgeInfoMetadata: EdgeInfoMetadata) {
+        let i = 1;
+        if (edgeInfoMetadata.labelA && edgeInfoMetadata.labelB) {
+            this.addBranchLabelElement(edgeInfo, i++, edgeInfoMetadata.infoTypeB, edgeInfoMetadata.labelB);
+        }
+
+        this.addBranchLabelElement(
+            edgeInfo,
+            i,
+            edgeInfoMetadata.infoTypeA ?? edgeInfoMetadata.infoTypeB,
+            edgeInfoMetadata.labelA ?? edgeInfoMetadata.labelB
         );
     }
 
