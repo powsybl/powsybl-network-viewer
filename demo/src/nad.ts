@@ -462,7 +462,7 @@ const addNadToDemo = () => {
             new NetworkAreaDiagramViewer(
                 document.getElementById('svg-container-nad-multibus-vlnodes-adaptive-thresholds')!,
                 svgContent,
-                NadSvgMultibusVLNodesMiddleArrowExampleMeta,
+                structuredClone(NadSvgMultibusVLNodesMiddleArrowExampleMeta),
                 nadViewerParametersOptions
             );
         });
