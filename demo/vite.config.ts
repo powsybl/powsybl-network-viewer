@@ -29,6 +29,8 @@ export default defineConfig((config) => ({
         rollupOptions: {
             input: {
                 main: path.resolve(__dirname, 'index.html'),
+                sld: path.resolve(__dirname, 'sld.html'),
+                maps: path.resolve(__dirname, 'map-viewer.html'),
                 syncedViewers: path.resolve(__dirname, 'synced-viewers.html'),
             },
         },

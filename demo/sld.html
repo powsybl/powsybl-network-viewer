@@ -17,30 +17,6 @@
         <link rel="stylesheet" href="src/style.css" />
         <link rel="stylesheet" href="src/zoom.css" />
         <link rel="stylesheet" href="src/demo.css" />
-        <style>
-            .viewer-section {
-                margin-bottom: 40px;
-            }
-
-            .viewer-section h2 {
-                padding-left: 10px;
-            }
-
-            .synced-container {
-                display: flex;
-                gap: 10px;
-                padding: 10px;
-            }
-
-            .synced-container > div {
-                display: flex;
-                align-items: center;
-            }
-
-            [id^='svg-container-nad-synced-'] {
-                border: 1px solid #ccc;
-            }
-        </style>
     </head>
     <body>
         <div class="floating-toc">
@@ -53,16 +29,26 @@
             </ul>
         </div>
 
-        <div id="synced-viewers" class="viewer-section">
-            <h2>Synced Viewers</h2>
-            <p>Three viewers synchronized with slightly different branch data on the IEEE 14 bus network.</p>
-            <div class="synced-container">
-                <div id="svg-container-nad-synced-1"></div>
-                <div id="svg-container-nad-synced-2"></div>
-                <div id="svg-container-nad-synced-3"></div>
+        <div class="flex-container">
+            <div id="sld-viewers" class="viewer-section">
+                <h2>Single Line Diagram Viewers</h2>
+                <div class="break"></div>
+                <figure class="diagram-figure">
+                    <figcaption>Basic</figcaption>
+                    <div id="svg-container-sld"></div>
+                </figure>
+                <figure class="diagram-figure">
+                    <figcaption>With Callbacks</figcaption>
+                    <div id="svg-container-sld-with-callbacks"></div>
+                </figure>
+                <div class="break"></div>
+                <figure class="diagram-figure">
+                    <figcaption>Substation with Callbacks</figcaption>
+                    <div id="svg-container-sldsub-with-callbacks"></div>
+                </figure>
             </div>
         </div>
 
-        <script type="module" src="./src/synced-viewers.ts"></script>
+        <script type="module" src="./src/sld.ts"></script>
     </body>
 </html>

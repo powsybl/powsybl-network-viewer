@@ -118,6 +118,7 @@ export class NetworkAreaDiagramViewer {
     draggedElementType: DraggedElementType | null = null;
     enableDragInteraction: boolean = false;
     isDragging: boolean = false;
+    cursorOverlayRect: SVGRectElement | null = null;
     endTextEdge: Point = new Point(0, 0);
     onMoveNodeCallback: OnMoveNodeCallbackType | null;
     onMoveTextNodeCallback: OnMoveTextNodeCallbackType | null;
@@ -412,20 +413,14 @@ export class NetworkAreaDiagramViewer {
             });
         }
 
-        const drawnSvg = this.innerSvg;
-        this.svgDraw.on('panStart', function () {
-            if (drawnSvg.parentElement != undefined) {
-                drawnSvg.parentElement.style.cursor = 'move';
-            }
+        this.svgDraw.on('panStart', () => {
+            this.attachCursorOverlay('move');
         });
         this.svgDraw.on('panEnd', () => {
-            if (drawnSvg.parentElement != undefined) {
-                drawnSvg.parentElement.style.removeProperty('cursor');
-
-                //if the adaptive zoom feature is enabled, updates the diagram
-                if (this.nadViewerParameters.getEnableAdaptiveTextZoom()) {
-                    this.adaptiveZoomViewboxUpdate(this.getCurrentlyMaxDisplayedSize());
-                }
+            this.detachCursorOverlay();
+            //if the adaptive zoom feature is enabled, updates the diagram
+            if (this.nadViewerParameters.getEnableAdaptiveTextZoom()) {
+                this.adaptiveZoomViewboxUpdate(this.getCurrentlyMaxDisplayedSize());
             }
         });
 
@@ -704,12 +699,38 @@ export class NetworkAreaDiagramViewer {
         }
     }
 
+    // Appends a transparent overlay rect on top of svgDraw with the given cursor.
+    // Setting cursor on svgDraw.node or any ancestor of NAD nodes triggers a full CSS style
+    // recalculation across thousands of descendants (inherited property cascade) causing
+    // a multi-second freeze on large diagrams. Using a leaf rect with no children avoids this.
+    // The rect is created on demand so it is absent from the DOM (and from SVG exports) at rest.
+    private attachCursorOverlay(cursor: string) {
+        if (!this.svgDraw) {
+            return;
+        }
+        // Detach any existing overlay before creating a new one
+        this.detachCursorOverlay();
+
+        // Size of the transparent cursor overlay rect. Oversized on purpose so it always covers the viewport at any pan/zoom
+        const size = 2000000;
+        const overlay = this.svgDraw
+            .rect()
+            .attr({ x: -size / 2, y: -size / 2, width: size, height: size, fill: 'none' });
+        overlay.node.style.cursor = cursor;
+        overlay.node.style.pointerEvents = 'all';
+        this.cursorOverlayRect = overlay.node;
+    }
+
+    private detachCursorOverlay() {
+        this.cursorOverlayRect?.remove();
+        this.cursorOverlayRect = null;
+    }
+
     private onDragStart() {
         this.isDragging = true;
 
         // change cursor style
-        const svg: HTMLElement = <HTMLElement>this.svgDraw?.node.firstElementChild?.parentElement;
-        svg.style.cursor = 'grabbing';
+        this.attachCursorOverlay('grabbing');
 
         this.ctm = this.svgDraw?.node.getScreenCTM(); // used to compute mouse movement
         this.edgeAngles1 = new Map<string, number>(); // used for node redrawing
@@ -896,8 +917,7 @@ export class NetworkAreaDiagramViewer {
         this.originalTextNodeConnectionShift = new Point(0, 0);
 
         // change cursor style back to normal
-        const svg: HTMLElement = <HTMLElement>this.svgDraw?.node.firstElementChild?.parentElement;
-        svg.style.removeProperty('cursor');
+        this.detachCursorOverlay();
     }
 
     private onDragEnd() {
@@ -1329,9 +1349,9 @@ export class NetworkAreaDiagramViewer {
         this.redrawLabel(labelAElement, labelData.angle, labelData.internal.shift * factor, labelData.internal.style);
     }
 
-    private redrawArrows(edgeInfo: SVGElement, arrowAngle: number, secondArrowAngle?: number): number {
+    private redrawArrows(edgeInfo: SVGElement, arrowAngle: number): number {
         const arrowElements: NodeListOf<SVGGraphicsElement> = edgeInfo.querySelectorAll(':scope > path');
-        let arrowRotateString: string = 'rotate(' + DiagramUtils.getFormattedValue(arrowAngle) + ')';
+        const arrowRotateString: string = 'rotate(' + DiagramUtils.getFormattedValue(arrowAngle) + ')';
         if (arrowElements.length == 1) {
             arrowElements.item(0).setAttribute('transform', arrowRotateString);
         } else if (arrowElements.length == 2) {
@@ -1343,9 +1363,6 @@ export class NetworkAreaDiagramViewer {
                     'transform',
                     arrowRotateString + ' translate(' + DiagramUtils.getFormattedPoint(new Point(0, -shift)) + ')'
                 );
-            if (secondArrowAngle) {
-                arrowRotateString = 'rotate(' + DiagramUtils.getFormattedValue(secondArrowAngle) + ')';
-            }
             arrowElements
                 .item(1)
                 .setAttribute(
@@ -1392,11 +1409,8 @@ export class NetworkAreaDiagramViewer {
 
         let factor: number = 1;
         if (direction) {
-            const arrowAngle = HalfEdgeUtils.getMiddleArrowRotation(halfEdge1, halfEdge2, direction);
-            const secondArrowAngle: number | undefined = directionA
-                ? HalfEdgeUtils.getMiddleArrowRotation(halfEdge1, halfEdge2, directionA)
-                : undefined;
-            const arrowsNum = this.redrawArrows(edgeInfo, arrowAngle, secondArrowAngle);
+            const arrowAngle = HalfEdgeUtils.getMiddleArrowRotation(halfEdge1, halfEdge2);
+            const arrowsNum = this.redrawArrows(edgeInfo, arrowAngle);
             factor = arrowsNum == 2 ? this.svgParameters.getDoubleArrowShiftFactorText() : 1;
         }
 
@@ -1841,9 +1855,13 @@ export class NetworkAreaDiagramViewer {
 
         this.textNodesSection?.appendChild(newTextElement);
 
-        const newVlNameElement = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
-        newVlNameElement.textContent = textNode.equipmentId;
-        newDivElement.appendChild(newVlNameElement);
+        if (node.legendHeader) {
+            node.legendHeader.forEach((header) => {
+                newDivElement.appendChild(this.createTextHeader(header));
+            });
+        } else {
+            newDivElement.appendChild(this.createTextHeader(textNode.equipmentId));
+        }
 
         for (const busNode of busNodes) {
             const newBusDivElement = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
@@ -1861,6 +1879,12 @@ export class NetworkAreaDiagramViewer {
             newDivElement.appendChild(newBusDivElement);
         }
         return newTextElement;
+    }
+
+    private createTextHeader(header: string): HTMLElement {
+        const newHeaderElement = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
+        newHeaderElement.textContent = header;
+        return newHeaderElement;
     }
 
     private createLegendEdge(textNode: TextNodeMetadata, busNodes: BusNodeMetadata[], node: NodeMetadata) {
@@ -1944,7 +1968,8 @@ export class NetworkAreaDiagramViewer {
                 halfEdges[0],
                 edge.edgeInfo1,
                 '1',
-                Number.isNaN(edgeValue1) ? (edge.edgeInfo1?.labelB ?? '') : edgeValue1
+                Number.isNaN(edgeValue1) ? (edge.edgeInfo1?.labelB ?? '') : edgeValue1,
+                true
             );
         }
 
@@ -1955,7 +1980,8 @@ export class NetworkAreaDiagramViewer {
                 halfEdges[1],
                 edge.edgeInfo2,
                 '2',
-                Number.isNaN(edgeValue2) ? (edge.edgeInfo2?.labelB ?? '') : edgeValue2
+                Number.isNaN(edgeValue2) ? (edge.edgeInfo2?.labelB ?? '') : edgeValue2,
+                true
             );
         }
 
@@ -2211,7 +2237,8 @@ export class NetworkAreaDiagramViewer {
         halfEdge: HalfEdge | null,
         edgeInfoMetadata: EdgeInfoMetadata | undefined,
         side: string,
-        value: number | string
+        value: number | string,
+        preserveExistingDirection: boolean = false
     ) {
         if (!halfEdge) return;
 
@@ -2226,17 +2253,10 @@ export class NetworkAreaDiagramViewer {
                 edge.edgeInfo2 = edgeInfoMetadata;
             }
         }
-        this.updateEdgeInfoMetadata(edgeInfoMetadata, value);
-
+        this.updateEdgeInfoMetadata(edgeInfoMetadata, value, preserveExistingDirection);
         const edgeInfo = this.getOrCreateEdgeInfo(edgeInfoMetadata);
         if (!halfEdge.edgeInfoId) {
             halfEdge.edgeInfoId = edgeInfo.id;
-        }
-
-        edgeInfo.classList.remove(...DiagramUtils.getEdgeInfoClasses());
-        const edgeInfoClass = DiagramUtils.getEdgeInfoTypeClass(edgeInfoMetadata.infoTypeB);
-        if (edgeInfoClass) {
-            edgeInfo.classList.add(edgeInfoClass);
         }
 
         if (edgeInfoMetadata.componentType) {
@@ -2256,27 +2276,27 @@ export class NetworkAreaDiagramViewer {
             }
         }
 
-        const branchLabelBElement = this.getOrCreateEdgeInfoText(edgeInfo, 1);
-        branchLabelBElement.innerHTML = edgeInfoMetadata.labelB ?? '';
+        this.addBranchLabelElement(edgeInfo, 1, edgeInfoMetadata.infoTypeB, edgeInfoMetadata.labelB);
 
         if (edgeInfoMetadata.labelA) {
-            const branchLabelAElement = this.getOrCreateEdgeInfoText(edgeInfo, 2);
-            branchLabelAElement.innerHTML = edgeInfoMetadata.labelA;
+            this.addBranchLabelElement(edgeInfo, 2, edgeInfoMetadata.infoTypeA, edgeInfoMetadata.labelA);
         }
 
         this.redrawEdgeArrowAndLabels(halfEdge, edgeInfo);
     }
 
-    private updateEdgeInfoMetadata(edgeInfoMetadata: EdgeInfoMetadata, value: number | string) {
+    private updateEdgeInfoMetadata(
+        edgeInfoMetadata: EdgeInfoMetadata,
+        value: number | string,
+        preserveExistingDirection: boolean
+    ) {
         edgeInfoMetadata.labelB =
             typeof value === 'number'
                 ? value.toFixed(DiagramUtils.getEdgeInfoValuePrecision(edgeInfoMetadata.infoTypeB, this.svgParameters))
                 : value;
-        const direction = typeof value === 'number' ? DiagramUtils.getArrowDirection(value) : undefined;
-        if (edgeInfoMetadata.directionB) {
-            edgeInfoMetadata.directionB = direction;
-        } else {
-            edgeInfoMetadata.direction = direction;
+        const keepExisting = preserveExistingDirection && (edgeInfoMetadata.directionB || edgeInfoMetadata.direction);
+        if (!keepExisting) {
+            edgeInfoMetadata.direction = typeof value === 'number' ? DiagramUtils.getArrowDirection(value) : undefined;
         }
     }
 
@@ -2357,10 +2377,10 @@ export class NetworkAreaDiagramViewer {
 
         let i = 1;
         if (edgeInfoMetadata.labelA && edgeInfoMetadata.labelB) {
-            this.addBranchMiddleLabelElement(edgeInfo, i++, edgeInfoMetadata.infoTypeB, edgeInfoMetadata.labelB);
+            this.addBranchLabelElement(edgeInfo, i++, edgeInfoMetadata.infoTypeB, edgeInfoMetadata.labelB);
         }
 
-        this.addBranchMiddleLabelElement(
+        this.addBranchLabelElement(
             edgeInfo,
             i,
             edgeInfoMetadata.infoTypeA ?? edgeInfoMetadata.infoTypeB,
@@ -2377,14 +2397,14 @@ export class NetworkAreaDiagramViewer {
         );
     }
 
-    private addBranchMiddleLabelElement(
+    private addBranchLabelElement(
         edgeInfo: SVGElement,
         i: number,
         type: string | undefined,
         label: string | undefined
     ) {
         const branchLabelElement = this.getOrCreateEdgeInfoText(edgeInfo, i);
-        branchLabelElement.classList.remove('nad-active', 'nad-reactive', 'nad-current', 'nad-name');
+        branchLabelElement.classList.remove(...DiagramUtils.getEdgeInfoClasses());
         const edgeInfoClass = DiagramUtils.getEdgeInfoTypeClass(type);
         if (edgeInfoClass) {
             branchLabelElement.classList.add(edgeInfoClass);
