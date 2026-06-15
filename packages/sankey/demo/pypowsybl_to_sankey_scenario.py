@@ -163,13 +163,19 @@ def create_scenarios(
     if not ids:
         return baseline, None
 
-    # open all branches in the ids list, re-run scpf, restore the branches at the end
+    # open all branches in the ids list, re-run DC power flow, restore the branches at the end
     for eid in ids:
         network.disconnect(eid)
     run_dcpf(network)
     ctg_raw = extract_scenario(network, p_max_factor=p_max_factor)
     for eid in ids:
         network.connect(eid)
+
+    # p_max must be consistent with the baseline (fallback values depend on flow, which changes)
+    baseline_p_max = {b["id"]: b["p_max"] for b in baseline["branches"]}
+    for branch in ctg_raw["branches"]:
+        if branch["id"] in baseline_p_max:
+            branch["p_max"] = baseline_p_max[branch["id"]]
 
     # Re-add the outaged branches with outage=True, flow=0
     patched_branches = list(ctg_raw["branches"])
