@@ -6,7 +6,7 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 
-export const NB_TRANSITION_STEPS = 20;
+export const NB_TRANSITION_STEPS = 100;
 
 export interface FlowTransitionState {
     prevStates: Map<string, number>;

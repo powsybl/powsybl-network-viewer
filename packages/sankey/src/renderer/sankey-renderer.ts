@@ -41,12 +41,13 @@ export class SankeyRenderer {
     private scFlatDisplay!: Float64Array;
     private stFlat!: Float64Array;
     private _layoutStartTime = 0;
-    private static readonly MAX_LAYOUT_MS = 2000;
+    private static readonly MAX_LAYOUT_MS = 20000;
+    private _autoscale = false;
     private stackCoord!: StackCoord;
     private stackCoordOffset!: StackCoordOffset;
     private ts!: FlowTransitionState;
     private stretch = 1;
-    private rawAlign = 5;
+    private rawAlign = 2;
     private rawRepulse = 5;
     private tanStrength = Math.pow(10, this.rawAlign - 5);
     private dRepulse = Math.pow(10, this.rawRepulse - 5);
@@ -180,7 +181,8 @@ export class SankeyRenderer {
             if (d > maxDelta) maxDelta = d;
         }
         const elapsed = Date.now() - this._layoutStartTime;
-        const converged = maxDelta < eps || elapsed >= SankeyRenderer.MAX_LAYOUT_MS;
+        // const converged = maxDelta < eps || elapsed >= SankeyRenderer.MAX_LAYOUT_MS;
+        const converged = elapsed >= SankeyRenderer.MAX_LAYOUT_MS;
         if (converged && isTransitionDone(this.ts)) {
             for (let i = 0; i < this.layoutIndex.N; i++) {
                 this.scFlat[i] = (this.scFlat[i] + this.scFlatPrev[i]) * 0.5;
@@ -198,6 +200,13 @@ export class SankeyRenderer {
             this.sfpd,
             this.maxpmax
         );
+        // Fit the viewBox before rendering so label sizes use the new viewport.
+        // fitViewBox reads currentStates directly, covering both the stack and
+        // state (theta) axes on every frame — getBBox() used in autoscale() can
+        // miss the state direction during mid-transition rAF callbacks.
+        if (this._autoscale) {
+            fitViewBox(this.svg, this.scenario, this._buildRenderState(), this.maxpmax);
+        }
         updateAttributes(this.svgElements, this.scenario, this._buildRenderState(), this.maxpmax);
     }
 
@@ -268,6 +277,13 @@ export class SankeyRenderer {
 
     isRunning(): boolean {
         return this.rafLoop.isRunning();
+    }
+
+    setAutoscale(enabled: boolean): void {
+        this._autoscale = enabled;
+        if (enabled) {
+            this.autoscale();
+        }
     }
 
     exportLayout(): LayoutState {

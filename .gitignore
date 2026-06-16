@@ -3,6 +3,7 @@
 
 # production
 **/dist
+**/dist-notebook
 /powsybl-network-viewer-*.tgz
 /powsybl-network-map-layers-*.tgz
 /powsybl-sankey-*.tgz

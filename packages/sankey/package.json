@@ -36,7 +36,8 @@
         "lint:fix": "eslint --cache --report-unused-disable-directives --report-unused-inline-configs warn --fix .",
         "lint:format": "prettier --cache --check --ignore-path ../../.gitignore .",
         "lint:format:fix": "prettier --cache --write --ignore-path ../../.gitignore .",
-        "demo": "vite demo/ --config demo/vite.config.ts"
+        "demo": "vite demo/ --config demo/vite.config.ts",
+        "notebook-bundle": "vite build --config demo/vite.notebook.config.ts"
     },
     "peerDependencies": {},
     "dependencies": {
