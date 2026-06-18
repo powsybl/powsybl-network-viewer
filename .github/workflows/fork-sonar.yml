@@ -23,6 +23,21 @@ jobs:
       pull-requests: write
       statuses: write
     steps:
+      - name: Verify workflow run origin
+        env:
+          IS_FORK: ${{ github.event.workflow_run.head_repository.fork }}
+          RUN_REPO: ${{ github.event.workflow_run.repository.full_name }}
+          EXPECTED_REPO: ${{ github.repository }}
+        run: |
+          if [[ "$IS_FORK" != "true" ]]; then
+            echo "❌ Expected a fork trigger — aborting"
+            exit 1
+          fi
+          if [[ "$RUN_REPO" != "$EXPECTED_REPO" ]]; then
+            echo "❌ Workflow did not run in the expected base repository"
+            exit 1
+          fi
+
       - name: Download PR information
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         with:
@@ -55,6 +70,7 @@ jobs:
             console.log("PR information downloaded");
 
       - name: Extract PR Information
+        id: pr-info
         run: |
           mkdir -p ${{ runner.temp }}/pr-info-extracted
           unzip -q ${{ runner.temp }}/pr-info/pr-info.zip -d ${{ runner.temp }}/pr-info-extracted
@@ -63,19 +79,25 @@ jobs:
           HEAD_SHA=$(cat ${{ runner.temp }}/pr-info-extracted/head-sha)
           PR_NUMBER=$(cat ${{ runner.temp }}/pr-info-extracted/pr-number)
           BASE_REF=$(cat ${{ runner.temp }}/pr-info-extracted/base-ref)
-          echo "REPO_NAME=$REPO_NAME" >> $GITHUB_ENV
-          echo "HEAD_REF=$HEAD_REF" >> $GITHUB_ENV
-          echo "HEAD_SHA=$HEAD_SHA" >> $GITHUB_ENV
-          echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_ENV 
-          echo "BASE_REF=$BASE_REF" >> $GITHUB_ENV
+          [[ "$HEAD_SHA" =~ ^[0-9a-f]{40}$ ]] || { echo "❌ Invalid HEAD_SHA"; exit 1; }
+          [[ "$PR_NUMBER" =~ ^[0-9]+$ ]]       || { echo "❌ Invalid PR_NUMBER"; exit 1; }
+          [[ "$HEAD_REF" =~ ^[a-zA-Z0-9/_.-]+$ ]] || { echo "❌ Invalid HEAD_REF"; exit 1; }
+          [[ "$BASE_REF" =~ ^[a-zA-Z0-9/_.-]+$ ]] || { echo "❌ Invalid BASE_REF"; exit 1; }
+          [[ "$REPO_NAME" =~ ^[a-zA-Z0-9_.-]+/[a-zA-Z0-9_.-]+$ ]] || { echo "❌ Invalid REPO_NAME"; exit 1; }
+          echo "repo-name=$REPO_NAME"   >> $GITHUB_OUTPUT
+          echo "head-ref=$HEAD_REF"     >> $GITHUB_OUTPUT
+          echo "head-sha=$HEAD_SHA"     >> $GITHUB_OUTPUT
+          echo "pr-number=$PR_NUMBER"   >> $GITHUB_OUTPUT
+          echo "base-ref=$BASE_REF"     >> $GITHUB_OUTPUT
           echo "PR information extracted: $REPO_NAME $HEAD_REF $HEAD_SHA $PR_NUMBER $BASE_REF"
 
       - name: Checkout sources
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
-          ref: ${{ env.HEAD_REF }}
-          repository: ${{ env.REPO_NAME }}
+          ref: ${{ steps.pr-info.outputs.head-sha }}
+          repository: ${{ steps.pr-info.outputs.repo-name }}
           fetch-depth: 0
+          persist-credentials: false
 
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
@@ -125,12 +147,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           args: >
-            -Dsonar.pullrequest.key=${{ env.PR_NUMBER }}
-            -Dsonar.pullrequest.branch=${{ env.HEAD_REF }}
-            -Dsonar.pullrequest.base=${{ env.BASE_REF }}
+            -Dsonar.pullrequest.key=${{ steps.pr-info.outputs.pr-number }}
+            -Dsonar.pullrequest.branch=${{ steps.pr-info.outputs.head-ref }}
+            -Dsonar.pullrequest.base=${{ steps.pr-info.outputs.base-ref }}
             -Dsonar.pullrequest.provider=github
             -Dsonar.pullrequest.github.repository=${{ github.repository }}
-            -Dsonar.scm.revision=${{ env.HEAD_SHA }}
+            -Dsonar.scm.revision=${{ steps.pr-info.outputs.head-sha }}
             -Dsonar.qualitygate.wait=true
 
       - name: Delete artifacts used in analysis
