@@ -49,6 +49,7 @@ export enum LineFlowMode {
 export enum LineFlowColorMode {
     NOMINAL_VOLTAGE = 'nominalVoltage',
     OVERLOADS = 'overloads',
+    CUSTOM = 'custom',
 }
 
 const noDashArray = [0, 0] as const;
@@ -122,18 +123,20 @@ function getLineColor(
     props: LineLayerProps,
     lineConnection: LineConnection
 ) {
-    if (props.lineFlowColorMode === LineFlowColorMode.NOMINAL_VOLTAGE) {
-        if (!lineConnection.terminal1Connected && !lineConnection.terminal2Connected) {
-            return props.disconnectedLineColor;
-        } else {
+    switch (props.lineFlowColorMode) {
+        case LineFlowColorMode.NOMINAL_VOLTAGE:
+            if (!lineConnection.terminal1Connected && !lineConnection.terminal2Connected) {
+                return props.disconnectedLineColor;
+            }
             return nominalVoltageColor;
+        case LineFlowColorMode.OVERLOADS: {
+            const zone = getLineLoadingZone(line, props.lineFlowAlertThreshold ?? 0);
+            return getLineLoadingZoneColor(zone);
         }
-    } else if (props.lineFlowColorMode === LineFlowColorMode.OVERLOADS) {
-        // @ts-expect-error TODO: manage undefined case
-        const zone = getLineLoadingZone(line, props.lineFlowAlertThreshold);
-        return getLineLoadingZoneColor(zone);
-    } else {
-        return nominalVoltageColor;
+        case LineFlowColorMode.CUSTOM:
+            return props.getCustomLineColor?.(line) ?? nominalVoltageColor;
+        default:
+            return nominalVoltageColor;
     }
 }
 
@@ -262,6 +265,7 @@ type _LineLayerProps = {
     geoData?: GeoData;
     getNominalVoltageColor?: (voltage: number) => Color;
     disconnectedLineColor?: Color;
+    getCustomLineColor?: (line: MapAnyLine) => Color;
     filteredNominalVoltages?: number[];
     lineFlowMode?: LineFlowMode;
     lineFlowColorMode?: LineFlowColorMode;

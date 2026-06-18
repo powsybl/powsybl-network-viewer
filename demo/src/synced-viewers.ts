@@ -23,8 +23,8 @@ const initSyncedViewers = () => {
                 maxWidth: 400,
             };
 
-            const diagramMetadataCopy1 = JSON.parse(JSON.stringify(NadSvgMultibusVLNodes14ExampleMeta));
-            const diagramMetadataCopy2 = JSON.parse(JSON.stringify(NadSvgMultibusVLNodes14ExampleMeta));
+            const diagramMetadataCopy1 = structuredClone(NadSvgMultibusVLNodes14ExampleMeta);
+            const diagramMetadataCopy2 = structuredClone(NadSvgMultibusVLNodes14ExampleMeta);
             const v1 = new NetworkAreaDiagramViewer(
                 document.getElementById('svg-container-nad-synced-1')!,
                 svgContent,

@@ -115,14 +115,11 @@ test('getMiddleArrowRotation', () => {
         voltageLevelRadius: 0,
         edgePoints: [new Point(200, 0), new Point(100, 0)],
     };
-    expect(HalfEdgeUtils.getMiddleArrowRotation(halfEdge1, halfEdge2, 'OUT')).toBe(90);
-    expect(HalfEdgeUtils.getMiddleArrowRotation(halfEdge1, halfEdge2, 'IN')).toBe(-90);
+    expect(HalfEdgeUtils.getMiddleArrowRotation(halfEdge1, halfEdge2)).toBe(90);
 
-    expect(HalfEdgeUtils.getMiddleArrowRotation(halfEdge1, null, 'OUT')).toBe(90);
-    expect(HalfEdgeUtils.getMiddleArrowRotation(halfEdge1, null, 'IN')).toBe(-90);
+    expect(HalfEdgeUtils.getMiddleArrowRotation(halfEdge1, null)).toBe(90);
 
-    expect(HalfEdgeUtils.getMiddleArrowRotation(null, halfEdge2, 'OUT')).toBe(-270);
-    expect(HalfEdgeUtils.getMiddleArrowRotation(null, halfEdge2, 'IN')).toBe(-90);
+    expect(HalfEdgeUtils.getMiddleArrowRotation(null, halfEdge2)).toBe(-270);
 
     halfEdge1 = {
         side: '1',
@@ -139,8 +136,7 @@ test('getMiddleArrowRotation', () => {
         edgePoints: [new Point(200, 0), new Point(180, 100), new Point(120, 60), new Point(120, 100)],
     };
 
-    expect(HalfEdgeUtils.getMiddleArrowRotation(halfEdge1, halfEdge2, 'OUT')).toBe(0);
-    expect(HalfEdgeUtils.getMiddleArrowRotation(halfEdge1, halfEdge2, 'IN')).toBe(-180);
+    expect(HalfEdgeUtils.getMiddleArrowRotation(halfEdge1, halfEdge2)).toBe(0);
 });
 
 test('getInfoPointAndAngle', () => {

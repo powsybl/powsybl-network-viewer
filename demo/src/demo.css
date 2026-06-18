@@ -34,3 +34,20 @@
 .floating-toc a:hover {
     text-decoration: underline;
 }
+
+.diagram-figure {
+    margin: 5px;
+    display: inline-flex;
+    flex-direction: column;
+}
+
+.diagram-figure figcaption {
+    font-size: 0.85em;
+    font-weight: 600;
+    color: #444;
+    padding: 4px 6px;
+    background: #f0f0f0;
+    border: 1px solid #ccc;
+    border-bottom: none;
+    border-radius: 4px 4px 0 0;
+}

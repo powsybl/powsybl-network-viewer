@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright (c) 2023, RTE (https://www.rte-france.com)
+  ~ Copyright (c) 2026, RTE (https://www.rte-france.com)
   ~ This Source Code Form is subject to the terms of the Mozilla Public
   ~ License, v. 2.0. If a copy of the MPL was not distributed with this
   ~ file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -31,24 +31,33 @@
         </div>
         <div class="flex-container">
             <div id="nad-viewers" class="viewer-section">
-                <h2>Network Area Diagram Viewers</h2>
+                <h2>Network Area Diagram SVGs created from diagram metadata</h2>
                 <div class="break"></div>
                 <figure class="diagram-figure">
                     <figcaption>Basic</figcaption>
-                    <div id="svg-container-nad"></div>
+                    <div id="svg-container-nad-eurostag"></div>
                 </figure>
                 <figure class="diagram-figure">
-                    <figcaption>Nodes cannot move</figcaption>
-                    <div id="svg-container-nad-no-moving"></div>
+                    <figcaption>Basic from metadata</figcaption>
+                    <div id="svg-container-nad-eurostag-c"></div>
                 </figure>
                 <div class="break"></div>
                 <figure class="diagram-figure">
-                    <figcaption>Slider with callback</figcaption>
+                    <figcaption>Partial network with voltage levels with multiple buses</figcaption>
                     <div id="svg-container-nad-multibus-vlnodes"></div>
                 </figure>
                 <figure class="diagram-figure">
-                    <figcaption>Another basic network</figcaption>
+                    <figcaption>Partial network with voltage levels with multiple buses from metadata</figcaption>
+                    <div id="svg-container-nad-multibus-vlnodes-c"></div>
+                </figure>
+                <div class="break"></div>
+                <figure class="diagram-figure">
+                    <figcaption>Voltage levels with multiple buses</figcaption>
                     <div id="svg-container-nad-multibus-vlnodes14"></div>
+                </figure>
+                <figure class="diagram-figure">
+                    <figcaption>Voltage levels with multiple buses from metadata</figcaption>
+                    <div id="svg-container-nad-multibus-vlnodes14-c"></div>
                 </figure>
                 <div class="break"></div>
                 <figure class="diagram-figure">
@@ -56,58 +65,44 @@
                     <div id="svg-container-nad-pst-hvdc"></div>
                 </figure>
                 <figure class="diagram-figure">
+                    <figcaption>With HVDC from metadata</figcaption>
+                    <div id="svg-container-nad-pst-hvdc-c"></div>
+                </figure>
+                <div class="break"></div>
+                <figure class="diagram-figure">
                     <figcaption>With three windings transformer and boundary line</figcaption>
                     <div id="svg-container-nad-threewt-dl-ub"></div>
                 </figure>
+                <figure class="diagram-figure">
+                    <figcaption>With three windings transformer and boundary line from metadata</figcaption>
+                    <div id="svg-container-nad-threewt-dl-ub-c"></div>
+                </figure>
                 <div class="break"></div>
                 <figure class="diagram-figure">
-                    <figcaption>Partial network</figcaption>
+                    <figcaption>Partial network with injections</figcaption>
                     <div id="svg-container-nad-partial-network"></div>
                 </figure>
                 <figure class="diagram-figure">
-                    <figcaption>Partial network with custom view box</figcaption>
-                    <div id="svg-container-nad-partial-network-custom-view-box"></div>
+                    <figcaption>Partial network with injections from metadata</figcaption>
+                    <div id="svg-container-nad-partial-network-c"></div>
                 </figure>
                 <div class="break"></div>
-                <figure class="diagram-figure">
-                    <figcaption>Pegase network</figcaption>
-                    <div id="svg-container-nad-pegase-network"></div>
-                </figure>
-                <div class="break"></div>
-                <figure class="diagram-figure">
-                    <figcaption>Pegase network with adaptive zoom</figcaption>
-                    <div id="svg-container-nad-pegase-network-adaptive-zoom"></div>
-                </figure>
-                <div class="break"></div>
-                <figure class="diagram-figure">
-                    <figcaption>Partial network with adaptive zoom</figcaption>
-                    <div id="svg-container-nad-partial-network-adaptive-zoom"></div>
-                </figure>
                 <figure class="diagram-figure">
                     <figcaption>Edge info with middle arrows</figcaption>
                     <div id="svg-container-nad-multibus-vlnodes-middle-arrow"></div>
                 </figure>
                 <figure class="diagram-figure">
-                    <figcaption>Edge info with adaptive zoom thresholds</figcaption>
-                    <div id="svg-container-nad-multibus-vlnodes-adaptive-thresholds"></div>
+                    <figcaption>Edge info with middle arrows from metadata</figcaption>
+                    <div id="svg-container-nad-multibus-vlnodes-middle-arrow-c"></div>
                 </figure>
                 <div class="break"></div>
-                <figure class="diagram-figure">
-                    <figcaption>Edge info with limit percentage and blinking display</figcaption>
-                    <div id="svg-container-nad-multibus-vlnodes-limit-percentage"></div>
-                </figure>
                 <figure class="diagram-figure">
                     <figcaption>Edge info with multiple labels</figcaption>
                     <div id="svg-container-nad-pst-hvdc-multiple-labels"></div>
                 </figure>
-                <div class="break"></div>
                 <figure class="diagram-figure">
-                    <figcaption>Hover callbacks</figcaption>
-                    <div id="svg-container-nad-hoverCallback"></div>
-                </figure>
-                <figure class="diagram-figure">
-                    <figcaption>Custom style provider</figcaption>
-                    <div id="svg-container-nad-pst-hvdc-custom"></div>
+                    <figcaption>Edge info with multiple labels from metadata</figcaption>
+                    <div id="svg-container-nad-pst-hvdc-multiple-labels-c"></div>
                 </figure>
                 <div class="break"></div>
                 <figure class="diagram-figure">
@@ -115,11 +110,21 @@
                     <div id="svg-container-nad-double-arrows"></div>
                 </figure>
                 <figure class="diagram-figure">
-                    <figcaption>Edge info with components</figcaption>
-                    <div id="svg-container-nad-components"></div>
+                    <figcaption>Edge info with double arrows from metadata</figcaption>
+                    <div id="svg-container-nad-double-arrows-c"></div>
                 </figure>
+                <figure class="diagram-figure">
+                    <figcaption>Pegase network</figcaption>
+                    <div id="svg-container-nad-pegase-network"></div>
+                </figure>
+                <div class="break"></div>
+                <figure class="diagram-figure">
+                    <figcaption>Pegase network from metadafra</figcaption>
+                    <div id="svg-container-nad-pegase-network-c"></div>
+                </figure>
+                <div class="break"></div>
             </div>
         </div>
-        <script type="module" src="./src/nad.ts"></script>
+        <script type="module" src="./src/nad-created.ts"></script>
     </body>
 </html>

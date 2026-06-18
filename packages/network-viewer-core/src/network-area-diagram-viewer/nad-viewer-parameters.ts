@@ -54,6 +54,23 @@ export type OnBendLineCallbackType = (
     lineOperation: string
 ) => void;
 
+export interface AdaptiveTextZoomOptions {
+    // Whether adaptive zoom is enabled.
+    enabled?: boolean;
+
+    // Threshold for the adaptive zoom (legends, edge infos and text nodes wholesale removal).
+    threshold?: number;
+
+    // Threshold for edge side labels (edgeInfo1 / edgeInfo2).
+    edgeSideLabelThreshold?: number;
+
+    // Threshold for edge middle labels (edgeInfoMiddle).
+    edgeMiddleLabelThreshold?: number;
+
+    // Threshold for the edge middle arrow (edgeInfoMiddle arrow only).
+    edgeMiddleArrowThreshold?: number;
+}
+
 export interface NadViewerParametersOptions {
     // The minimum width of the viewer.
     minWidth?: number;
@@ -104,15 +121,12 @@ export interface NadViewerParametersOptions {
     // Size in pixel of the margin that is added to hoverable objects to help the user stay over them.
     hoverPositionPrecision?: number | null;
 
-    // Whether enabling adaptive zoom, to improve the performnces of the viewer with large networks.
-    // If enabled, and the viewbox's zoom level is above a threshold, edge infos and legends are removed
+    // Adaptive zoom options, to improve the performances of the viewer with large networks.
+    // If enabled, and the viewbox's zoom level is above the threshold, edge infos and legends are removed
     // from the SVG, to speed-up panning and zooming.
-    // When the zoom level is below a threshold, edge infos and legends for the NAD elements that are
+    // When the zoom level is below the threshold, edge infos and legends for the NAD elements that are
     // inside the viewbox are created in the SVG, on the fly, from the NAD metadata.
-    enableAdaptiveTextZoom?: boolean;
-
-    // Threshold for the adaptiveZoom.
-    adaptiveTextZoomThreshold?: number;
+    adaptiveTextZoom?: AdaptiveTextZoomOptions;
 
     // Custom component library to use instead of the default one.
     // If not provided, the default library is used.
@@ -199,17 +213,16 @@ export class NadViewerParameters {
         );
     }
 
-    public getEnableAdaptiveTextZoom(): boolean {
-        return (
-            this.nadViewerParametersOptions?.enableAdaptiveTextZoom ?? NadViewerParameters.ENABLE_ADAPTIVE_ZOOM_DEFAULT
-        );
-    }
-
-    public getThresholdAdaptiveTextZoom(): number {
-        return (
-            this.nadViewerParametersOptions?.adaptiveTextZoomThreshold ??
-            NadViewerParameters.THRESHOLD_ADAPTIVE_ZOOM_DEFAULT
-        );
+    public getAdaptiveTextZoom(): Required<AdaptiveTextZoomOptions> {
+        const adaptiveTextZoom = this.nadViewerParametersOptions?.adaptiveTextZoom;
+        const threshold = adaptiveTextZoom?.threshold ?? NadViewerParameters.THRESHOLD_ADAPTIVE_ZOOM_DEFAULT;
+        return {
+            enabled: adaptiveTextZoom?.enabled ?? NadViewerParameters.ENABLE_ADAPTIVE_ZOOM_DEFAULT,
+            threshold,
+            edgeSideLabelThreshold: adaptiveTextZoom?.edgeSideLabelThreshold ?? threshold,
+            edgeMiddleLabelThreshold: adaptiveTextZoom?.edgeMiddleLabelThreshold ?? threshold,
+            edgeMiddleArrowThreshold: adaptiveTextZoom?.edgeMiddleArrowThreshold ?? threshold,
+        };
     }
 
     public getComponentLibrary(): LibraryComponent[] | undefined {
