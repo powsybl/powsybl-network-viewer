@@ -23,6 +23,8 @@ from pathlib import Path
 import pypowsybl.loadflow as lf
 import pypowsybl.network as pn
 
+_DECIMAL_PLACES: int = 6
+
 # DCPF runner                                                                   #
 def run_dcpf(network) -> None:
     params = lf.Parameters(distributed_slack=False)
@@ -97,7 +99,7 @@ def _extract_branches(network, p_max_dict: dict[str, float], p_max_factor: float
             flow = _safe_float(row.get("p1"), default=0.0)
             p_max = p_max_dict.get(eid)
             if p_max is None:
-                fallback = abs(flow) * p_max_factor or 1.0
+                fallback = round(abs(flow) * p_max_factor, _DECIMAL_PLACES) or 1.0
                 warnings.warn(
                     f"{kind} '{eid}' has no defined limit; "
                     f"using flow-based p_max = {fallback:.3f} pu, (flow = {flow:.3f})"
@@ -193,8 +195,6 @@ def create_scenarios(
 
 
 # export JSON
-_DECIMAL_PLACES: int = 6
-
 def _round_floats(obj, ndigits: int):
     if isinstance(obj, float):
         return round(obj, ndigits)
