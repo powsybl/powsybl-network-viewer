@@ -156,6 +156,7 @@ export class SvgWriter {
             const pathElement = document.createElementNS('http://www.w3.org/2000/svg', 'path');
             pathElement.id = busNode.svgId;
             SvgUtils.addCssClasses(pathElement, busNode.classes, SvgWriter.BUS_CLASS);
+            SvgUtils.addElementStyle(pathElement, busNode.style);
             const edges: EdgeMetadata[] = MetadataUtils.getNodeEdgesMetadata(node.svgId, this.diagramMetadata.edges);
             const edgeAngle = this.edgeRouter?.getEdgeAngle(edges[0].svgId, '2');
             const path: string = edgeAngle
@@ -167,12 +168,14 @@ export class SvgWriter {
             const circleElement = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
             circleElement.id = busNode.svgId;
             SvgUtils.addCssClasses(circleElement, busNode.classes, SvgWriter.BUS_CLASS);
+            SvgUtils.addElementStyle(circleElement, busNode.style);
             circleElement.setAttribute('r', DiagramUtils.getFormattedValue(nodeRadius.busOuterRadius));
             return circleElement;
         } else {
             const pathElement = document.createElementNS('http://www.w3.org/2000/svg', 'path');
             pathElement.id = busNode.svgId;
             SvgUtils.addCssClasses(pathElement, busNode.classes, SvgWriter.BUS_CLASS);
+            SvgUtils.addElementStyle(pathElement, busNode.style);
             const edgeAngles = DiagramUtils.getSortedAnglesWithWrapAround(traversingBusEdgesAngles);
             const path: string = DiagramUtils.getFragmentedAnnulusPath(
                 edgeAngles,
@@ -245,16 +248,14 @@ export class SvgWriter {
         }
         const halfEdgePoints1 = this.edgeRouter?.getEdgePoints(edge.svgId, '1');
         if (halfEdgePoints1 && !edge.invisible1) {
-            gEdgeElement.appendChild(this.getHalfEdge(edge, halfEdgePoints1, edge.classes1));
+            gEdgeElement.appendChild(this.getHalfEdge(edge, halfEdgePoints1, edge.classes1, edge.style1));
         }
         const halfEdgePoints2 = this.edgeRouter?.getEdgePoints(edge.svgId, '2');
         if (halfEdgePoints2 && !edge.invisible2) {
-            gEdgeElement.appendChild(this.getHalfEdge(edge, halfEdgePoints2, edge.classes2));
+            gEdgeElement.appendChild(this.getHalfEdge(edge, halfEdgePoints2, edge.classes2, edge.style2));
         }
         if (DiagramUtils.isTransformerEdge(edgeType) && (halfEdgePoints1 || halfEdgePoints2)) {
-            gEdgeElement.appendChild(
-                this.getTransformer(halfEdgePoints1, halfEdgePoints2, edgeType, edge.classes1, edge.classes2)
-            );
+            gEdgeElement.appendChild(this.getTransformer(edge, halfEdgePoints1, halfEdgePoints2, edgeType));
         }
         if (DiagramUtils.isHVDCLineEdge(edgeType) && halfEdgePoints1) {
             gEdgeElement.appendChild(this.getHVDCLine(halfEdgePoints1));
@@ -265,34 +266,36 @@ export class SvgWriter {
     private getHalfEdge(
         edge: EdgeMetadata,
         points: Point[],
-        cssClasses: string[] | undefined
+        cssClasses: string[] | undefined,
+        style: string | undefined
     ): SVGPolylineElement | SVGPathElement {
         if (edge.node1 == edge.node2) {
             const pathElement = document.createElementNS('http://www.w3.org/2000/svg', 'path');
             SvgUtils.addCssClasses(pathElement, cssClasses, SvgWriter.EDGE_CLASS);
+            SvgUtils.addElementStyle(pathElement, style);
             pathElement.setAttribute('d', DiagramUtils.getHalfLoopPath(points));
             return pathElement;
         } else {
             const polylineElement = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
             SvgUtils.addCssClasses(polylineElement, cssClasses, SvgWriter.EDGE_CLASS);
+            SvgUtils.addElementStyle(polylineElement, style);
             polylineElement.setAttribute('points', DiagramUtils.getFormattedPolyline(points));
             return polylineElement;
         }
     }
 
     private getTransformer(
+        edge: EdgeMetadata,
         points1: Point[] | undefined,
         points2: Point[] | undefined,
-        edgeType: EdgeType,
-        cssClasses1: string[] | undefined,
-        cssClasses2: string[] | undefined
+        edgeType: EdgeType
     ): SVGGElement {
         const gTranformerElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
         if (points1) {
-            gTranformerElement.appendChild(this.getTransformerWinding(points1, cssClasses1));
+            gTranformerElement.appendChild(this.getTransformerWinding(points1, edge.classes1, edge.style1));
         }
         if (points2) {
-            gTranformerElement.appendChild(this.getTransformerWinding(points2, cssClasses2));
+            gTranformerElement.appendChild(this.getTransformerWinding(points2, edge.classes2, edge.style2));
         }
         if (edgeType == EdgeType.PHASE_SHIFT_TRANSFORMER) {
             gTranformerElement.appendChild(this.getTransformerArrow(points1, points2));
@@ -300,9 +303,14 @@ export class SvgWriter {
         return gTranformerElement;
     }
 
-    private getTransformerWinding(points: Point[], cssClasses: string[] | undefined): SVGCircleElement {
+    private getTransformerWinding(
+        points: Point[],
+        cssClasses: string[] | undefined,
+        style: string | undefined
+    ): SVGCircleElement {
         const transformerCircleElement = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
         SvgUtils.addCssClasses(transformerCircleElement, cssClasses, SvgWriter.WINDING_CLASS);
+        SvgUtils.addElementStyle(transformerCircleElement, style);
         const circleCenter = DiagramUtils.getPointAtDistance(
             points.at(-1)!,
             points.at(-2)!,

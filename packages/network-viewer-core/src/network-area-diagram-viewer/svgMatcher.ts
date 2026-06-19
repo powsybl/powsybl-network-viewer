@@ -46,6 +46,7 @@ function parseNumberList(str: string): number[] {
         .trim()
         .split(/[\s,]+/)
         .map(removeLeadingLetters)
+        .map(removeTrailingLetters)
         .filter(Boolean)
         .map(Number);
 }
@@ -55,8 +56,25 @@ function removeLeadingLetters(str: string): string {
     return startsWithLetter(str) ? str.substring(1) : str;
 }
 
+function removeTrailingLetters(str: string): string {
+    const endsWithLetter = (str: string): boolean => /[a-zA-Z]$/.test(str);
+    return endsWithLetter(str) ? str.substring(0, str.length - 1) : str;
+}
+
 function parseStyle(str: string): string[] {
     return str.trim().split(';').filter(Boolean);
+}
+
+function parseTransform(str: string): number[] {
+    str = str.replace(/^(translate)/, '');
+    str = str.replace(/^(rotate)/, '');
+    str = str.replace(/^(matrix)/, '');
+    return str
+        .substring(1, str.length - 1)
+        .trim()
+        .split(',')
+        .filter(Boolean)
+        .map(Number);
 }
 
 /**
@@ -74,10 +92,15 @@ function replaceNumericStrings(obj: any): any {
         for (const key of Object.keys(obj)) {
             const value = obj[key];
 
-            if (typeof value === 'string' && (key.endsWith('@_points') || key.endsWith('@_d'))) {
+            if (
+                typeof value === 'string' &&
+                (key.endsWith('@_points') || key.endsWith('@_d') || key.endsWith('@_viewBox'))
+            ) {
                 result[key] = parseNumberList(value);
             } else if (typeof value === 'string' && key.endsWith('@_style')) {
                 result[key] = parseStyle(value);
+            } else if (typeof value === 'string' && key.endsWith('@_transform')) {
+                result[key] = parseTransform(value);
             } else {
                 result[key] = replaceNumericStrings(value);
             }
