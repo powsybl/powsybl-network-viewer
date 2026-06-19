@@ -150,6 +150,8 @@ export class NetworkAreaDiagramViewer {
 
     componentLibrary: LibraryComponent[] = DefaultLibraryComponents;
 
+    svgWriter: SvgWriter | undefined = undefined;
+
     static readonly ZOOM_CLASS_PREFIX = 'nad-zoom-';
 
     /**
@@ -169,11 +171,11 @@ export class NetworkAreaDiagramViewer {
         this.svgDiv.id = 'svg-container';
         this.svgContent = svgContent;
         this.diagramMetadata = diagramMetadata;
-        if (this.diagramMetadata != null && this.svgContent.length == 0) {
-            const createdSvg = new SvgWriter(this.diagramMetadata).getSvg();
-            this.svgContent = createdSvg;
-        }
         this.nadViewerParameters = new NadViewerParameters(nadViewerParametersOptions ?? undefined);
+        if (this.nadViewerParameters.getCreateSvgFromMetadata() && this.diagramMetadata != null) {
+            this.svgWriter = new SvgWriter(this.diagramMetadata);
+            this.svgContent = this.svgWriter.getEmptySvg();
+        }
         this.width = 0;
         this.height = 0;
         this.originalWidth = 0;
@@ -378,6 +380,9 @@ export class NetworkAreaDiagramViewer {
         };
         this.svgDraw = SVG().addTo(this.svgDiv).size(this.width, this.height).viewbox(viewBox);
         this.innerSvg = <SVGElement>this.svgDraw.svg(this.svgContent).node.firstElementChild;
+        if (this.nadViewerParameters.getCreateSvgFromMetadata()) {
+            this.svgWriter?.addSvgContent(<SVGSVGElement>this.innerSvg);
+        }
         this.innerSvg.style.overflow = 'visible';
 
         this.textNodesSection = this.getOrCreateTextNodesSection();
@@ -386,49 +391,7 @@ export class NetworkAreaDiagramViewer {
 
         // add events
         const hasMetadata = this.diagramMetadata !== null;
-        if (this.hasNodeInteraction() && hasMetadata) {
-            this.svgDraw.on('mousedown', (e: Event) => {
-                if ((e as MouseEvent).button == 0) {
-                    this.onMouseLeftDown(e as MouseEvent);
-                }
-            });
-            this.svgDraw.on('mousemove', (e: Event) => {
-                this.onMouseMove(e as MouseEvent);
-            });
-            this.svgDraw.on('mouseup mouseleave', (e: Event) => {
-                if ((e as MouseEvent).button == 0) {
-                    this.onMouseLeftUpOrLeave(e as MouseEvent);
-                }
-            });
-        }
-        if (hasMetadata) {
-            this.svgDraw.on('mouseover', (e: Event) => {
-                this.onHover(e as MouseEvent);
-            });
-
-            this.svgDraw.on('mouseout', () => {
-                this.clearHighlights();
-                this.hideEdgePreviewPoints();
-            });
-        }
-        if (this.onRightClickCallback != null && hasMetadata) {
-            this.svgDraw.on('mousedown', (e: Event) => {
-                if ((e as MouseEvent).button == 2) {
-                    this.onMouseRightDown(e as MouseEvent);
-                }
-            });
-        }
-
-        this.svgDraw.on('panStart', () => {
-            this.attachCursorOverlay('move');
-        });
-        this.svgDraw.on('panEnd', () => {
-            this.detachCursorOverlay();
-            //if the adaptive zoom feature is enabled, updates the diagram
-            if (this.nadViewerParameters.getAdaptiveTextZoom().enabled) {
-                this.adaptiveZoomViewboxUpdate(this.getCurrentlyMaxDisplayedSize());
-            }
-        });
+        this.addEvents(this.svgDraw, this.innerSvg, hasMetadata);
 
         // add pan and zoom to the SVG
         // we check if there is an "initial zoom" by checking ratio of width and height of the nad compared with viewBox sizes
@@ -485,6 +448,53 @@ export class NetworkAreaDiagramViewer {
                 emptyElement.style.fill = '#0000';
             });
         }
+    }
+
+    private addEvents(svgDraw: Svg, drawnSvg: SVGElement, hasMetadata: boolean) {
+        if (this.hasNodeInteraction() && hasMetadata) {
+            svgDraw.on('mousedown', (e: Event) => {
+                if ((e as MouseEvent).button == 0) {
+                    this.onMouseLeftDown(e as MouseEvent);
+                }
+            });
+            svgDraw.on('mousemove', (e: Event) => {
+                this.onMouseMove(e as MouseEvent);
+            });
+            svgDraw.on('mouseup mouseleave', (e: Event) => {
+                if ((e as MouseEvent).button == 0) {
+                    this.onMouseLeftUpOrLeave(e as MouseEvent);
+                }
+            });
+        }
+        if (hasMetadata) {
+            svgDraw.on('mouseover', (e: Event) => {
+                this.onHover(e as MouseEvent);
+            });
+
+            svgDraw.on('mouseout', () => {
+                this.clearHighlights();
+                this.hideEdgePreviewPoints();
+            });
+        }
+        if (this.onRightClickCallback != null && hasMetadata) {
+            svgDraw.on('mousedown', (e: Event) => {
+                if ((e as MouseEvent).button == 2) {
+                    this.onMouseRightDown(e as MouseEvent);
+                }
+            });
+        }
+
+        svgDraw.on('panStart', () => {
+            this.attachCursorOverlay('move');
+        });
+        svgDraw.on('panEnd', () => {
+            this.detachCursorOverlay();
+
+            //if the adaptive zoom feature is enabled, updates the diagram
+            if (this.nadViewerParameters.getAdaptiveTextZoom().enabled) {
+                this.adaptiveZoomViewboxUpdate(this.getCurrentlyMaxDisplayedSize());
+            }
+        });
     }
 
     private getOrCreateTextNodesSection(): SVGElement {

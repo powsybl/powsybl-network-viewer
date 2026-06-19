@@ -135,6 +135,9 @@ export interface NadViewerParametersOptions {
     // Resolver that maps an SVG filename to its URL, for use with a custom component library.
     // If not provided, the default library SVG files are used.
     svgUrlResolver?: (fileName: string) => string;
+
+    // Whether create the SVG from diagram metadata, instead of using the SVG content provided as input
+    createSvgFromMetadata?: boolean;
 }
 
 export class NadViewerParameters {
@@ -149,6 +152,7 @@ export class NadViewerParameters {
     static readonly HOVER_POSITION_PRECISION_DEFAULT = 10;
     static readonly ENABLE_ADAPTIVE_ZOOM_DEFAULT = false;
     static readonly THRESHOLD_ADAPTIVE_ZOOM_DEFAULT = 3000;
+    static readonly CREATE_SVG_FROM_METADATA_DEFAULT = false;
 
     nadViewerParametersOptions: NadViewerParametersOptions | undefined;
 
@@ -231,5 +235,12 @@ export class NadViewerParameters {
 
     public getSvgUrlResolver(): ((fileName: string) => string) | undefined {
         return this.nadViewerParametersOptions?.svgUrlResolver;
+    }
+
+    public getCreateSvgFromMetadata(): boolean {
+        return (
+            this.nadViewerParametersOptions?.createSvgFromMetadata ??
+            NadViewerParameters.CREATE_SVG_FROM_METADATA_DEFAULT
+        );
     }
 }

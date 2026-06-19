@@ -14,6 +14,9 @@ import * as MetadataUtils from './metadata-utils';
 import { EdgeRouter } from './edge-router';
 import { EdgeType } from './diagram-types';
 import * as SvgUtils from './svg-utils';
+import { LibraryComponent } from './library-component';
+import DefaultLibraryComponents from '../resources/default-library/components.json';
+import * as ComponentUtils from './component-utils';
 
 export class SvgWriter {
     static readonly NODES_CLASS = 'nad-vl-nodes';
@@ -44,20 +47,47 @@ export class SvgWriter {
         2: 'TWO',
         3: 'THREE',
     };
+    componentLibrary: LibraryComponent[] = DefaultLibraryComponents;
+    urlResolver: ((fileName: string) => string) | undefined = undefined;
 
-    constructor(diagramMetadata: DiagramMetadata) {
+    constructor(
+        diagramMetadata: DiagramMetadata,
+        componentLibrary?: LibraryComponent[],
+        urlResolver?: (fileName: string) => string
+    ) {
         this.diagramMetadata = diagramMetadata;
         this.svgParameters = new SvgParameters(this.diagramMetadata.svgParameters);
+        if (componentLibrary) {
+            this.componentLibrary = componentLibrary;
+        }
+        if (urlResolver) {
+            this.urlResolver = urlResolver;
+        }
+        // get edge router, for computing edges points
+        this.edgeRouter = new EdgeRouter(this.diagramMetadata);
     }
 
     public getSvg(textBoxSize?: { width: number; height: number }): string {
-        // get edge router, for computing edges points
-        this.edgeRouter = new EdgeRouter(this.diagramMetadata);
+        const baseSvg = this.createBaseSvg(textBoxSize);
+        this.addSvgContent(baseSvg.svg);
+        return new XMLSerializer().serializeToString(baseSvg.xmlDoc);
+    }
+
+    public getEmptySvg(): string {
+        const baseSvg = this.createBaseSvg();
+        return new XMLSerializer().serializeToString(baseSvg.xmlDoc);
+    }
+
+    public createBaseSvg(textBoxSize?: { width: number; height: number }): { xmlDoc: XMLDocument; svg: SVGSVGElement } {
         // create XML doc
         const xmlDoc = this.getXmlDoc();
         // add SVG root element
         const svg = this.getSvgRootElement(textBoxSize);
         xmlDoc.appendChild(svg);
+        return { xmlDoc, svg };
+    }
+
+    public addSvgContent(svg: SVGSVGElement) {
         // add nodes
         svg.appendChild(this.getNodes());
         // add edges and infos
@@ -76,7 +106,6 @@ export class SvgWriter {
         const textNodeAndEdges = this.getTextNodesAndEdges();
         svg.appendChild(textNodeAndEdges.textEdges);
         svg.appendChild(textNodeAndEdges.textNodes);
-        return new XMLSerializer().serializeToString(xmlDoc);
     }
 
     private getXmlDoc(): XMLDocument {
@@ -461,8 +490,12 @@ export class SvgWriter {
         if (infoPoint) {
             gEdgeInfoElement.setAttribute('transform', 'translate(' + DiagramUtils.getFormattedPoint(infoPoint) + ')');
         }
-        // add arrows
-        this.addEdgeInfoArrows(gEdgeInfoElement, info, this.edgeRouter?.getEdgeSideInfoAngle(edge.svgId, side));
+        if (info.componentType) {
+            gEdgeInfoElement.appendChild(this.getEdgeInfoComponent(info.componentType));
+        } else {
+            // add arrows
+            this.addEdgeInfoArrows(gEdgeInfoElement, info, this.edgeRouter?.getEdgeSideInfoAngle(edge.svgId, side));
+        }
         // add labels
         const labelData = this.edgeRouter?.getEdgeSideLabelData(edge.svgId, side);
         if (labelData === undefined) return gEdgeInfoElement;
@@ -493,6 +526,22 @@ export class SvgWriter {
             );
         }
         return gEdgeInfoElement;
+    }
+
+    private getEdgeInfoComponent(componentType: string): SVGGElement {
+        const component = ComponentUtils.getComponent(this.componentLibrary, componentType);
+        const edgeInfoComponent = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        if (component) {
+            const trans = new Point(-component.size.width / 2, -component.size.height / 2);
+            edgeInfoComponent.setAttribute('transform', 'translate(' + DiagramUtils.getFormattedPoint(trans) + ')');
+            edgeInfoComponent.classList.add(component.styleClass);
+            component.subComponents.forEach((subComponent) => {
+                void ComponentUtils.getComponentPath(subComponent.fileName, this.urlResolver).then((path) => {
+                    edgeInfoComponent.appendChild(path);
+                });
+            });
+        }
+        return edgeInfoComponent;
     }
 
     private addEdgeInfoArrows(
@@ -576,8 +625,12 @@ export class SvgWriter {
                 'translate(' + DiagramUtils.getFormattedPoint(middleInfoPoint) + ')'
             );
         }
-        // add arrows
-        this.addEdgeInfoArrows(gEdgeMiddleInfoElement, info, this.edgeRouter?.getEdgeMiddleInfoAngle(edge.svgId));
+        if (info.componentType) {
+            gEdgeMiddleInfoElement.appendChild(this.getEdgeInfoComponent(info.componentType));
+        } else {
+            // add arrows
+            this.addEdgeInfoArrows(gEdgeMiddleInfoElement, info, this.edgeRouter?.getEdgeMiddleInfoAngle(edge.svgId));
+        }
         // add labels
         let x = 0;
         let style: string | undefined = 'text-anchor:middle';

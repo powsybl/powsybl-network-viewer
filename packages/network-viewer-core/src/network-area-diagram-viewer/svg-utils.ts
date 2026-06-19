@@ -443,9 +443,13 @@ export function createTextNode(
     addCssClasses(newDivElement, node.classes, 'nad-label-box');
     newTextElement.appendChild(newDivElement);
 
-    const newVlNameElement = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
-    newVlNameElement.textContent = textNode.equipmentId;
-    newDivElement.appendChild(newVlNameElement);
+    if (node.legendHeader) {
+        node.legendHeader.forEach((header) => {
+            newDivElement.appendChild(createTextHeader(header));
+        });
+    } else {
+        newDivElement.appendChild(createTextHeader(textNode.equipmentId));
+    }
 
     for (const busNode of busNodes) {
         const newBusDivElement = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
@@ -461,6 +465,12 @@ export function createTextNode(
     }
 
     return newTextElement;
+}
+
+function createTextHeader(header: string) {
+    const newHeaderElement = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
+    newHeaderElement.textContent = header;
+    return newHeaderElement;
 }
 
 export function createTextEdge(
