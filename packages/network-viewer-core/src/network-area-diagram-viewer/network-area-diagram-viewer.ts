@@ -1114,8 +1114,8 @@ export class NetworkAreaDiagramViewer {
                 // textNode?.firstElementChild?.scrollHeight and textNode?.firstElementChild?.scrollWidth seem not defined,
                 // so textHeight and textWidth are zero; in these cases, compute endTextEdge using metadata
                 this.endTextEdge = new Point(
-                    node.x + textNodeMetadata.connectionShiftX,
-                    node.y + textNodeMetadata.connectionShiftY
+                    node.x + (textNodeMetadata.connectionShiftX ?? 0),
+                    node.y + (textNodeMetadata.connectionShiftY ?? 0)
                 );
             }
             const startTextEdge = DiagramUtils.getPointAtDistance(
