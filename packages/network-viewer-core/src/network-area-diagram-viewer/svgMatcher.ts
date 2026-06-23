@@ -66,15 +66,7 @@ function parseStyle(str: string): string[] {
 }
 
 function parseTransform(str: string): number[] {
-    str = str.replace(/^(translate)/, '');
-    str = str.replace(/^(rotate)/, '');
-    str = str.replace(/^(matrix)/, '');
-    return str
-        .substring(1, str.length - 1)
-        .trim()
-        .split(',')
-        .filter(Boolean)
-        .map(Number);
+    return (str.match(/-?\d+(\.\d+)?/g) ?? []).map(Number);
 }
 
 /**
