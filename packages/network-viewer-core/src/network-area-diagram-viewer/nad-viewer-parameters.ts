@@ -136,7 +136,7 @@ export interface NadViewerParametersOptions {
     // If not provided, the default library SVG files are used.
     svgUrlResolver?: (fileName: string) => string;
 
-    // Whether create the SVG from diagram metadata, instead of using the SVG content provided as input
+    // Whether to create the SVG from diagram metadata, instead of using the SVG content provided as input
     createSvgFromMetadata?: boolean;
 }
 

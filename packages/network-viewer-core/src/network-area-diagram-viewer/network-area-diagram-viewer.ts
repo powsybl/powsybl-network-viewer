@@ -381,7 +381,7 @@ export class NetworkAreaDiagramViewer {
         this.svgDraw = SVG().addTo(this.svgDiv).size(this.width, this.height).viewbox(viewBox);
         this.innerSvg = <SVGElement>this.svgDraw.svg(this.svgContent).node.firstElementChild;
         if (this.nadViewerParameters.getCreateSvgFromMetadata()) {
-            this.svgWriter?.addSvgContent(<SVGSVGElement>this.innerSvg);
+            this.addSvgContent(this.svgWriter, this.innerSvg);
         }
         this.innerSvg.style.overflow = 'visible';
 
@@ -391,7 +391,7 @@ export class NetworkAreaDiagramViewer {
 
         // add events
         const hasMetadata = this.diagramMetadata !== null;
-        this.addEvents(this.svgDraw, this.innerSvg, hasMetadata);
+        this.addEvents(this.svgDraw, hasMetadata);
 
         // add pan and zoom to the SVG
         // we check if there is an "initial zoom" by checking ratio of width and height of the nad compared with viewBox sizes
@@ -450,7 +450,21 @@ export class NetworkAreaDiagramViewer {
         }
     }
 
-    private addEvents(svgDraw: Svg, drawnSvg: SVGElement, hasMetadata: boolean) {
+    private addSvgContent(svgWriter: SvgWriter | undefined, svgElement: SVGElement) {
+        if (svgWriter === undefined) {
+            console.warn(
+                '[NAD] createSvgFromMetadata is true but no SvgWriter was created (diagramMetadata may be null).'
+            );
+            return;
+        }
+        if (!(svgElement instanceof SVGSVGElement)) {
+            console.error('[NAD] Expected SVGSVGElement for addSvgContent, got:', svgElement);
+            return;
+        }
+        svgWriter.addSvgContent(svgElement);
+    }
+
+    private addEvents(svgDraw: Svg, hasMetadata: boolean) {
         if (this.hasNodeInteraction() && hasMetadata) {
             svgDraw.on('mousedown', (e: Event) => {
                 if ((e as MouseEvent).button == 0) {
