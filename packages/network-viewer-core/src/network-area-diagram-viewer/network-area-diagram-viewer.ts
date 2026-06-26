@@ -2502,8 +2502,6 @@ export class NetworkAreaDiagramViewer {
 
         const newEdgeInfo = document.createElementNS('http://www.w3.org/2000/svg', 'g');
         newEdgeInfo.id = edgeInfoMetadata.svgId;
-        // Re-apply the side's voltage-level class(es) when the edge info is recreated (e.g. adaptive
-        // zoom), so it stays hidden consistently with its voltage level.
         if (edgeInfoMetadata.classes?.length) {
             newEdgeInfo.classList.add(...edgeInfoMetadata.classes);
         }
