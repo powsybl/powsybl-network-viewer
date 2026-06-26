@@ -379,6 +379,9 @@ export class NetworkAreaDiagramViewer {
         this.textEdgesSection = this.getOrCreateTextEdgesSection();
         this.edgeInfosSection = this.getOrCreateEdgeInfosSection();
 
+        // Tag the server-rendered edge infos with their side's voltage-level class
+        this.addClassesToEdgeInfos();
+
         // add events
         const hasMetadata = this.diagramMetadata !== null;
         if (this.hasNodeInteraction() && hasMetadata) {
@@ -1911,6 +1914,25 @@ export class NetworkAreaDiagramViewer {
         return <SVGElement>this.edgeInfosSection?.querySelector(":scope > [id='" + edgeInfoSvgId + "']") ?? null;
     }
 
+    // Apply the edge info metadata classes (e.g. its side's voltage-level class) on the matching SVG element
+    private addClassesToEdgeInfos(): void {
+        this.diagramMetadata?.edges.forEach((edge) => {
+            this.addClassesToEdgeInfo(edge.edgeInfo1);
+            this.addClassesToEdgeInfo(edge.edgeInfo2);
+            this.addClassesToEdgeInfo(edge.edgeInfoMiddle);
+        });
+        this.diagramMetadata?.injections?.forEach((injection) => {
+            this.addClassesToEdgeInfo(injection.edgeInfo);
+        });
+    }
+
+    private addClassesToEdgeInfo(edgeInfoMetadata: EdgeInfoMetadata | undefined): void {
+        if (!edgeInfoMetadata?.classes?.length) {
+            return;
+        }
+        this.getEdgeInfo(edgeInfoMetadata.svgId)?.classList.add(...edgeInfoMetadata.classes);
+    }
+
     private hasTextNode(textNode: TextNodeMetadata) {
         return !!this.textNodesSection?.querySelector(":scope > [id='" + textNode.svgId + "']");
     }
@@ -2480,6 +2502,11 @@ export class NetworkAreaDiagramViewer {
 
         const newEdgeInfo = document.createElementNS('http://www.w3.org/2000/svg', 'g');
         newEdgeInfo.id = edgeInfoMetadata.svgId;
+        // Re-apply the side's voltage-level class(es) when the edge info is recreated (e.g. adaptive
+        // zoom), so it stays hidden consistently with its voltage level.
+        if (edgeInfoMetadata.classes?.length) {
+            newEdgeInfo.classList.add(...edgeInfoMetadata.classes);
+        }
         this.edgeInfosSection?.appendChild(newEdgeInfo);
 
         return newEdgeInfo;
