@@ -74,11 +74,18 @@ export class SvgWriter {
     }
 
     public getEmptySvg(): string {
-        const baseSvg = this.createBaseSvg();
-        return new XMLSerializer().serializeToString(baseSvg.xmlDoc);
+        const vb = MetadataUtils.getViewBox(
+            this.diagramMetadata.nodes,
+            this.diagramMetadata.textNodes,
+            this.svgParameters
+        );
+        return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${vb.x} ${vb.y} ${vb.width} ${vb.height}"></svg>`;
     }
 
-    public createBaseSvg(textBoxSize?: { width: number; height: number }): { xmlDoc: XMLDocument; svg: SVGSVGElement } {
+    private createBaseSvg(textBoxSize?: { width: number; height: number }): {
+        xmlDoc: XMLDocument;
+        svg: SVGSVGElement;
+    } {
         // create XML doc
         const xmlDoc = this.getXmlDoc();
         // add SVG root element

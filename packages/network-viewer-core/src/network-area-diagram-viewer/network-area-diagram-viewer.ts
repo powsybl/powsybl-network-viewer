@@ -172,8 +172,13 @@ export class NetworkAreaDiagramViewer {
         this.svgContent = svgContent;
         this.diagramMetadata = diagramMetadata;
         this.nadViewerParameters = new NadViewerParameters(nadViewerParametersOptions ?? undefined);
+        this.componentLibrary = this.nadViewerParameters.getComponentLibrary() ?? DefaultLibraryComponents;
         if (this.nadViewerParameters.getCreateSvgFromMetadata() && this.diagramMetadata != null) {
-            this.svgWriter = new SvgWriter(this.diagramMetadata);
+            this.svgWriter = new SvgWriter(
+                this.diagramMetadata,
+                this.componentLibrary,
+                this.nadViewerParameters.getSvgUrlResolver()
+            );
             this.svgContent = this.svgWriter.getEmptySvg();
         }
         this.width = 0;
@@ -195,7 +200,6 @@ export class NetworkAreaDiagramViewer {
         this.init();
         this.layoutParameters = new LayoutParameters(this.diagramMetadata?.layoutParameters);
         this.previousMaxDisplayedSize = 0;
-        this.componentLibrary = this.nadViewerParameters.getComponentLibrary() ?? DefaultLibraryComponents;
     }
 
     public setWidth(width: number): void {
@@ -380,8 +384,8 @@ export class NetworkAreaDiagramViewer {
         };
         this.svgDraw = SVG().addTo(this.svgDiv).size(this.width, this.height).viewbox(viewBox);
         this.innerSvg = <SVGElement>this.svgDraw.svg(this.svgContent).node.firstElementChild;
-        if (this.nadViewerParameters.getCreateSvgFromMetadata()) {
-            this.addSvgContent(this.svgWriter, this.innerSvg);
+        if (this.svgWriter != null) {
+            this.svgWriter.addSvgContent(<SVGSVGElement>this.innerSvg);
         }
         this.innerSvg.style.overflow = 'visible';
 
@@ -448,20 +452,6 @@ export class NetworkAreaDiagramViewer {
                 emptyElement.style.fill = '#0000';
             });
         }
-    }
-
-    private addSvgContent(svgWriter: SvgWriter | undefined, svgElement: SVGElement) {
-        if (svgWriter === undefined) {
-            console.warn(
-                '[NAD] createSvgFromMetadata is true but no SvgWriter was created (diagramMetadata may be null).'
-            );
-            return;
-        }
-        if (!(svgElement instanceof SVGSVGElement)) {
-            console.error('[NAD] Expected SVGSVGElement for addSvgContent, got:', svgElement);
-            return;
-        }
-        svgWriter.addSvgContent(svgElement);
     }
 
     private addEvents(svgDraw: Svg, hasMetadata: boolean) {
