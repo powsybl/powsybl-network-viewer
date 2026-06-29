@@ -8,6 +8,7 @@
 
 import '../../../../global.d.ts';
 import IEE14CdfNetworkMetadata from '../resources/test-data/nad-ieee14cdf-solved_metadata.json';
+import FourSubstationsNetworkCustomStyleMetadata from '../resources/test-data/nad-four-substations_custom_metadata.json';
 
 import { SvgWriter } from './svg-writer';
 import { getSvgFromFile } from './test-utils';
@@ -15,5 +16,11 @@ import { getSvgFromFile } from './test-utils';
 test('testIEE14CdfNetwork', () => {
     const actual = new SvgWriter(IEE14CdfNetworkMetadata).getSvg({ width: 0, height: 0 });
     const expected = getSvgFromFile('../resources/test-data/nad-ieee14cdf-solved.svg');
+    expect(actual).toEqualSvg(expected, { epsilon: 0.1 });
+});
+
+test('testFourSubstationsNetworkCustomStyle', () => {
+    const actual = new SvgWriter(FourSubstationsNetworkCustomStyleMetadata).getSvg({ width: 0, height: 0 });
+    const expected = getSvgFromFile('../resources/test-data/nad-four-substations_custom.svg');
     expect(actual).toEqualSvg(expected, { epsilon: 0.1 });
 });
