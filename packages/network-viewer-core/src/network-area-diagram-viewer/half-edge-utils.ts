@@ -278,7 +278,7 @@ export function getHalfEdges(
         edge.bendingPoints
     );
     const halfEdge1: HalfEdge = {
-        side: '1',
+        side: point1.x == node1.x && point1.y == node1.y ? '1' : '2',
         fork: groupedEdgesCount > 1,
         busOuterRadius: nodeRadius1.busOuterRadius,
         voltageLevelRadius: nodeRadius1.voltageLevelRadius,
@@ -286,14 +286,17 @@ export function getHalfEdges(
         edgePoints: edgePoints[0],
     };
     const halfEdge2: HalfEdge = {
-        side: '2',
+        side: point2.x == node2.x && point2.y == node2.y ? '2' : '1',
         fork: groupedEdgesCount > 1,
         busOuterRadius: nodeRadius2.busOuterRadius,
         voltageLevelRadius: nodeRadius2.voltageLevelRadius,
         edgeInfoId: edge.edgeInfo2?.svgId,
         edgePoints: edgePoints[1],
     };
-    return [halfEdge1, halfEdge2];
+    return [
+        point1.x == node1.x && point1.y == node1.y ? halfEdge1 : halfEdge2,
+        point2.x == node2.x && point2.y == node2.y ? halfEdge2 : halfEdge1,
+    ];
 }
 
 export function getHalfEdgesLoop(
