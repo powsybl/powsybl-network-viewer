@@ -1,0 +1,130 @@
+<!--
+  ~ Copyright (c) 2026, RTE (https://www.rte-france.com)
+  ~ This Source Code Form is subject to the terms of the Mozilla Public
+  ~ License, v. 2.0. If a copy of the MPL was not distributed with this
+  ~ file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  ~ SPDX-License-Identifier: MPL-2.0
+  -->
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>@powsybl/sankey - demo</title>
+        <style>
+            * {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+            body {
+                font-family: monospace;
+                display: flex;
+                flex-direction: column;
+                height: 100vh;
+                background: #ffffff;
+                color: #333;
+            }
+            #controls {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+                padding: 10px 14px;
+                background: #f5f5f5;
+                border-bottom: 1px solid #ccc;
+                align-items: center;
+            }
+            #controls span {
+                font-size: 12px;
+                color: #555;
+                margin-right: 4px;
+            }
+            button {
+                padding: 5px 12px;
+                border: 1px solid #bbb;
+                border-radius: 4px;
+                background: #e8e8e8;
+                color: #333;
+                font-family: monospace;
+                font-size: 16px;
+                cursor: pointer;
+            }
+            button:hover {
+                background: #d0d0d0;
+            }
+            button.btn-active {
+                background: #2a5ab0;
+                color: #fff;
+                border-color: #2a5ab0;
+                font-weight: bold;
+            }
+            button.btn-active:hover {
+                background: #3a6cc0;
+            }
+            button:disabled {
+                cursor: default;
+            }
+            button.btn-active:disabled:hover {
+                background: #2a5ab0;
+            }
+            #svg-container {
+                overflow: hidden;
+                border: 2px solid #ccc;
+            }
+            svg {
+                width: 100%;
+                height: 100%;
+                display: block;
+            }
+            .label {
+                font-size: 24px;
+                font-family: monospace;
+            }
+            #sliders {
+                width: 750px;
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+                padding: 2px 0;
+            }
+            .slider-row {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+            .slider-row span {
+                width: 55px;
+                flex-shrink: 0;
+                text-align: right;
+                font-size: 12px;
+                color: #555;
+                margin-right: 0;
+            }
+            .slider-row input[type='range'] {
+                flex: 1;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="controls">
+            <span style="margin-left: 12px">Scenario:</span>
+            <button id="btn-reset">Baseline</button>
+            <button id="btn-n1">Outage</button>
+            <span style="margin-left: 12px">Layout:</span>
+            <button id="btn-stop">Stop</button>
+            <button id="btn-autoscale">Autoscale</button>
+            <span style="margin-left: 12px">Orientation:</span>
+            <button id="btn-orientation">vertical</button>
+            <span style="margin-left: 12px">Export:</span>
+            <button id="btn-export-svg">Export SVG</button>
+            <button id="btn-export-layout">Export Layout</button>
+            <button id="btn-import-layout">Import Layout</button>
+            <span style="margin-left: 12px">
+                <div id="sliders"></div>
+            </span>
+        </div>
+        <div id="svg-container" style="width:800px; height:900px"></div>
+        <script type="module" src="./main.ts"></script>
+    </body>
+</html>
