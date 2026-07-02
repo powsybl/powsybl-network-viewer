@@ -1095,10 +1095,7 @@ export class NetworkAreaDiagramViewer {
             );
             // compute text edge start and end
             const vlNodePosition = new Point(node.x, node.y);
-            // HOTFIX If we call moveElement programmatically (not during a drag and drop event)
-            // then textNode?.firstElementChild?.scrollHeight and textNode?.firstElementChild?.scrollWidth seems not defined
-            // then textHeight and textWidth equal 0
-            // We set this.endTextEdge using connectionShifts sooner in this case
+            const textNodeMetadata = this.diagramMetadata?.textNodes.find((tn) => tn.svgId === node.legendSvgId);
             if (textHeight !== 0 || textWidth !== 0) {
                 this.endTextEdge = DiagramUtils.getTextEdgeEnd(
                     textNodePosition,
@@ -1106,6 +1103,19 @@ export class NetworkAreaDiagramViewer {
                     this.layoutParameters.getTextNodeEdgeConnectionYShift(),
                     textHeight,
                     textWidth
+                );
+                // save endTextEdge to metadata, to be used when both textHeight and textWidth are zero
+                if (textNodeMetadata) {
+                    textNodeMetadata.connectionShiftX = this.endTextEdge.x - node.x;
+                    textNodeMetadata.connectionShiftY = this.endTextEdge.y - node.y;
+                }
+            } else if (textNodeMetadata) {
+                // when the text node is moved programmatically or hidden by CSS (enableLevelOfDetail feature)
+                // textNode?.firstElementChild?.scrollHeight and textNode?.firstElementChild?.scrollWidth seem not defined,
+                // so textHeight and textWidth are zero; in these cases, compute endTextEdge using metadata
+                this.endTextEdge = new Point(
+                    node.x + (textNodeMetadata.connectionShiftX ?? 0),
+                    node.y + (textNodeMetadata.connectionShiftY ?? 0)
                 );
             }
             const startTextEdge = DiagramUtils.getPointAtDistance(
