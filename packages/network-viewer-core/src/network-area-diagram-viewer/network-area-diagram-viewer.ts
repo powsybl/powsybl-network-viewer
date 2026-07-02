@@ -379,9 +379,6 @@ export class NetworkAreaDiagramViewer {
         this.textEdgesSection = this.getOrCreateTextEdgesSection();
         this.edgeInfosSection = this.getOrCreateEdgeInfosSection();
 
-        // Tag the server-rendered edge infos with their side's voltage-level class
-        this.addClassesToEdgeInfos();
-
         // add events
         const hasMetadata = this.diagramMetadata !== null;
         if (this.hasNodeInteraction() && hasMetadata) {
@@ -1914,25 +1911,6 @@ export class NetworkAreaDiagramViewer {
         return <SVGElement>this.edgeInfosSection?.querySelector(":scope > [id='" + edgeInfoSvgId + "']") ?? null;
     }
 
-    // Apply the edge info metadata classes (e.g. its side's voltage-level class) on the matching SVG element
-    private addClassesToEdgeInfos(): void {
-        this.diagramMetadata?.edges.forEach((edge) => {
-            this.addClassesToEdgeInfo(edge.edgeInfo1);
-            this.addClassesToEdgeInfo(edge.edgeInfo2);
-            this.addClassesToEdgeInfo(edge.edgeInfoMiddle);
-        });
-        this.diagramMetadata?.injections?.forEach((injection) => {
-            this.addClassesToEdgeInfo(injection.edgeInfo);
-        });
-    }
-
-    private addClassesToEdgeInfo(edgeInfoMetadata: EdgeInfoMetadata | undefined): void {
-        if (!edgeInfoMetadata?.classes?.length) {
-            return;
-        }
-        this.getEdgeInfo(edgeInfoMetadata.svgId)?.classList.add(...edgeInfoMetadata.classes);
-    }
-
     private hasTextNode(textNode: TextNodeMetadata) {
         return !!this.textNodesSection?.querySelector(":scope > [id='" + textNode.svgId + "']");
     }
@@ -2319,7 +2297,7 @@ export class NetworkAreaDiagramViewer {
             }
         }
         this.updateEdgeInfoMetadata(edgeInfoMetadata, value, preserveExistingDirection);
-        const edgeInfo = this.getOrCreateEdgeInfo(edgeInfoMetadata);
+        const edgeInfo = this.getOrCreateEdgeInfo(edge, edgeInfoMetadata);
         if (!halfEdge.edgeInfoId) {
             halfEdge.edgeInfoId = edgeInfo.id;
         }
@@ -2423,7 +2401,7 @@ export class NetworkAreaDiagramViewer {
             edge.edgeInfoMiddle = edgeInfoMetadata;
         }
 
-        const edgeInfo = this.getOrCreateEdgeInfo(edgeInfoMetadata);
+        const edgeInfo = this.getOrCreateEdgeInfo(edge, edgeInfoMetadata);
 
         // componentType replaces the arrow, so it follows the same showArrow threshold
         if (showArrow) {
@@ -2494,7 +2472,7 @@ export class NetworkAreaDiagramViewer {
         branchLabelElement.innerHTML = formattedValue;
     }
 
-    private getOrCreateEdgeInfo(edgeInfoMetadata: EdgeInfoMetadata): SVGElement {
+    private getOrCreateEdgeInfo(edgeMetadata: EdgeMetadata, edgeInfoMetadata: EdgeInfoMetadata): SVGElement {
         const edgeInfo = this.getEdgeInfo(edgeInfoMetadata.svgId);
         if (edgeInfo) {
             return edgeInfo;
@@ -2502,8 +2480,8 @@ export class NetworkAreaDiagramViewer {
 
         const newEdgeInfo = document.createElementNS('http://www.w3.org/2000/svg', 'g');
         newEdgeInfo.id = edgeInfoMetadata.svgId;
-        if (edgeInfoMetadata.classes?.length) {
-            newEdgeInfo.classList.add(...edgeInfoMetadata.classes);
+        if (edgeMetadata.classes1?.length || edgeMetadata.classes2?.length) {
+            newEdgeInfo.classList.add(...new Set([...(edgeMetadata.classes1 ?? []), ...(edgeMetadata.classes2 ?? [])]));
         }
         this.edgeInfosSection?.appendChild(newEdgeInfo);
 

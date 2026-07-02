@@ -161,5 +161,4 @@ export interface EdgeInfoMetadata {
     labelA?: string;
     labelB?: string;
     componentType?: string;
-    classes?: string[];
 }
