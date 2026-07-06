@@ -903,7 +903,14 @@ export class NetworkAreaDiagramViewer {
         } else if (this.straightenedElement) {
             // straightening line
             this.onStraightenEnd();
+            this.enablePanzoom();
+        } else if (this.draggedElement) {
+            // this.draggedElement could be defined here even if this.isDragging
+            // is false in case of text selection. then we must re enable pan zoom.
+            this.enablePanzoom();
         }
+        // It's tempting to want to factor by calling 'enablePanzoom' here,
+        // however it's a bad idea and breaks the functionality of the pan!
         this.resetMouseEventParams();
     }
 
@@ -3029,7 +3036,6 @@ export class NetworkAreaDiagramViewer {
         this.callBendLineCallback(this.straightenedElement, LineOperation.STRAIGHTEN);
         // reset data
         this.straightenedElement = null;
-        this.enablePanzoom();
     }
 
     private callBendLineCallback(linePointElement: SVGGraphicsElement, lineOperation: LineOperation) {
