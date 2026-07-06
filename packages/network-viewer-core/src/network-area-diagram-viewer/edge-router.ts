@@ -17,11 +17,17 @@ import { HalfEdge, LabelData } from './diagram-types';
 export class EdgeRouter {
     diagramMetadata: DiagramMetadata;
     svgParameters: SvgParameters;
+    // points of each half edge of edges
     edgePoints: Record<string, [Point[], Point[]]> = {};
+    // data (position and arrow angle) for side infos of each half edge of edges
     edgeSideData: Record<string, [[Point, number], [Point, number]]> = {};
+    // label data (angle, internal and external shift and style) for side infos of each half edge of edges
     edgeSideLabelData: Record<string, [LabelData, LabelData]> = {};
+    // data (position and arrow angle) for middle infos of edges
     edgeMiddleData: Record<string, [Point, number]> = {};
+    // label data (angle, internal and external shift and style) for middle infos of edges
     edgeMiddleLabelData: Record<string, LabelData> = {};
+    // points of 3wt edges
     threeWTEdgePoints: Record<string, [Point, Point]> = {};
     nodeAngles: Record<string, number[]> = {};
 
@@ -188,6 +194,9 @@ export class EdgeRouter {
         }
     }
 
+    // given an edge id and 2 half edges, store data for edge side infos
+    // the isLoop parameter is needed because the computation of the position of edge side info
+    // is different if we are dealing with loop edges
     private storeEdgeSideData(edgeId: string, halfEdges: HalfEdge[] | null[], isLoop: boolean) {
         if (!halfEdges[0] || !halfEdges[1]) {
             return;

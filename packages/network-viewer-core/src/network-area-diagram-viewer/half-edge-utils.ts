@@ -23,7 +23,14 @@ import {
     isTransformerEdge,
     radToDeg,
 } from './diagram-utils';
-import { getBusNodeMetadata, getEdgePoints, getEdgeType, getNodeMetadata, getNodeRadius } from './metadata-utils';
+import {
+    getBusNodeMetadata,
+    getEdgePoints,
+    getEdgeType,
+    getNodeMetadata,
+    getNodeRadius,
+    samePosition,
+} from './metadata-utils';
 import { HalfEdge, LabelData } from './diagram-types';
 import { getPathPoints, getTransform } from './svg-utils';
 
@@ -278,7 +285,7 @@ export function getHalfEdges(
         edge.bendingPoints
     );
     const halfEdge1: HalfEdge = {
-        side: point1.x == node1.x && point1.y == node1.y ? '1' : '2',
+        side: samePosition(node1, point1) ? '1' : '2',
         fork: groupedEdgesCount > 1,
         busOuterRadius: nodeRadius1.busOuterRadius,
         voltageLevelRadius: nodeRadius1.voltageLevelRadius,
@@ -286,17 +293,14 @@ export function getHalfEdges(
         edgePoints: edgePoints[0],
     };
     const halfEdge2: HalfEdge = {
-        side: point2.x == node2.x && point2.y == node2.y ? '2' : '1',
+        side: samePosition(node2, point2) ? '2' : '1',
         fork: groupedEdgesCount > 1,
         busOuterRadius: nodeRadius2.busOuterRadius,
         voltageLevelRadius: nodeRadius2.voltageLevelRadius,
         edgeInfoId: edge.edgeInfo2?.svgId,
         edgePoints: edgePoints[1],
     };
-    return [
-        point1.x == node1.x && point1.y == node1.y ? halfEdge1 : halfEdge2,
-        point2.x == node2.x && point2.y == node2.y ? halfEdge2 : halfEdge1,
-    ];
+    return [samePosition(node1, point1) ? halfEdge1 : halfEdge2, samePosition(node2, point2) ? halfEdge2 : halfEdge1];
 }
 
 export function getHalfEdgesLoop(
