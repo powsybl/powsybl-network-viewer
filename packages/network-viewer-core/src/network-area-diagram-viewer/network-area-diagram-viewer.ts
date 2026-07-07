@@ -2412,8 +2412,8 @@ export class NetworkAreaDiagramViewer {
             edge.edgeInfoMiddle = edgeInfoMetadata;
         }
 
-        // the middle edge info belongs to both sides, so it carries the union of their classes
-        const classes = [...new Set([...(edge.classes1 ?? []), ...(edge.classes2 ?? [])])];
+        // the middle edge info belongs to both sides, so it carries the classes of both
+        const classes = [...(edge.classes1 ?? []), ...(edge.classes2 ?? [])];
         const edgeInfo = this.getOrCreateEdgeInfo(edgeInfoMetadata, classes);
 
         // componentType replaces the arrow, so it follows the same showArrow threshold
