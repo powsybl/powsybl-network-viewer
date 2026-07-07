@@ -17,11 +17,17 @@ import { HalfEdge, LabelData } from './diagram-types';
 export class EdgeRouter {
     diagramMetadata: DiagramMetadata;
     svgParameters: SvgParameters;
+    // points of each half edge of edges
     edgePoints: Record<string, [Point[], Point[]]> = {};
+    // data (position and arrow angle) for side infos of each half edge of edges
     edgeSideData: Record<string, [[Point, number], [Point, number]]> = {};
+    // label data (angle, internal and external shift and style) for side infos of each half edge of edges
     edgeSideLabelData: Record<string, [LabelData, LabelData]> = {};
+    // data (position and arrow angle) for middle infos of edges
     edgeMiddleData: Record<string, [Point, number]> = {};
+    // label data (angle, internal and external shift and style) for middle infos of edges
     edgeMiddleLabelData: Record<string, LabelData> = {};
+    // points of 3wt edges
     threeWTEdgePoints: Record<string, [Point, Point]> = {};
     nodeAngles: Record<string, number[]> = {};
 
@@ -176,29 +182,32 @@ export class EdgeRouter {
         const node2Angles: number[] = this.nodeAngles[edge.node2] ?? [];
         node2Angles.push(angle2);
         this.nodeAngles[edge.node2] = node2Angles;
-        this.storeEdgeInfos(edge, halfEdges);
+        this.storeEdgeInfos(edge, halfEdges, false);
     }
 
-    private storeEdgeInfos(edge: EdgeMetadata, halfEdges: HalfEdge[] | null[]) {
+    private storeEdgeInfos(edge: EdgeMetadata, halfEdges: HalfEdge[] | null[], isLoop: boolean) {
         if (edge.edgeInfo1 || edge.edgeInfo2) {
-            this.storeEdgeSideData(edge.svgId, halfEdges);
+            this.storeEdgeSideData(edge.svgId, halfEdges, isLoop);
         }
         if (edge.edgeInfoMiddle) {
             this.storeEdgeMiddleData(edge.svgId, halfEdges);
         }
     }
 
-    private storeEdgeSideData(edgeId: string, halfEdges: HalfEdge[] | null[]) {
+    // given an edge id and 2 half edges, store data for edge side infos
+    // the isLoop parameter is needed because the computation of the position of edge side info
+    // is different if we are dealing with loop edges
+    private storeEdgeSideData(edgeId: string, halfEdges: HalfEdge[] | null[], isLoop: boolean) {
         if (!halfEdges[0] || !halfEdges[1]) {
             return;
         }
         this.edgeSideData[edgeId] = [
             [
-                HalfEdgeUtils.getInfoPoint(halfEdges[0], this.svgParameters),
+                isLoop ? halfEdges[0].edgePoints[1] : HalfEdgeUtils.getInfoPoint(halfEdges[0], this.svgParameters),
                 HalfEdgeUtils.getArrowRotation(halfEdges[0]),
             ],
             [
-                HalfEdgeUtils.getInfoPoint(halfEdges[1], this.svgParameters),
+                isLoop ? halfEdges[1].edgePoints[1] : HalfEdgeUtils.getInfoPoint(halfEdges[1], this.svgParameters),
                 HalfEdgeUtils.getArrowRotation(halfEdges[1]),
             ],
         ];
@@ -366,7 +375,7 @@ export class EdgeRouter {
             return;
         }
         this.edgePoints[edge.svgId] = [halfEdges[0].edgePoints, halfEdges[1].edgePoints];
-        this.storeEdgeInfos(edge, halfEdges);
+        this.storeEdgeInfos(edge, halfEdges, true);
     }
 
     private storeThreeWtEdges(edgesMap: Record<string, EdgeMetadata[]>) {

@@ -594,3 +594,16 @@ test('getEdgeType', () => {
     expect(MetadataUtils.getEdgeType(edge)).toBe(EdgeType.TWO_WINDINGS_TRANSFORMER);
     expect(MetadataUtils.getStringEdgeType(edge)).toBe('TWO_WINDINGS_TRANSFORMER');
 });
+
+test('samePosition', () => {
+    const node: NodeMetadata = {
+        svgId: '4',
+        equipmentId: 'VL',
+        x: 100,
+        y: 100,
+    };
+    expect(MetadataUtils.samePosition(node, new Point(100, 100))).toBe(true);
+    expect(MetadataUtils.samePosition(node, new Point(90, 100))).toBe(false);
+    expect(MetadataUtils.samePosition(node, new Point(100, 90))).toBe(false);
+    expect(MetadataUtils.samePosition(node, new Point(90, 90))).toBe(false);
+});
