@@ -26,6 +26,8 @@ import NadSvgPegaseNetworkExample from './diagram-viewers/data/case1354pegase.sv
 import NadSvgPegaseNetworkExampleMeta from './diagram-viewers/data/case1354pegase_metadata.json';
 import NadSvgDoubleArrowsExample from './diagram-viewers/data/nad-double-arrows-with-middle-values.svg';
 import NadSvgDoubleArrowsExampleMeta from './diagram-viewers/data/nad-double-arrows-with-middle-values_metadata.json';
+import NadSvgComponentsExample from './diagram-viewers/data/nad-edge-info-components.svg';
+import NadSvgComponentsExampleMeta from './diagram-viewers/data/nad-edge-info-components_metadata.json';
 import NadSvgPstHvdcCustomExample from './diagram-viewers/data/nad-four-substations_custom.svg';
 import NadSvgPstHvdcCustomExampleMeta from './diagram-viewers/data/nad-four-substations_custom_metadata.json';
 
@@ -70,6 +72,7 @@ const addCreatedNadToDemo = () => {
         onToggleHoverCallback: handleToggleNadHover,
         onRightClickCallback: handleRightClick,
         onBendLineCallback: handleLineBending,
+        createSvgFromMetadata: true,
     };
     new NetworkAreaDiagramViewer(
         document.getElementById('svg-container-nad-eurostag-c')!,
@@ -306,6 +309,35 @@ const addCreatedNadToDemo = () => {
         nadViewerParametersOptions
     );
 
+    fetch(NadSvgComponentsExample)
+        .then((response) => response.text())
+        .then((svgContent) => {
+            const nadViewerParametersOptions: NadViewerParametersOptions = {
+                enableDragInteraction: true,
+                addButtons: true,
+                onMoveNodeCallback: handleNodeMove,
+                onMoveTextNodeCallback: handleTextNodeMove,
+                onSelectNodeCallback: handleNodeSelect,
+                onToggleHoverCallback: handleToggleNadHover,
+                onRightClickCallback: handleRightClick,
+                onBendLineCallback: handleLineBending,
+                adaptiveTextZoom: { enabled: true, threshold: 1100 },
+            };
+            new NetworkAreaDiagramViewer(
+                document.getElementById('svg-container-nad-components')!,
+                svgContent,
+                NadSvgComponentsExampleMeta,
+                nadViewerParametersOptions
+            );
+        });
+
+    new NetworkAreaDiagramViewer(
+        document.getElementById('svg-container-nad-components-c')!,
+        '',
+        NadSvgComponentsExampleMeta,
+        nadViewerParametersOptions
+    );
+
     fetch(NadSvgPstHvdcCustomExample)
         .then((response) => response.text())
         .then((svgContent) => {
@@ -366,6 +398,7 @@ const addCreatedNadToDemo = () => {
         onToggleHoverCallback: handleToggleNadHover,
         onRightClickCallback: handleRightClick,
         onBendLineCallback: handleLineBending,
+        createSvgFromMetadata: true,
     };
     new NetworkAreaDiagramViewer(
         document.getElementById('svg-container-nad-pegase-network-c')!,
