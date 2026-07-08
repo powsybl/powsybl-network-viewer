@@ -419,14 +419,16 @@ export function getLabelData(angle: number, arrowLabelShift: number): LabelData 
 }
 
 export function getMaxThreshold(voltageLevelThreshols: VoltageLevelThreshold[]): VoltageLevelThreshold {
-    return (voltageLevelThreshols.length == 0 ? [{ threshold: 500000 }] : voltageLevelThreshols).reduce((a, b) =>
-        a.threshold > b.threshold ? a : b
+    return (voltageLevelThreshols.length == 0 ? [{ threshold: 500000 }] : voltageLevelThreshols).reduce(
+        (a, b) => (a.threshold > b.threshold ? a : b),
+        voltageLevelThreshols[0] ?? [{ threshold: 500000 }]
     );
 }
 
 export function getMinThreshold(voltageLevelThreshols: VoltageLevelThreshold[]): VoltageLevelThreshold {
-    return (voltageLevelThreshols.length == 0 ? [{ threshold: 500000 }] : voltageLevelThreshols).reduce((a, b) =>
-        a.threshold > b.threshold ? b : a
+    return (voltageLevelThreshols.length == 0 ? [{ threshold: 500000 }] : voltageLevelThreshols).reduce(
+        (a, b) => (a.threshold > b.threshold ? b : a),
+        voltageLevelThreshols[0] ?? [{ threshold: 500000 }]
     );
 }
 
