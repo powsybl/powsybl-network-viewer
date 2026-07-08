@@ -393,3 +393,39 @@ test('getLabelShiftAndStyle', () => {
     expect(labelShiftAndStyle[0]).toBe(-19);
     expect(labelShiftAndStyle[1]).toBe('text-anchor:end');
 });
+
+test('getMaxThreshold', () => {
+    const voltageLevelThesholds = [
+        { threshold: 4000, voltageLevels: ['nad-vl0to30', 'nad-vl30to50'] },
+        { threshold: 9000, voltageLevels: ['nad-vl0to30', 'nad-vl30to50', 'nad-vl70to120'] },
+    ];
+    const maxVoltageLevelTheshold = DiagramUtils.getMaxThreshold(voltageLevelThesholds);
+    expect(maxVoltageLevelTheshold.threshold).toBe(9000);
+    expect(maxVoltageLevelTheshold.voltageLevels?.length).toBe(3);
+});
+
+test('getMinThreshold', () => {
+    const voltageLevelThesholds = [
+        { threshold: 4000, voltageLevels: ['nad-vl0to30', 'nad-vl30to50'] },
+        { threshold: 9000, voltageLevels: ['nad-vl0to30', 'nad-vl30to50', 'nad-vl70to120'] },
+    ];
+    const minVoltageLevelTheshold = DiagramUtils.getMinThreshold(voltageLevelThesholds);
+    expect(minVoltageLevelTheshold.threshold).toBe(4000);
+    expect(minVoltageLevelTheshold.voltageLevels?.length).toBe(2);
+});
+
+test('getVLThreshold', () => {
+    const voltageLevelThesholds = [
+        { threshold: 4000, voltageLevels: ['nad-vl0to30', 'nad-vl30to50'] },
+        { threshold: 9000, voltageLevels: ['nad-vl0to30', 'nad-vl30to50', 'nad-vl70to120'] },
+    ];
+    let voltageLevelTheshold = DiagramUtils.getVLThreshold(voltageLevelThesholds, 5500);
+    expect(voltageLevelTheshold.threshold).toBe(4000);
+    expect(voltageLevelTheshold.voltageLevels?.length).toBe(2);
+    voltageLevelTheshold = DiagramUtils.getVLThreshold(voltageLevelThesholds, 9500);
+    expect(voltageLevelTheshold.threshold).toBe(9000);
+    expect(voltageLevelTheshold.voltageLevels?.length).toBe(3);
+    voltageLevelTheshold = DiagramUtils.getVLThreshold(voltageLevelThesholds, 500);
+    expect(voltageLevelTheshold.threshold).toBe(4000);
+    expect(voltageLevelTheshold.voltageLevels?.length).toBe(2);
+});

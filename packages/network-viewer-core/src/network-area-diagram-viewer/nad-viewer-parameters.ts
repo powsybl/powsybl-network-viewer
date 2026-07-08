@@ -54,6 +54,13 @@ export type OnBendLineCallbackType = (
     lineOperation: string
 ) => void;
 
+export interface VoltageLevelThreshold {
+    // threshold for the adaptive zoom
+    threshold: number;
+    // elements with these CSS classes should be removed above the threshold
+    voltageLevels?: string[];
+}
+
 export interface AdaptiveTextZoomOptions {
     // Whether adaptive zoom is enabled.
     enabled?: boolean;
@@ -69,6 +76,12 @@ export interface AdaptiveTextZoomOptions {
 
     // Threshold for the edge middle arrow (edgeInfoMiddle arrow only).
     edgeMiddleArrowThreshold?: number;
+
+    // Thresholds for the nodes.
+    nodeThresholds?: VoltageLevelThreshold[];
+
+    // Thresholds for the edges.
+    edgeThresholds?: VoltageLevelThreshold[];
 }
 
 export interface NadViewerParametersOptions {
@@ -135,6 +148,9 @@ export interface NadViewerParametersOptions {
     // Resolver that maps an SVG filename to its URL, for use with a custom component library.
     // If not provided, the default library SVG files are used.
     svgUrlResolver?: (fileName: string) => string;
+
+    // Whether to create the SVG from diagram metadata, instead of using the SVG content provided as input
+    createSvgFromMetadata?: boolean;
 }
 
 export class NadViewerParameters {
@@ -149,6 +165,9 @@ export class NadViewerParameters {
     static readonly HOVER_POSITION_PRECISION_DEFAULT = 10;
     static readonly ENABLE_ADAPTIVE_ZOOM_DEFAULT = false;
     static readonly THRESHOLD_ADAPTIVE_ZOOM_DEFAULT = 3000;
+    static readonly THRESHOLD_NODES_ADAPTIVE_ZOOM_DEFAULT = 500000;
+    static readonly THRESHOLD_EDGES_ADAPTIVE_ZOOM_DEFAULT = 500000;
+    static readonly CREATE_SVG_FROM_METADATA_DEFAULT = false;
 
     nadViewerParametersOptions: NadViewerParametersOptions | undefined;
 
@@ -216,12 +235,20 @@ export class NadViewerParameters {
     public getAdaptiveTextZoom(): Required<AdaptiveTextZoomOptions> {
         const adaptiveTextZoom = this.nadViewerParametersOptions?.adaptiveTextZoom;
         const threshold = adaptiveTextZoom?.threshold ?? NadViewerParameters.THRESHOLD_ADAPTIVE_ZOOM_DEFAULT;
+        const nodeThreshold = adaptiveTextZoom?.nodeThresholds ?? [
+            { threshold: NadViewerParameters.THRESHOLD_NODES_ADAPTIVE_ZOOM_DEFAULT },
+        ];
+        const edgeThreshold = adaptiveTextZoom?.edgeThresholds ?? [
+            { threshold: NadViewerParameters.THRESHOLD_EDGES_ADAPTIVE_ZOOM_DEFAULT },
+        ];
         return {
             enabled: adaptiveTextZoom?.enabled ?? NadViewerParameters.ENABLE_ADAPTIVE_ZOOM_DEFAULT,
             threshold,
             edgeSideLabelThreshold: adaptiveTextZoom?.edgeSideLabelThreshold ?? threshold,
             edgeMiddleLabelThreshold: adaptiveTextZoom?.edgeMiddleLabelThreshold ?? threshold,
             edgeMiddleArrowThreshold: adaptiveTextZoom?.edgeMiddleArrowThreshold ?? threshold,
+            nodeThresholds: nodeThreshold,
+            edgeThresholds: edgeThreshold,
         };
     }
 
@@ -231,5 +258,12 @@ export class NadViewerParameters {
 
     public getSvgUrlResolver(): ((fileName: string) => string) | undefined {
         return this.nadViewerParametersOptions?.svgUrlResolver;
+    }
+
+    public getCreateSvgFromMetadata(): boolean {
+        return (
+            this.nadViewerParametersOptions?.createSvgFromMetadata ??
+            NadViewerParameters.CREATE_SVG_FROM_METADATA_DEFAULT
+        );
     }
 }

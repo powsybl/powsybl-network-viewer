@@ -20,6 +20,7 @@ public final class DemoFilesGenerator {
     public static void main(String[] args) {
         Path demoResources = Path.of("..", "..", "src", "diagram-viewers", "data");
 
+        // NAD examples
         NadDemoFiles.drawCase1354Pegase(demoResources);
         NadDemoFiles.drawEurostag(demoResources);
         NadDemoFiles.draw9ZeroImpedance(demoResources);
@@ -34,6 +35,10 @@ public final class DemoFilesGenerator {
         NadDemoFiles.drawNetworkWithSvcVscScDlDoubleArrows(demoResources);
         NadDemoFiles.drawNetworkWithTwoVoltageLevelsAndComponents(demoResources);
 
+        // Large NAD examples
+        NadDemoFiles.drawCaseRealGrid(demoResources);
+
+        // SLD examples
         SldDemoFiles.drawSldExample(demoResources);
         SldDemoFiles.drawSldSubExample(demoResources);
     }

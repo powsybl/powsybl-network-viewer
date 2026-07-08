@@ -30,6 +30,7 @@ import {
     OnRightClickCallbackType,
     OnSelectNodeCallbackType,
     OnToggleNadHoverCallbackType,
+    VoltageLevelThreshold,
 } from './nad-viewer-parameters';
 import * as ViewerButtons from './viewer-buttons';
 import * as SvgUtils from './svg-utils';
@@ -104,6 +105,8 @@ export class NetworkAreaDiagramViewer {
     textNodesSection: SVGElement | undefined;
     textEdgesSection: SVGElement | undefined;
     edgeInfosSection: SVGElement | undefined;
+    nodesSection: SVGElement | undefined;
+    edgesSection: SVGElement | undefined;
     ratio = 1;
     selectedElement: SVGGraphicsElement | null = null;
     draggedElement: SVGGraphicsElement | null = null;
@@ -150,6 +153,8 @@ export class NetworkAreaDiagramViewer {
 
     componentLibrary: LibraryComponent[] = DefaultLibraryComponents;
 
+    svgWriter: SvgWriter | undefined = undefined;
+
     static readonly ZOOM_CLASS_PREFIX = 'nad-zoom-';
 
     /**
@@ -169,9 +174,10 @@ export class NetworkAreaDiagramViewer {
         this.svgDiv.id = 'svg-container';
         this.svgContent = svgContent;
         this.diagramMetadata = diagramMetadata;
-        if (this.diagramMetadata != null && this.svgContent.length == 0) {
-            const createdSvg = new SvgWriter(this.diagramMetadata).getSvg();
-            this.svgContent = createdSvg;
+        this.nadViewerParameters = new NadViewerParameters(nadViewerParametersOptions ?? undefined);
+        if (this.nadViewerParameters.getCreateSvgFromMetadata() && this.diagramMetadata != null) {
+            this.svgWriter = new SvgWriter({ diagramMetadata: this.diagramMetadata });
+            this.svgContent = this.svgWriter.getEmptySvg();
         }
         this.nadViewerParameters = new NadViewerParameters(nadViewerParametersOptions ?? undefined);
         this.width = 0;
@@ -378,57 +384,20 @@ export class NetworkAreaDiagramViewer {
         };
         this.svgDraw = SVG().addTo(this.svgDiv).size(this.width, this.height).viewbox(viewBox);
         this.innerSvg = <SVGElement>this.svgDraw.svg(this.svgContent).node.firstElementChild;
+        if (this.nadViewerParameters.getCreateSvgFromMetadata() && this.svgWriter != null) {
+            this.svgWriter.addSvgContent(<SVGSVGElement>this.innerSvg);
+        }
         this.innerSvg.style.overflow = 'visible';
 
         this.textNodesSection = this.getOrCreateTextNodesSection();
         this.textEdgesSection = this.getOrCreateTextEdgesSection();
         this.edgeInfosSection = this.getOrCreateEdgeInfosSection();
+        this.nodesSection = this.getOrCreateNodesSection();
+        this.edgesSection = this.getOrCreateEdgesSection();
 
         // add events
         const hasMetadata = this.diagramMetadata !== null;
-        if (this.hasNodeInteraction() && hasMetadata) {
-            this.svgDraw.on('mousedown', (e: Event) => {
-                if ((e as MouseEvent).button == 0) {
-                    this.onMouseLeftDown(e as MouseEvent);
-                }
-            });
-            this.svgDraw.on('mousemove', (e: Event) => {
-                this.onMouseMove(e as MouseEvent);
-            });
-            this.svgDraw.on('mouseup mouseleave', (e: Event) => {
-                if ((e as MouseEvent).button == 0) {
-                    this.onMouseLeftUpOrLeave(e as MouseEvent);
-                }
-            });
-        }
-        if (hasMetadata) {
-            this.svgDraw.on('mouseover', (e: Event) => {
-                this.onHover(e as MouseEvent);
-            });
-
-            this.svgDraw.on('mouseout', () => {
-                this.clearHighlights();
-                this.hideEdgePreviewPoints();
-            });
-        }
-        if (this.onRightClickCallback != null && hasMetadata) {
-            this.svgDraw.on('mousedown', (e: Event) => {
-                if ((e as MouseEvent).button == 2) {
-                    this.onMouseRightDown(e as MouseEvent);
-                }
-            });
-        }
-
-        this.svgDraw.on('panStart', () => {
-            this.attachCursorOverlay('move');
-        });
-        this.svgDraw.on('panEnd', () => {
-            this.detachCursorOverlay();
-            //if the adaptive zoom feature is enabled, updates the diagram
-            if (this.nadViewerParameters.getAdaptiveTextZoom().enabled) {
-                this.adaptiveZoomViewboxUpdate(this.getCurrentlyMaxDisplayedSize());
-            }
-        });
+        this.addEvents(this.svgDraw, hasMetadata);
 
         // add pan and zoom to the SVG
         // we check if there is an "initial zoom" by checking ratio of width and height of the nad compared with viewBox sizes
@@ -487,6 +456,53 @@ export class NetworkAreaDiagramViewer {
         }
     }
 
+    private addEvents(svgDraw: Svg, hasMetadata: boolean) {
+        if (this.hasNodeInteraction() && hasMetadata) {
+            svgDraw.on('mousedown', (e: Event) => {
+                if ((e as MouseEvent).button == 0) {
+                    this.onMouseLeftDown(e as MouseEvent);
+                }
+            });
+            svgDraw.on('mousemove', (e: Event) => {
+                this.onMouseMove(e as MouseEvent);
+            });
+            svgDraw.on('mouseup mouseleave', (e: Event) => {
+                if ((e as MouseEvent).button == 0) {
+                    this.onMouseLeftUpOrLeave(e as MouseEvent);
+                }
+            });
+        }
+        if (hasMetadata) {
+            svgDraw.on('mouseover', (e: Event) => {
+                this.onHover(e as MouseEvent);
+            });
+
+            svgDraw.on('mouseout', () => {
+                this.clearHighlights();
+                this.hideEdgePreviewPoints();
+            });
+        }
+        if (this.onRightClickCallback != null && hasMetadata) {
+            svgDraw.on('mousedown', (e: Event) => {
+                if ((e as MouseEvent).button == 2) {
+                    this.onMouseRightDown(e as MouseEvent);
+                }
+            });
+        }
+
+        svgDraw.on('panStart', () => {
+            this.attachCursorOverlay('move');
+        });
+        svgDraw.on('panEnd', () => {
+            this.detachCursorOverlay();
+
+            //if the adaptive zoom feature is enabled, updates the diagram
+            if (this.nadViewerParameters.getAdaptiveTextZoom().enabled) {
+                this.adaptiveZoomViewboxUpdate(this.getCurrentlyMaxDisplayedSize());
+            }
+        });
+    }
+
     private getOrCreateTextNodesSection(): SVGElement {
         let textNodesGElement = <SVGElement>this.innerSvg?.querySelector(':scope > g.nad-text-nodes');
         if (!textNodesGElement) {
@@ -515,6 +531,26 @@ export class NetworkAreaDiagramViewer {
             this.innerSvg?.appendChild(edgeInfos);
         }
         return edgeInfos;
+    }
+
+    private getOrCreateNodesSection(): SVGElement {
+        let nodes = <SVGElement>this.innerSvg?.querySelector(':scope > g.nad-vl-nodes');
+        if (!nodes) {
+            nodes = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+            nodes.classList.add('nad-vl-nodes');
+            this.innerSvg?.appendChild(nodes);
+        }
+        return nodes;
+    }
+
+    private getOrCreateEdgesSection(): SVGElement {
+        let edges = <SVGElement>this.innerSvg?.querySelector(':scope > g.nad-branch-edges');
+        if (!edges) {
+            edges = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+            edges.classList.add('nad-branch-edges');
+            this.innerSvg?.appendChild(edges);
+        }
+        return edges;
     }
 
     private initDebounceToggleHoverCallback() {
@@ -1358,7 +1394,7 @@ export class NetworkAreaDiagramViewer {
         const arrowsNum = this.redrawArrows(edgeInfo, HalfEdgeUtils.getArrowRotation(halfEdge));
 
         // move edge labels
-        const labelData = HalfEdgeUtils.getLabelData(halfEdge, this.svgParameters.getArrowLabelShift());
+        const labelData = HalfEdgeUtils.getHalfEdgeLabelData(halfEdge, this.svgParameters.getArrowLabelShift());
         const factor: number = arrowsNum == 2 ? this.svgParameters.getDoubleArrowShiftFactorText() : 1;
         // move edge labelB
         const labelBElement = edgeInfo.querySelector('text:nth-of-type(1)') as SVGGraphicsElement;
@@ -1740,11 +1776,11 @@ export class NetworkAreaDiagramViewer {
         ) {
             return;
         }
-        this.setPreviousMaxDisplayedSize(maxDisplayedSize);
 
         if (this.nadViewerParameters.getAdaptiveTextZoom().enabled) {
             this.adaptiveZoomViewboxUpdate(maxDisplayedSize);
         }
+        this.setPreviousMaxDisplayedSize(maxDisplayedSize);
 
         if (this.nadViewerParameters.getEnableLevelOfDetail() && this.innerSvg) {
             const zoomLevel = this.getZoomLevel(maxDisplayedSize);
@@ -2065,6 +2101,17 @@ export class NetworkAreaDiagramViewer {
         maxDisplayedSize: number,
         adaptiveTextZoom: Required<AdaptiveTextZoomOptions>
     ): void {
+        if (
+            maxDisplayedSize >
+            Math.max(
+                adaptiveTextZoom.edgeSideLabelThreshold,
+                adaptiveTextZoom.edgeMiddleLabelThreshold,
+                adaptiveTextZoom.edgeMiddleArrowThreshold
+            )
+        ) {
+            this.edgeInfosSection?.replaceChildren();
+            return;
+        }
         this.filterEdgeInfos(edges, viewBox, maxDisplayedSize, adaptiveTextZoom);
         this.createEdgesInfos(edges, maxDisplayedSize);
     }
@@ -2097,20 +2144,6 @@ export class NetworkAreaDiagramViewer {
     private adaptiveZoomViewboxUpdate(maxDisplayedSize: number) {
         const adaptiveTextZoom = this.nadViewerParameters.getAdaptiveTextZoom();
 
-        // above the largest configured threshold, nothing needs to be displayed: clear everything
-        const maxThreshold = Math.max(
-            adaptiveTextZoom.threshold,
-            adaptiveTextZoom.edgeSideLabelThreshold,
-            adaptiveTextZoom.edgeMiddleLabelThreshold,
-            adaptiveTextZoom.edgeMiddleArrowThreshold
-        );
-        if (maxDisplayedSize > maxThreshold) {
-            this.edgeInfosSection?.replaceChildren();
-            this.textEdgesSection?.replaceChildren();
-            this.textNodesSection?.replaceChildren();
-            return;
-        }
-
         const containerRect = this.container.getBoundingClientRect();
         const viewBox = SvgUtils.computeVisibleArea(this.getViewBox(), containerRect.width, containerRect.height);
 
@@ -2118,8 +2151,112 @@ export class NetworkAreaDiagramViewer {
         const containedNodeList = containedElementList.nodes;
         const containedEdgeList = containedElementList.edges;
 
+        this.updateAdaptiveNodesAndEdges(containedElementList, maxDisplayedSize, adaptiveTextZoom);
         this.updateAdaptiveLegends(containedNodeList, maxDisplayedSize, adaptiveTextZoom);
         this.updateAdaptiveEdgeInfos(containedEdgeList, viewBox, maxDisplayedSize, adaptiveTextZoom);
+    }
+
+    private updateAdaptiveNodesAndEdges(
+        containedElementList: { nodes: NodeMetadata[]; edges: EdgeMetadata[] },
+        maxDisplayedSize: number,
+        adaptiveTextZoom: Required<AdaptiveTextZoomOptions>
+    ) {
+        const maxNodesThreshold = DiagramUtils.getMaxThreshold(adaptiveTextZoom.nodeThresholds);
+        if (maxDisplayedSize > maxNodesThreshold.threshold && maxNodesThreshold.voltageLevels == undefined) {
+            this.nodesSection?.replaceChildren();
+            containedElementList.nodes = [];
+        }
+        const maxEdgesThreshold = DiagramUtils.getMaxThreshold(adaptiveTextZoom.edgeThresholds);
+        if (maxDisplayedSize > maxEdgesThreshold.threshold && maxEdgesThreshold.voltageLevels == undefined) {
+            this.edgesSection?.replaceChildren();
+            containedElementList.edges = [];
+        }
+        if (containedElementList.nodes.length == 0 && containedElementList.edges.length == 0) return;
+        const vlThreshold = DiagramUtils.getVLThreshold(adaptiveTextZoom.nodeThresholds, maxDisplayedSize);
+        const previousVlThreshold = DiagramUtils.getVLThreshold(
+            adaptiveTextZoom.edgeThresholds,
+            this.getPreviousMaxDisplayedSize()
+        );
+        const nodes = containedElementList.nodes.length
+            ? this.filterNodes(containedElementList.nodes, vlThreshold, maxDisplayedSize)
+            : [];
+        const edges = containedElementList.edges.length
+            ? this.filterEdges(containedElementList.edges, vlThreshold, previousVlThreshold, maxDisplayedSize)
+            : [];
+        if (this.diagramMetadata) {
+            const svgWriter = new SvgWriter({
+                diagramMetadata: this.diagramMetadata,
+                elementList: { nodes: nodes, edges: edges },
+                voltageLevels: maxDisplayedSize > vlThreshold.threshold ? vlThreshold.voltageLevels : undefined,
+            });
+            svgWriter.addNodes(<SVGGElement>this.nodesSection!);
+            svgWriter.addEdgesAndInfos(<SVGGElement>this.edgesSection!);
+        }
+    }
+
+    filterNodes(nodes: NodeMetadata[], vlThreshold: VoltageLevelThreshold, maxDisplayedSize: number): NodeMetadata[] {
+        if (vlThreshold.voltageLevels) {
+            // filter nodes metadata, keep nodes not belonging to vl classes
+            nodes = nodes.filter(
+                (node) =>
+                    maxDisplayedSize < vlThreshold.threshold ||
+                    DiagramUtils.intersectionLength(node.classes, vlThreshold.voltageLevels) == 0
+            );
+        }
+        // filter nodes in SVG, possibly remove also nodes to be redrawn, with multiple buses
+        const validNodeIds = new Set(nodes.map((n) => n.svgId));
+        this.nodesSection?.querySelectorAll('g[id]')?.forEach((node) => {
+            if (
+                !validNodeIds.has(node.id) ||
+                (vlThreshold.voltageLevels == undefined && node.querySelectorAll(':scope > path').length > 0)
+            ) {
+                node.remove();
+            }
+        });
+        return nodes;
+    }
+
+    filterEdges(
+        edges: EdgeMetadata[],
+        vlThreshold: VoltageLevelThreshold,
+        previousVlThreshold: VoltageLevelThreshold,
+        maxDisplayedSize: number
+    ): EdgeMetadata[] {
+        let edgeIdsToRemove: Set<string> = new Set();
+        if (vlThreshold.voltageLevels) {
+            // filter edges metadata, keep edges not belonging to vl classes
+            edges = edges.filter(
+                (edge) =>
+                    maxDisplayedSize < vlThreshold.threshold ||
+                    DiagramUtils.intersectionLength(edge.classes1, vlThreshold.voltageLevels) == 0 ||
+                    DiagramUtils.intersectionLength(edge.classes2, vlThreshold.voltageLevels) == 0
+            );
+            // get edges to be removed and redrawn, with 1 half edge belonging to vl classes
+            edgeIdsToRemove = new Set(
+                edges
+                    .filter(
+                        (edge) =>
+                            (DiagramUtils.intersectionLength(edge.classes1, vlThreshold.voltageLevels) > 0 &&
+                                DiagramUtils.intersectionLength(edge.classes2, vlThreshold.voltageLevels) == 0) ||
+                            (DiagramUtils.intersectionLength(edge.classes1, vlThreshold.voltageLevels) == 0 &&
+                                DiagramUtils.intersectionLength(edge.classes2, vlThreshold.voltageLevels) > 0) ||
+                            (DiagramUtils.intersectionLength(edge.classes1, previousVlThreshold.voltageLevels) > 0 &&
+                                DiagramUtils.intersectionLength(edge.classes2, previousVlThreshold.voltageLevels) ==
+                                    0) ||
+                            (DiagramUtils.intersectionLength(edge.classes1, previousVlThreshold.voltageLevels) == 0 &&
+                                DiagramUtils.intersectionLength(edge.classes2, previousVlThreshold.voltageLevels) > 0)
+                    )
+                    .map((edge) => edge.svgId)
+            );
+        }
+        // filter edges in SVG
+        const validEdgeIds = new Set(edges.map((n) => n.svgId));
+        this.edgesSection?.querySelectorAll('g[id]')?.forEach((edge) => {
+            if (!validEdgeIds.has(edge.id) || (vlThreshold.voltageLevels && edgeIdsToRemove.has(edge.id))) {
+                edge.remove();
+            }
+        });
+        return edges;
     }
 
     public setJsonBranchStates(branchStates: string) {

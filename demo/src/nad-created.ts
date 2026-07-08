@@ -54,6 +54,18 @@ const addCreatedNadToDemo = () => {
                 onToggleHoverCallback: handleToggleNadHover,
                 onRightClickCallback: handleRightClick,
                 onBendLineCallback: handleLineBending,
+                adaptiveTextZoom: {
+                    enabled: true,
+                    threshold: 1500,
+                    nodeThresholds: [
+                        { threshold: 1800, voltageLevels: ['nad-vl0to30'] },
+                        { threshold: 2200, voltageLevels: ['nad-vl0to30', 'nad-vl120to180'] },
+                    ],
+                    edgeThresholds: [
+                        { threshold: 1800, voltageLevels: ['nad-vl0to30'] },
+                        { threshold: 2200, voltageLevels: ['nad-vl0to30', 'nad-vl120to180'] },
+                    ],
+                },
             };
             new NetworkAreaDiagramViewer(
                 document.getElementById('svg-container-nad-eurostag')!,
@@ -70,6 +82,7 @@ const addCreatedNadToDemo = () => {
         onToggleHoverCallback: handleToggleNadHover,
         onRightClickCallback: handleRightClick,
         onBendLineCallback: handleLineBending,
+        createSvgFromMetadata: true,
     };
     new NetworkAreaDiagramViewer(
         document.getElementById('svg-container-nad-eurostag-c')!,
@@ -231,7 +244,12 @@ const addCreatedNadToDemo = () => {
                 onRightClickCallback: handleRightClick,
                 onBendLineCallback: handleLineBending,
 
-                adaptiveTextZoom: { enabled: true, threshold: 1880 },
+                adaptiveTextZoom: {
+                    enabled: true,
+                    threshold: 1880,
+                    nodeThresholds: [{ threshold: 3500 }],
+                    edgeThresholds: [{ threshold: 2500 }],
+                },
             };
             new NetworkAreaDiagramViewer(
                 document.getElementById('svg-container-nad-multibus-vlnodes-middle-arrow')!,
@@ -339,8 +357,6 @@ const addCreatedNadToDemo = () => {
         .then((svgContent) => {
             const nadViewerParametersOptions: NadViewerParametersOptions = {
                 enableDragInteraction: true,
-                enableLevelOfDetail: true,
-                zoomLevels: [0, 1000, 2200, 2500, 3000, 4000, 9000, 12000, 20000],
                 addButtons: true,
                 onMoveNodeCallback: handleNodeMove,
                 onMoveTextNodeCallback: handleTextNodeMove,
@@ -348,6 +364,12 @@ const addCreatedNadToDemo = () => {
                 onToggleHoverCallback: handleToggleNadHover,
                 onRightClickCallback: handleRightClick,
                 onBendLineCallback: handleLineBending,
+                adaptiveTextZoom: {
+                    enabled: true,
+                    threshold: 3000,
+                    nodeThresholds: [{ threshold: 6000, voltageLevels: ['nad-vl180to300'] }],
+                    edgeThresholds: [{ threshold: 6000, voltageLevels: ['nad-vl180to300'] }],
+                },
             };
             new NetworkAreaDiagramViewer(
                 document.getElementById('svg-container-nad-pegase-network')!,
@@ -366,6 +388,7 @@ const addCreatedNadToDemo = () => {
         onToggleHoverCallback: handleToggleNadHover,
         onRightClickCallback: handleRightClick,
         onBendLineCallback: handleLineBending,
+        createSvgFromMetadata: true,
     };
     new NetworkAreaDiagramViewer(
         document.getElementById('svg-container-nad-pegase-network-c')!,

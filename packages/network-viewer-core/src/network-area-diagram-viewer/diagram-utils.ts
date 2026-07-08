@@ -7,7 +7,8 @@
 
 import { Point } from '@svgdotjs/svg.js';
 import { EdgeInfoEnum, SvgParameters } from './svg-parameters';
-import { EdgeType, NodeRadius } from './diagram-types';
+import { EdgeType, LabelData, NodeRadius } from './diagram-types';
+import { VoltageLevelThreshold } from './nad-viewer-parameters';
 
 export function getDistance(point1: Point, point2: Point): number {
     const deltax = point1.x - point2.x;
@@ -403,4 +404,49 @@ export function getLabelShiftAndStyle(
     const style: string | undefined = externalLabel == textFlipped ? 'text-anchor:end' : undefined;
     const shift: number = arrowLabelShift * (externalLabel ? 1 : -1);
     return [textFlipped ? -shift : shift, style];
+}
+
+// get the label data: angle and [shift, style] of a external and internal label
+export function getLabelData(angle: number, arrowLabelShift: number): LabelData {
+    const textFlipped = Math.cos(angle) < 0;
+    const internalShiftAndStyle = getLabelShiftAndStyle(angle, false, arrowLabelShift);
+    const externalShiftAndStyle = getLabelShiftAndStyle(angle, true, arrowLabelShift);
+    return {
+        angle: radToDeg(textFlipped ? angle - Math.PI : angle),
+        internal: { shift: internalShiftAndStyle[0], style: internalShiftAndStyle[1] },
+        external: { shift: externalShiftAndStyle[0], style: externalShiftAndStyle[1] },
+    };
+}
+
+export function getMaxThreshold(voltageLevelThreshols: VoltageLevelThreshold[]): VoltageLevelThreshold {
+    return (voltageLevelThreshols.length == 0 ? [{ threshold: 500000 }] : voltageLevelThreshols).reduce((a, b) =>
+        a.threshold > b.threshold ? a : b
+    );
+}
+
+export function getMinThreshold(voltageLevelThreshols: VoltageLevelThreshold[]): VoltageLevelThreshold {
+    return (voltageLevelThreshols.length == 0 ? [{ threshold: 500000 }] : voltageLevelThreshols).reduce((a, b) =>
+        a.threshold > b.threshold ? b : a
+    );
+}
+
+export function getVLThreshold(
+    voltageLevelThreshols: VoltageLevelThreshold[],
+    maxDisplayedSize: number
+): VoltageLevelThreshold {
+    const sortedThresholds = [...voltageLevelThreshols].sort((a, b) => b.threshold - a.threshold);
+    for (const threshold of sortedThresholds) {
+        if (threshold.threshold < maxDisplayedSize) {
+            return threshold;
+        }
+    }
+    return sortedThresholds.at(-1) ?? getMinThreshold(voltageLevelThreshols);
+}
+
+export function getVLThresholdClasses(voltageLevels: string[]): string {
+    return '.' + voltageLevels.join(',.');
+}
+
+export function intersectionLength(array1: string[] | undefined, array2: string[] | undefined): number {
+    return array1?.filter((value) => array2?.includes(value)).length ?? 0;
 }
