@@ -377,7 +377,16 @@ export class NetworkAreaDiagramViewer {
 
         this.textNodesSection = this.getOrCreateTextNodesSection();
         this.textEdgesSection = this.getOrCreateTextEdgesSection();
-        this.edgeInfosSection = this.getOrCreateEdgeInfosSection();
+        // Do not get nad-edge-infos from the SVG in the following modes
+        // IT will be build later in the updateAdaptiveEdgeInfos at init
+        if (this.nadViewerParameters.getAdaptiveTextZoom().enabled) {
+            this.edgeInfosSection = this.createEmptyEdgeInfosSection();
+            console.warn(
+                'AdaptiveTextZoom mode : nad-edge-infos has been dropped from the SVG, it will be recreated from metadata'
+            );
+        } else {
+            this.edgeInfosSection = this.getOrCreateEdgeInfosSection();
+        }
 
         // add events
         const hasMetadata = this.diagramMetadata !== null;
@@ -502,12 +511,17 @@ export class NetworkAreaDiagramViewer {
         return legendEdgesSection;
     }
 
+    private createEmptyEdgeInfosSection(): SVGElement {
+        const edgeInfos = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        edgeInfos.classList.add('nad-edge-infos');
+        this.innerSvg?.appendChild(edgeInfos);
+        return edgeInfos;
+    }
+
     private getOrCreateEdgeInfosSection(): SVGElement {
-        let edgeInfos = <SVGElement>this.innerSvg?.querySelector(':scope > g.nad-edge-infos');
+        const edgeInfos = <SVGElement>this.innerSvg?.querySelector(':scope > g.nad-edge-infos');
         if (!edgeInfos) {
-            edgeInfos = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-            edgeInfos.classList.add('nad-edge-infos');
-            this.innerSvg?.appendChild(edgeInfos);
+            return this.createEmptyEdgeInfosSection();
         }
         return edgeInfos;
     }
