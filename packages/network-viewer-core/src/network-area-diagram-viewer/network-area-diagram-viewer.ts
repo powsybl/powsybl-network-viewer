@@ -382,7 +382,7 @@ export class NetworkAreaDiagramViewer {
         if (this.nadViewerParameters.getAdaptiveTextZoom().enabled) {
             this.edgeInfosSection = this.createEmptyEdgeInfosSection();
             console.warn(
-                'AdaptiveTextZoom mode : nad-edge-infos has been dropped from the SVG, it will be recreated from metadata'
+                'AdaptiveTextZoom mode activated: creating nad-edge-infos from metadata and ignoring it from the SVG'
             );
         } else {
             this.edgeInfosSection = this.getOrCreateEdgeInfosSection();
