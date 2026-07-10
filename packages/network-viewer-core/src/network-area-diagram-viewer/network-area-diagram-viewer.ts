@@ -377,13 +377,18 @@ export class NetworkAreaDiagramViewer {
 
         this.textNodesSection = this.getOrCreateTextNodesSection();
         this.textEdgesSection = this.getOrCreateTextEdgesSection();
-        // Do not get nad-edge-infos from the SVG in the following modes
-        // IT will be build later in the updateAdaptiveEdgeInfos at init
+        // Ignore nad-edge-infos from the SVG in the AdaptiveTextZoom mode at init
+        // It will be fullfilled later in the updateAdaptiveEdgeInfos
         if (this.nadViewerParameters.getAdaptiveTextZoom().enabled) {
+            // if the nad-edge-infos section exists in the SVG, replace it by an empty one
+            const existingEdgeInfos = <SVGElement>this.innerSvg?.querySelector(':scope > g.nad-edge-infos');
+            if (existingEdgeInfos) {
+                existingEdgeInfos.remove();
+                console.warn(
+                    'AdaptiveTextZoom mode activated: creating nad-edge-infos from metadata and ignoring it from the SVG'
+                );
+            }
             this.edgeInfosSection = this.createEmptyEdgeInfosSection();
-            console.warn(
-                'AdaptiveTextZoom mode activated: creating nad-edge-infos from metadata and ignoring it from the SVG'
-            );
         } else {
             this.edgeInfosSection = this.getOrCreateEdgeInfosSection();
         }
