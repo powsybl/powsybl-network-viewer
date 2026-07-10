@@ -2155,6 +2155,7 @@ export class NetworkAreaDiagramViewer {
         this.updateAdaptiveEdgeInfos(containedEdgeList, viewBox, maxDisplayedSize, adaptiveTextZoom);
     }
 
+    // TODO handle three windings transformers, removing them from the SVG and redrawing them with the SVG writer
     private updateAdaptiveNodesAndEdges(
         containedElementList: { nodes: NodeMetadata[]; edges: EdgeMetadata[] },
         maxDisplayedSize: number,
