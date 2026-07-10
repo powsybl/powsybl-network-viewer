@@ -922,7 +922,14 @@ export class NetworkAreaDiagramViewer {
         } else if (this.straightenedElement) {
             // straightening line
             this.onStraightenEnd();
+            this.enablePanzoom();
+        } else if (this.draggedElement) {
+            // this.draggedElement could be defined here even if this.isDragging
+            // is false in case of text selection. then we must re enable pan zoom.
+            this.enablePanzoom();
         }
+        // It's tempting to want to factor by calling 'enablePanzoom' here,
+        // however it's a bad idea and breaks the functionality of the pan!
         this.resetMouseEventParams();
     }
 
@@ -2326,7 +2333,8 @@ export class NetworkAreaDiagramViewer {
             }
         }
         this.updateEdgeInfoMetadata(edgeInfoMetadata, value, preserveExistingDirection);
-        const edgeInfo = this.getOrCreateEdgeInfo(edgeInfoMetadata);
+        const classes = (side == '1' ? edge.classes1 : edge.classes2) ?? [];
+        const edgeInfo = this.getOrCreateEdgeInfo(edgeInfoMetadata, classes);
         if (!halfEdge.edgeInfoId) {
             halfEdge.edgeInfoId = edgeInfo.id;
         }
@@ -2430,7 +2438,9 @@ export class NetworkAreaDiagramViewer {
             edge.edgeInfoMiddle = edgeInfoMetadata;
         }
 
-        const edgeInfo = this.getOrCreateEdgeInfo(edgeInfoMetadata);
+        // the middle edge info belongs to both sides, so it carries the classes of both
+        const classes = [...(edge.classes1 ?? []), ...(edge.classes2 ?? [])];
+        const edgeInfo = this.getOrCreateEdgeInfo(edgeInfoMetadata, classes);
 
         // componentType replaces the arrow, so it follows the same showArrow threshold
         if (showArrow) {
@@ -2501,7 +2511,7 @@ export class NetworkAreaDiagramViewer {
         branchLabelElement.innerHTML = formattedValue;
     }
 
-    private getOrCreateEdgeInfo(edgeInfoMetadata: EdgeInfoMetadata): SVGElement {
+    private getOrCreateEdgeInfo(edgeInfoMetadata: EdgeInfoMetadata, classes: string[]): SVGElement {
         const edgeInfo = this.getEdgeInfo(edgeInfoMetadata.svgId);
         if (edgeInfo) {
             return edgeInfo;
@@ -2509,6 +2519,9 @@ export class NetworkAreaDiagramViewer {
 
         const newEdgeInfo = document.createElementNS('http://www.w3.org/2000/svg', 'g');
         newEdgeInfo.id = edgeInfoMetadata.svgId;
+        if (classes.length) {
+            newEdgeInfo.classList.add(...classes);
+        }
         this.edgeInfosSection?.appendChild(newEdgeInfo);
 
         return newEdgeInfo;
@@ -3048,7 +3061,6 @@ export class NetworkAreaDiagramViewer {
         this.callBendLineCallback(this.straightenedElement, LineOperation.STRAIGHTEN);
         // reset data
         this.straightenedElement = null;
-        this.enablePanzoom();
     }
 
     private callBendLineCallback(linePointElement: SVGGraphicsElement, lineOperation: LineOperation) {
