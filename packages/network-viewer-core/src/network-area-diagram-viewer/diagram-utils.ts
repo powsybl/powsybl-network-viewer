@@ -8,7 +8,7 @@
 import { Point } from '@svgdotjs/svg.js';
 import { EdgeInfoEnum, SvgParameters } from './svg-parameters';
 import { EdgeType, LabelData, NodeRadius } from './diagram-types';
-import { VoltageLevelThreshold } from './nad-viewer-parameters';
+import { NadViewerParameters, VoltageLevelThreshold } from './nad-viewer-parameters';
 
 export function getDistance(point1: Point, point2: Point): number {
     const deltax = point1.x - point2.x;
@@ -418,35 +418,35 @@ export function getLabelData(angle: number, arrowLabelShift: number): LabelData 
     };
 }
 
-export function getMaxThreshold(voltageLevelThreshols: VoltageLevelThreshold[]): VoltageLevelThreshold {
-    return (voltageLevelThreshols.length == 0 ? [{ threshold: 500000 }] : voltageLevelThreshols).reduce(
-        (a, b) => (a.threshold > b.threshold ? a : b),
-        voltageLevelThreshols[0] ?? [{ threshold: 500000 }]
-    );
+export function getMaxThreshold(voltageLevelThresholds: VoltageLevelThreshold[]): VoltageLevelThreshold {
+    return voltageLevelThresholds.length == 0
+        ? { threshold: NadViewerParameters.THRESHOLD_NODES_ADAPTIVE_ZOOM_DEFAULT }
+        : voltageLevelThresholds.reduce(
+              (a, b) => (a.threshold > b.threshold ? a : b),
+              voltageLevelThresholds[0] ?? [{ threshold: NadViewerParameters.THRESHOLD_NODES_ADAPTIVE_ZOOM_DEFAULT }]
+          );
 }
 
-export function getMinThreshold(voltageLevelThreshols: VoltageLevelThreshold[]): VoltageLevelThreshold {
-    return (voltageLevelThreshols.length == 0 ? [{ threshold: 500000 }] : voltageLevelThreshols).reduce(
-        (a, b) => (a.threshold > b.threshold ? b : a),
-        voltageLevelThreshols[0] ?? [{ threshold: 500000 }]
-    );
+export function getMinThreshold(voltageLevelThresholds: VoltageLevelThreshold[]): VoltageLevelThreshold {
+    return voltageLevelThresholds.length == 0
+        ? { threshold: NadViewerParameters.THRESHOLD_NODES_ADAPTIVE_ZOOM_DEFAULT }
+        : voltageLevelThresholds.reduce(
+              (a, b) => (a.threshold > b.threshold ? b : a),
+              voltageLevelThresholds[0] ?? [{ threshold: NadViewerParameters.THRESHOLD_NODES_ADAPTIVE_ZOOM_DEFAULT }]
+          );
 }
 
 export function getVLThreshold(
-    voltageLevelThreshols: VoltageLevelThreshold[],
+    voltageLevelThresholds: VoltageLevelThreshold[],
     maxDisplayedSize: number
 ): VoltageLevelThreshold {
-    const sortedThresholds = [...voltageLevelThreshols].sort((a, b) => b.threshold - a.threshold);
+    const sortedThresholds = [...voltageLevelThresholds].sort((a, b) => b.threshold - a.threshold);
     for (const threshold of sortedThresholds) {
         if (threshold.threshold < maxDisplayedSize) {
             return threshold;
         }
     }
-    return sortedThresholds.at(-1) ?? getMinThreshold(voltageLevelThreshols);
-}
-
-export function getVLThresholdClasses(voltageLevels: string[]): string {
-    return '.' + voltageLevels.join(',.');
+    return sortedThresholds.at(-1) ?? getMinThreshold(voltageLevelThresholds);
 }
 
 export function intersectionLength(array1: string[] | undefined, array2: string[] | undefined): number {

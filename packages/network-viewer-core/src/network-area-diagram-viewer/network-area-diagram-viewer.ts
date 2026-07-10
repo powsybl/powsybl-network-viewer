@@ -179,7 +179,6 @@ export class NetworkAreaDiagramViewer {
             this.svgWriter = new SvgWriter({ diagramMetadata: this.diagramMetadata });
             this.svgContent = this.svgWriter.getEmptySvg();
         }
-        this.nadViewerParameters = new NadViewerParameters(nadViewerParametersOptions ?? undefined);
         this.width = 0;
         this.height = 0;
         this.originalWidth = 0;
@@ -389,11 +388,11 @@ export class NetworkAreaDiagramViewer {
         }
         this.innerSvg.style.overflow = 'visible';
 
+        this.nodesSection = this.getOrCreateNodesSection();
+        this.edgesSection = this.getOrCreateEdgesSection();
         this.textNodesSection = this.getOrCreateTextNodesSection();
         this.textEdgesSection = this.getOrCreateTextEdgesSection();
         this.edgeInfosSection = this.getOrCreateEdgeInfosSection();
-        this.nodesSection = this.getOrCreateNodesSection();
-        this.edgesSection = this.getOrCreateEdgesSection();
 
         // add events
         const hasMetadata = this.diagramMetadata !== null;
@@ -2172,29 +2171,40 @@ export class NetworkAreaDiagramViewer {
             containedElementList.edges = [];
         }
         if (containedElementList.nodes.length == 0 && containedElementList.edges.length == 0) return;
-        const vlThreshold = DiagramUtils.getVLThreshold(adaptiveTextZoom.nodeThresholds, maxDisplayedSize);
-        const previousVlThreshold = DiagramUtils.getVLThreshold(
+        const nodeVlThreshold = DiagramUtils.getVLThreshold(adaptiveTextZoom.nodeThresholds, maxDisplayedSize);
+        const edgeVlThreshold = DiagramUtils.getVLThreshold(adaptiveTextZoom.nodeThresholds, maxDisplayedSize);
+        const edgePreviousVlThreshold = DiagramUtils.getVLThreshold(
             adaptiveTextZoom.edgeThresholds,
             this.getPreviousMaxDisplayedSize()
         );
         const nodes = containedElementList.nodes.length
-            ? this.filterNodes(containedElementList.nodes, vlThreshold, maxDisplayedSize)
+            ? this.filterNodes(
+                  containedElementList.nodes,
+                  nodeVlThreshold,
+                  edgeVlThreshold.voltageLevels,
+                  maxDisplayedSize
+              )
             : [];
         const edges = containedElementList.edges.length
-            ? this.filterEdges(containedElementList.edges, vlThreshold, previousVlThreshold, maxDisplayedSize)
+            ? this.filterEdges(containedElementList.edges, edgeVlThreshold, edgePreviousVlThreshold, maxDisplayedSize)
             : [];
         if (this.diagramMetadata) {
             const svgWriter = new SvgWriter({
                 diagramMetadata: this.diagramMetadata,
                 elementList: { nodes: nodes, edges: edges },
-                voltageLevels: maxDisplayedSize > vlThreshold.threshold ? vlThreshold.voltageLevels : undefined,
+                voltageLevels: maxDisplayedSize > nodeVlThreshold.threshold ? nodeVlThreshold.voltageLevels : undefined,
             });
             svgWriter.addNodes(<SVGGElement>this.nodesSection!);
             svgWriter.addEdgesAndInfos(<SVGGElement>this.edgesSection!);
         }
     }
 
-    filterNodes(nodes: NodeMetadata[], vlThreshold: VoltageLevelThreshold, maxDisplayedSize: number): NodeMetadata[] {
+    private filterNodes(
+        nodes: NodeMetadata[],
+        vlThreshold: VoltageLevelThreshold,
+        edgeVoltageLevels: string[] | undefined,
+        maxDisplayedSize: number
+    ): NodeMetadata[] {
         if (vlThreshold.voltageLevels) {
             // filter nodes metadata, keep nodes not belonging to vl classes
             nodes = nodes.filter(
@@ -2208,7 +2218,7 @@ export class NetworkAreaDiagramViewer {
         this.nodesSection?.querySelectorAll('g[id]')?.forEach((node) => {
             if (
                 !validNodeIds.has(node.id) ||
-                (vlThreshold.voltageLevels == undefined && node.querySelectorAll(':scope > path').length > 0)
+                (edgeVoltageLevels == undefined && node.querySelectorAll(':scope > path').length > 0)
             ) {
                 node.remove();
             }
@@ -2216,7 +2226,7 @@ export class NetworkAreaDiagramViewer {
         return nodes;
     }
 
-    filterEdges(
+    private filterEdges(
         edges: EdgeMetadata[],
         vlThreshold: VoltageLevelThreshold,
         previousVlThreshold: VoltageLevelThreshold,
