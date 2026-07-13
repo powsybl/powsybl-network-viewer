@@ -176,7 +176,7 @@ export class SvgWriter {
             gNodeElement.appendChild(circleElement);
         } else {
             const busNodes = MetadataUtils.getBusNodesMetadata(node.svgId, this.diagramMetadata.busNodes);
-            const busEgdes = MetadataUtils.getBusEdgesMetadata(node.svgId, this.diagramMetadata.edges);
+            const busEgdes = MetadataUtils.getBusEdgesMetadata(node.svgId, this.edges ?? this.diagramMetadata.edges);
             const traversingBusEdgesAngles: number[] = [];
             busNodes.forEach((busNode) => {
                 gNodeElement.appendChild(this.getBusNode(busNode, node, traversingBusEdgesAngles));
