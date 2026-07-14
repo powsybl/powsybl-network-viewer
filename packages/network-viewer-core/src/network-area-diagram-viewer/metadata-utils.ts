@@ -15,9 +15,9 @@ import {
     PointMetadata,
     TextNodeMetadata,
 } from './diagram-metadata';
-import { SvgParameters } from './svg-parameters';
+import { SizeConstraintEnum, SvgParameters } from './svg-parameters';
 import { getDistance, getPointAtDistance, getVoltageLevelCircleRadius, round } from './diagram-utils';
-import { EdgeType, ElementData, ElementType, NodeMove, NodeRadius, NodeType, ViewBox } from './diagram-types';
+import { Dimensions, EdgeType, ElementData, ElementType, NodeMove, NodeRadius, NodeType } from './diagram-types';
 
 const TEXT_BOX_WIDTH_DEFAULT = 200;
 const TEXT_BOX_HEIGHT_DEFAULT = 100;
@@ -221,12 +221,12 @@ export function getRightClickableElementData(
 
 // get view box computed starting from node and text positions
 // defined in diagram metadata
-export function getViewBox(
+export function getViewBoxAndDimensions(
     nodes: NodeMetadata[] | undefined,
     textNodes: TextNodeMetadata[] | undefined,
     svgParameters: SvgParameters,
     textBoxSize?: { width: number; height: number }
-): ViewBox {
+): Dimensions {
     const size = { minX: Number.MAX_VALUE, maxX: -Number.MAX_VALUE, minY: Number.MAX_VALUE, maxY: -Number.MAX_VALUE };
     const nodesMap: Map<string, NodeMetadata> = new Map<string, NodeMetadata>();
     nodes?.forEach((node) => {
@@ -248,16 +248,34 @@ export function getViewBox(
             );
         }
     });
+    const width =
+        size.maxX - size.minX + svgParameters.getDiagramPadding().left + svgParameters.getDiagramPadding().right;
+    const height =
+        size.maxY - size.minY + svgParameters.getDiagramPadding().top + svgParameters.getDiagramPadding().bottom;
+    const scale = getScale(width, height, svgParameters);
     return {
-        x: round(size.minX - svgParameters.getDiagramPadding().left),
-        y: round(size.minY - svgParameters.getDiagramPadding().top),
-        width: round(
-            size.maxX - size.minX + svgParameters.getDiagramPadding().left + svgParameters.getDiagramPadding().right
-        ),
-        height: round(
-            size.maxY - size.minY + svgParameters.getDiagramPadding().top + svgParameters.getDiagramPadding().bottom
-        ),
+        width: round(width * scale),
+        height: round(height * scale),
+        viewbox: {
+            x: round(size.minX - svgParameters.getDiagramPadding().left),
+            y: round(size.minY - svgParameters.getDiagramPadding().top),
+            width: round(width),
+            height: round(height),
+        },
     };
+}
+
+function getScale(width: number, height: number, svgParameters: SvgParameters): number {
+    switch (svgParameters.getSizeConstraint()) {
+        case SizeConstraintEnum.FIXED_WIDTH:
+            return svgParameters.getFixedWidth() / width;
+        case SizeConstraintEnum.FIXED_HEIGHT:
+            return svgParameters.getFixedHeight() / height;
+        case SizeConstraintEnum.FIXED_SCALE:
+            return svgParameters.getFixedScale();
+        default:
+            return 1;
+    }
 }
 
 // get inner and outer radius of bus node and radius of voltage level
