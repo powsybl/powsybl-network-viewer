@@ -11,3 +11,4 @@ export * from './datamodel.js';
 export * from './geometry.js';
 export * from './layout.js';
 export * from './statemanager.js';
+export * from './topology.js';

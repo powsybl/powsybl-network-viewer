@@ -136,36 +136,135 @@ def extract_scenario(network, p_max_factor: float = 2.0) -> dict:
     return {"buses": buses, "branches": branches}
 
 
-# scenario builder
-def create_scenarios(
+# bus-breaker map helpers
+def get_bus_breaker_map(network) -> dict[str, list[str]]:
+    """
+    Return {bus_view_id: [bb_bus_id, ...]} for the current network state.
+
+    Calls get_bus_breaker_view_buses() whose index is the BB bus ID and whose
+    'bus_id' column holds the bus-view ID each BB bus currently belongs to.
+    This is stateless — call it on each network state independently.
+    """
+    bb_buses = network.get_bus_breaker_view_buses()
+    result: dict[str, list[str]] = {}
+    for bb_id, row in bb_buses.iterrows():
+        bus_view_id = row["bus_id"]
+        result.setdefault(bus_view_id, []).append(bb_id)
+    return result
+
+
+def compute_inherited_positions(
+    old_bb_map: dict[str, list[str]],
+    new_bb_map: dict[str, list[str]],
+) -> dict[str, str]:
+    """
+    Return {new_bus_view_id: predecessor_bus_view_id} for bus-view IDs that
+    appeared in new_bb_map but were absent from old_bb_map.
+    """
+    bb_to_old_view = {bb: bv for bv, bbs in old_bb_map.items() for bb in bbs}
+    result: dict[str, str] = {}
+    for new_bv, bbs in new_bb_map.items():
+        if new_bv not in old_bb_map:
+            for bb in bbs:
+                old_bv = bb_to_old_view.get(bb)
+                if old_bv:
+                    result[new_bv] = old_bv
+                    break
+    return result
+
+
+def canonicalize_bus_view_ids(
+    old_bb_map: dict[str, list[str]],
+    new_bb_map: dict[str, list[str]],
+) -> dict[str, str]:
+    """
+    Return {raw_new_id: canonical_id}, relabeling bus-view IDs whose BB-bus set is
+    unchanged back to their old label.
+    """
+    old_by_set = {frozenset(bbs): old_id for old_id, bbs in old_bb_map.items()}
+    rename: dict[str, str] = {}
+    claimed: set[str] = set()
+    unmatched: list[str] = []
+    for new_id, bbs in new_bb_map.items():
+        old_id = old_by_set.get(frozenset(bbs))
+        if old_id is not None:
+            rename[new_id] = old_id
+            claimed.add(old_id)
+        else:
+            unmatched.append(new_id)
+
+    leftover = sorted(set(new_bb_map) - claimed)
+    for new_id in unmatched:
+        if new_id in leftover:
+            rename[new_id] = new_id
+            leftover.remove(new_id)
+        else:
+            rename[new_id] = leftover.pop(0)
+    return rename
+
+
+def _apply_rename(raw: dict, bb_map: dict[str, list[str]], rename: dict[str, str]) -> dict[str, list[str]]:
+    """Apply a {raw_id: canonical_id} rename to a scenario's buses/branches and bb_map."""
+    for bus in raw["buses"]:
+        bus["id"] = rename.get(bus["id"], bus["id"])
+    for branch in raw["branches"]:
+        branch["from_bus"] = rename.get(branch["from_bus"], branch["from_bus"])
+        branch["to_bus"] = rename.get(branch["to_bus"], branch["to_bus"])
+    return {rename.get(k, k): v for k, v in bb_map.items()}
+
+
+# topology-change scenario builder
+def create_topology_change_scenario(
     network,
-    outage_ids: list[str] | str | None = None,
+    old_bb_map: dict[str, list[str]],
+    open_breakers: list[str] | None,
+    close_breakers: list[str] | None,
+    baseline_p_max: dict[str, float],
     p_max_factor: float = 2.0,
-) -> tuple[dict, dict | None]:
+    emit_metadata: bool = True,
+) -> dict:
     """
-    Run DC power flow and return (baseline, contingency).
-    contingency is None when outage_ids is None.
-    The network is restored to its original connected state after this call.
+    Apply switch opens/closes, run DCPF, export scenario, then restore the network.
 
-    network      : pypowsybl Network object
-    outage_ids   : one branch ID (str) or a list of branch IDs; None means no contingency
-    p_max_factor : fallback factor to use when a branch has no limit defined (default 2.0)
+    Emits bus_breaker_map and inherited_positions (derived from the before/after BB maps)
+    when emit_metadata is True.
     """
-    if outage_ids is None:
-        ids: list[str] = []
-    elif isinstance(outage_ids, str):
-        ids = [outage_ids]
-    else:
-        ids = list(outage_ids)
-
-    # Base case
+    for bid in (open_breakers or []):
+        network.open_switch(bid)
+    for bid in (close_breakers or []):
+        network.close_switch(bid)
     run_dcpf(network)
-    baseline = extract_scenario(network, p_max_factor=p_max_factor)
+    raw = extract_scenario(network, p_max_factor=p_max_factor)
+    new_bb_map = get_bus_breaker_map(network)   # captured before restore
+    for bid in (open_breakers or []):
+        network.close_switch(bid)               # restore opened switches
+    for bid in (close_breakers or []):
+        network.open_switch(bid)                # restore closed switches
+    for br in raw["branches"]:
+        if br["id"] in baseline_p_max:
+            br["p_max"] = baseline_p_max[br["id"]]
 
-    if not ids:
-        return baseline, None
+    rename = canonicalize_bus_view_ids(old_bb_map, new_bb_map)
+    new_bb_map = _apply_rename(raw, new_bb_map, rename)
 
-    # open all branches in the ids list, re-run DC power flow, restore the branches at the end
+    if emit_metadata:
+        raw["bus_breaker_map"] = new_bb_map
+        raw["inherited_positions"] = compute_inherited_positions(old_bb_map, new_bb_map)
+    return raw
+
+
+def _normalize_outage_ids(outage_ids: list[str] | str | None) -> list[str]:
+    if outage_ids is None:
+        return []
+    if isinstance(outage_ids, str):
+        return [outage_ids]
+    return list(outage_ids)
+
+
+def _build_contingency_scenario(network, ids: list[str], baseline: dict, p_max_factor: float) -> dict:
+    """
+    Open ids, run DCPF, restore, and patch p_max + outage annotations to match baseline.
+    """
     for eid in ids:
         network.disconnect(eid)
     run_dcpf(network)
@@ -173,7 +272,7 @@ def create_scenarios(
     for eid in ids:
         network.connect(eid)
 
-    # p_max must be consistent with the baseline (fallback values depend on flow, which changes)
+    # p_max must be consistent with the baseline (fallback values depend on flow)
     baseline_p_max = {b["id"]: b["p_max"] for b in baseline["branches"]}
     for branch in ctg_raw["branches"]:
         if branch["id"] in baseline_p_max:
@@ -190,8 +289,54 @@ def create_scenarios(
         else:
             patched_branches.append({**outaged, "flow": 0.0, "outage": True})
 
-    contingency = {"buses": ctg_raw["buses"], "branches": patched_branches}
-    return baseline, contingency
+    return {"buses": ctg_raw["buses"], "branches": patched_branches}
+
+
+# scenario builder
+def create_scenarios(
+    network,
+    outage_ids: list[str] | str | None = None,
+    open_breakers: list[str] | None = None,
+    close_breakers: list[str] | None = None,
+    p_max_factor: float = 2.0,
+    emit_topology_metadata: bool = True,
+) -> tuple[dict, dict | None, dict | None]:
+    """
+    Run DC power flow and return (baseline, contingency, topology_change).
+    contingency is None when outage_ids is None.
+    topology_change is None when neither open_breakers nor close_breakers is set.
+    The network is restored to its original state after this call.
+
+    network                 : pypowsybl Network object
+    outage_ids              : one branch ID (str) or a list of branch IDs; None means no contingency
+    open_breakers           : switch IDs to open for the topology-change scenario (causes bus splits)
+    close_breakers          : switch IDs to close for the topology-change scenario (causes bus merges)
+    p_max_factor            : fallback factor for branches with no defined limit (default 2.0)
+    emit_topology_metadata  : if False, omit bus_breaker_map (baseline and topology_change) and
+                               inherited_positions (topology_change) from the output.
+    """
+    ids = _normalize_outage_ids(outage_ids)
+
+    # Base case
+    run_dcpf(network)
+    baseline = extract_scenario(network, p_max_factor=p_max_factor)
+
+    contingency = None
+    if ids:
+        contingency = _build_contingency_scenario(network, ids, baseline, p_max_factor)
+
+    topology_change = None
+    if open_breakers or close_breakers:
+        bb_map = get_bus_breaker_map(network)
+        if emit_topology_metadata:
+            baseline["bus_breaker_map"] = bb_map
+        baseline_p_max = {b["id"]: b["p_max"] for b in baseline["branches"]}
+        topology_change = create_topology_change_scenario(
+            network, bb_map, open_breakers, close_breakers, baseline_p_max, p_max_factor,
+            emit_metadata=emit_topology_metadata,
+        )
+
+    return baseline, contingency, topology_change
 
 
 # export JSON
@@ -208,6 +353,7 @@ def _round_floats(obj, ndigits: int):
 def export_json(
     baseline: dict,
     contingency: dict | None = None,
+    topology_change: dict | None = None,
     *,
     path: str | Path,
 ) -> None:
@@ -215,6 +361,8 @@ def export_json(
     payload: dict = {"baseline": baseline}
     if contingency is not None:
         payload["contingency"] = contingency
+    if topology_change is not None:
+        payload["topology_change"] = topology_change
     path.write_text(json.dumps(_round_floats(payload, _DECIMAL_PLACES), indent=2), encoding="utf-8")
     print(f"Wrote {path}")
 
@@ -257,11 +405,36 @@ def _main() -> None:
         help="One or more branch IDs to trip simultaneously for the contingency scenario.",
     )
     parser.add_argument(
+        "--open-breaker",
+        metavar="BREAKER_ID",
+        nargs="+",
+        default=None,
+        help="Breaker IDs to open for the topology-change scenario (causes bus splits).",
+    )
+    parser.add_argument(
+        "--close-breaker",
+        metavar="BREAKER_ID",
+        nargs="+",
+        default=None,
+        help=(
+            "Breaker IDs to close for the topology-change scenario (causes bus merges). "
+            "The breakers must already be open in the network file."
+        ),
+    )
+    parser.add_argument(
         "--p-max-factor",
         type=float,
         default=2.0,
         metavar="F",
         help="Define a fallback p_max for branches with no limit (default 2.0)"
+    )
+    parser.add_argument(
+        "--no-topology-metadata",
+        action="store_true",
+        help=(
+            "Omit bus_breaker_map and inherited_positions from the topology-change "
+            "output, even when breakers are toggled."
+        ),
     )
     parser.add_argument(
         "--list-branches",
@@ -285,11 +458,19 @@ def _main() -> None:
             print(f"  {eid}")
         return
 
-    baseline, contingency = create_scenarios(net, args.outage, p_max_factor=args.p_max_factor)
+    baseline, contingency, topology_change = create_scenarios(
+        net,
+        args.outage,
+        open_breakers=args.open_breaker,
+        close_breakers=args.close_breaker,
+        p_max_factor=args.p_max_factor,
+        emit_topology_metadata=not args.no_topology_metadata,
+    )
 
     export_json(
         baseline,
         contingency,
+        topology_change,
         path=Path(args.output),
     )
 
