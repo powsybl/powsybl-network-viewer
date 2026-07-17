@@ -38,9 +38,8 @@ test('bus legend should not be generated when empty', () => {
     const buses = legendBox?.querySelectorAll('.nad-bus-descr');
     expect(buses).toBeDefined();
     if (!buses) throw new Error('buses should be defined');
-    expect(buses.length).toBe(2);
-    expect(buses[0]?.textContent).toBe('400 kV');
-    expect(buses[1].textContent).toBe(''); // TODO Bus legend should not be displayed
+    expect(buses.length).toEqual(1); // only one Bus legend displayed since is not empty
+    expect(buses[0]?.textContent).toEqual('400 kV');
 });
 
 function busNode(index: number, legend: string): BusNodeMetadata {

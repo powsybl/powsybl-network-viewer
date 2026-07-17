@@ -1870,7 +1870,8 @@ export class NetworkAreaDiagramViewer {
             newDivElement.appendChild(this.createTextHeader(textNode.equipmentId));
         }
 
-        for (const busNode of busNodes) {
+        const busNodesFiltered = busNodes.filter((busNodeMetadata) => busNodeMetadata.legend);
+        for (const busNode of busNodesFiltered) {
             const newBusDivElement = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
             newBusDivElement.classList.add('nad-bus-descr');
             const newBusLegendElement = document.createElementNS('http://www.w3.org/1999/xhtml', 'span');
