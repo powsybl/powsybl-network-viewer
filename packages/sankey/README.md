@@ -31,7 +31,7 @@ renderer.startLayout();
 renderer.updateScenarioFlows(contingencyScenario);
 
 // switch scenario (to be used when buses differ - e.g. due to split/merge) with animated transition:
-updateTopology(topologyChangedScenario)
+renderer.updateTopology(topologyChangedScenario)
 
 // controls:
 renderer.setStretch(); 
