@@ -45,7 +45,7 @@ export class MapEquipments {
 
     completeSubstationsInfos(equipmentsToIndex: MapSubstation[]) {
         const nominalVoltagesSet = new Set(this.nominalVoltages);
-        if (equipmentsToIndex?.length === 0) {
+        if (!equipmentsToIndex?.length) {
             this.substationsById = new Map();
             this.voltageLevelsById = new Map();
         }
