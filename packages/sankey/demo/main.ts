@@ -6,9 +6,25 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 
-import { SankeyRenderer, type LayoutState, type Orientation } from '../src/index.js';
-import scenarios from './scenarios_pypowsybl.json';
-const { baseline, contingency } = scenarios;
+import { SankeyRenderer, type LayoutState, type Orientation, type SankeyScenario } from '../src/index.js';
+
+import scenariosVl4 from './scenarios_nway_vl4_pypowsybl.json';
+import scenariosMerge from './scenarios_merge_demo_pypowsybl.json';
+import scenariosContingencyOnly from './scenarios_pypowsybl.json';
+
+interface ScenarioSet {
+    baseline: SankeyScenario;
+    contingency?: SankeyScenario;
+    topology_change?: SankeyScenario;
+}
+
+const SCENARIOS: { label: string; data: ScenarioSet }[] = [
+    { label: 'IEEE14 Split (VL4)', data: scenariosVl4 as ScenarioSet },
+    { label: 'IEEE14 Merge (VL5)', data: scenariosMerge as ScenarioSet },
+    { label: 'IEEE14 and contingency', data: scenariosContingencyOnly as ScenarioSet },
+];
+
+let { baseline, contingency, topology_change } = SCENARIOS[0].data;
 
 const container = document.querySelector<HTMLElement>('#svg-container')!;
 const renderer = new SankeyRenderer(container, baseline);
@@ -47,22 +63,67 @@ document.getElementById('btn-autoscale')!.addEventListener('click', () => render
 function setActiveScenario(id: string): void {
     const btnReset = document.getElementById('btn-reset') as HTMLButtonElement;
     const btnN1 = document.getElementById('btn-n1') as HTMLButtonElement;
+    const btnTopology = document.getElementById('btn-topology-change') as HTMLButtonElement | null;
     btnReset.classList.remove('btn-active');
     btnN1.classList.remove('btn-active');
+    if (btnTopology) btnTopology.classList.remove('btn-active');
     btnReset.disabled = id === 'btn-reset';
     btnN1.disabled = id === 'btn-n1';
+    if (btnTopology) btnTopology.disabled = id === 'btn-topology-change';
     document.getElementById(id)!.classList.add('btn-active');
 }
 setActiveScenario('btn-reset');
 
+let topologyChanged = false;
+
+const btnTopology = document.getElementById('btn-topology-change') as HTMLButtonElement;
+btnTopology.style.display = topology_change ? '' : 'none';
+btnTopology.addEventListener('click', () => {
+    if (!topology_change) return;
+    renderer.updateTopology(topology_change);
+    topologyChanged = true;
+    setActiveScenario('btn-topology-change');
+});
+
 document.getElementById('btn-n1')!.addEventListener('click', () => {
-    renderer.updateScenarioFlows(contingency);
+    if (!contingency) return;
+    if (topologyChanged) {
+        renderer.updateTopology(contingency);
+        topologyChanged = false;
+    } else {
+        renderer.updateScenarioFlows(contingency);
+    }
     setActiveScenario('btn-n1');
 });
 document.getElementById('btn-reset')!.addEventListener('click', () => {
-    renderer.updateScenarioFlows(baseline);
+    if (topologyChanged) {
+        renderer.updateTopology(baseline);
+        topologyChanged = false;
+    } else {
+        renderer.updateScenarioFlows(baseline);
+    }
     setActiveScenario('btn-reset');
 });
+
+const scenarioSelect = document.getElementById('scenario-select') as HTMLSelectElement;
+SCENARIOS.forEach((s, i) => {
+    const opt = document.createElement('option');
+    opt.value = String(i);
+    opt.textContent = s.label;
+    scenarioSelect.appendChild(opt);
+});
+scenarioSelect.value = '0';
+
+function loadScenario(index: number): void {
+    ({ baseline, contingency, topology_change } = SCENARIOS[index].data);
+    topologyChanged = false;
+    renderer.update(baseline);
+    renderer.startLayout();
+    btnTopology.style.display = topology_change ? '' : 'none';
+    setActiveScenario('btn-reset');
+}
+
+scenarioSelect.addEventListener('change', () => loadScenario(Number(scenarioSelect.value)));
 document
     .getElementById('btn-export-svg')!
     .addEventListener('click', () => download('sankey.svg', renderer.exportSVG(), 'image/svg+xml'));
