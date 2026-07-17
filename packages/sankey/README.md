@@ -30,6 +30,9 @@ renderer.startLayout();
 // switch scenario (e.g. contingency) with animated transition:
 renderer.updateScenarioFlows(contingencyScenario);
 
+// switch scenario (to be used when buses differ - e.g. due to split/merge) with animated transition:
+updateTopology(topologyChangedScenario)
+
 // controls:
 renderer.setStretch(); 
 renderer.setAlign();
@@ -61,7 +64,7 @@ Output lands in `packages/sankey/dist/`.
 
 ## Demo
 
-The `demo/` directory contains a self-contained Vite app that loads the IEEE case-14 network (baseline + one contingency scenario)
+The `demo/` directory contains a self-contained Vite app that loads the IEEE case-14 network (baseline + one contingency scenario), plus a couple of customized IEEE case-14 networks (iidm + scenario data + script to create the iidm) to demonstrate bus-splitting/merging scenarios.
 
 From the **workspace root** (`powsybl-network-viewer/`), start it with:
 
@@ -73,7 +76,8 @@ Then open the URL printed by Vite (typically `http://localhost:5173`).
 
 
 The demo UI integrates the sankey component and provides:
-- buttons to switch between a baseline and a contingency scenario
+- a dropdown menu to select case scenarios
+- buttons to switch between a baseline, a contingency scenario, and a topology change scenario (when available in the case scenarios JSON)
 - a button to toggle the layout orientation
 - sliders for the stretch, align and repulse paramteters
 - a button to download the current diagram as an SVG file
