@@ -22,7 +22,7 @@ jobs:
           node-version: 24
 
       - name: Check License Header (Check Mode)
-        uses: apache/skywalking-eyes/header@5c5b974209f0de5d905f37deb69369068ebfc15c # v0.7.0
+        uses: apache/skywalking-eyes/header@61275cc80d0798a405cb070f7d3a8aaf7cf2c2c1 # v0.8.0
         with:
           config: .github/config/.licenserc.yaml
 
@@ -48,7 +48,7 @@ jobs:
           npm run test:coverage
 
       - name: SonarCloud Scan
-        uses: SonarSource/sonarqube-scan-action@a31c9398be7ace6bbfaf30c0bd5d415f843d45e9 # v7.0.0
+        uses: SonarSource/sonarqube-scan-action@299e4b793aaa83bf2aba7c9c14bedbb485688ec4 # v7.1.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
