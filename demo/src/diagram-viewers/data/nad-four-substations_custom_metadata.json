@@ -109,7 +109,8 @@
     "y" : -515.14,
     "legendSvgId" : "1",
     "legendEdgeSvgId" : "2",
-    "legendHeader" : [ "S1VL1 description1" ]
+    "legendHeader" : [ "S1VL1 description1" ],
+    "legendFooter" : [ "S1VL1 footer1" ]
   }, {
     "svgId" : "4",
     "equipmentId" : "S1VL2",

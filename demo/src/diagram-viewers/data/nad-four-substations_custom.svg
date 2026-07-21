@@ -140,6 +140,7 @@
                 <div>S1VL1 description1</div>
                 <div class="nad-bus-descr">
                     <span class="nad-legend-square" style="background:red; fill:red; stroke:black; border: solid black 4px; stroke-width:4px;"></span>S1VL1_0 description</div>
+                <div>S1VL1 footer1</div>
             </div>
         </foreignObject>
         <foreignObject id="5" y="-173.80" x="-52.34" height="1" width="1">
