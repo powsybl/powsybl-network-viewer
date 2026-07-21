@@ -11,10 +11,9 @@ import { NetworkAreaDiagramViewer } from './network-area-diagram-viewer';
 import { BusNodeMetadata, NodeMetadata, TextNodeMetadata } from './diagram-metadata';
 
 describe('Test network-area-diagram-viewer', () => {
+    const container: HTMLDivElement = document.createElement('div');
     // SVG aren't loaded properly in DOM with Vitest. Has to be enriched...
     test('nad creation', () => {
-        const container: HTMLDivElement = document.createElement('div');
-
         const nadViewerParametersOptions: NadViewerParametersOptions = {
             minWidth: 0,
             minHeight: 0,
@@ -43,12 +42,7 @@ describe('Test network-area-diagram-viewer', () => {
     });
 
     test('bus legend should not be generated when empty', () => {
-        const nadViewer: NetworkAreaDiagramViewer = new NetworkAreaDiagramViewer(
-            document.createElement('div'),
-            '',
-            null,
-            null
-        );
+        const nadViewer: NetworkAreaDiagramViewer = new NetworkAreaDiagramViewer(container, '', null, null);
         const textNode: TextNodeMetadata = {
             svgId: '0-textnode',
             equipmentId: 'EQUIPMENT_ID_0',
