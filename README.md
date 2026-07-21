@@ -190,6 +190,13 @@ $ npm login
 $ npm run publish:all
 ```
 
+#### Updating the demo files
+
+Run the following:
+```shell
+cd demo/java/network-viewer-demo-data && mvn compile exec:exec
+```
+
 ### Notes :
 
 - Check [license-checker-config.json](license-checker-config.json) for license white list and exclusion.
