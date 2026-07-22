@@ -14,9 +14,15 @@ import { ChangeFlags } from '@deck.gl/core/src/lib/layer-state';
 import { MapEquipments } from './map-equipments';
 import { GeoData } from './geo-data';
 import type { MapSubstation } from '../equipment-types';
+import type { LayerContext } from '@deck.gl/core/src/lib/layer-manager';
+import { StatefulComponentProps } from '@deck.gl/core/dist/lifecycle/component';
 
 describe('Test SubstationLayer', () => {
     let substationLayer: SubstationLayer;
+
+    const context: Partial<LayerContext> = {};
+    const oldProps: Partial<StatefulComponentProps> = {};
+
     // Test related to
     // https://github.com/powsybl/powsybl-network-viewer/issues/64
     // https://github.com/powsybl/powsybl-incubator/pull/267#discussion_r1393939164
@@ -35,16 +41,13 @@ describe('Test SubstationLayer', () => {
 
         test('updateState when props network and geoData are not null/undefined should succeed', () => {
             // Given network and geoData are both not null and not undefined
-            const params: UpdateParameters<SubstationLayer> = {
-                changeFlags: { dataChanged: true } as ChangeFlags,
-                context: {} as any,
-                props: {
-                    network: equipment,
-                    geoData: geoData,
-                    data: [substation1],
-                } as any,
-                oldProps: {} as any,
+            const changeFlags: Partial<ChangeFlags> = { dataChanged: true };
+            const props: Partial<StatefulComponentProps> = {
+                network: equipment,
+                geoData: geoData,
+                data: [substation1],
             };
+            const params: UpdateParameters<SubstationLayer> = { changeFlags, context, props, oldProps };
             const setStateMocked = vi.spyOn(substationLayer, 'setState');
             setStateMocked.mockImplementation(() => {});
             // When
@@ -74,16 +77,13 @@ describe('Test SubstationLayer', () => {
             [undefined, undefined],
         ])('updateState when props network=%s and geoData=%s should succeed', (equipment, geoData) => {
             // Given network and geoData are both null or undefined
-            const params: UpdateParameters<SubstationLayer> = {
-                changeFlags: { dataChanged: true } as ChangeFlags,
-                context: {} as any,
-                props: {
-                    network: equipment,
-                    geoData: geoData,
-                    data: [substation1],
-                } as any,
-                oldProps: {} as any,
+            const changeFlags: Partial<ChangeFlags> = { dataChanged: true };
+            const props: Partial<StatefulComponentProps> = {
+                network: equipment,
+                geoData: geoData,
+                data: [substation1],
             };
+            const params: UpdateParameters<SubstationLayer> = { changeFlags, context, props, oldProps };
             const setStateMocked = vi.spyOn(substationLayer, 'setState').mockImplementation(() => {});
             // When
             substationLayer.updateState(params);
@@ -94,17 +94,14 @@ describe('Test SubstationLayer', () => {
 
         test('updateState when props network, geoData and filteredNominalVoltages are not null/undefined should succeed', () => {
             // Given network, geoData and filteredNominalVoltages are not null and not undefined
-            const params: UpdateParameters<SubstationLayer> = {
-                changeFlags: { dataChanged: true } as ChangeFlags,
-                context: {} as any,
-                props: {
-                    network: equipment,
-                    geoData: geoData,
-                    data: [substation1],
-                    filteredNominalVoltages: [400],
-                } as any,
-                oldProps: {} as any,
+            const changeFlags: Partial<ChangeFlags> = { dataChanged: true };
+            const props: Partial<StatefulComponentProps> = {
+                network: equipment,
+                geoData: geoData,
+                data: [substation1],
+                filteredNominalVoltages: [400],
             };
+            const params: UpdateParameters<SubstationLayer> = { changeFlags, context, props, oldProps };
             const setStateMocked = vi.spyOn(substationLayer, 'setState');
             setStateMocked.mockImplementation(() => {});
             // When
@@ -118,15 +115,16 @@ describe('Test SubstationLayer', () => {
             'updateState when filteredNominalVoltages=%s should succeed',
             (filteredNominalVoltages) => {
                 // Given filteredNominalVoltages is null or undefined
-                const props = {
+                const changeFlags: Partial<ChangeFlags> = { dataChanged: true };
+                const props: Partial<StatefulComponentProps> = {
                     network: equipment,
                     geoData: geoData,
                     data: [substation1],
                     filteredNominalVoltages: filteredNominalVoltages,
-                } as any;
+                };
                 const params: UpdateParameters<SubstationLayer> = {
-                    changeFlags: { dataChanged: true } as ChangeFlags,
-                    context: {} as any,
+                    changeFlags,
+                    context,
                     props: props,
                     oldProps: props,
                 };
