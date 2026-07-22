@@ -65,6 +65,7 @@ describe('Test SubstationLayer', () => {
                     },
                 ],
             };
+            expect(setStateMocked).toHaveBeenCalledTimes(2);
             expect(setStateMocked).toHaveBeenNthCalledWith(1, { metaVoltageLevelsByNominalVoltage: [expected] });
         });
 
@@ -83,11 +84,59 @@ describe('Test SubstationLayer', () => {
                 } as any,
                 oldProps: {} as any,
             };
-            const setStateMock = vi.spyOn(substationLayer, 'setState').mockImplementation(() => {});
+            const setStateMocked = vi.spyOn(substationLayer, 'setState').mockImplementation(() => {});
             // When
             substationLayer.updateState(params);
             // Then
-            expect(setStateMock).toHaveBeenCalledWith({ metaVoltageLevelsByNominalVoltage: [] });
+            expect(setStateMocked).toHaveBeenCalledTimes(2);
+            expect(setStateMocked).toHaveBeenNthCalledWith(1, { metaVoltageLevelsByNominalVoltage: [] });
         });
+
+        test('updateState when props network, geoData and filteredNominalVoltages are not null/undefined should succeed', () => {
+            // Given network, geoData and filteredNominalVoltages are not null and not undefined
+            const params: UpdateParameters<SubstationLayer> = {
+                changeFlags: { dataChanged: true } as ChangeFlags,
+                context: {} as any,
+                props: {
+                    network: equipment,
+                    geoData: geoData,
+                    data: [substation1],
+                    filteredNominalVoltages: [400],
+                } as any,
+                oldProps: {} as any,
+            };
+            const setStateMocked = vi.spyOn(substationLayer, 'setState');
+            setStateMocked.mockImplementation(() => {});
+            // When
+            substationLayer.updateState(params);
+            // Then
+            expect(setStateMocked).toHaveBeenCalledTimes(2);
+            expect(setStateMocked).toHaveBeenLastCalledWith({ substationsLabels: [] }); //filter applied => empty list (nominalV 400 not exist)
+        });
+
+        it.each([[null], [undefined]])(
+            'updateState when filteredNominalVoltages=%s should succeed',
+            (filteredNominalVoltages) => {
+                // Given filteredNominalVoltages is null or undefined
+                const props = {
+                    network: equipment,
+                    geoData: geoData,
+                    data: [substation1],
+                    filteredNominalVoltages: filteredNominalVoltages,
+                } as any;
+                const params: UpdateParameters<SubstationLayer> = {
+                    changeFlags: { dataChanged: true } as ChangeFlags,
+                    context: {} as any,
+                    props: props,
+                    oldProps: props,
+                };
+                const setStateMocked = vi.spyOn(substationLayer, 'setState').mockImplementation(() => {});
+                // When
+                substationLayer.updateState(params);
+                // Then
+                expect(setStateMocked).toHaveBeenCalledTimes(2);
+                expect(setStateMocked).toHaveBeenLastCalledWith({ substationsLabels: [substation1] }); // no filter applied, same as props.data
+            }
+        );
     });
 });
