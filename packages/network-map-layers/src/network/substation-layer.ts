@@ -89,7 +89,7 @@ export class SubstationLayer extends CompositeLayer<Required<_SubstationLayerPro
         if (changeFlags.dataChanged) {
             const metaVoltageLevelsByNominalVoltage = new Map<number, MetaVoltageLevel[]>();
 
-            if (props.network != null && props.geoData != null) {
+            if (props.network && props.geoData) {
                 // create meta voltage levels
                 // a meta voltage level is made of:
                 //   - a list of voltage level that belong to same substation and with same nominal voltage
