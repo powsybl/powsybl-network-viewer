@@ -88,13 +88,25 @@ export class SvgWriter {
 
     private getSvgRootElement(textBoxSize?: { width: number; height: number }): SVGSVGElement {
         const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        const viewBox = MetadataUtils.getViewBox(
+        const viewBoxAndDimensions = MetadataUtils.getViewBoxAndDimensions(
             this.diagramMetadata.nodes,
             this.diagramMetadata.textNodes,
             this.svgParameters,
             textBoxSize
         );
-        svg.setAttribute('viewBox', [viewBox.x, viewBox.y, viewBox.width, viewBox.height].join(' '));
+        svg.setAttribute(
+            'viewBox',
+            [
+                viewBoxAndDimensions.viewbox.x,
+                viewBoxAndDimensions.viewbox.y,
+                viewBoxAndDimensions.viewbox.width,
+                viewBoxAndDimensions.viewbox.height,
+            ].join(' ')
+        );
+        if (this.svgParameters.getSvgWidthAndHeightAdded()) {
+            svg.setAttribute('width', viewBoxAndDimensions.width + '');
+            svg.setAttribute('height', viewBoxAndDimensions.height + '');
+        }
         return svg;
     }
 
