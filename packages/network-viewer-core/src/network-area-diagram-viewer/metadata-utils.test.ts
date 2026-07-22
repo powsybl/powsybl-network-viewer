@@ -316,7 +316,7 @@ test('getRightClickableElementData', () => {
     expect(elementData?.type).toBe(EdgeType[EdgeType.TWO_WINDINGS_TRANSFORMER]);
 });
 
-test('getViewBox', () => {
+test('getViewBoxAndDimensions', () => {
     const nodes: NodeMetadata[] = [
         {
             svgId: '0',
