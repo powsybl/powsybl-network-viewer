@@ -7,12 +7,12 @@
  */
 
 import { Point } from '@svgdotjs/svg.js';
-import { DiagramMetadata, EdgeMetadata, NodeMetadata } from './diagram-metadata';
+import { BusNodeMetadata, DiagramMetadata, EdgeMetadata, InjectionMetadata, NodeMetadata } from './diagram-metadata';
 import { SvgParameters } from './svg-parameters';
 import * as DiagramUtils from './diagram-utils';
 import * as MetadataUtils from './metadata-utils';
 import * as HalfEdgeUtils from './half-edge-utils';
-import { HalfEdge, LabelData } from './diagram-types';
+import { HalfEdge, LabelData, NodeRadius } from './diagram-types';
 
 export class EdgeRouter {
     diagramMetadata: DiagramMetadata;
@@ -23,6 +23,8 @@ export class EdgeRouter {
     edgeMiddleData: Record<string, [Point, number]> = {};
     edgeMiddleLabelData: Record<string, LabelData> = {};
     threeWTEdgePoints: Record<string, [Point, Point]> = {};
+    injectionData: Record<string, [Point, Point, Point, number]> = {};
+    injectionLabelData: Record<string, LabelData> = {};
     nodeAngles: Record<string, number[]> = {};
 
     constructor(diagramMetadata: DiagramMetadata) {
@@ -96,11 +98,40 @@ export class EdgeRouter {
         return this.threeWTEdgePoints[edgeId];
     }
 
+    public getInjectionEdgePoints(injectionId: string): Point[] | undefined {
+        const injData = this.injectionData[injectionId];
+        if (!injData) {
+            return undefined;
+        }
+        return [injData[0], injData[1]];
+    }
+
+    public getInjectionInfoPoint(injectionId: string): Point | undefined {
+        const injData = this.injectionData[injectionId];
+        if (!injData) {
+            return undefined;
+        }
+        return injData[2];
+    }
+
+    public getInjectionInfoAngle(injectionId: string): number | undefined {
+        const injData = this.injectionData[injectionId];
+        if (!injData) {
+            return undefined;
+        }
+        return injData[3];
+    }
+
+    public getInjectoinLabelData(injectionId: string): LabelData | undefined {
+        return this.injectionLabelData[injectionId];
+    }
+
     private init() {
         const edgeGroups = this.groupEdges();
         this.storeGroupedEdges(edgeGroups.groupedEdges);
         this.storeLoopEdges(edgeGroups.loopEdges);
         this.storeThreeWtEdges(edgeGroups.threeWtEdges);
+        this.storeInjections();
     }
 
     private groupEdges(): {
@@ -241,7 +272,8 @@ export class EdgeRouter {
             const loopEdges = edges[edgeId];
             const availableAngles = this.findAvailableAngles(
                 this.nodeAngles[loopEdges[0].node1] ?? [],
-                loopEdges.length
+                loopEdges.length,
+                this.svgParameters.getLoopEdgesAperture() * 1.2
             );
             loopEdges.forEach((loopEdge, index) => {
                 const angle = availableAngles[index];
@@ -250,9 +282,8 @@ export class EdgeRouter {
         }
     }
 
-    private findAvailableAngles(anglesOtherEdges: number[], nbAngles: number): number[] {
+    private findAvailableAngles(anglesOtherEdges: number[], nbAngles: number, slotAperture: number): number[] {
         let availableAngles: number[] = [];
-        const slotAperture = this.svgParameters.getLoopEdgesAperture() * 1.2;
         if (anglesOtherEdges.length == 0) {
             Array.from(new Array(nbAngles).keys())
                 .map((index) => (index * 2 * Math.PI) / nbAngles)
@@ -446,5 +477,66 @@ export class EdgeRouter {
         const anchorAngle = leadingAngle + (index * 2 * Math.PI) / 3;
         const threeWtAnchor: Point = DiagramUtils.shiftRhoTheta(pointTwt, dNodeToAnchor, anchorAngle);
         this.threeWTEdgePoints[edge.svgId] = [edgeStart, threeWtAnchor];
+    }
+
+    private storeInjections() {
+        // group injections by node
+        const nodesInjections: Record<string, InjectionMetadata[]> = {};
+        this.diagramMetadata.injections?.forEach((injection) => {
+            const nodeInjections: InjectionMetadata[] = nodesInjections[injection.vlNodeId] ?? [];
+            nodeInjections.push(injection);
+            nodesInjections[injection.vlNodeId] = nodeInjections;
+        });
+        // store injections
+        for (const nodeId in nodesInjections) {
+            const nodeInjections = nodesInjections[nodeId];
+            const availableAngles = this.findAvailableAngles(
+                this.nodeAngles[nodeId] ?? [],
+                nodeInjections.length,
+                this.svgParameters.getInjectionAperture()
+            );
+            const vlNode = MetadataUtils.getNodeMetadata(nodeId, this.diagramMetadata);
+            const vlPoint = new Point(vlNode?.x ?? 0, vlNode?.y ?? 0);
+            const busNodes = MetadataUtils.getBusNodesMetadata(nodeId, this.diagramMetadata.busNodes);
+            busNodes.forEach((busNode) => {
+                const nodeRadius = MetadataUtils.getNodeRadius(busNode, vlNode, this.svgParameters);
+                nodeInjections.forEach((injection, index) => {
+                    this.storeInjectionData(injection.svgId, vlPoint, busNode, nodeRadius, availableAngles, index);
+                });
+            });
+        }
+    }
+
+    private storeInjectionData(
+        injectionId: string,
+        vlPoint: Point,
+        busNode: BusNodeMetadata,
+        nodeRadius: NodeRadius,
+        availableAngles: number[],
+        index: number
+    ) {
+        const angle = availableAngles[index];
+        const injPoint: Point = DiagramUtils.getPointAtDistanceWithAngle(
+            vlPoint,
+            this.svgParameters.getInjectionEdgeLength(),
+            angle
+        );
+        const busNodePoint = DiagramUtils.getEdgeStart(
+            busNode.svgId,
+            vlPoint,
+            injPoint,
+            nodeRadius.busOuterRadius,
+            this.svgParameters.getUnknownBusNodeExtraRadius()
+        );
+        const arrowShift =
+            this.svgParameters.getArrowShift() + (nodeRadius.voltageLevelRadius - nodeRadius.busOuterRadius);
+        const arrowCenter = DiagramUtils.getPointAtDistance(busNodePoint, injPoint, arrowShift);
+        const rotationAngle = DiagramUtils.radToDeg(angle + (angle > Math.PI / 2 ? (-3 * Math.PI) / 2 : Math.PI / 2));
+        this.injectionData[injectionId] = [busNodePoint, injPoint, arrowCenter, rotationAngle];
+
+        this.injectionLabelData[injectionId] = DiagramUtils.getLabelData(
+            angle,
+            this.svgParameters.getArrowLabelShift()
+        );
     }
 }
