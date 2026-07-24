@@ -74,9 +74,9 @@ describe('Test MapEquipments', () => {
             equipment.updateSubstations(substations, true);
             equipment.updateLines([line('l0', 'v0', 'v2'), line('l1', 'v1', 'v2')], true);
 
-            expect(equipment.getSubstations().length).toBe(2);
-            expect(equipment.getVoltageLevels().length).toBe(3);
-            expect(equipment.getLines().length).toBe(2);
+            expect(equipment.getSubstations()).toHaveLength(2);
+            expect(equipment.getVoltageLevels()).toHaveLength(3);
+            expect(equipment.getLines()).toHaveLength(2);
 
             vi.clearAllMocks();
         });
