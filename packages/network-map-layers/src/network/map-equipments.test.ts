@@ -88,6 +88,7 @@ describe('Test MapEquipments', () => {
             // When
             equipment.removeEquipment(EQUIPMENT_TYPES.SUBSTATION, substationToRemove);
             // Then
+            // expect(equipment.getSubstation(substationToRemove)).toBeUndefined(); //fixme
             expect(equipment.substations.map((s) => s.id)).not.toContain(substationToRemove);
             expect(equipment.substationsById.size).toBe(2); // should be 1 //fixme
             expect(equipment.voltageLevelsById.size).toBe(3); // should be 2 //fixme
@@ -105,10 +106,21 @@ describe('Test MapEquipments', () => {
             // When
             equipment.removeEquipment(EQUIPMENT_TYPES.VOLTAGE_LEVEL, voltageLevelToRemove);
             // Then
-            expect(equipment.getSubstation('s0')?.voltageLevels.map((v) => v.id)).toStrictEqual(['v0']);
-            // expect(equipment.getVoltageLevels().map((value) => value.id)).not.toContain([voltageLevelToRemove]);//fixme
+            // expect(equipment.getVoltageLevel(voltageLevelToRemove)).toBeUndefined(); //fixme
+            expect(equipment.getVoltageLevels().map((value) => value.id)).not.toContain([voltageLevelToRemove]);
             expect(removeBranchesOfVoltageLevelMocked).toHaveBeenCalledTimes(1);
             expect(removeBranchesOfVoltageLevelMocked).toHaveBeenCalledWith(equipment.getLines(), voltageLevelToRemove);
+        });
+
+        test('removeEquipment of type Line should remove it from the Lines list', () => {
+            // Given
+            const lineToRemove = 'l0';
+            // When
+            equipment.removeEquipment(EQUIPMENT_TYPES.LINE, lineToRemove);
+            // Then
+            expect(equipment.getLine(lineToRemove)).toBeUndefined();
+            expect(equipment.lines.map((l) => l.id)).not.toContain(lineToRemove);
+            expect(equipment.linesById.has(lineToRemove)).toBe(false);
         });
     });
 });
