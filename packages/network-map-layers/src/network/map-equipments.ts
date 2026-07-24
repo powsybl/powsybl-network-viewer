@@ -195,29 +195,35 @@ export class MapEquipments {
                 break;
             }
             case EQUIPMENT_TYPES.VOLTAGE_LEVEL: {
-                const substationId = this.voltageLevelsById.get(equipmentId)?.substationId;
-                //@ts-expect-error TODO: manage nullable substationId
-                let voltageLevelsOfSubstation = this.substationsById.get(substationId)?.voltageLevels;
-                voltageLevelsOfSubstation = voltageLevelsOfSubstation?.filter((l) => l.id !== equipmentId);
-                //@ts-expect-error TODO: manage nullable substationId
-                const substation = this.substationsById.get(substationId);
-                if (substation !== undefined) {
-                    //@ts-expect-error TODO: manage nullable voltageLevelsOfSubstation
-                    substation.voltageLevels = voltageLevelsOfSubstation;
+                const voltageLevel: MapVoltageLevel | undefined = this.voltageLevelsById.get(equipmentId);
+                if (!voltageLevel) {
+                    break;
                 }
-
+                const substation = this.substationsById.get(voltageLevel.substationId);
+                if (substation) {
+                    substation.voltageLevels = substation.voltageLevels.filter((vl) => vl.id !== equipmentId);
+                }
                 this.removeBranchesOfVoltageLevel(this.lines, equipmentId);
+                this.voltageLevelsById.delete(equipmentId);
+                const remainingNominalVoltages = new Set(
+                    this.voltageLevels.filter((vl) => vl.id !== equipmentId).map((vl) => vl.nominalV)
+                );
+                this.nominalVoltages = this.nominalVoltages.filter((nominalV) =>
+                    remainingNominalVoltages.has(nominalV)
+                );
                 //New reference on substations to trigger reload of NetworkExplorer and NetworkMap
                 this.substations = [...this.substations];
                 break;
             }
             case EQUIPMENT_TYPES.SUBSTATION: {
-                this.substations = this.substations.filter((l) => l.id !== equipmentId);
-
                 const substation = this.substationsById.get(equipmentId);
-                substation?.voltageLevels.forEach((vl) => this.removeEquipment(EQUIPMENT_TYPES.VOLTAGE_LEVEL, vl.id));
-                //@ts-expect-error TODO: manage nullable substation
-                this.completeSubstationsInfos([substation]);
+                if (substation) {
+                    this.substations = this.substations.filter((l) => l.id !== equipmentId);
+                    substation.voltageLevels.forEach((vl) =>
+                        this.removeEquipment(EQUIPMENT_TYPES.VOLTAGE_LEVEL, vl.id)
+                    );
+                    this.substationsById.delete(equipmentId);
+                }
                 break;
             }
             default:

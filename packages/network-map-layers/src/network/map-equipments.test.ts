@@ -8,7 +8,7 @@
 
 import { MapEquipments } from './map-equipments';
 import { EQUIPMENT_TYPES, MapLine, MapSubstation } from '../equipment-types';
-import { describe, beforeEach, test, expect, vi } from 'vitest';
+import { describe, beforeEach, test, expect, vi, it } from 'vitest';
 
 describe('Test MapEquipments', () => {
     let equipment: MapEquipments;
@@ -84,20 +84,26 @@ describe('Test MapEquipments', () => {
         test('removeEquipment of type Substation should remove it from the substations list', () => {
             // Given
             const substationToRemove = 's1';
-            const completeSubstationsInfosMocked = vi.spyOn(equipment, 'completeSubstationsInfos');
             // When
             equipment.removeEquipment(EQUIPMENT_TYPES.SUBSTATION, substationToRemove);
             // Then
-            // expect(equipment.getSubstation(substationToRemove)).toBeUndefined(); //fixme
+            expect(equipment.getSubstation(substationToRemove)).toBeUndefined();
             expect(equipment.substations.map((s) => s.id)).not.toContain(substationToRemove);
-            expect(equipment.substationsById.size).toBe(2); // should be 1 //fixme
-            expect(equipment.voltageLevelsById.size).toBe(3); // should be 2 //fixme
+            expect(equipment.substationsById.size).toBe(1);
+            expect(equipment.voltageLevelsById.size).toBe(2);
             expect(equipment.substationsById.has('s0')).toBe(true);
-            expect(equipment.substationsById.has('s1')).toBe(true); // should be false //fixme
-            expect(equipment.nominalVoltages).toStrictEqual([400, 225, 90]); // should be only 400 and 225 //fixme
-            // fixme: not clear => why call complete substation for the one already removed ?
-            expect(completeSubstationsInfosMocked).toHaveNthResolvedWith(1, undefined);
+            expect(equipment.substationsById.has('s1')).toBe(false);
+            expect(equipment.nominalVoltages).toStrictEqual([400, 225]);
         });
+
+        it.each([[null], [undefined], [''], ['NOT EXIST']])(
+            'removeEquipment unknown, undefined or null Substation',
+            (equipmentId) => {
+                const before = equipment.getVoltageLevels();
+                expect(() => equipment.removeEquipment(EQUIPMENT_TYPES.SUBSTATION, equipmentId)).not.toThrow();
+                expect(equipment.getVoltageLevels()).toStrictEqual(before);
+            }
+        );
 
         test('removeEquipment of type VoltageLevel should remove it from the VoltageLevels list', () => {
             // Given
@@ -106,11 +112,21 @@ describe('Test MapEquipments', () => {
             // When
             equipment.removeEquipment(EQUIPMENT_TYPES.VOLTAGE_LEVEL, voltageLevelToRemove);
             // Then
-            // expect(equipment.getVoltageLevel(voltageLevelToRemove)).toBeUndefined(); //fixme
+            expect(equipment.getVoltageLevel(voltageLevelToRemove)).toBeUndefined();
             expect(equipment.getVoltageLevels().map((value) => value.id)).not.toContain([voltageLevelToRemove]);
             expect(removeBranchesOfVoltageLevelMocked).toHaveBeenCalledTimes(1);
             expect(removeBranchesOfVoltageLevelMocked).toHaveBeenCalledWith(equipment.getLines(), voltageLevelToRemove);
+            expect(equipment.getNominalVoltages()).toStrictEqual([400, 90]);
         });
+
+        it.each([[null], [undefined], [''], ['NOT EXIST']])(
+            'removeEquipment unknown, undefined or null VoltageLevel',
+            (equipmentId) => {
+                const before = equipment.getVoltageLevels();
+                expect(() => equipment.removeEquipment(EQUIPMENT_TYPES.VOLTAGE_LEVEL, equipmentId)).not.toThrow();
+                expect(equipment.getVoltageLevels()).toStrictEqual(before);
+            }
+        );
 
         test('removeEquipment of type Line should remove it from the Lines list', () => {
             // Given
