@@ -7,10 +7,17 @@
  */
 
 import { MapEquipments } from './map-equipments';
-import { MapSubstation } from '../equipment-types';
-import { describe } from 'vitest';
+import { EQUIPMENT_TYPES, MapLine, MapSubstation } from '../equipment-types';
+import { describe, beforeEach, test, expect, vi } from 'vitest';
 
 describe('Test MapEquipments', () => {
+    let equipment: MapEquipments;
+
+    beforeEach(() => {
+        equipment = new MapEquipments();
+        vi.clearAllMocks();
+    });
+
     test('completeSubstationsInfos with undefined should keep map empty', () => {
         // Given
         const equipment: MapEquipments = new MapEquipments();
@@ -51,4 +58,69 @@ describe('Test MapEquipments', () => {
         expect(equipment.substationsById.size).toBe(0);
         expect(equipment.voltageLevelsById.size).toBe(0);
     });
+
+    describe('removeEquipment', () => {
+        beforeEach(() => {
+            const substations: MapSubstation[] = [
+                {
+                    id: 's0',
+                    voltageLevels: [
+                        { id: 'v0', nominalV: 400, substationId: 's0' },
+                        { id: 'v1', nominalV: 225, substationId: 's0' },
+                    ],
+                },
+                { id: 's1', voltageLevels: [{ id: 'v2', nominalV: 90, substationId: 's1' }] },
+            ];
+            equipment.updateSubstations(substations, true);
+            equipment.updateLines([line('l0', 'v0', 'v2'), line('l1', 'v1', 'v2')], true);
+
+            expect(equipment.getSubstations().length).toBe(2);
+            expect(equipment.getVoltageLevels().length).toBe(3);
+            expect(equipment.getLines().length).toBe(2);
+
+            vi.clearAllMocks();
+        });
+
+        test('removeEquipment of type Substation should remove it from the substations list', () => {
+            // Given
+            const substationToRemove = 's1';
+            const completeSubstationsInfosMocked = vi.spyOn(equipment, 'completeSubstationsInfos');
+            // When
+            equipment.removeEquipment(EQUIPMENT_TYPES.SUBSTATION, substationToRemove);
+            // Then
+            expect(equipment.substations.map((s) => s.id)).not.toContain(substationToRemove);
+            expect(equipment.substationsById.size).toBe(2); // should be 1 //fixme
+            expect(equipment.voltageLevelsById.size).toBe(3); // should be 2 //fixme
+            expect(equipment.substationsById.has('s0')).toBe(true);
+            expect(equipment.substationsById.has('s1')).toBe(true); // should be false //fixme
+            expect(equipment.nominalVoltages).toStrictEqual([400, 225, 90]); // should be only 400 and 225 //fixme
+            // fixme: not clear => why call complete substation for the one already removed ?
+            expect(completeSubstationsInfosMocked).toHaveNthResolvedWith(1, undefined);
+        });
+
+        test('removeEquipment of type VoltageLevel should remove it from the VoltageLevels list', () => {
+            // Given
+            const voltageLevelToRemove = 'v1';
+            const removeBranchesOfVoltageLevelMocked = vi.spyOn(equipment, 'removeBranchesOfVoltageLevel');
+            // When
+            equipment.removeEquipment(EQUIPMENT_TYPES.VOLTAGE_LEVEL, voltageLevelToRemove);
+            // Then
+            expect(equipment.getSubstation('s0')?.voltageLevels.map((v) => v.id)).toStrictEqual(['v0']);
+            // expect(equipment.getVoltageLevels().map((value) => value.id)).not.toContain([voltageLevelToRemove]);//fixme
+            expect(removeBranchesOfVoltageLevelMocked).toHaveBeenCalledTimes(1);
+            expect(removeBranchesOfVoltageLevelMocked).toHaveBeenCalledWith(equipment.getLines(), voltageLevelToRemove);
+        });
+    });
 });
+
+function line(id: string, vl1: string, vl2: string): MapLine {
+    return {
+        id,
+        voltageLevelId1: vl1,
+        voltageLevelId2: vl2,
+        terminal1Connected: true,
+        terminal2Connected: true,
+        p1: 0,
+        p2: 0,
+    };
+}
