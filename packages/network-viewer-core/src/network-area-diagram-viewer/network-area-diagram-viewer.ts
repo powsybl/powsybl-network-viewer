@@ -2173,7 +2173,7 @@ export class NetworkAreaDiagramViewer {
         }
         if (containedElementList.nodes.length == 0 && containedElementList.edges.length == 0) return;
         const nodeVlThreshold = DiagramUtils.getVLThreshold(adaptiveTextZoom.nodeThresholds, maxDisplayedSize);
-        const edgeVlThreshold = DiagramUtils.getVLThreshold(adaptiveTextZoom.nodeThresholds, maxDisplayedSize);
+        const edgeVlThreshold = DiagramUtils.getVLThreshold(adaptiveTextZoom.edgeThresholds, maxDisplayedSize);
         const edgePreviousVlThreshold = DiagramUtils.getVLThreshold(
             adaptiveTextZoom.edgeThresholds,
             this.getPreviousMaxDisplayedSize()
