@@ -2193,7 +2193,7 @@ export class NetworkAreaDiagramViewer {
             const svgWriter = new SvgWriter({
                 diagramMetadata: this.diagramMetadata,
                 elementList: { nodes: nodes, edges: edges },
-                voltageLevels: maxDisplayedSize > nodeVlThreshold.threshold ? nodeVlThreshold.voltageLevels : undefined,
+                voltageLevels: maxDisplayedSize > edgeVlThreshold.threshold ? edgeVlThreshold.voltageLevels : undefined,
             });
             svgWriter.addNodes(<SVGGElement>this.nodesSection!);
             svgWriter.addEdgesAndInfos(<SVGGElement>this.edgesSection!);
