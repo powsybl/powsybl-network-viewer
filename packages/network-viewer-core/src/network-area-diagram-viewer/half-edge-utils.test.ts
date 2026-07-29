@@ -52,7 +52,7 @@ test('getArrowRotation', () => {
     expect(HalfEdgeUtils.getArrowRotation(halfEdge4)).toBe(-45);
 });
 
-test('getLabelData', () => {
+test('getHalfEdgeLabelData', () => {
     const halfEdge1: HalfEdge = {
         side: '1',
         fork: false,
@@ -60,7 +60,7 @@ test('getLabelData', () => {
         voltageLevelRadius: 0,
         edgePoints: [new Point(10, 10), new Point(50, 50)],
     };
-    const labelData = HalfEdgeUtils.getLabelData(halfEdge1, 19);
+    const labelData = HalfEdgeUtils.getHalfEdgeLabelData(halfEdge1, 19);
     expect(labelData.angle).toBe(45);
     expect(labelData.external.shift).toBe(19);
     expect(labelData.external.style).toBe(undefined);
@@ -74,7 +74,7 @@ test('getLabelData', () => {
         voltageLevelRadius: 0,
         edgePoints: [new Point(0, 0), new Point(10, 10), new Point(-30, 50)],
     };
-    const flippedLabelData = HalfEdgeUtils.getLabelData(halfEdge2, 19);
+    const flippedLabelData = HalfEdgeUtils.getHalfEdgeLabelData(halfEdge2, 19);
     expect(flippedLabelData.angle).toBe(-45);
     expect(flippedLabelData.external.shift).toBe(-19);
     expect(flippedLabelData.external.style).toBe('text-anchor:end');

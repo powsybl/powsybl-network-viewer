@@ -25,9 +25,12 @@ export class EdgeRouter {
     threeWTEdgePoints: Record<string, [Point, Point]> = {};
     nodeAngles: Record<string, number[]> = {};
 
-    constructor(diagramMetadata: DiagramMetadata) {
+    edges: EdgeMetadata[] | undefined = undefined;
+
+    constructor(diagramMetadata: DiagramMetadata, edges?: EdgeMetadata[]) {
         this.diagramMetadata = diagramMetadata;
         this.svgParameters = new SvgParameters(this.diagramMetadata.svgParameters);
+        this.edges = edges;
         this.init();
     }
 
@@ -111,7 +114,7 @@ export class EdgeRouter {
         const groupedEdges: Record<string, EdgeMetadata[]> = {};
         const loopEdges: Record<string, EdgeMetadata[]> = {};
         const threeWtEdges: Record<string, EdgeMetadata[]> = {};
-        this.diagramMetadata.edges.forEach((edge) => {
+        (this.edges ?? this.diagramMetadata.edges).forEach((edge) => {
             const is3wtEdge = MetadataUtils.isThreeWTEdge(edge);
             const isLoop = edge.node1 === edge.node2;
             let key: string;
@@ -203,8 +206,8 @@ export class EdgeRouter {
             ],
         ];
         this.edgeSideLabelData[edgeId] = [
-            HalfEdgeUtils.getLabelData(halfEdges[0], this.svgParameters.getArrowLabelShift()),
-            HalfEdgeUtils.getLabelData(halfEdges[1], this.svgParameters.getArrowLabelShift()),
+            HalfEdgeUtils.getHalfEdgeLabelData(halfEdges[0], this.svgParameters.getArrowLabelShift()),
+            HalfEdgeUtils.getHalfEdgeLabelData(halfEdges[1], this.svgParameters.getArrowLabelShift()),
         ];
     }
 
@@ -241,7 +244,8 @@ export class EdgeRouter {
             const loopEdges = edges[edgeId];
             const availableAngles = this.findAvailableAngles(
                 this.nodeAngles[loopEdges[0].node1] ?? [],
-                loopEdges.length
+                loopEdges.length,
+                this.svgParameters.getLoopEdgesAperture() * 1.2
             );
             loopEdges.forEach((loopEdge, index) => {
                 const angle = availableAngles[index];
@@ -250,9 +254,8 @@ export class EdgeRouter {
         }
     }
 
-    private findAvailableAngles(anglesOtherEdges: number[], nbAngles: number): number[] {
+    private findAvailableAngles(anglesOtherEdges: number[], nbAngles: number, slotAperture: number): number[] {
         let availableAngles: number[] = [];
-        const slotAperture = this.svgParameters.getLoopEdgesAperture() * 1.2;
         if (anglesOtherEdges.length == 0) {
             Array.from(new Array(nbAngles).keys())
                 .map((index) => (index * 2 * Math.PI) / nbAngles)

@@ -12,8 +12,8 @@
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="theme-color" content="#000000" />
-        <meta name="description" content="network-viewer demo app" />
-        <title>Network-viewer examples</title>
+        <meta name="description" content="realgrid network viewer demo" />
+        <title>RealGrid NAD demo</title>
         <link rel="stylesheet" href="src/style.css" />
         <link rel="stylesheet" href="src/zoom.css" />
         <link rel="stylesheet" href="src/demo.css" />
@@ -31,26 +31,11 @@
             </ul>
         </div>
 
-        <div class="flex-container">
-            <div id="sld-viewers" class="viewer-section">
-                <h2>Single Line Diagram Viewers</h2>
-                <div class="break"></div>
-                <figure class="diagram-figure">
-                    <figcaption>Basic</figcaption>
-                    <div id="svg-container-sld"></div>
-                </figure>
-                <figure class="diagram-figure">
-                    <figcaption>With Callbacks</figcaption>
-                    <div id="svg-container-sld-with-callbacks"></div>
-                </figure>
-                <div class="break"></div>
-                <figure class="diagram-figure">
-                    <figcaption>Substation with Callbacks</figcaption>
-                    <div id="svg-container-sldsub-with-callbacks"></div>
-                </figure>
-            </div>
+        <div id="realgrid" class="diagram-figure">
+            <h2>RealGrid network</h2>
+            <div id="svg-container-nad-realgrid"></div>
         </div>
 
-        <script type="module" src="./src/sld.ts"></script>
+        <script type="module" src="./src/realgrid.ts"></script>
     </body>
 </html>
