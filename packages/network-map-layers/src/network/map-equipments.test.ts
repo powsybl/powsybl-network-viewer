@@ -20,7 +20,6 @@ describe('Test MapEquipments', () => {
 
     test('completeSubstationsInfos with undefined should keep map empty', () => {
         // Given
-        const equipment: MapEquipments = new MapEquipments();
         const substation1: MapSubstation = {
             id: 's0',
             voltageLevels: [{ id: 'v0', nominalV: 400, substationId: 's0' }],
@@ -47,7 +46,8 @@ describe('Test MapEquipments', () => {
         expect(equipment.nominalVoltages).toStrictEqual([400, 220]);
 
         // When undefined substations
-        equipment.completeSubstationsInfos(undefined);
+        let substations!: MapSubstation[];
+        equipment.completeSubstationsInfos(substations);
         // Then
         expect(equipment.substationsById.size).toBe(0);
         expect(equipment.voltageLevelsById.size).toBe(0);
@@ -100,7 +100,7 @@ describe('Test MapEquipments', () => {
             'removeEquipment unknown, undefined or null Substation',
             (equipmentId) => {
                 const before = equipment.getVoltageLevels();
-                expect(() => equipment.removeEquipment(EQUIPMENT_TYPES.SUBSTATION, equipmentId)).not.toThrow();
+                expect(() => equipment.removeEquipment(EQUIPMENT_TYPES.SUBSTATION, equipmentId as any)).not.toThrow();
                 expect(equipment.getVoltageLevels()).toStrictEqual(before);
             }
         );
@@ -123,7 +123,9 @@ describe('Test MapEquipments', () => {
             'removeEquipment unknown, undefined or null VoltageLevel',
             (equipmentId) => {
                 const before = equipment.getVoltageLevels();
-                expect(() => equipment.removeEquipment(EQUIPMENT_TYPES.VOLTAGE_LEVEL, equipmentId)).not.toThrow();
+                expect(() =>
+                    equipment.removeEquipment(EQUIPMENT_TYPES.VOLTAGE_LEVEL, equipmentId as any)
+                ).not.toThrow();
                 expect(equipment.getVoltageLevels()).toStrictEqual(before);
             }
         );
