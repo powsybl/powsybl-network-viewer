@@ -1733,10 +1733,12 @@ export class NetworkAreaDiagramViewer {
     private callSelectNodeCallback(mousePosition: Point) {
         // call the select node callback, if defined
         if (this.onSelectNodeCallback != null) {
+            // a selected text node stands for the voltage level node it labels
+            const nodeSvgId = SvgUtils.isTextNode(this.selectedElement)
+                ? this.diagramMetadata?.textNodes.find((textNode) => textNode.svgId == this.selectedElement?.id)?.vlNode
+                : this.selectedElement?.id;
             // get selected node from metadata
-            const node: NodeMetadata | undefined = this.diagramMetadata?.nodes.find(
-                (node) => node.svgId == this.selectedElement?.id
-            );
+            const node: NodeMetadata | undefined = this.diagramMetadata?.nodes.find((node) => node.svgId == nodeSvgId);
             if (node != null) {
                 this.onSelectNodeCallback(node.equipmentId, node.svgId, mousePosition);
             }
@@ -2736,28 +2738,21 @@ export class NetworkAreaDiagramViewer {
     }
 
     private handleHighlightableElementHover(element: SVGElement, mousePosition: Point): void {
+        let node: TextNodeMetadata | NodeMetadata | undefined;
         if (SvgUtils.isTextNode(element)) {
-            const textNode = this.diagramMetadata?.textNodes.find((node) => node.svgId === element.id);
-            if (textNode) {
-                this.highlightRelatedElements(textNode);
-                this.debounceToggleHoverCallback(
-                    true,
-                    mousePosition,
-                    textNode.equipmentId,
-                    ElementType[ElementType.TEXT_NODE]
-                );
-            }
+            node = this.diagramMetadata?.textNodes.find((node) => node.svgId === element.id);
         } else if (SvgUtils.isVoltageLevelElement(element)) {
-            const vlNode = this.diagramMetadata?.nodes.find((node) => node.svgId === element.id);
-            if (vlNode) {
-                this.highlightRelatedElements(vlNode);
-                this.debounceToggleHoverCallback(
-                    true,
-                    mousePosition,
-                    vlNode.equipmentId,
-                    ElementType[ElementType.VOLTAGE_LEVEL]
-                );
-            }
+            node = this.diagramMetadata?.nodes.find((node) => node.svgId === element.id);
+        }
+        if (node) {
+            this.highlightRelatedElements(node);
+            // a text node labels a voltage level: both report the voltage level they stand for
+            this.debounceToggleHoverCallback(
+                true,
+                mousePosition,
+                node.equipmentId,
+                ElementType[ElementType.VOLTAGE_LEVEL]
+            );
         }
     }
 
