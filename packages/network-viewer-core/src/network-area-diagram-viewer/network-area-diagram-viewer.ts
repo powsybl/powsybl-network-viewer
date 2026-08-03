@@ -2738,21 +2738,28 @@ export class NetworkAreaDiagramViewer {
     }
 
     private handleHighlightableElementHover(element: SVGElement, mousePosition: Point): void {
-        let node: TextNodeMetadata | NodeMetadata | undefined;
         if (SvgUtils.isTextNode(element)) {
-            node = this.diagramMetadata?.textNodes.find((node) => node.svgId === element.id);
+            const textNode = this.diagramMetadata?.textNodes.find((node) => node.svgId === element.id);
+            if (textNode) {
+                this.highlightRelatedElements(textNode);
+                this.debounceToggleHoverCallback(
+                    true,
+                    mousePosition,
+                    textNode.equipmentId,
+                    ElementType[ElementType.TEXT_NODE]
+                );
+            }
         } else if (SvgUtils.isVoltageLevelElement(element)) {
-            node = this.diagramMetadata?.nodes.find((node) => node.svgId === element.id);
-        }
-        if (node) {
-            this.highlightRelatedElements(node);
-            // a text node labels a voltage level: both report the voltage level they stand for
-            this.debounceToggleHoverCallback(
-                true,
-                mousePosition,
-                node.equipmentId,
-                ElementType[ElementType.VOLTAGE_LEVEL]
-            );
+            const vlNode = this.diagramMetadata?.nodes.find((node) => node.svgId === element.id);
+            if (vlNode) {
+                this.highlightRelatedElements(vlNode);
+                this.debounceToggleHoverCallback(
+                    true,
+                    mousePosition,
+                    vlNode.equipmentId,
+                    ElementType[ElementType.VOLTAGE_LEVEL]
+                );
+            }
         }
     }
 
