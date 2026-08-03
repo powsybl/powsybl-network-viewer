@@ -199,10 +199,7 @@ export class MapEquipments {
                 if (!voltageLevel) {
                     break;
                 }
-                const substation = this.substationsById.get(voltageLevel.substationId);
-                if (substation) {
-                    substation.voltageLevels = substation.voltageLevels.filter((vl) => vl.id !== equipmentId);
-                }
+                this.voltageLevels = this.voltageLevels.filter((vl) => vl.id !== equipmentId);
                 this.removeBranchesOfVoltageLevel(this.lines, equipmentId);
                 this.voltageLevelsById.delete(equipmentId);
                 const remainingNominalVoltages = new Set(
