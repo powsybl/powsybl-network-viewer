@@ -7,22 +7,25 @@
 
 import react from '@vitejs/plugin-react';
 import { playwright } from '@vitest/browser-playwright';
-import { coverageConfigDefaults, defineConfig } from 'vitest/config';
+import { configDefaults, coverageConfigDefaults, defineConfig } from 'vitest/config';
 
 export default defineConfig({
     plugins: [react()],
     test: {
         projects: [
             {
+                extends: true,
                 test: {
                     name: 'unit-tests',
-                    include: ['**/*.test.{ts,tsx}', '!**/*.browser.test.{ts,tsx}'],
+                    include: ['**/*.test.{ts,tsx}'],
+                    exclude: [...configDefaults.exclude, '**/*.browser.test.{ts,tsx}'],
                     globals: true,
                     environment: 'jsdom',
                     setupFiles: ['./setupTests.ts'],
                 },
             },
             {
+                extends: true,
                 test: {
                     name: 'browser-tests',
                     include: ['**/*.browser.test.{ts,tsx}'],
@@ -42,7 +45,15 @@ export default defineConfig({
             provider: 'v8',
             reporter: ['text', 'lcov'],
             reportsDirectory: './coverage',
-            exclude: [...coverageConfigDefaults.exclude, '**/*.svg'],
+            include: ['src/**/*.{ts,tsx}', 'packages/*/src/**/*.{ts,tsx}'],
+            exclude: [
+                ...coverageConfigDefaults.exclude,
+                '**/*.svg',
+                '**/*.test.{ts,tsx}',
+                '**/*.browser.test.{ts,tsx}',
+                '**/*.test.utils.ts',
+                '**/__screenshots__/**',
+            ],
         },
     },
 });
