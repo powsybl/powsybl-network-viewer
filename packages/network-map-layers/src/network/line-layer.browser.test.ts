@@ -6,7 +6,7 @@
  */
 
 import { afterEach, test } from 'vitest';
-import { expectElement, SCREENSHOT_OPTIONS, setupBrowserLayerRenderer } from '../testUtils/browser-render';
+import { expectElement, SCREENSHOT_OPTIONS, setupBrowserLayerRenderer } from '../testUtils/browser-render.test.utils';
 import {
     createGeoData,
     createLargeGeoData,
@@ -14,7 +14,7 @@ import {
     createLargeNetwork,
     createLineForLineLayer,
     createNetwork,
-} from '../testUtils/network-fixtures';
+} from '../testUtils/network-fixtures.test.utils';
 import { getNominalVoltageColor } from '../utils/colors';
 import { LineLayer } from './line-layer';
 

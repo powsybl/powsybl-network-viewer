@@ -6,8 +6,12 @@
  */
 
 import { afterEach, test } from 'vitest';
-import { expectElement, SCREENSHOT_OPTIONS, setupBrowserLayerRenderer } from '../../testUtils/browser-render';
-import { createLargeGeoData } from '../../testUtils/network-fixtures';
+import {
+    expectElement,
+    SCREENSHOT_OPTIONS,
+    setupBrowserLayerRenderer,
+} from '../../testUtils/browser-render.test.utils';
+import { createLargeGeoData } from '../../testUtils/network-fixtures.test.utils';
 import ScatterplotLayerExt from './scatterplot-layer-ext';
 
 const { renderLayers, cleanup } = setupBrowserLayerRenderer();

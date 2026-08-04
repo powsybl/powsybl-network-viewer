@@ -8,8 +8,9 @@
 import { testLayer } from '@deck.gl/test-utils/vitest';
 import { expect, test } from 'vitest';
 import { type MapAnyLineWithType } from '../../equipment-types';
-import { createMapLineWithType } from '../../testUtils/network-fixtures';
-import ArrowLayer, { type Arrow, ArrowDirection } from './arrow-layer';
+import { createMapLineWithType } from '../../testUtils/network-fixtures.test.utils';
+import ArrowLayer, { type Arrow } from './arrow-layer';
+import { ArrowDirection } from '../arrow-direction';
 
 function createProps() {
     const line = createMapLineWithType({

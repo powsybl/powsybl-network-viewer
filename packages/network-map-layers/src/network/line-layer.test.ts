@@ -7,7 +7,7 @@
 
 import { testLayer } from '@deck.gl/test-utils/vitest';
 import { expect, test } from 'vitest';
-import { createGeoData, createLineForLineLayer, createNetwork } from '../testUtils/network-fixtures';
+import { createGeoData, createLineForLineLayer, createNetwork } from '../testUtils/network-fixtures.test.utils';
 import { LineFlowMode, LineLayer } from './line-layer';
 
 test('LineLayer lifecycle renders expected sublayers and applies updates', () => {

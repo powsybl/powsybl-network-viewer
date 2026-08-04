@@ -28,8 +28,6 @@ import { ArrowDirection } from '../arrow-direction';
 import fs from './arrow-layer-fragment.frag?raw';
 import vs from './arrow-layer-vertex.vert?raw';
 
-export { ArrowDirection } from '../arrow-direction';
-
 const arrowUniformBlock = `\
 uniform arrowUniforms {
     float sizeMinPixels;

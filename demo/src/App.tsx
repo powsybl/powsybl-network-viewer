@@ -15,7 +15,7 @@ import { type MapEquipment, NetworkMap, type NetworkMapRef } from '../../src';
 import {
     createLargeGeoData,
     createLargeNetwork,
-} from '../../packages/network-map-layers/src/testUtils/network-fixtures';
+} from '../../packages/network-map-layers/src/testUtils/network-fixtures.test.utils';
 
 const largeNetwork = createLargeNetwork();
 const largeGeoData = createLargeGeoData();
@@ -53,6 +53,7 @@ export default function App() {
     }, []);
 
     const networkMapRef = useRef<NetworkMapRef>(null);
+    const filteredNominalVoltages = [400.0, 380.0, 225.0, 150.0, 110.0, 90.0, 45.0];
 
     return (
         <div className="App">
@@ -98,6 +99,7 @@ export default function App() {
                                 }}
                                 mapLibrary={'cartonolabel'}
                                 mapTheme={'light'}
+                                filteredNominalVoltages={filteredNominalVoltages}
                                 onDrawPolygonModeActive={(active) => {
                                     console.log('polygon drawing mode active: ', active ? 'active' : 'inactive');
                                 }}

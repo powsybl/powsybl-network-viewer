@@ -7,8 +7,12 @@
 
 import { afterEach, test } from 'vitest';
 import { type MapAnyLineWithType } from '../../equipment-types';
-import { expectElement, SCREENSHOT_OPTIONS, setupBrowserLayerRenderer } from '../../testUtils/browser-render';
-import { createLargeMapLinesWithType, createMapLineWithType } from '../../testUtils/network-fixtures';
+import {
+    expectElement,
+    SCREENSHOT_OPTIONS,
+    setupBrowserLayerRenderer,
+} from '../../testUtils/browser-render.test.utils';
+import { createLargeMapLinesWithType, createMapLineWithType } from '../../testUtils/network-fixtures.test.utils';
 import ParallelPathLayer from './parallel-path-layer';
 
 const { renderLayers, cleanup } = setupBrowserLayerRenderer();

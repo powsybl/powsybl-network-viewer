@@ -7,10 +7,15 @@
 
 import { afterEach, test } from 'vitest';
 import { type MapAnyLineWithType } from '../../equipment-types';
-import { expectElement, SCREENSHOT_OPTIONS, setupBrowserLayerRenderer } from '../../testUtils/browser-render';
-import { createLargeMapLinesWithType, createMapLineWithType } from '../../testUtils/network-fixtures';
+import {
+    expectElement,
+    SCREENSHOT_OPTIONS,
+    setupBrowserLayerRenderer,
+} from '../../testUtils/browser-render.test.utils';
+import { createLargeMapLinesWithType, createMapLineWithType } from '../../testUtils/network-fixtures.test.utils';
 import { LineStatus } from '../line-layer';
-import ArrowLayer, { ArrowDirection } from './arrow-layer';
+import ArrowLayer from './arrow-layer';
+import { ArrowDirection } from '../arrow-direction';
 
 const { renderLayers, cleanup } = setupBrowserLayerRenderer();
 

@@ -6,8 +6,12 @@
  */
 
 import { afterEach, test } from 'vitest';
-import { expectElement, SCREENSHOT_OPTIONS, setupBrowserLayerRenderer } from '../../testUtils/browser-render';
-import { createLargeMapLinesWithType } from '../../testUtils/network-fixtures';
+import {
+    expectElement,
+    SCREENSHOT_OPTIONS,
+    setupBrowserLayerRenderer,
+} from '../../testUtils/browser-render.test.utils';
+import { createLargeMapLinesWithType } from '../../testUtils/network-fixtures.test.utils';
 import ForkLineLayer from './fork-line-layer';
 
 const { renderLayers, cleanup } = setupBrowserLayerRenderer();
