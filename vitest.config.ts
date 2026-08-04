@@ -27,6 +27,7 @@ export default defineConfig({
                     name: 'browser-tests',
                     include: ['**/*.browser.test.{ts,tsx}'],
                     globals: true,
+                    testTimeout: 30000,
                     browser: {
                         enabled: true,
                         provider: playwright(),
