@@ -109,6 +109,7 @@
         "jsdom": "^26.0.0",
         "license-checker": "^25.0.1",
         "minimatch": "^10.0.1",
+        "playwright": "^1.61.0",
         "prettier": "^3.5.3",
         "prettier-plugin-properties": "^0.3.0",
         "rimraf": "^6.0.1",
