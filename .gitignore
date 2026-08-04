@@ -20,3 +20,4 @@
 
 # Vitest
 /coverage
+.vitest-attachments
