@@ -10,5 +10,5 @@
             "@powsybl/network-viewer": ["../src"]
         }
     },
-    "include": ["src", "../src", "../packages/network-map-layers/src", "../packages/network-viewer-core/src"]
+    "include": ["src", "vite.config.ts", "../src", "../packages/network-map-layers/src", "../packages/network-viewer-core/src"]
 }
