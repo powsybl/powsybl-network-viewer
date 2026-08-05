@@ -7,8 +7,8 @@
  */
 
 import { Point, SVG } from '@svgdotjs/svg.js';
-import * as SvgUtils from './svg-utils';
 import { radToDeg } from './diagram-utils';
+import * as SvgUtils from './svg-utils';
 
 test('getDraggableFrom', () => {
     let draggagleElement = SvgUtils.getDraggableFrom(getSvgNode());
@@ -160,8 +160,8 @@ test('getBendableLineFrom', () => {
 
 test('getStyle', () => {
     const expectedStyle =
-        '.nad-branch-edges .nad-edge-path, .nad-3wt-edges .nad-edge-path {stroke: var(--nad-vl-color, lightgrey); stroke-width: 5; fill: none;}\n' +
-        '.nad-branch-edges .nad-winding, .nad-3wt-nodes .nad-winding {stroke: var(--nad-vl-color, lightgrey); stroke-width: 5; fill: none;}';
+        '.nad-branch-edges .nad-edge-path, .nad-3wt-edges .nad-edge-path { stroke: var(--nad-vl-color, lightgrey); stroke-width: 5; fill: none; }\n' +
+        '.nad-branch-edges .nad-winding, .nad-3wt-nodes .nad-winding { stroke: var(--nad-vl-color, lightgrey); stroke-width: 5; fill: none; }';
     const styleEl = document.createElement('style');
     styleEl.innerHTML = expectedStyle + '\n.nad-text-edges {stroke: black; stroke-width: 3; stroke-dasharray: 6,7}';
     document.head.appendChild(styleEl);

@@ -25,8 +25,8 @@ import { ShaderModule } from '@luma.gl/shadertools';
 import { type MapAnyLineWithType } from '../../equipment-types';
 import { ArrowDirection } from '../arrow-direction';
 
-import fs from './arrow-layer-fragment.frag?raw';
-import vs from './arrow-layer-vertex.vert?raw';
+import fs from './arrow-layer-fragment.frag';
+import vs from './arrow-layer-vertex.vert';
 
 const arrowUniformBlock = `\
 uniform arrowUniforms {
