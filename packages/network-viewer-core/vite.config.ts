@@ -26,7 +26,7 @@ export default defineConfig((config) => ({
     build: {
         minify: false,
         lib: {
-            entry: path.resolve(__dirname, 'src/index.ts'),
+            entry: path.resolve(import.meta.dirname, 'src/index.ts'),
             formats: ['es', 'cjs'],
             name: 'PowsyblNetworkViewerCore',
             fileName: 'powsybl-network-viewer-core',

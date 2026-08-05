@@ -34,7 +34,7 @@ export default defineConfig((config) => ({
         minify: false, // easier to debug on the apps using this lib
         lib: {
             // Could also be a dictionary or array of multiple entry points
-            entry: path.resolve(__dirname, 'src/index.ts'),
+            entry: path.resolve(import.meta.dirname, 'src/index.ts'),
             name: 'PowSyBl network viewer',
             // the proper extensions will be added
             fileName: 'powsybl-network-viewer',
