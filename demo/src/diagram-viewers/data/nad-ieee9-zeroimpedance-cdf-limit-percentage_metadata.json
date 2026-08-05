@@ -1,4 +1,5 @@
 {
+  "metadataVersion" : "1.0",
   "layoutParameters" : {
     "textNodesForceLayout" : false,
     "textNodeFixedShift" : {
@@ -266,7 +267,8 @@
       "labelB" : "257 %"
     },
     "classes1" : [ "nad-vl70to120" ],
-    "classes2" : [ "nad-vl70to120" ]
+    "classes2" : [ "nad-vl70to120" ],
+    "classes" : [ "nad-overload" ]
   }, {
     "svgId" : "36",
     "equipmentId" : "T7-2-0",
@@ -406,5 +408,8 @@
     "shiftY" : -40.0,
     "connectionShiftX" : 100.0,
     "connectionShiftY" : -15.0
-  } ]
+  } ],
+  "networkId" : "ieee9zeroimpedancecdf",
+  "networkName" : "ieee9zeroimpedancecdf",
+  "networkDate" : "2009-04-26T00:00Z"
 }
