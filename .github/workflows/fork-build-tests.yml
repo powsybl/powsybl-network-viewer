@@ -11,7 +11,6 @@ jobs:
     if: github.event.pull_request.head.repo.fork == true
     container:
       image: mcr.microsoft.com/playwright:v1.61.0-noble
-      options: --user 1001
     steps:
       - name: Checkout sources
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
@@ -22,8 +21,16 @@ jobs:
         with:
           node-version: 24
 
+      - name: Install jq
+        run: |
+          apt-get update
+          apt-get install --yes --no-install-recommends jq
+
       - name: Install dependencies
         run: npm ci
+
+      - name: Build workspaces
+        run: npm run build --workspaces
 
       - name: Lint
         run: npm run lint
@@ -45,7 +52,7 @@ jobs:
         run: npm run licenses-check
 
       - name: Build
-        run: npm run build:all
+        run: npm run build
 
       - name: Save build artifacts and coverage report
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
