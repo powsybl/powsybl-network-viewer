@@ -13,7 +13,7 @@ import * as path from 'node:path';
 import { defineConfig } from 'vite';
 import dts from 'vite-plugin-dts';
 import svgr from 'vite-plugin-svgr';
-import { viteEslintChecker } from './utils/viteEslintChecker';
+import { viteEslintChecker } from './utils/viteEslintChecker.ts';
 
 export default defineConfig((config) => ({
     plugins: [
