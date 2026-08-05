@@ -31,7 +31,7 @@ export default defineConfig((config) => ({
             name: 'PowsyblNetworkViewerCore',
             fileName: 'powsybl-network-viewer-core',
         },
-        rollupOptions: {
+        rolldownOptions: {
             external: [...Object.keys(pkg.dependencies || {}), /^node:.*/],
             output: {
                 globals: {

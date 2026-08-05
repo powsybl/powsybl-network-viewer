@@ -33,7 +33,7 @@ export default defineConfig((config) => ({
             name: 'PowsyblNetworkMapLayers',
             fileName: 'powsybl-network-map-layers',
         },
-        rollupOptions: {
+        rolldownOptions: {
             external: [...Object.keys(pkg.peerDependencies), ...Object.keys(pkg.dependencies), /^node:.*/],
             output: {
                 globals: {

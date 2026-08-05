@@ -26,7 +26,7 @@ export default defineConfig((config) => ({
         preserveSymlinks: true,
     },
     build: {
-        rollupOptions: {
+        rolldownOptions: {
             input: {
                 main: path.resolve(import.meta.dirname, 'index.html'),
                 sld: path.resolve(import.meta.dirname, 'sld.html'),
