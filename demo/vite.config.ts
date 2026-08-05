@@ -8,7 +8,7 @@
 import react from '@vitejs/plugin-react';
 import * as path from 'node:path';
 import { defineConfig } from 'vite';
-import { viteEslintChecker } from '../utils/viteEslintChecker';
+import { viteEslintChecker } from '../utils/viteEslintChecker.ts';
 const workspaceRoot = path.resolve(import.meta.dirname, '..');
 
 export default defineConfig((config) => ({
