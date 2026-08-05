@@ -26,6 +26,7 @@
         <core.version>7.3.0</core.version>
         <diagram.version>5.5.0</diagram.version>
         <olf.version>2.3.0</olf.version>
+        <logback.version>1.5.26</logback.version>
     </properties>
 
     <dependencies>
@@ -98,7 +99,7 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.5.26</version>
+            <version>${logback.version}</version>
         </dependency>
     </dependencies>
 
