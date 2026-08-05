@@ -116,7 +116,9 @@ describe('Test MapEquipments', () => {
             expect(equipment.getVoltageLevels().map((value) => value.id)).not.toContain(voltageLevelToRemove);
             expect(equipment.voltageLevelsById.has(voltageLevelToRemove)).toBe(false);
             expect(removeBranchesOfVoltageLevelMocked).toHaveBeenCalledTimes(1);
-            expect(removeBranchesOfVoltageLevelMocked).toHaveBeenCalledWith(equipment.getLines(), voltageLevelToRemove);
+            expect(removeBranchesOfVoltageLevelMocked.mock.calls[0][1]).toBe(voltageLevelToRemove);
+            expect(equipment.getLine('l1')).toBeUndefined(); // l1: branch, linked to voltageLevelToRemove
+            expect(equipment.getLines().map((l) => l.id)).not.toContain('l1');
             expect(equipment.getNominalVoltages()).toStrictEqual([400, 90]);
         });
 

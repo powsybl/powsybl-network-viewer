@@ -183,8 +183,7 @@ export class MapEquipments {
             (l) => l.voltageLevelId1 !== voltageLevelId && l.voltageLevelId2 !== voltageLevelId
         );
         branchesList.filter((l) => !remainingLines.includes(l)).forEach((l) => this.linesById.delete(l.id));
-
-        return remainingLines;
+        this.lines = remainingLines;
     }
 
     removeEquipment(equipmentType: EQUIPMENT_TYPES, equipmentId: string) {
@@ -207,7 +206,7 @@ export class MapEquipments {
                         ...substation.voltageLevels,
                     ];
                 }
-                this.removeBranchesOfVoltageLevel(this.lines, equipmentId);
+                this.removeBranchesOfVoltageLevel(this.getLines(), equipmentId);
                 this.voltageLevelsById.delete(equipmentId);
                 const remainingNominalVoltages = new Set(
                     this.voltageLevels.filter((vl) => vl.id !== equipmentId).map((vl) => vl.nominalV)
