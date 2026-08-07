@@ -38,7 +38,9 @@ export class SvgWriter {
 
     diagramMetadata: DiagramMetadata;
     svgParameters: SvgParameters;
+    svgWriterParameters: SvgWriterParameters;
     edgeRouter: EdgeRouter | undefined;
+    metadataSearch: MetadataSearch | undefined;
     threeWindingsTransformers: NodeMetadata[] = [];
     threeWindingsTransformerEdges: EdgeMetadata[] = [];
     windingSideMapping: { [key: number]: string } = {
@@ -47,20 +49,17 @@ export class SvgWriter {
         3: 'THREE',
     };
 
-    nodes: NodeMetadata[] | undefined = undefined;
-    edges: EdgeMetadata[] | undefined = undefined;
-    voltageLevels: string[] | undefined;
-    metadataSearch: MetadataSearch | undefined;
-
     constructor(svgWriterParameters: SvgWriterParameters) {
         this.diagramMetadata = svgWriterParameters.diagramMetadata;
         this.svgParameters = new SvgParameters(this.diagramMetadata.svgParameters);
-        this.nodes = svgWriterParameters.elementList?.nodes;
-        this.edges = svgWriterParameters.elementList?.edges;
-        this.voltageLevels = svgWriterParameters.voltageLevels;
+        this.svgWriterParameters = svgWriterParameters;
         this.metadataSearch = svgWriterParameters.metadataSearch;
         // get edge router, for computing edges points
-        this.edgeRouter = new EdgeRouter(this.diagramMetadata, this.edges, this.metadataSearch);
+        this.edgeRouter = new EdgeRouter(
+            this.diagramMetadata,
+            this.svgWriterParameters.elementList?.edges,
+            this.metadataSearch
+        );
     }
 
     public getSvg(textBoxSize?: { width: number; height: number }): string {
@@ -140,7 +139,7 @@ export class SvgWriter {
     }
 
     public addNodes(gNodesElement: SVGGElement) {
-        (this.nodes ?? this.diagramMetadata.nodes).forEach((node) => {
+        (this.svgWriterParameters.elementList?.nodes ?? this.diagramMetadata.nodes).forEach((node) => {
             if (!node.invisible) {
                 const nodeElement = gNodesElement.querySelector(":scope > [id='" + node.svgId + "']") ?? null;
                 if (nodeElement) return;
@@ -267,7 +266,7 @@ export class SvgWriter {
     }
 
     public addEdgesAndInfos(gEdgesElement: SVGGElement, gEdgeInfosElement?: SVGGElement) {
-        (this.edges ?? this.diagramMetadata.edges).forEach((edge) => {
+        (this.svgWriterParameters.elementList?.edges ?? this.diagramMetadata.edges).forEach((edge) => {
             if (MetadataUtils.isThreeWTEdge(edge)) {
                 this.threeWindingsTransformerEdges.push(edge);
             } else {
@@ -298,20 +297,31 @@ export class SvgWriter {
             gEdgeElement.classList.add(SvgWriter.BOUNDARY_LINE_EDGE_CLASS);
         }
         const halfEdgePoints1 = this.edgeRouter?.getEdgePoints(edge.svgId, '1');
-        if (
-            halfEdgePoints1 &&
-            !edge.invisible1 &&
-            DiagramUtils.intersectionLength(edge.classes1, this.voltageLevels) == 0
-        ) {
-            gEdgeElement.appendChild(this.getHalfEdge(edge, halfEdgePoints1, edge.classes1, edge.style1));
-        }
         const halfEdgePoints2 = this.edgeRouter?.getEdgePoints(edge.svgId, '2');
         if (
+            halfEdgePoints1 &&
             halfEdgePoints2 &&
-            !edge.invisible2 &&
-            DiagramUtils.intersectionLength(edge.classes2, this.voltageLevels) == 0
+            this.svgWriterParameters.mergeLines &&
+            this.canMergeEdge(edge, edgeType)
         ) {
-            gEdgeElement.appendChild(this.getHalfEdge(edge, halfEdgePoints2, edge.classes2, edge.style2));
+            gEdgeElement.appendChild(
+                this.getMergedEdge(edge, halfEdgePoints1, halfEdgePoints2, edge.classes1, edge.style1)
+            );
+        } else {
+            if (
+                halfEdgePoints1 &&
+                !edge.invisible1 &&
+                DiagramUtils.intersectionLength(edge.classes1, this.svgWriterParameters.voltageLevels) == 0
+            ) {
+                gEdgeElement.appendChild(this.getHalfEdge(edge, halfEdgePoints1, edge.classes1, edge.style1));
+            }
+            if (
+                halfEdgePoints2 &&
+                !edge.invisible2 &&
+                DiagramUtils.intersectionLength(edge.classes2, this.svgWriterParameters.voltageLevels) == 0
+            ) {
+                gEdgeElement.appendChild(this.getHalfEdge(edge, halfEdgePoints2, edge.classes2, edge.style2));
+            }
         }
         if (DiagramUtils.isTransformerEdge(edgeType) && (halfEdgePoints1 || halfEdgePoints2)) {
             gEdgeElement.appendChild(this.getTransformer(edge, halfEdgePoints1, halfEdgePoints2, edgeType));
@@ -320,6 +330,43 @@ export class SvgWriter {
             gEdgeElement.appendChild(this.getHVDCLine(halfEdgePoints1));
         }
         return gEdgeElement;
+    }
+
+    private canMergeEdge(edge: EdgeMetadata, edgeType: EdgeType): boolean {
+        return (
+            DiagramUtils.isLineEdge(edgeType) &&
+            edge.invisible1 !== true &&
+            edge.invisible2 !== true &&
+            DiagramUtils.sameArray(edge.classes1, edge.classes2) &&
+            edge.style1 == edge.style2
+        );
+    }
+
+    private getMergedEdge(
+        edge: EdgeMetadata,
+        points1: Point[],
+        points2: Point[],
+        cssClasses: string[] | undefined,
+        style: string | undefined
+    ): any {
+        if (edge.node1 == edge.node2) {
+            const pathElement = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            SvgUtils.addCssClasses(pathElement, cssClasses, SvgWriter.EDGE_CLASS);
+            SvgUtils.addElementStyle(pathElement, style);
+            pathElement.setAttribute(
+                'd',
+                DiagramUtils.getHalfLoopPath(points1).concat(' ' + DiagramUtils.getHalfLoopPath(points2))
+            );
+            return pathElement;
+        } else {
+            const polylineElement = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+            SvgUtils.addCssClasses(polylineElement, cssClasses, SvgWriter.EDGE_CLASS);
+            SvgUtils.addElementStyle(polylineElement, style);
+            points1 = points1.slice(0, -1);
+            points2 = points2.slice(0, -1).reverse();
+            polylineElement.setAttribute('points', DiagramUtils.getFormattedPolyline(points1.concat(points2)));
+            return polylineElement;
+        }
     }
 
     private getHalfEdge(
@@ -350,10 +397,10 @@ export class SvgWriter {
         edgeType: EdgeType
     ): SVGGElement {
         const gTranformerElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-        if (points1 && DiagramUtils.intersectionLength(edge.classes1, this.voltageLevels) == 0) {
+        if (points1 && DiagramUtils.intersectionLength(edge.classes1, this.svgWriterParameters.voltageLevels) == 0) {
             gTranformerElement.appendChild(this.getTransformerWinding(points1, edge.classes1, edge.style1));
         }
-        if (points2 && DiagramUtils.intersectionLength(edge.classes2, this.voltageLevels) == 0) {
+        if (points2 && DiagramUtils.intersectionLength(edge.classes2, this.svgWriterParameters.voltageLevels) == 0) {
             gTranformerElement.appendChild(this.getTransformerWinding(points2, edge.classes2, edge.style2));
         }
         if (edgeType == EdgeType.PHASE_SHIFT_TRANSFORMER) {

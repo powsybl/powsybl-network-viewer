@@ -178,7 +178,7 @@ export class NetworkAreaDiagramViewer {
         this.diagramMetadata = diagramMetadata;
         this.nadViewerParameters = new NadViewerParameters(nadViewerParametersOptions ?? undefined);
         if (this.nadViewerParameters.getCreateSvgFromMetadata() && this.diagramMetadata != null) {
-            this.svgWriter = new SvgWriter({ diagramMetadata: this.diagramMetadata });
+            this.svgWriter = new SvgWriter({ diagramMetadata: this.diagramMetadata, mergeLines: true });
             this.svgContent = this.svgWriter.getEmptySvg();
         }
         this.width = 0;
@@ -544,6 +544,9 @@ export class NetworkAreaDiagramViewer {
             nodes.classList.add('nad-vl-nodes');
             this.innerSvg?.appendChild(nodes);
         }
+        if (this.nadViewerParameters.getAdaptiveTextZoom().enabled) {
+            nodes.replaceChildren();
+        }
         return nodes;
     }
 
@@ -553,6 +556,9 @@ export class NetworkAreaDiagramViewer {
             edges = document.createElementNS('http://www.w3.org/2000/svg', 'g');
             edges.classList.add('nad-branch-edges');
             this.innerSvg?.appendChild(edges);
+        }
+        if (this.nadViewerParameters.getAdaptiveTextZoom().enabled) {
+            edges.replaceChildren();
         }
         return edges;
     }
@@ -2200,6 +2206,7 @@ export class NetworkAreaDiagramViewer {
                 elementList: { nodes: nodes, edges: edges },
                 voltageLevels: maxDisplayedSize > edgeVlThreshold.threshold ? edgeVlThreshold.voltageLevels : undefined,
                 metadataSearch: this.metadataSearch,
+                mergeLines: true,
             });
             svgWriter.addNodes(<SVGGElement>this.nodesSection!);
             svgWriter.addEdgesAndInfos(<SVGGElement>this.edgesSection!);

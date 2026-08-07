@@ -10,6 +10,7 @@ import * as DiagramUtils from './diagram-utils';
 import { DiagramPaddingMetadata, SvgParametersMetadata } from './diagram-metadata';
 import { Point } from '@svgdotjs/svg.js';
 import { SvgParameters } from './svg-parameters';
+import { EdgeType } from './diagram-types';
 
 test('getFormattedValue', () => {
     expect(DiagramUtils.getFormattedValue(12)).toBe('12.00');
@@ -428,4 +429,20 @@ test('getVLThreshold', () => {
     voltageLevelTheshold = DiagramUtils.getVLThreshold(voltageLevelThesholds, 500);
     expect(voltageLevelTheshold.threshold).toBe(4000);
     expect(voltageLevelTheshold.voltageLevels?.length).toBe(2);
+});
+
+test('isLineEdge', () => {
+    expect(DiagramUtils.isLineEdge(EdgeType.LINE)).toBe(true);
+    expect(DiagramUtils.isLineEdge(EdgeType.TWO_WINDINGS_TRANSFORMER)).toBe(false);
+    expect(DiagramUtils.isLineEdge(EdgeType.BOUNDARY_LINE)).toBe(true);
+    expect(DiagramUtils.isLineEdge(EdgeType.HVDC_LINE_LCC)).toBe(true);
+});
+
+test('sameArray', () => {
+    expect(DiagramUtils.sameArray(['a', 'b', 'c'], ['a', 'b', 'c'])).toBe(true);
+    expect(DiagramUtils.sameArray(['a', 'b', 'c'], ['c', 'a', 'b'])).toBe(true);
+    expect(DiagramUtils.sameArray(['a', 'b', 'c'], ['a', 'b', 'd'])).toBe(false);
+    expect(DiagramUtils.sameArray(['a', 'b', 'c'], ['a', 'b', 'c', 'd'])).toBe(false);
+    expect(DiagramUtils.sameArray(['a', 'b', 'c'], undefined)).toBe(false);
+    expect(DiagramUtils.sameArray(undefined, undefined)).toBe(true);
 });

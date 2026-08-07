@@ -344,6 +344,10 @@ export function isBoundaryLineEdge(edgeType: EdgeType): boolean {
     return edgeType == EdgeType.BOUNDARY_LINE;
 }
 
+export function isLineEdge(edgeType: EdgeType): boolean {
+    return edgeType == EdgeType.LINE || isBoundaryLineEdge(edgeType) || isHVDCLineEdge(edgeType);
+}
+
 // get the points of a converter station of an HVDC line edge
 export function getConverterStationPoints(halfEdgePoints: Point[], converterStationWidth: number): [Point, Point] {
     const halfWidth = converterStationWidth / 2;
@@ -451,4 +455,8 @@ export function getVLThreshold(
 
 export function intersectionLength(array1: string[] | undefined, array2: string[] | undefined): number {
     return array1?.filter((value) => array2?.includes(value)).length ?? 0;
+}
+
+export function sameArray(array1: string[] | undefined, array2: string[] | undefined): boolean {
+    return array1?.length == array2?.length && JSON.stringify(array1?.sort()) === JSON.stringify(array2?.sort());
 }
