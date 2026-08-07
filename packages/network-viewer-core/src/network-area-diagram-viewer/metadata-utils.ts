@@ -348,9 +348,13 @@ export function getNodeEdgesMetadata(nodeId: string, edges: EdgeMetadata[]): Edg
 }
 
 export function getBusEdgesMetadata(nodeId: string, edges: EdgeMetadata[]): Map<string, EdgeMetadata[]> {
-    const busNodeEdges = new Map<string, EdgeMetadata[]>();
     const nodeEdges = getNodeEdgesMetadata(nodeId, edges);
-    nodeEdges.forEach((edge) => {
+    return groupBusEdgesMetadata(nodeId, nodeEdges);
+}
+
+export function groupBusEdgesMetadata(nodeId: string, edges: EdgeMetadata[]): Map<string, EdgeMetadata[]> {
+    const busNodeEdges = new Map<string, EdgeMetadata[]>();
+    edges.forEach((edge) => {
         if (edge.node1 == edge.node2) {
             // loop edge
             addBusNodeEdge(edge.busNode1, edge, busNodeEdges);
@@ -391,6 +395,13 @@ export function getEdgeNodePoints(
 ): [Point, Point] | [undefined, undefined] {
     const node1 = getNodeMetadata(edge.node1, diagramMetadata);
     const node2 = getNodeMetadata(edge.node2, diagramMetadata);
+    return getNodePoints(node1, node2);
+}
+
+export function getNodePoints(
+    node1: NodeMetadata | undefined,
+    node2: NodeMetadata | undefined
+): [Point, Point] | [undefined, undefined] {
     if (node1 == null || node2 == null) {
         return [undefined, undefined];
     }

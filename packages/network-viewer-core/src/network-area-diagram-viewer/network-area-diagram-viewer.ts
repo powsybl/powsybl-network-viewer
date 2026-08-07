@@ -41,6 +41,7 @@ import { LibraryComponent } from './library-component';
 import DefaultLibraryComponents from '../resources/default-library/components.json';
 import * as ComponentUtils from './component-utils';
 import { SvgWriter } from './svg-writer';
+import { MetadataSearch } from './metadata-search';
 
 // Type for cancelable debounced functions (replaces @mui/utils Cancelable)
 interface Cancelable {
@@ -154,6 +155,7 @@ export class NetworkAreaDiagramViewer {
     componentLibrary: LibraryComponent[] = DefaultLibraryComponents;
 
     svgWriter: SvgWriter | undefined = undefined;
+    metadataSearch: MetadataSearch | undefined;
 
     static readonly ZOOM_CLASS_PREFIX = 'nad-zoom-';
 
@@ -393,6 +395,9 @@ export class NetworkAreaDiagramViewer {
         this.textNodesSection = this.getOrCreateTextNodesSection();
         this.textEdgesSection = this.getOrCreateTextEdgesSection();
         this.edgeInfosSection = this.getOrCreateEdgeInfosSection();
+        if (this.nadViewerParameters.getAdaptiveTextZoom().enabled && this.diagramMetadata) {
+            this.metadataSearch = new MetadataSearch(this.diagramMetadata);
+        }
 
         // add events
         const hasMetadata = this.diagramMetadata !== null;
@@ -2194,6 +2199,7 @@ export class NetworkAreaDiagramViewer {
                 diagramMetadata: this.diagramMetadata,
                 elementList: { nodes: nodes, edges: edges },
                 voltageLevels: maxDisplayedSize > edgeVlThreshold.threshold ? edgeVlThreshold.voltageLevels : undefined,
+                metadataSearch: this.metadataSearch,
             });
             svgWriter.addNodes(<SVGGElement>this.nodesSection!);
             svgWriter.addEdgesAndInfos(<SVGGElement>this.edgesSection!);
