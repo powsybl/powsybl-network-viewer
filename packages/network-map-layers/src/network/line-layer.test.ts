@@ -10,7 +10,7 @@ import { describe, beforeEach, test, expect, vi } from 'vitest';
 import { createGeoData, createLineForLineLayer, createNetwork } from '../testUtils/network-fixtures.test.utils';
 import { LineFlowMode, LineLayer } from './line-layer';
 import { MapEquipments } from './map-equipments';
-import { MapLineWithType } from '../equipment-types.ts';
+import { MapLineWithType } from '../equipment-types';
 import { GeoData } from './geo-data.ts';
 
 describe('Test LineLayer', () => {
