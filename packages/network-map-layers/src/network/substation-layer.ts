@@ -184,7 +184,7 @@ export class SubstationLayer extends CompositeLayer<Required<_SubstationLayerPro
             this.getSubLayerProps({
                 id: 'Label',
                 data: this.state.substationsLabels,
-                getPosition: (substation) => this.props.geoData.getSubstationPosition(substation.id),
+                getPosition: (substation) => this.props.geoData?.getSubstationPosition(substation.id),
                 getText: (substation) => this.props.getNameOrId(substation) ?? '',
                 getColor: this.props.labelColor,
                 fontFamily: 'Roboto',
@@ -196,7 +196,7 @@ export class SubstationLayer extends CompositeLayer<Required<_SubstationLayerPro
                 visible: this.props.labelsVisible,
                 updateTriggers: {
                     getText: [this.props.getNameOrId],
-                    getPosition: [this.props.geoData.substationPositionsById, this.props.network.substations],
+                    getPosition: [this.props.geoData?.substationPositionsById, this.props.network?.substations],
                 },
             } satisfies TextLayerProps<MapSubstation>)
         );

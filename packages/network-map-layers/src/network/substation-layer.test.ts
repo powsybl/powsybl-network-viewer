@@ -6,25 +6,19 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 
-import { describe, test, expect, beforeEach, it } from 'vitest';
-import { vi } from 'vitest';
+import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { SubstationLayer } from './substation-layer';
-import { ChangeFlags, LayerContext } from '@deck.gl/core';
 import { MapEquipments } from './map-equipments';
 import { GeoData } from './geo-data';
 import type { MapSubstation } from '../equipment-types';
+import { testLayer } from '@deck.gl/test-utils/vitest';
 
 describe('Test SubstationLayer', () => {
-    let substationLayer: SubstationLayer;
-
-    const context: Partial<LayerContext> = {};
-    const oldProps = {};
-
     // Test related to
     // https://github.com/powsybl/powsybl-network-viewer/issues/64
     // https://github.com/powsybl/powsybl-incubator/pull/267#discussion_r1393939164
     describe('Test updateState', () => {
-        const equipment: MapEquipments = new MapEquipments();
+        const network: MapEquipments = new MapEquipments();
         const geoData = new GeoData(new Map(), new Map());
         const substation1: MapSubstation = {
             id: 's0',
@@ -32,106 +26,95 @@ describe('Test SubstationLayer', () => {
         };
 
         beforeEach(() => {
-            substationLayer = new SubstationLayer();
             vi.clearAllMocks();
         });
 
-        test('updateState when props network and geoData are not null/undefined should succeed', () => {
-            // Given network and geoData are both not null and not undefined
-            const changeFlags: Partial<ChangeFlags> = { dataChanged: 'true' };
-            const props: Partial<any> = {
-                network: equipment,
-                geoData: geoData,
-                data: [substation1],
-            };
-            const params: any = { changeFlags, context, props, oldProps };
-            const setStateMocked = vi.spyOn(substationLayer, 'setState');
-            setStateMocked.mockImplementation(() => {});
-            // When
-            substationLayer.updateState(params);
-            // Then
-            const expected = {
-                nominalV: 220,
-                metaVoltageLevels: [
+        test('updateState handle nullable network, geoData, filter', () => {
+            testLayer({
+                Layer: SubstationLayer,
+                spies: ['updateState', 'setState'],
+                onError: (err) => expect(err).toBeFalsy(),
+                testCases: [
                     {
-                        nominalVoltageIndex: 0,
-                        voltageLevels: [
-                            {
-                                id: 'v0',
+                        title: 'build meta voltage level when network and geoData are defined',
+                        props: { data: [substation1], network, geoData, getNameOrId: () => '' },
+                        onAfterUpdate({ spies }) {
+                            expect(spies.updateState).toHaveBeenCalledTimes(1);
+                            expect(spies.setState).toHaveBeenCalledTimes(2);
+                            const expected = {
                                 nominalV: 220,
-                                substationId: 's0',
-                            },
-                        ],
+                                metaVoltageLevels: [
+                                    {
+                                        nominalVoltageIndex: 0,
+                                        voltageLevels: [
+                                            {
+                                                id: 'v0',
+                                                nominalV: 220,
+                                                substationId: 's0',
+                                            },
+                                        ],
+                                    },
+                                ],
+                            };
+                            expect(spies.setState).toHaveBeenNthCalledWith(1, {
+                                metaVoltageLevelsByNominalVoltage: [expected],
+                            });
+                        },
+                    },
+                    {
+                        title: 'skip meta voltage level when network and geoData are undefined',
+                        updateProps: { data: [substation1], network: undefined, geoData: undefined },
+                        onAfterUpdate({ spies }) {
+                            expect(spies.setState).toHaveBeenCalledTimes(2);
+                            expect(spies.setState).toHaveBeenNthCalledWith(1, {
+                                metaVoltageLevelsByNominalVoltage: [],
+                            });
+                        },
+                    },
+                    {
+                        title: 'skip meta voltage level when network and geoData are null',
+                        updateProps: { data: [substation1], network: null as any, geoData: null as any },
+                        onAfterUpdate({ spies }) {
+                            expect(spies.setState).toHaveBeenCalledTimes(2);
+                            expect(spies.setState).toHaveBeenNthCalledWith(1, {
+                                metaVoltageLevelsByNominalVoltage: [],
+                            });
+                        },
+                    },
+                    {
+                        title: 'filter substation labels when filteredNominalVoltages is defined',
+                        updateProps: { data: [substation1], network, geoData, filteredNominalVoltages: [400] },
+                        onAfterUpdate({ spies }) {
+                            expect(spies.setState).toHaveBeenCalledTimes(2);
+                            expect(spies.setState).toHaveBeenLastCalledWith({ substationsLabels: [] }); //filter applied => empty list (nominalV 400 not exist)
+                        },
+                    },
+                    {
+                        title: 'does not filter when filteredNominalVoltages is undefined',
+                        updateProps: { data: [substation1], network, geoData, filteredNominalVoltages: undefined },
+                        onAfterUpdate({ spies }) {
+                            expect(spies.setState).toHaveBeenCalledTimes(2);
+                            expect(spies.setState).toHaveBeenLastCalledWith({ substationsLabels: [substation1] }); // no filter applied, same as props.data
+                        },
+                    },
+                    {
+                        title: 'does not filter when filteredNominalVoltages is null',
+                        updateProps: {
+                            data: [substation1, { ...substation1, id: 's1' }],
+                            network,
+                            geoData,
+                            filteredNominalVoltages: null,
+                        },
+                        onAfterUpdate({ spies }) {
+                            expect(spies.setState).toHaveBeenCalledTimes(2);
+                            expect(spies.setState).toHaveBeenLastCalledWith({
+                                substationsLabels: [substation1, { ...substation1, id: 's1' }],
+                            });
+                            // no filter applied, same as props.data
+                        },
                     },
                 ],
-            };
-            expect(setStateMocked).toHaveBeenCalledTimes(2);
-            expect(setStateMocked).toHaveBeenNthCalledWith(1, { metaVoltageLevelsByNominalVoltage: [expected] });
+            });
         });
-
-        it.each([
-            [null, null],
-            [undefined, undefined],
-        ])('updateState when props network=%s and geoData=%s should succeed', (equipment, geoData) => {
-            // Given network and geoData are both null or undefined
-            const changeFlags: Partial<ChangeFlags> = { dataChanged: 'true' };
-            const props: any = {
-                network: equipment,
-                geoData: geoData,
-                data: [substation1],
-            };
-            const params: any = { changeFlags, context, props, oldProps };
-            const setStateMocked = vi.spyOn(substationLayer, 'setState').mockImplementation(() => {});
-            // When
-            substationLayer.updateState(params);
-            // Then
-            expect(setStateMocked).toHaveBeenCalledTimes(2);
-            expect(setStateMocked).toHaveBeenNthCalledWith(1, { metaVoltageLevelsByNominalVoltage: [] });
-        });
-
-        test('updateState when props network, geoData and filteredNominalVoltages are not null/undefined should succeed', () => {
-            // Given network, geoData and filteredNominalVoltages are not null and not undefined
-            const changeFlags: Partial<ChangeFlags> = { dataChanged: 'true' };
-            const props: any = {
-                network: equipment,
-                geoData: geoData,
-                data: [substation1],
-                filteredNominalVoltages: [400],
-            };
-            const params: any = { changeFlags, context, props, oldProps };
-            const setStateMocked = vi.spyOn(substationLayer, 'setState');
-            setStateMocked.mockImplementation(() => {});
-            // When
-            substationLayer.updateState(params);
-            // Then
-            expect(setStateMocked).toHaveBeenCalledTimes(2);
-            expect(setStateMocked).toHaveBeenLastCalledWith({ substationsLabels: [] }); //filter applied => empty list (nominalV 400 not exist)
-        });
-
-        it.each([[null], [undefined]])(
-            'updateState when filteredNominalVoltages=%s should succeed',
-            (filteredNominalVoltages) => {
-                // Given filteredNominalVoltages is null or undefined
-                const changeFlags: Partial<ChangeFlags> = { dataChanged: 'true' };
-                const props: any = {
-                    network: equipment,
-                    geoData: geoData,
-                    data: [substation1],
-                    filteredNominalVoltages: filteredNominalVoltages,
-                };
-                const params: any = {
-                    changeFlags,
-                    context,
-                    props: props,
-                    oldProps: props,
-                };
-                const setStateMocked = vi.spyOn(substationLayer, 'setState').mockImplementation(() => {});
-                // When
-                substationLayer.updateState(params);
-                // Then
-                expect(setStateMocked).toHaveBeenCalledTimes(2);
-                expect(setStateMocked).toHaveBeenLastCalledWith({ substationsLabels: [substation1] }); // no filter applied, same as props.data
-            }
-        );
     });
 });
