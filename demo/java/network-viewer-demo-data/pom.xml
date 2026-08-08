@@ -25,6 +25,7 @@
         <java.version>21</java.version>
         <core.version>7.3.0</core.version>
         <diagram.version>5.5.0</diagram.version>
+        <junit.version>5.12.2</junit.version>
         <olf.version>2.3.0</olf.version>
         <logback.version>1.5.26</logback.version>
     </properties>
@@ -101,6 +102,26 @@
             <artifactId>logback-classic</artifactId>
             <version>${logback.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.6.3</version>
+                <configuration>
+                    <mainClass>com.powsybl.viewer.demo.SyntheticNadGenerator</mainClass>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>
