@@ -11,7 +11,7 @@ import { defineConfig } from 'vite';
 import dts from 'vite-plugin-dts';
 import svgr from 'vite-plugin-svgr';
 import pkg from './package.json' with { type: 'json' };
-import { viteEslintChecker } from '../../utils/viteEslintChecker';
+import { viteEslintChecker } from '../../utils/viteEslintChecker.ts';
 
 export default defineConfig((config) => ({
     plugins: [
@@ -28,12 +28,12 @@ export default defineConfig((config) => ({
     build: {
         minify: false,
         lib: {
-            entry: path.resolve(__dirname, 'src/index.ts'),
+            entry: path.resolve(import.meta.dirname, 'src/index.ts'),
             formats: ['es', 'cjs'],
             name: 'PowsyblNetworkMapLayers',
             fileName: 'powsybl-network-map-layers',
         },
-        rollupOptions: {
+        rolldownOptions: {
             external: [...Object.keys(pkg.peerDependencies), ...Object.keys(pkg.dependencies), /^node:.*/],
             output: {
                 globals: {

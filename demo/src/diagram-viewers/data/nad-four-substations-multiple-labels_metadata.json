@@ -1,4 +1,5 @@
 {
+  "metadataVersion" : "1.0",
   "layoutParameters" : {
     "textNodesForceLayout" : false,
     "textNodeFixedShift" : {
@@ -213,7 +214,8 @@
       "labelA" : "LCC1"
     },
     "classes1" : [ "nad-vl300to500" ],
-    "classes2" : [ "nad-vl300to500" ]
+    "classes2" : [ "nad-vl300to500" ],
+    "classes" : [ "nad-hvdc-edge" ]
   }, {
     "svgId" : "28",
     "equipmentId" : "HVDC1",
@@ -249,7 +251,8 @@
       "labelB" : "739"
     },
     "classes1" : [ "nad-vl300to500" ],
-    "classes2" : [ "nad-vl300to500" ]
+    "classes2" : [ "nad-vl300to500" ],
+    "classes" : [ "nad-hvdc-edge" ]
   }, {
     "svgId" : "32",
     "equipmentId" : "LINE_S2S3",
@@ -363,5 +366,8 @@
     "shiftY" : -40.0,
     "connectionShiftX" : 100.0,
     "connectionShiftY" : -15.0
-  } ]
+  } ],
+  "networkId" : "fourSubstations",
+  "networkName" : "fourSubstations",
+  "networkDate" : "2017-06-25T17:43+01:00"
 }

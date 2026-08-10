@@ -415,8 +415,7 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
 
     function renderTooltip() {
         return (
-            tooltip &&
-            tooltip.visible &&
+            tooltip?.visible &&
             !shouldDisableToolTip &&
             //As of now only LINE tooltip is implemented, the following condition is to be removed or tweaked once other types of line tooltip are implemented
             tooltip.equipmentType === EQUIPMENT_TYPES.LINE && (
@@ -456,8 +455,7 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
             const leftButton = event.originalEvent.button === MOUSE_EVENT_BUTTON_LEFT;
             const rightButton = event.originalEvent.button === MOUSE_EVENT_BUTTON_RIGHT;
             if (
-                info.layer &&
-                info.layer.id.startsWith(SUBSTATION_LAYER_PREFIX) &&
+                info?.layer?.id.startsWith(SUBSTATION_LAYER_PREFIX) &&
                 info.object &&
                 (info.object.substationId || info.object.voltageLevels) // is a voltage level marker, or a substation text
             ) {
@@ -505,8 +503,7 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
             }
             if (
                 rightButton &&
-                info.layer &&
-                info.layer.id.startsWith(LINE_LAYER_PREFIX) &&
+                info?.layer?.id.startsWith(LINE_LAYER_PREFIX) &&
                 info.object?.id &&
                 info.object.voltageLevelId1 &&
                 info.object.voltageLevelId2
@@ -750,6 +747,7 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
         if (!map) {
             return null;
         }
+
         return {
             zoom: map.getZoom(),
             center: map.getCenter(),
