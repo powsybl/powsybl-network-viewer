@@ -39,7 +39,7 @@ public final class DemoFilesGenerator {
         NadDemoFiles.drawCaseRealGrid(demoResources);
 
         // SLD examples
-        SldDemoFiles.drawSldExample(demoResources.resolve("sld");
-        SldDemoFiles.drawSldSubExample(demoResources.resolve("sld");
+        SldDemoFiles.drawSldExample(demoResources.resolve("sld"));
+        SldDemoFiles.drawSldSubExample(demoResources.resolve("sld"));
     }
 }

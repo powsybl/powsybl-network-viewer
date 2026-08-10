@@ -7,8 +7,6 @@
  */
 package com.powsybl.viewer.demo;
 
-import com.powsybl.commons.datasource.ResourceDataSource;
-import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.diagram.test.Networks;
 import com.powsybl.ieeecdf.converter.IeeeCdfNetworkFactory;
@@ -188,7 +186,8 @@ public final class NadDemoFiles {
     }
 
     public static void drawCaseRealGrid(Path demoResourcesDirectory) {
-        Network network = Network.read(new ResourceDataSource("RealGrid", new ResourceSet("RealGrid.zip")));
+        Network network = Network.read("RealGridTest.biidm",
+                DemoFilesGenerator.class.getResourceAsStream("/RealGridTest.biidm"));
 
         EdgeInfoParameters edgeInfoParameters = new EdgeInfoParameters(
             EdgeInfoEnum.ACTIVE_POWER,
@@ -215,7 +214,10 @@ public final class NadDemoFiles {
             .setCssLocation(SvgParameters.CssLocation.EXTERNAL_NO_IMPORT)
             .setSvgWidthAndHeightAdded(true);
         LabelProviderParameters parameters = new LabelProviderParameters();
-        parameters.setEdgeInfoParameters(edgeInfoParameters);
+        parameters.setEdgeInfoParameters(edgeInfoParameters)
+                .setSubstationDescriptionDisplayed(true)
+                .setDoubleArrowsDisplayed(true)
+                .setIdDisplayed(true);
         return new NadParameters()
             .setSvgParameters(svgParameters)
             .setLabelProviderFactory((n, s) ->
