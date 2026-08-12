@@ -576,20 +576,24 @@ export class SingleLineDiagramViewer {
     private addEquipmentsPopover() {
         this.svgMetadata?.nodes?.forEach((equipment) => {
             const svgEquipment = this.container?.querySelector('#' + equipment.id);
+            if (svgEquipment && equipment.componentType === 'BREAKER') {
+                // TODO check if other type of switch are used in ui part (BREAKER, DISCONNECTOR ..)
+                // https://github.com/powsybl/powsybl-core/blob/main/iidm/iidm-api/src/main/java/com/powsybl/iidm/network/SwitchKind.java#L15
+                this.hoverOnElement(svgEquipment, equipment);
+            }
             const svgLabel = svgEquipment?.querySelector('text[class="sld-label"]');
             if (svgLabel) {
-                svgLabel.addEventListener('mouseover', (event) => {
-                    this.onToggleHoverCallback?.(
-                        true,
-                        event.currentTarget,
-                        equipment.equipmentId,
-                        equipment.componentType
-                    );
-                });
-                svgLabel.addEventListener('mouseout', () => {
-                    this.onToggleHoverCallback?.(false, null, '', '');
-                });
+                this.hoverOnElement(svgLabel, equipment);
             }
+        });
+    }
+
+    private hoverOnElement(element: Element, equipment: SLDMetadataNode) {
+        element.addEventListener('mouseover', (event) => {
+            this.onToggleHoverCallback?.(true, event.currentTarget, equipment.equipmentId, equipment.componentType);
+        });
+        element.addEventListener('mouseout', () => {
+            this.onToggleHoverCallback?.(false, null, '', '');
         });
     }
 
