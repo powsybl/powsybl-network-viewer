@@ -33,7 +33,7 @@ describe('Test SingleLineDiagramViewer', () => {
             });
             viewer['addEquipmentsPopover']();
             container.querySelector('text.sld-label')?.dispatchEvent(new MouseEvent('mouseover'));
-            expect(onToggleHover).toHaveBeenCalledWith(true, expect.any(EventTarget), 'tieLineId', 'BOUNDARY_LINE');
+            expect(onToggleHover).toHaveBeenNthCalledWith(1, true, expect.anything(), 'tieLineId', 'BOUNDARY_LINE');
         });
 
         it.each([
@@ -51,7 +51,7 @@ describe('Test SingleLineDiagramViewer', () => {
             });
             viewer['addEquipmentsPopover']();
             container.querySelector('#equipmentId' + index)?.dispatchEvent(new MouseEvent('mouseover'));
-            expect(onToggleHover).toHaveBeenCalledWith(true, expect.any(EventTarget), 'breaker1', componentType);
+            expect(onToggleHover).toHaveBeenNthCalledWith(1, true, expect.anything(), 'breaker1', componentType);
         });
     });
 });

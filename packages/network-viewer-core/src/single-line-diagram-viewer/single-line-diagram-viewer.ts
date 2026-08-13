@@ -583,10 +583,11 @@ export class SingleLineDiagramViewer {
             }
             if (SWITCH_TYPES.has(equipment.componentType)) {
                 this.hoverOnElement(svgEquipment, equipment);
-            }
-            const svgLabel = svgEquipment.querySelector('text[class="sld-label"]');
-            if (svgLabel) {
-                this.hoverOnElement(svgLabel, equipment);
+            } else {
+                const svgLabel = svgEquipment.querySelector('text[class="sld-label"]');
+                if (svgLabel) {
+                    this.hoverOnElement(svgLabel, equipment);
+                }
             }
         });
     }
