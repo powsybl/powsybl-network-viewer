@@ -578,6 +578,7 @@ export class SingleLineDiagramViewer {
         this.svgMetadata?.nodes?.forEach((equipment) => {
             const svgEquipment = this.container?.querySelector('#' + equipment.id);
             if (!svgEquipment) {
+                console.warn(`Node element with id='${equipment.id}', type='${equipment.componentType}' not found`);
                 return;
             }
             if (SWITCH_TYPES.has(equipment.componentType)) {
