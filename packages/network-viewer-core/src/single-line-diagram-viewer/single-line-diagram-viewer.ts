@@ -37,6 +37,7 @@ const FEEDER_COMPONENT_TYPES = new Set([
 ]);
 
 const BUSBAR_SECTION_TYPES = new Set(['BUSBAR_SECTION']);
+const SWITCH_TYPES = new Set(['BREAKER', 'DISCONNECTOR', 'LOAD_BREAK_SWITCH']);
 
 const MAX_ZOOM_LEVEL = 10;
 const MIN_ZOOM_LEVEL_SUB = 0.1;
@@ -576,12 +577,13 @@ export class SingleLineDiagramViewer {
     private addEquipmentsPopover() {
         this.svgMetadata?.nodes?.forEach((equipment) => {
             const svgEquipment = this.container?.querySelector('#' + equipment.id);
-            if (svgEquipment && equipment.componentType === 'BREAKER') {
-                // TODO check if other type of switch are used in ui part (BREAKER, DISCONNECTOR ..)
-                // https://github.com/powsybl/powsybl-core/blob/main/iidm/iidm-api/src/main/java/com/powsybl/iidm/network/SwitchKind.java#L15
+            if (!svgEquipment) {
+                return;
+            }
+            if (SWITCH_TYPES.has(equipment.componentType)) {
                 this.hoverOnElement(svgEquipment, equipment);
             }
-            const svgLabel = svgEquipment?.querySelector('text[class="sld-label"]');
+            const svgLabel = svgEquipment.querySelector('text[class="sld-label"]');
             if (svgLabel) {
                 this.hoverOnElement(svgLabel, equipment);
             }
