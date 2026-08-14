@@ -22,7 +22,7 @@ describe('Test SingleLineDiagramViewer', () => {
         });
 
         test('test trigger hover callback on label', () => {
-            svgContent = `<g id="equipmentId1"><rect class="sld-switch"/><text class="sld-label" id="tieLineId"">TieLine</text></g>`;
+            svgContent = `<g id="equipmentId1"><rect class="sld-switch"/><text class="sld-label" id="tieLineId">TieLine</text></g>`;
             svgMetadata = {
                 nodes: [{ id: 'equipmentId1', equipmentId: 'tieLineId', componentType: 'BOUNDARY_LINE' }],
             };

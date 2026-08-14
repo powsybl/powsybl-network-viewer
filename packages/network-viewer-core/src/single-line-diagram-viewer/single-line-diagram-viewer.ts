@@ -37,7 +37,6 @@ const FEEDER_COMPONENT_TYPES = new Set([
 ]);
 
 const BUSBAR_SECTION_TYPES = new Set(['BUSBAR_SECTION']);
-const SWITCH_TYPES = new Set(['BREAKER', 'DISCONNECTOR', 'LOAD_BREAK_SWITCH']);
 
 const MAX_ZOOM_LEVEL = 10;
 const MIN_ZOOM_LEVEL_SUB = 0.1;
@@ -581,7 +580,7 @@ export class SingleLineDiagramViewer {
                 console.warn(`Node element with id='${equipment.id}', type='${equipment.componentType}' not found`);
                 return;
             }
-            if (SWITCH_TYPES.has(equipment.componentType)) {
+            if (SWITCH_COMPONENT_TYPES.has(equipment.componentType)) {
                 this.hoverOnElement(svgEquipment, equipment);
             } else {
                 const svgLabel = svgEquipment.querySelector('text[class="sld-label"]');
