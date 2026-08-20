@@ -39,6 +39,7 @@ import { Dimensions, EdgeType, ElementType, HalfEdge, ViewBox } from './diagram-
 import { LibraryComponent } from './library-component';
 import DefaultLibraryComponents from '../resources/default-library/components.json';
 import * as ComponentUtils from './component-utils';
+import { NadBusNodeStyle, NadStyleProvider } from './nad-style-registry';
 
 // Type for cancelable debounced functions (replaces @mui/utils Cancelable)
 interface Cancelable {
@@ -149,6 +150,8 @@ export class NetworkAreaDiagramViewer {
 
     componentLibrary: LibraryComponent[] = DefaultLibraryComponents;
 
+    nadStyleProvider: NadStyleProvider | null | undefined;
+
     static readonly ZOOM_CLASS_PREFIX = 'nad-zoom-';
 
     /**
@@ -213,6 +216,10 @@ export class NetworkAreaDiagramViewer {
 
     public setSvgContent(svgContent: string): void {
         this.svgContent = svgContent;
+    }
+
+    public setStyle(nadStyleProvider: NadStyleProvider): void {
+        this.nadStyleProvider = nadStyleProvider != null ? nadStyleProvider : null;
     }
 
     public getWidth(): number {
@@ -3148,5 +3155,18 @@ export class NetworkAreaDiagramViewer {
             const observer = new MutationObserver(sync);
             observer.observe(svgElement, { attributes: true, attributeFilter: ['viewBox'] });
         }
+    }
+
+    refreshStyle() {
+        this.diagramMetadata?.busNodes.forEach((busNode) => {
+            const nodeStyle: NadBusNodeStyle | undefined = this.nadStyleProvider?.getBusNodeStyle(busNode);
+            const element = this.container.querySelector<SVGElement>(`[id="${busNode.svgId}"]`);
+            if (element && nodeStyle) {
+                if (nodeStyle.fill) {
+                    element?.style.setProperty('fill', nodeStyle.fill);
+                }
+            }
+        });
+        this.setSvgContent(this.container.innerHTML);
     }
 }
