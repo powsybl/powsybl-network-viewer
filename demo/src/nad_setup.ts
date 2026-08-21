@@ -7,8 +7,8 @@
  */
 
 import { NetworkAreaDiagramViewer } from '../../src';
-import svgContent from './diagram-viewers/data/nad_custom_style.svg?raw';
-import metadata from './diagram-viewers/data/nad_custom_style_metadata.json';
+import svgContent from './diagram-viewers/data/nad_style_origin.svg?raw';
+import metadata from './diagram-viewers/data/nad_style_origin_metadata.json';
 import {
     handleNodeMove,
     handleNodeSelect,
@@ -53,8 +53,8 @@ nadViewer.setStyle(customStyleProvider);
 
 const customStyleProvider2: NadStyleProvider = {
     getBusNodeStyle: (equipmentId) => {
-        if (equipmentId == 'VL1_10') return { fill: 'green' };
-        if (equipmentId == 'VL2_30') return { fill: 'red' };
+        if (equipmentId == 'VL1_10') return { fill: 'red' };
+        if (equipmentId == 'VL2_30') return { fill: 'green' };
         return {};
     },
     getBranchStyle: () => {
@@ -77,12 +77,12 @@ const customStyleProvider2: NadStyleProvider = {
                 strokeWidth: '5px',
             },
             side2: {
-                stroke: 'green',
+                stroke: 'red',
                 strokeWidth: '5px',
                 strokeDasharray: '4 4',
             },
             side3: {
-                stroke: 'blue',
+                stroke: 'green',
                 strokeWidth: '5px',
                 strokeDasharray: '4 4',
             },
