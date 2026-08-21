@@ -6,8 +6,6 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 
-import { BusNodeMetadata, EdgeMetadata } from './diagram-metadata';
-
 export interface NadLineStyle {
     stroke?: string;
     strokeWidth?: string;

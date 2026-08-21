@@ -3236,7 +3236,9 @@ export class NetworkAreaDiagramViewer {
                         bus.equipmentId.startsWith(node.equipmentId)
                     );
                     if (busNode) {
-                        const busNodeStyle: NadBusNodeStyle | undefined = this.style?.getBusNodeStyle?.(busNode?.equipmentId);
+                        const busNodeStyle: NadBusNodeStyle | undefined = this.style?.getBusNodeStyle?.(
+                            busNode?.equipmentId
+                        );
                         if (busNodeStyle) {
                             legendSquareElement.removeAttribute('style');
                             if (busNodeStyle.fill) {
