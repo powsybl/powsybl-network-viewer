@@ -27,10 +27,20 @@ export interface NadBranchStyle {
     side1?: NadElementStyle;
     side2?: NadElementStyle;
 }
+
+export interface NadThreeWtStyle {
+    equipmentId?: string;
+    side1?: NadLineStyle;
+    side2?: NadLineStyle;
+    side3?: NadLineStyle;
+}
+
+//https://github.com/powsybl/powsybl-diagram/blob/main/network-area-diagram/src/main/java/com/powsybl/nad/svg/CustomStyleProvider.java#L49
 export interface NadStyleProvider {
-    getBusNodeStyle?(node: BusNodeMetadata): NadBusNodeStyle;
-    getBranchStyle?(edge: EdgeMetadata): NadBranchStyle;
-    // TODO complete style for t3t and injections
+    getBusNodeStyle?(equipmentId: string): NadBusNodeStyle;
+    getBranchStyle?(equipmentId: string): NadBranchStyle;
+    getThreeWtStyle?(equipmentId: string): NadThreeWtStyle;
+    // TODO add injections
 }
 
 export class NadStyleRegistry {

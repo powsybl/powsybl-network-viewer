@@ -105,7 +105,6 @@ describe('Test network-area-diagram-viewer', () => {
         expect(nad.getSvgContent()).toContain(
             `<g id="11" class="nad-vl70to120" style="fill: green;"><circle r="15" id="222" class="nad-bus-1 nad-busnode"></circle></g>`
         );
-        //
         // test1
         nad.setStyle(registry.getStyleProvider('test1'));
         expect(nad.getSvgContent()).toEqual(svgContent);
@@ -129,8 +128,8 @@ describe('Test network-area-diagram-viewer', () => {
 
     const customStyleProvider3: NadStyleProvider = {
         getBusNodeStyle: (node) => {
-            if (node.svgId == '10') return { fill: 'red' };
-            if (node.svgId == '11') return { fill: 'yellow' };
+            if (node == 'VL1_0') return { fill: 'red' };
+            if (node == 'VL1_1') return { fill: 'yellow' };
             return null as any;
         },
     };

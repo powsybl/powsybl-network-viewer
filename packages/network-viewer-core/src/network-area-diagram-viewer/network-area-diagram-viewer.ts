@@ -39,7 +39,7 @@ import { Dimensions, EdgeType, ElementType, HalfEdge, ViewBox } from './diagram-
 import { LibraryComponent } from './library-component';
 import DefaultLibraryComponents from '../resources/default-library/components.json';
 import * as ComponentUtils from './component-utils';
-import { NadBranchStyle, NadBusNodeStyle, NadStyleProvider } from './nad-style-registry';
+import { NadBranchStyle, NadBusNodeStyle, NadLineStyle, NadStyleProvider, NadThreeWtStyle } from './nad-style-registry';
 
 // Type for cancelable debounced functions (replaces @mui/utils Cancelable)
 interface Cancelable {
@@ -150,7 +150,7 @@ export class NetworkAreaDiagramViewer {
 
     componentLibrary: LibraryComponent[] = DefaultLibraryComponents;
 
-    style: NadStyleProvider | null | undefined;
+    style: NadStyleProvider | undefined;
 
     static readonly ZOOM_CLASS_PREFIX = 'nad-zoom-';
 
@@ -218,8 +218,8 @@ export class NetworkAreaDiagramViewer {
         this.svgContent = svgContent;
     }
 
-    public setStyle(style: any): void {
-        this.style = style != null ? style : null;
+    public setStyle(style: NadStyleProvider): void {
+        this.style = style;
         this.refreshStyle();
     }
 
@@ -3161,7 +3161,7 @@ export class NetworkAreaDiagramViewer {
     private refreshStyle() {
         // Bus Node Style
         this.diagramMetadata?.busNodes.forEach((busNode) => {
-            const busNodeStyle: NadBusNodeStyle | undefined = this.style?.getBusNodeStyle?.(busNode);
+            const busNodeStyle: NadBusNodeStyle | undefined = this.style?.getBusNodeStyle?.(busNode?.equipmentId);
             if (busNodeStyle) {
                 const element = this.container.querySelector<SVGElement>(`[id="${busNode.svgId}"]`);
                 if (element) {
@@ -3172,7 +3172,7 @@ export class NetworkAreaDiagramViewer {
         });
         // Edge / Branch Style
         this.diagramMetadata?.edges.forEach((edge) => {
-            const branchStyle: NadBranchStyle | undefined = this.style?.getBranchStyle?.(edge);
+            const branchStyle: NadBranchStyle | undefined = this.style?.getBranchStyle?.(edge?.equipmentId);
             if (branchStyle) {
                 const element = this.container.querySelector<SVGElement>(`[id="${edge.svgId}"]`);
                 if (element) {
@@ -3190,6 +3190,61 @@ export class NetworkAreaDiagramViewer {
                     if (circles.length == 2) {
                         circles.forEach((elem) => elem.removeAttribute('style'));
                         this.applyStyleOnSides(circles, branchStyle);
+                    }
+                }
+            }
+            if (edge.type == 'ThreeWtEdge') {
+                const threeEdgeStyle: NadThreeWtStyle | undefined = this.style?.getThreeWtStyle?.(edge.equipmentId);
+                if (threeEdgeStyle) {
+                    const element = this.container.querySelector<SVGElement>(`[id="${edge.svgId}"]`);
+                    if (element) {
+                        const polyline = element.querySelector(':scope > polyline') as SVGElement;
+                        if (edge.side == 'ONE' && threeEdgeStyle.side1) {
+                            polyline.removeAttribute('style');
+                            this.applyLineStyle(polyline, threeEdgeStyle.side1);
+                        }
+                        if (edge.side == 'TWO' && threeEdgeStyle.side2) {
+                            polyline.removeAttribute('style');
+                            this.applyLineStyle(polyline, threeEdgeStyle.side2);
+                        }
+                        if (edge.side == 'THREE' && threeEdgeStyle.side3) {
+                            polyline.removeAttribute('style');
+                            this.applyLineStyle(polyline, threeEdgeStyle.side3);
+                        }
+                    }
+                }
+            }
+        });
+        this.diagramMetadata?.nodes.forEach((node) => {
+            const threeNodeStyle: NadThreeWtStyle | undefined = this.style?.getThreeWtStyle?.(node.equipmentId);
+            if (node.type == 'THREEWT') {
+                const element = this.container.querySelector<SVGElement>(`[id="${node.svgId}"]`) as SVGElement;
+                const circles = element.querySelectorAll(':scope > circle');
+                if (circles.length == 3 && threeNodeStyle) {
+                    circles.forEach((elem) => elem.removeAttribute('style'));
+                    if (threeNodeStyle.side1) this.applyLineStyle(circles.item(0) as SVGElement, threeNodeStyle.side1);
+                    if (threeNodeStyle.side2) this.applyLineStyle(circles.item(1) as SVGElement, threeNodeStyle.side2);
+                    if (threeNodeStyle.side3) this.applyLineStyle(circles.item(2) as SVGElement, threeNodeStyle.side3);
+                }
+            }
+            // legend style linked to busNode (no information in metadata busNode section, look first in nodes section)
+            const legendElement = this.container.querySelector<SVGElement>(`[id="${node.legendSvgId}"]`);
+            if (legendElement) {
+                const legendSquareElement = legendElement.querySelector(':scope .nad-legend-square') as SVGElement;
+                if (legendSquareElement) {
+                    const busNode = this.diagramMetadata?.busNodes.find((bus) =>
+                        bus.equipmentId.startsWith(node.equipmentId)
+                    );
+                    if (busNode) {
+                        const busNodeStyle: NadBusNodeStyle | undefined = this.style?.getBusNodeStyle?.(busNode?.equipmentId);
+                        if (busNodeStyle) {
+                            legendSquareElement.removeAttribute('style');
+                            if (busNodeStyle.fill) {
+                                legendSquareElement?.style.setProperty('background', busNodeStyle.fill);
+                                legendSquareElement?.style.setProperty('fill', busNodeStyle.fill);
+                                legendSquareElement?.style.setProperty('stroke', 'black');
+                            }
+                        }
                     }
                 }
             }
@@ -3223,5 +3278,11 @@ export class NetworkAreaDiagramViewer {
         if (busNodeStyle.stroke) element?.style.setProperty('stroke', busNodeStyle.stroke);
         if (busNodeStyle.strokeWidth) element?.style.setProperty('stroke-width', busNodeStyle.strokeWidth);
         if (busNodeStyle.strokeDasharray) element?.style.setProperty('stroke-dasharray', busNodeStyle.strokeDasharray);
+    }
+
+    private applyLineStyle(element: SVGElement, lineStyle: NadLineStyle) {
+        if (lineStyle.stroke) element?.style.setProperty('stroke', lineStyle.stroke);
+        if (lineStyle.strokeWidth) element?.style.setProperty('stroke-width', lineStyle.strokeWidth);
+        if (lineStyle.strokeDasharray) element?.style.setProperty('stroke-dasharray', lineStyle.strokeDasharray);
     }
 }
