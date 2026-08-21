@@ -39,7 +39,7 @@ import { Dimensions, EdgeType, ElementType, HalfEdge, ViewBox } from './diagram-
 import { LibraryComponent } from './library-component';
 import DefaultLibraryComponents from '../resources/default-library/components.json';
 import * as ComponentUtils from './component-utils';
-import { NadBusNodeStyle, NadStyleProvider } from './nad-style-registry';
+import { NadBranchStyle, NadBusNodeStyle, NadStyleProvider } from './nad-style-registry';
 
 // Type for cancelable debounced functions (replaces @mui/utils Cancelable)
 interface Cancelable {
@@ -150,7 +150,7 @@ export class NetworkAreaDiagramViewer {
 
     componentLibrary: LibraryComponent[] = DefaultLibraryComponents;
 
-    nadStyleProvider: NadStyleProvider | null | undefined;
+    style: NadStyleProvider | null | undefined;
 
     static readonly ZOOM_CLASS_PREFIX = 'nad-zoom-';
 
@@ -218,8 +218,9 @@ export class NetworkAreaDiagramViewer {
         this.svgContent = svgContent;
     }
 
-    public setStyle(nadStyleProvider: NadStyleProvider): void {
-        this.nadStyleProvider = nadStyleProvider != null ? nadStyleProvider : null;
+    public setStyle(style: any): void {
+        this.style = style != null ? style : null;
+        this.refreshStyle();
     }
 
     public getWidth(): number {
@@ -3157,16 +3158,70 @@ export class NetworkAreaDiagramViewer {
         }
     }
 
-    refreshStyle() {
+    private refreshStyle() {
+        // Bus Node Style
         this.diagramMetadata?.busNodes.forEach((busNode) => {
-            const nodeStyle: NadBusNodeStyle | undefined = this.nadStyleProvider?.getBusNodeStyle(busNode);
-            const element = this.container.querySelector<SVGElement>(`[id="${busNode.svgId}"]`);
-            if (element && nodeStyle) {
-                if (nodeStyle.fill) {
-                    element?.style.setProperty('fill', nodeStyle.fill);
+            const busNodeStyle: NadBusNodeStyle | undefined = this.style?.getBusNodeStyle?.(busNode);
+            if (busNodeStyle) {
+                const element = this.container.querySelector<SVGElement>(`[id="${busNode.svgId}"]`);
+                if (element) {
+                    element.removeAttribute('style');
+                    this.applyBusNodeStyle(element, busNodeStyle);
+                }
+            }
+        });
+        // Edge / Branch Style
+        this.diagramMetadata?.edges.forEach((edge) => {
+            const branchStyle: NadBranchStyle | undefined = this.style?.getBranchStyle?.(edge);
+            if (branchStyle) {
+                const element = this.container.querySelector<SVGElement>(`[id="${edge.svgId}"]`);
+                if (element) {
+                    const paths = element.querySelectorAll(':scope > path');
+                    const polylines = element.querySelectorAll(':scope > polyline');
+                    const circles = element.querySelectorAll(':scope > g > circle');
+                    if (paths.length == 2) {
+                        paths.forEach((elem) => elem.removeAttribute('style'));
+                        this.applyStyleOnSides(paths, branchStyle);
+                    }
+                    if (polylines.length == 2) {
+                        polylines.forEach((elem) => elem.removeAttribute('style'));
+                        this.applyStyleOnSides(polylines, branchStyle);
+                    }
+                    if (circles.length == 2) {
+                        circles.forEach((elem) => elem.removeAttribute('style'));
+                        this.applyStyleOnSides(circles, branchStyle);
+                    }
                 }
             }
         });
         this.setSvgContent(this.container.innerHTML);
+    }
+
+    private applyStyleOnSides(elements: NodeListOf<Element>, nadBranchStyle: NadBranchStyle) {
+        //side 1
+        const side1Style = nadBranchStyle.side1;
+        if (side1Style) {
+            const sideElement = elements.item(0) as SVGElement;
+            if (side1Style.stroke) sideElement?.style.setProperty('stroke', side1Style.stroke);
+            if (side1Style.strokeWidth) sideElement?.style.setProperty('stroke-width', side1Style.strokeWidth);
+            if (side1Style.strokeDasharray)
+                sideElement?.style.setProperty('stroke-dasharray', side1Style.strokeDasharray);
+        }
+        //side 2
+        const side2Style = nadBranchStyle.side2;
+        if (side2Style) {
+            const sideElement = elements.item(1) as SVGElement;
+            if (side2Style.stroke) sideElement?.style.setProperty('stroke', side2Style.stroke);
+            if (side2Style.strokeWidth) sideElement?.style.setProperty('stroke-width', side2Style.strokeWidth);
+            if (side2Style.strokeDasharray)
+                sideElement?.style.setProperty('stroke-dasharray', side2Style.strokeDasharray);
+        }
+    }
+
+    private applyBusNodeStyle(element: SVGElement, busNodeStyle: NadBusNodeStyle) {
+        if (busNodeStyle.fill) element?.style.setProperty('fill', busNodeStyle.fill);
+        if (busNodeStyle.stroke) element?.style.setProperty('stroke', busNodeStyle.stroke);
+        if (busNodeStyle.strokeWidth) element?.style.setProperty('stroke-width', busNodeStyle.strokeWidth);
+        if (busNodeStyle.strokeDasharray) element?.style.setProperty('stroke-dasharray', busNodeStyle.strokeDasharray);
     }
 }

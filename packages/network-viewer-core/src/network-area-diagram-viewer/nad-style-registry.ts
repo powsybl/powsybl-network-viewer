@@ -6,22 +6,31 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 
-import { BusNodeMetadata } from './diagram-metadata';
+import { BusNodeMetadata, EdgeMetadata } from './diagram-metadata';
 
 export interface NadLineStyle {
-    stroke?: string | null;
-    strokeWidth?: string | null;
-    strokeDasharray?: string | null;
+    stroke?: string;
+    strokeWidth?: string;
+    strokeDasharray?: string;
 }
 
 export interface NadBusNodeStyle extends NadLineStyle {
-    equipmentId: string;
-    fill?: string | null;
+    equipmentId?: string;
+    fill?: string;
 }
 
+export interface NadElementStyle extends NadLineStyle {
+    fill?: string;
+}
+
+export interface NadBranchStyle {
+    side1?: NadElementStyle;
+    side2?: NadElementStyle;
+}
 export interface NadStyleProvider {
-    getBusNodeStyle(node: BusNodeMetadata): NadBusNodeStyle | undefined;
-    // TODO complete style for branch, t3t and injections
+    getBusNodeStyle?(node: BusNodeMetadata): NadBusNodeStyle;
+    getBranchStyle?(edge: EdgeMetadata): NadBranchStyle;
+    // TODO complete style for t3t and injections
 }
 
 export class NadStyleRegistry {
