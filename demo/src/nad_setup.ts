@@ -7,8 +7,11 @@
  */
 
 import { NetworkAreaDiagramViewer } from '../../src';
-import svgContent from './diagram-viewers/data/nad_style_origin.svg?raw';
-import metadata from './diagram-viewers/data/nad_style_origin_metadata.json';
+import svgContent from './diagram-viewers/data/nad_style_origin_example1.svg?raw';
+import metadata from './diagram-viewers/data/nad_style_origin_example1_metadata.json';
+import svgContent2 from './diagram-viewers/data/nad_style_origin_example2.svg?raw';
+import metadata2 from './diagram-viewers/data/nad_style_origin_example2_metadata.json';
+
 import {
     handleNodeMove,
     handleNodeSelect,
@@ -38,18 +41,32 @@ export function setupNad(
     });
 }
 
-const container = document.getElementById('svg-container-nad-custom-style');
-if (!container) {
-    throw new Error('#svg-container-nad-custom-style not found');
+// ###############################
+// EXAMPLE 1
+// ###############################
+const containerExample1 = document.getElementById('svg-container-nad-custom-style-example1');
+if (!containerExample1) {
+    throw new Error('#svg-container-nad-custom-style-example1 not found');
+}
+const containerExample1Customization = document.getElementById('svg-container-nad-custom-style-example1-result');
+if (!containerExample1Customization) {
+    throw new Error('#svg-container-nad-custom-style-example1-result not found');
 }
 const zoomLebels = [0, 1000, 2200, 2500, 3000, 4000, 9000, 12000, 20000];
-const nadViewer: NetworkAreaDiagramViewer = setupNad(container, svgContent, metadata, true, zoomLebels);
+setupNad(containerExample1, svgContent, metadata, true, zoomLebels);
+const nadViewerExample1Customization: NetworkAreaDiagramViewer = setupNad(
+    containerExample1Customization,
+    svgContent,
+    metadata,
+    true,
+    zoomLebels
+);
 const customStyleProvider: NadStyleProvider = {
     getBusNodeStyle: () => {
         return { fill: 'green' };
     },
 };
-nadViewer.setStyle(customStyleProvider);
+nadViewerExample1Customization.setStyle(customStyleProvider);
 
 const customStyleProvider2: NadStyleProvider = {
     getBusNodeStyle: (equipmentId) => {
@@ -89,4 +106,63 @@ const customStyleProvider2: NadStyleProvider = {
         };
     },
 };
-nadViewer.setStyle(customStyleProvider2);
+nadViewerExample1Customization.setStyle(customStyleProvider2);
+const customStyleExample1 = document.getElementById('custom-style1-example1');
+if (customStyleExample1) {
+    const styles = {
+        busNode: {
+            VL1_10: customStyleProvider2?.getBusNodeStyle('VL1_10'),
+            VL2_30: customStyleProvider2?.getBusNodeStyle('VL2_30'),
+        },
+        branch: customStyleProvider2?.getBranchStyle(),
+        threeWt: customStyleProvider2?.getThreeWtStyle(),
+    };
+    customStyleExample1.textContent = JSON.stringify(styles, null, 2);
+} else {
+    throw new Error('#custom-style1-example1 not found');
+}
+// ###############################
+// EXAMPLE 2
+// ###############################
+const containerExample2 = document.getElementById('svg-container-nad-custom-style-example2');
+if (!containerExample2) {
+    throw new Error('#svg-container-nad-custom-style-example2 not found');
+}
+const containerExample2Customization = document.getElementById('svg-container-nad-custom-style-example2-result');
+if (!containerExample2Customization) {
+    throw new Error('#svg-container-nad-custom-style-example2-result not found');
+}
+setupNad(containerExample2, svgContent2, metadata2, true, zoomLebels);
+const nadViewerExample2Customization: NetworkAreaDiagramViewer = setupNad(
+    containerExample2Customization,
+    svgContent2,
+    metadata2,
+    true,
+    zoomLebels
+);
+
+const customStyleProvider3: NadStyleProvider = {
+    ...customStyleProvider2,
+    getInjectionStyle: () => {
+        return {
+            stroke: 'blue',
+            strokeWidth: '5px',
+        };
+    },
+};
+nadViewerExample2Customization.setStyle(customStyleProvider3);
+const customStyleExample2 = document.getElementById('custom-style1-example2');
+if (customStyleExample2) {
+    const styles = {
+        busNode: {
+            VL1_10: customStyleProvider3?.getBusNodeStyle('VL1_10'),
+            VL2_30: customStyleProvider3?.getBusNodeStyle('VL2_30'),
+        },
+        branch: customStyleProvider3?.getBranchStyle(),
+        threeWt: customStyleProvider3?.getThreeWtStyle(),
+        injections: customStyleProvider3?.getInjectionStyle(),
+    };
+    customStyleExample2.textContent = JSON.stringify(styles, null, 2);
+} else {
+    throw new Error('#custom-style1-example2 not found');
+}

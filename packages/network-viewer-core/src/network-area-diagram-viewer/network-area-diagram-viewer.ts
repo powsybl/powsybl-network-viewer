@@ -39,14 +39,8 @@ import { Dimensions, EdgeType, ElementType, HalfEdge, ViewBox } from './diagram-
 import { LibraryComponent } from './library-component';
 import DefaultLibraryComponents from '../resources/default-library/components.json';
 import * as ComponentUtils from './component-utils';
-import {
-    NadBranchStyle,
-    NadBusNodeStyle,
-    NadInjectionStyle,
-    NadLineStyle,
-    NadStyleProvider,
-    NadThreeWtStyle,
-} from './nad-style-registry';
+import { NadStyleProvider } from './nad-style-registry';
+import { updateBusNodesStyle, updateEdgeStyle, updateInjectionStyle, updateThreeWTNodeStyle } from './style-utils.ts';
 
 // Type for cancelable debounced functions (replaces @mui/utils Cancelable)
 interface Cancelable {
@@ -3166,158 +3160,12 @@ export class NetworkAreaDiagramViewer {
     }
 
     private refreshStyle() {
-        // Bus Node Style
-        this.diagramMetadata?.busNodes.forEach((busNode) => {
-            const busNodeStyle: NadBusNodeStyle | undefined = this.style?.getBusNodeStyle?.(busNode?.equipmentId);
-            if (busNodeStyle) {
-                const element = this.container.querySelector<SVGElement>(`[id="${busNode.svgId}"]`);
-                if (element) {
-                    element.removeAttribute('style');
-                    this.applyBusNodeStyle(element, busNodeStyle);
-                }
-            }
-        });
-        // Edge / Branch Style
-        this.diagramMetadata?.edges.forEach((edge) => {
-            const branchStyle: NadBranchStyle | undefined = this.style?.getBranchStyle?.(edge?.equipmentId);
-            if (branchStyle) {
-                const element = this.container.querySelector<SVGElement>(`[id="${edge.svgId}"]`);
-                if (element) {
-                    const paths = element.querySelectorAll(':scope > path');
-                    const polylines = element.querySelectorAll(':scope > polyline');
-                    const circles = element.querySelectorAll(':scope > g > circle');
-                    if (paths.length == 2) {
-                        paths.forEach((elem) => elem.removeAttribute('style'));
-                        this.applyStyleOnSides(paths, branchStyle);
-                    }
-                    if (polylines.length == 2) {
-                        polylines.forEach((elem) => elem.removeAttribute('style'));
-                        this.applyStyleOnSides(polylines, branchStyle);
-                    }
-                    if (circles.length == 2) {
-                        circles.forEach((elem) => elem.removeAttribute('style'));
-                        this.applyStyleOnSides(circles, branchStyle);
-                    }
-                }
-            }
-            if (edge.type == 'ThreeWtEdge') {
-                const threeEdgeStyle: NadThreeWtStyle | undefined = this.style?.getThreeWtStyle?.(edge.equipmentId);
-                if (threeEdgeStyle) {
-                    const element = this.container.querySelector<SVGElement>(`[id="${edge.svgId}"]`);
-                    if (element) {
-                        const polyline = element.querySelector(':scope > polyline') as SVGElement;
-                        if (edge.side == 'ONE' && threeEdgeStyle.side1) {
-                            polyline.removeAttribute('style');
-                            this.applyLineStyle(polyline, threeEdgeStyle.side1);
-                        }
-                        if (edge.side == 'TWO' && threeEdgeStyle.side2) {
-                            polyline.removeAttribute('style');
-                            this.applyLineStyle(polyline, threeEdgeStyle.side2);
-                        }
-                        if (edge.side == 'THREE' && threeEdgeStyle.side3) {
-                            polyline.removeAttribute('style');
-                            this.applyLineStyle(polyline, threeEdgeStyle.side3);
-                        }
-                    }
-                }
-            }
-        });
-        this.diagramMetadata?.nodes.forEach((node) => {
-            const threeNodeStyle: NadThreeWtStyle | undefined = this.style?.getThreeWtStyle?.(node.equipmentId);
-            if (node.type == 'THREEWT') {
-                const element = this.container.querySelector<SVGElement>(`[id="${node.svgId}"]`) as SVGElement;
-                const circles = element.querySelectorAll(':scope > circle');
-                if (circles.length == 3 && threeNodeStyle) {
-                    circles.forEach((elem) => elem.removeAttribute('style'));
-                    if (threeNodeStyle.side1) this.applyLineStyle(circles.item(0) as SVGElement, threeNodeStyle.side1);
-                    if (threeNodeStyle.side2) this.applyLineStyle(circles.item(1) as SVGElement, threeNodeStyle.side2);
-                    if (threeNodeStyle.side3) this.applyLineStyle(circles.item(2) as SVGElement, threeNodeStyle.side3);
-                }
-            }
-            // legend style linked to busNode (no information in metadata busNode section, look first in nodes section)
-            const legendElement = this.container.querySelector<SVGElement>(`[id="${node.legendSvgId}"]`);
-            if (legendElement) {
-                const legendSquareElement = legendElement.querySelector(':scope .nad-legend-square') as SVGElement;
-                if (legendSquareElement) {
-                    const busNode = this.diagramMetadata?.busNodes.find((bus) =>
-                        bus.equipmentId.startsWith(node.equipmentId)
-                    );
-                    if (busNode) {
-                        const busNodeStyle: NadBusNodeStyle | undefined = this.style?.getBusNodeStyle?.(
-                            busNode?.equipmentId
-                        );
-                        if (busNodeStyle) {
-                            legendSquareElement.removeAttribute('style');
-                            if (busNodeStyle.fill) {
-                                legendSquareElement?.style.setProperty('background', busNodeStyle.fill);
-                                legendSquareElement?.style.setProperty('fill', busNodeStyle.fill);
-                                legendSquareElement?.style.setProperty('stroke', 'black');
-                            }
-                        }
-                    }
-                }
-            }
-        });
-
-        // Injection Node Style
-        if (this.diagramMetadata?.injections) {
-            this.diagramMetadata?.injections.forEach((injectionNode) => {
-                const injectionNodeStyle: NadInjectionStyle | undefined = this.style?.getInjectionStyle?.(
-                    injectionNode?.equipmentId
-                );
-                if (injectionNodeStyle) {
-                    const element = this.container.querySelector<SVGElement>(
-                        `[id="${injectionNode.svgId}"]`
-                    ) as SVGElement;
-                    const subElements = element.querySelectorAll(':scope > *');
-                    if (element) {
-                        element.removeAttribute('style');
-                        subElements.forEach((value) => this.applyInjectionNodeStyle(value as SVGElement, injectionNodeStyle));
-                    }
-                }
-            });
+        if (this.diagramMetadata && this.style) {
+            updateBusNodesStyle(this.diagramMetadata, this.container, this.style);
+            updateEdgeStyle(this.diagramMetadata, this.container, this.style);
+            updateInjectionStyle(this.diagramMetadata, this.container, this.style);
+            updateThreeWTNodeStyle(this.diagramMetadata, this.container, this.style);
+            this.setSvgContent(this.container.innerHTML);
         }
-        this.setSvgContent(this.container.innerHTML);
-    }
-
-    private applyStyleOnSides(elements: NodeListOf<Element>, nadBranchStyle: NadBranchStyle) {
-        //side 1
-        const side1Style = nadBranchStyle.side1;
-        if (side1Style) {
-            const sideElement = elements.item(0) as SVGElement;
-            if (side1Style.stroke) sideElement?.style.setProperty('stroke', side1Style.stroke);
-            if (side1Style.strokeWidth) sideElement?.style.setProperty('stroke-width', side1Style.strokeWidth);
-            if (side1Style.strokeDasharray)
-                sideElement?.style.setProperty('stroke-dasharray', side1Style.strokeDasharray);
-        }
-        //side 2
-        const side2Style = nadBranchStyle.side2;
-        if (side2Style) {
-            const sideElement = elements.item(1) as SVGElement;
-            if (side2Style.stroke) sideElement?.style.setProperty('stroke', side2Style.stroke);
-            if (side2Style.strokeWidth) sideElement?.style.setProperty('stroke-width', side2Style.strokeWidth);
-            if (side2Style.strokeDasharray)
-                sideElement?.style.setProperty('stroke-dasharray', side2Style.strokeDasharray);
-        }
-    }
-
-    private applyBusNodeStyle(element: SVGElement, busNodeStyle: NadBusNodeStyle) {
-        if (busNodeStyle.fill) element?.style.setProperty('fill', busNodeStyle.fill);
-        if (busNodeStyle.stroke) element?.style.setProperty('stroke', busNodeStyle.stroke);
-        if (busNodeStyle.strokeWidth) element?.style.setProperty('stroke-width', busNodeStyle.strokeWidth);
-        if (busNodeStyle.strokeDasharray) element?.style.setProperty('stroke-dasharray', busNodeStyle.strokeDasharray);
-    }
-
-    private applyLineStyle(element: SVGElement, lineStyle: NadLineStyle) {
-        if (lineStyle.stroke) element?.style.setProperty('stroke', lineStyle.stroke);
-        if (lineStyle.strokeWidth) element?.style.setProperty('stroke-width', lineStyle.strokeWidth);
-        if (lineStyle.strokeDasharray) element?.style.setProperty('stroke-dasharray', lineStyle.strokeDasharray);
-    }
-
-    private applyInjectionNodeStyle(element: SVGElement, injectionStyle: NadInjectionStyle) {
-        if (injectionStyle.stroke) element?.style.setProperty('stroke', injectionStyle.stroke);
-        if (injectionStyle.strokeWidth) element?.style.setProperty('stroke-width', injectionStyle.strokeWidth);
-        if (injectionStyle.strokeDasharray)
-            element?.style.setProperty('stroke-dasharray', injectionStyle.strokeDasharray);
     }
 }

@@ -51,3 +51,19 @@
     border-bottom: none;
     border-radius: 4px 4px 0 0;
 }
+
+.container-nad {
+    display: flex;
+}
+
+.column-nad-1 {
+    flex: 0 0 40%;
+}
+
+.column-nad-2 {
+    flex: 0 0 20%;
+}
+
+.column-nad-3 {
+    flex: 0 0 40%;
+}
