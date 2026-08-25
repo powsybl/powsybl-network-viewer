@@ -39,7 +39,14 @@ import { Dimensions, EdgeType, ElementType, HalfEdge, ViewBox } from './diagram-
 import { LibraryComponent } from './library-component';
 import DefaultLibraryComponents from '../resources/default-library/components.json';
 import * as ComponentUtils from './component-utils';
-import { NadBranchStyle, NadBusNodeStyle, NadLineStyle, NadStyleProvider, NadThreeWtStyle } from './nad-style-registry';
+import {
+    NadBranchStyle,
+    NadBusNodeStyle,
+    NadInjectionStyle,
+    NadLineStyle,
+    NadStyleProvider,
+    NadThreeWtStyle,
+} from './nad-style-registry';
 
 // Type for cancelable debounced functions (replaces @mui/utils Cancelable)
 interface Cancelable {
@@ -3251,6 +3258,25 @@ export class NetworkAreaDiagramViewer {
                 }
             }
         });
+
+        // Injection Node Style
+        if (this.diagramMetadata?.injections) {
+            this.diagramMetadata?.injections.forEach((injectionNode) => {
+                const injectionNodeStyle: NadInjectionStyle | undefined = this.style?.getInjectionStyle?.(
+                    injectionNode?.equipmentId
+                );
+                if (injectionNodeStyle) {
+                    const element = this.container.querySelector<SVGElement>(
+                        `[id="${injectionNode.svgId}"]`
+                    ) as SVGElement;
+                    const subElements = element.querySelectorAll(':scope > *');
+                    if (element) {
+                        element.removeAttribute('style');
+                        subElements.forEach((value) => this.applyInjectionNodeStyle(value as SVGElement, injectionNodeStyle));
+                    }
+                }
+            });
+        }
         this.setSvgContent(this.container.innerHTML);
     }
 
@@ -3286,5 +3312,12 @@ export class NetworkAreaDiagramViewer {
         if (lineStyle.stroke) element?.style.setProperty('stroke', lineStyle.stroke);
         if (lineStyle.strokeWidth) element?.style.setProperty('stroke-width', lineStyle.strokeWidth);
         if (lineStyle.strokeDasharray) element?.style.setProperty('stroke-dasharray', lineStyle.strokeDasharray);
+    }
+
+    private applyInjectionNodeStyle(element: SVGElement, injectionStyle: NadInjectionStyle) {
+        if (injectionStyle.stroke) element?.style.setProperty('stroke', injectionStyle.stroke);
+        if (injectionStyle.strokeWidth) element?.style.setProperty('stroke-width', injectionStyle.strokeWidth);
+        if (injectionStyle.strokeDasharray)
+            element?.style.setProperty('stroke-dasharray', injectionStyle.strokeDasharray);
     }
 }

@@ -17,6 +17,10 @@ export interface NadBusNodeStyle extends NadLineStyle {
     fill?: string;
 }
 
+export interface NadInjectionStyle extends NadLineStyle {
+    equipmentId?: string;
+}
+
 export interface NadElementStyle extends NadLineStyle {
     fill?: string;
 }
@@ -38,7 +42,7 @@ export interface NadStyleProvider {
     getBusNodeStyle?(equipmentId: string): NadBusNodeStyle;
     getBranchStyle?(equipmentId: string): NadBranchStyle;
     getThreeWtStyle?(equipmentId: string): NadThreeWtStyle;
-    // TODO add injections
+    getInjectionStyle?(equipmentId: string): NadInjectionStyle;
 }
 
 export class NadStyleRegistry {
