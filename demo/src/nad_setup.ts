@@ -38,6 +38,8 @@ export function setupNad(
         onRightClickCallback: handleRightClick,
         enableLevelOfDetail: enableLevelOfDetail,
         zoomLevels: zoomLevels,
+        maxWidth: 700,
+        maxHeight: 500,
     });
 }
 
@@ -107,20 +109,6 @@ const customStyleProvider2: NadStyleProvider = {
     },
 };
 nadViewerExample1Customization.setStyle(customStyleProvider2);
-const customStyleExample1 = document.getElementById('custom-style1-example1');
-if (customStyleExample1) {
-    const styles = {
-        busNode: {
-            VL1_10: customStyleProvider2?.getBusNodeStyle('VL1_10'),
-            VL2_30: customStyleProvider2?.getBusNodeStyle('VL2_30'),
-        },
-        branch: customStyleProvider2?.getBranchStyle(),
-        threeWt: customStyleProvider2?.getThreeWtStyle(),
-    };
-    customStyleExample1.textContent = JSON.stringify(styles, null, 2);
-} else {
-    throw new Error('#custom-style1-example1 not found');
-}
 // ###############################
 // EXAMPLE 2
 // ###############################
@@ -151,18 +139,3 @@ const customStyleProvider3: NadStyleProvider = {
     },
 };
 nadViewerExample2Customization.setStyle(customStyleProvider3);
-const customStyleExample2 = document.getElementById('custom-style1-example2');
-if (customStyleExample2) {
-    const styles = {
-        busNode: {
-            VL1_10: customStyleProvider3?.getBusNodeStyle('VL1_10'),
-            VL2_30: customStyleProvider3?.getBusNodeStyle('VL2_30'),
-        },
-        branch: customStyleProvider3?.getBranchStyle(),
-        threeWt: customStyleProvider3?.getThreeWtStyle(),
-        injections: customStyleProvider3?.getInjectionStyle(),
-    };
-    customStyleExample2.textContent = JSON.stringify(styles, null, 2);
-} else {
-    throw new Error('#custom-style1-example2 not found');
-}
