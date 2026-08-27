@@ -1,0 +1,41 @@
+<!--
+  ~ Copyright (c) 2026, RTE (https://www.rte-france.com)
+  ~ This Source Code Form is subject to the terms of the Mozilla Public
+  ~ License, v. 2.0. If a copy of the MPL was not distributed with this
+  ~ file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  ~ SPDX-License-Identifier: MPL-2.0
+  -->
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="theme-color" content="#000000" />
+        <meta name="description" content="network-viewer demo issue 459"/>
+        <meta name="author" content="Samir Romdhani"/>
+        <title>Network-viewer test</title>
+        <link rel="stylesheet" href="src/style.css" />
+        <link rel="stylesheet" href="src/zoom.css" />
+        <link rel="stylesheet" href="src/demo.css" />
+    </head>
+    <body>
+        <div class="floating-toc">
+            <h3>Contents</h3>
+            <ul>
+                <li><a href="index.html">Network area diagram viewers</a></li>
+                <li><a href="map-viewer.html">Map viewers</a></li>
+                <li><a href="sld.html">Single-line diagram viewers</a></li>
+                <li><a href="synced-viewers.html">Synced viewers demo</a></li>
+                <li><a href="issue459.html">Issue 459</a></li>
+            </ul>
+        </div>
+        <div class="flex-container viewer-section">
+            <h2>NAD - Issue 459</h2>
+            <figure class="diagram-figure">
+                <div id="svg-container-nad-issue-459"></div>
+            </figure>
+        </div>
+        <script type="module" src="./issue459.ts"></script>
+    </body>
+</html>
