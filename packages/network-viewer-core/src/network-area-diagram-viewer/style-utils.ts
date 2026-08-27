@@ -54,15 +54,15 @@ export function updateEdgeStyle(diagramMetadata: DiagramMetadata, container: HTM
             const polyline = element?.querySelector(':scope > polyline') as SVGElement;
             if (edge.side == 'ONE') {
                 polyline.removeAttribute('style');
-                if(threeEdgeStyle?.side1) applyLineStyle(polyline, threeEdgeStyle?.side1);
+                if (threeEdgeStyle?.side1) applyLineStyle(polyline, threeEdgeStyle?.side1);
             }
             if (edge.side == `TWO`) {
                 polyline.removeAttribute('style');
-                if(threeEdgeStyle?.side2)  applyLineStyle(polyline, threeEdgeStyle?.side2);
+                if (threeEdgeStyle?.side2) applyLineStyle(polyline, threeEdgeStyle?.side2);
             }
             if (edge.side == 'THREE') {
                 polyline.removeAttribute('style');
-                if(threeEdgeStyle?.side3)  applyLineStyle(polyline, threeEdgeStyle?.side3);
+                if (threeEdgeStyle?.side3) applyLineStyle(polyline, threeEdgeStyle?.side3);
             }
         }
     });
