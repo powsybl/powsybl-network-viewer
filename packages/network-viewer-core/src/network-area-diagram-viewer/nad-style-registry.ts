@@ -6,13 +6,18 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 
+export interface NadBusStyle {
+    edge?: string;
+    edgeWidth?: string;
+}
+
 export interface NadLineStyle {
     stroke?: string;
     strokeWidth?: string;
     strokeDasharray?: string;
 }
 
-export interface NadBusNodeStyle extends NadLineStyle {
+export interface NadBusNodeStyle extends NadBusStyle {
     equipmentId?: string;
     fill?: string;
 }

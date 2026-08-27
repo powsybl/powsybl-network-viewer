@@ -72,7 +72,7 @@ nadViewerExample1Customization.setStyle(customStyleProvider);
 
 const customStyleProvider2: NadStyleProvider = {
     getBusNodeStyle: (equipmentId) => {
-        if (equipmentId == 'VL1_10') return { fill: 'red' };
+        if (equipmentId == 'VL1_10') return { fill: 'red', edge: 'black', edgeWidth: '4px' };
         if (equipmentId == 'VL2_30') return { fill: 'green' };
         return {};
     },
