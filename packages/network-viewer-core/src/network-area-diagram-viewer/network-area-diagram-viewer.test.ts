@@ -100,10 +100,10 @@ describe('Test network-area-diagram-viewer', () => {
         // test2
         nad.setStyle(registry.getStyleProvider('test2'));
         expect(nad.getSvgContent()).toContain(
-            `<g id="10" class="nad-vl70to120" style="fill: green;"><circle r="15" id="111" class="nad-bus-0 nad-busnode"></circle></g>`
+            `<g id="10" class="nad-vl70to120" style="background: green; fill: green;"><circle r="15" id="111" class="nad-bus-0 nad-busnode"></circle></g>`
         );
         expect(nad.getSvgContent()).toContain(
-            `<g id="11" class="nad-vl70to120" style="fill: green;"><circle r="15" id="222" class="nad-bus-1 nad-busnode"></circle></g>`
+            `<g id="11" class="nad-vl70to120" style="background: green; fill: green;"><circle r="15" id="222" class="nad-bus-1 nad-busnode"></circle></g>`
         );
         // test1
         nad.setStyle(registry.getStyleProvider('test1'));
@@ -111,10 +111,10 @@ describe('Test network-area-diagram-viewer', () => {
         // test2
         nad.setStyle(registry.getStyleProvider('test3'));
         expect(nad.getSvgContent()).toContain(
-            `<g id="10" class="nad-vl70to120" style="fill: red;"><circle r="15" id="111" class="nad-bus-0 nad-busnode"></circle></g>`
+            `<g id="10" class="nad-vl70to120" style="background: red; fill: red;"><circle r="15" id="111" class="nad-bus-0 nad-busnode"></circle></g>`
         );
         expect(nad.getSvgContent()).toContain(
-            `<g id="11" class="nad-vl70to120" style="fill: yellow;"><circle r="15" id="222" class="nad-bus-1 nad-busnode"></circle></g>`
+            `<g id="11" class="nad-vl70to120" style="background: yellow; fill: yellow;"><circle r="15" id="222" class="nad-bus-1 nad-busnode"></circle></g>`
         );
     });
 
