@@ -19,6 +19,7 @@
         "eslint.config.js",
         "prettier.config.js",
         "vitest.config.ts",
+        "vitest.performance.config.ts",
         "vite.config.ts"
     ]
 }

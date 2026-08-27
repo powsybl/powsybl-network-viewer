@@ -1,0 +1,62 @@
+<!--
+  ~ Copyright (c) 2026, RTE (https://www.rte-france.com)
+  ~ This Source Code Form is subject to the terms of the Mozilla Public
+  ~ License, v. 2.0. If a copy of the MPL was not distributed with this
+  ~ file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  ~ SPDX-License-Identifier: MPL-2.0
+  -->
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="theme-color" content="#000000" />
+        <meta name="description" content="Interactive SVG NAD examples" />
+        <title>SVG NAD browser</title>
+        <link rel="stylesheet" href="src/style.css" />
+        <link rel="stylesheet" href="src/zoom.css" />
+        <link rel="stylesheet" href="src/demo.css" />
+    </head>
+    <body class="nad-svg-page">
+        <div class="floating-toc">
+            <h3>Contents</h3>
+            <ul>
+                <li><a href="index.html">SVG NAD gallery</a></li>
+                <li><a href="nad-svg.html" aria-current="page">SVG NAD browser</a></li>
+                <li><a href="map-viewer.html">Map viewers</a></li>
+                <li><a href="sld.html">Single-line diagram viewers</a></li>
+                <li><a href="synced-viewers.html">Synced viewers demo</a></li>
+            </ul>
+        </div>
+
+        <main class="nad-svg-page-content">
+            <header>
+                <h1>SVG NAD browser</h1>
+                <p>Load and interact with one network area diagram at a time.</p>
+            </header>
+
+            <section class="nad-svg-browser" aria-labelledby="nad-svg-title">
+                <div class="nad-svg-toolbar">
+                    <button id="nad-svg-previous" type="button" aria-label="Previous diagram">←</button>
+                    <label for="nad-svg-select">Diagram</label>
+                    <select id="nad-svg-select"></select>
+                    <button id="nad-svg-next" type="button" aria-label="Next diagram">→</button>
+                    <a id="nad-svg-link" target="_blank" rel="noreferrer">Open SVG</a>
+                    <a id="nad-svg-metadata-link" target="_blank" rel="noreferrer">Open metadata</a>
+                </div>
+
+                <div class="nad-svg-heading">
+                    <h2 id="nad-svg-title"></h2>
+                    <p id="nad-svg-description"></p>
+                    <p id="nad-svg-stats" class="nad-svg-stats" aria-live="polite"></p>
+                </div>
+
+                <div id="nad-svg-error" class="nad-svg-error" role="alert" hidden></div>
+                <div id="nad-svg-gallery-viewer" class="nad-svg-gallery-viewer"></div>
+            </section>
+        </main>
+
+        <script type="module" src="./src/nad-svg.ts"></script>
+    </body>
+</html>

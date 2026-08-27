@@ -39,6 +39,7 @@
         "test": "vitest run",
         "test:unit": "vitest run --project unit-tests",
         "test:browser": "vitest run --project browser-tests",
+        "test:browser:performance": "vitest run --config vitest.performance.config.ts",
         "test:coverage": "vitest run --coverage",
         "start": "vite demo/ --config demo/vite.config.ts",
         "start:open": "vite demo/ --config demo/vite.config.ts --open",
