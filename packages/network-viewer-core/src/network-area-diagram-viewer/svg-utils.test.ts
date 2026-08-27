@@ -27,7 +27,7 @@ test('getSelectableFrom', () => {
     let selectableElement = SvgUtils.getSelectableFrom(getSvgNode());
     expect(selectableElement).not.toBeUndefined();
     selectableElement = SvgUtils.getSelectableFrom(getSvgTextNode());
-    expect(selectableElement).toBeUndefined();
+    expect(selectableElement).not.toBeUndefined();
     selectableElement = SvgUtils.getSelectableFrom(getSvgLoopEdge());
     expect(selectableElement).toBeUndefined();
 });

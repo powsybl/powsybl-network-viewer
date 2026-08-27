@@ -1733,10 +1733,12 @@ export class NetworkAreaDiagramViewer {
     private callSelectNodeCallback(mousePosition: Point) {
         // call the select node callback, if defined
         if (this.onSelectNodeCallback != null) {
+            // a selected text node stands for the voltage level node it labels
+            const nodeSvgId = SvgUtils.isTextNode(this.selectedElement)
+                ? this.diagramMetadata?.textNodes.find((textNode) => textNode.svgId == this.selectedElement?.id)?.vlNode
+                : this.selectedElement?.id;
             // get selected node from metadata
-            const node: NodeMetadata | undefined = this.diagramMetadata?.nodes.find(
-                (node) => node.svgId == this.selectedElement?.id
-            );
+            const node: NodeMetadata | undefined = this.diagramMetadata?.nodes.find((node) => node.svgId == nodeSvgId);
             if (node != null) {
                 this.onSelectNodeCallback(node.equipmentId, node.svgId, mousePosition);
             }
