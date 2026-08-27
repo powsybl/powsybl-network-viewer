@@ -29,27 +29,36 @@
                 <li><a href="nad_custom_style.html">NAD With Custom Style</a></li>
             </ul>
         </div>
-
-        <div class="flex-container">
-            <div id="sld-viewers" class="viewer-section">
-                <h2>Single Line Diagram Viewers</h2>
+        <div class="flex-container viewer-section">
+            <h2>NAD With Custom Style</h2>
+            <div class="break"></div>
+            <div>
+                <h2>Example 1</h2>
                 <div class="break"></div>
                 <figure class="diagram-figure">
-                    <figcaption>Basic</figcaption>
-                    <div id="svg-container-sld"></div>
+                    <figcaption>NAD (origin diagram)</figcaption>
+                    <div id="svg-container-nad-custom-style-example1"></div>
                 </figure>
                 <figure class="diagram-figure">
-                    <figcaption>With Callbacks</figcaption>
-                    <div id="svg-container-sld-with-callbacks"></div>
+                    <figcaption>NAD (After customization)</figcaption>
+                    <div id="svg-container-nad-custom-style-example1-result"></div>
                 </figure>
                 <div class="break"></div>
+            </div>
+            <div>
+                <h2>Example 2</h2>
+                <div class="break"></div>
                 <figure class="diagram-figure">
-                    <figcaption>Substation with Callbacks</figcaption>
-                    <div id="svg-container-sldsub-with-callbacks"></div>
+                    <figcaption>NAD (origin diagram)</figcaption>
+                    <div id="svg-container-nad-custom-style-example2"></div>
                 </figure>
+                <figure class="diagram-figure">
+                    <figcaption>NAD (After customization)</figcaption>
+                    <div id="svg-container-nad-custom-style-example2-result"></div>
+                </figure>
+                <div class="break"></div>
             </div>
         </div>
-
-        <script type="module" src="./src/sld.ts"></script>
+        <script type="module" src="src/custom_nad_setup.ts"></script>
     </body>
 </html>

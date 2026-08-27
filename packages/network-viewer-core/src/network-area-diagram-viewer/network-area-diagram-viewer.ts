@@ -39,6 +39,8 @@ import { Dimensions, EdgeType, ElementType, HalfEdge, ViewBox } from './diagram-
 import { LibraryComponent } from './library-component';
 import DefaultLibraryComponents from '../resources/default-library/components.json';
 import * as ComponentUtils from './component-utils';
+import { NadStyleProvider } from './nad-style-registry';
+import { updateBusNodesStyle, updateEdgeStyle, updateInjectionStyle, updateThreeWTNodeStyle } from './style-utils.ts';
 
 // Type for cancelable debounced functions (replaces @mui/utils Cancelable)
 interface Cancelable {
@@ -149,6 +151,8 @@ export class NetworkAreaDiagramViewer {
 
     componentLibrary: LibraryComponent[] = DefaultLibraryComponents;
 
+    style: NadStyleProvider | undefined;
+
     static readonly ZOOM_CLASS_PREFIX = 'nad-zoom-';
 
     /**
@@ -213,6 +217,11 @@ export class NetworkAreaDiagramViewer {
 
     public setSvgContent(svgContent: string): void {
         this.svgContent = svgContent;
+    }
+
+    public setStyle(style: NadStyleProvider): void {
+        this.style = style;
+        this.refreshStyle();
     }
 
     public getWidth(): number {
@@ -3147,6 +3156,16 @@ export class NetworkAreaDiagramViewer {
         if (svgElement) {
             const observer = new MutationObserver(sync);
             observer.observe(svgElement, { attributes: true, attributeFilter: ['viewBox'] });
+        }
+    }
+
+    private refreshStyle() {
+        if (this.diagramMetadata && this.style) {
+            updateBusNodesStyle(this.diagramMetadata, this.container, this.style);
+            updateEdgeStyle(this.diagramMetadata, this.container, this.style);
+            updateInjectionStyle(this.diagramMetadata, this.container, this.style);
+            updateThreeWTNodeStyle(this.diagramMetadata, this.container, this.style);
+            this.setSvgContent(this.container.innerHTML);
         }
     }
 }
