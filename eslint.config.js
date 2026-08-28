@@ -38,7 +38,8 @@ export default defineConfig([
         'coverage/**',
         'docs/_build/**',
         '**/dist/**',
-        'packages/*/vite.config.ts', // Ignore workspace config files
+        'demo/vite.config.ts', // Ignore workspace config files
+        'vite-plugin-checker.d.ts',
     ]),
     {
         name: 'Global Linter Options',
@@ -71,7 +72,7 @@ export default defineConfig([
     {
         name: 'React hooks',
         files: JsTsFiles,
-        ...pluginReactHooks.configs['recommended-latest'],
+        ...pluginReactHooks.configs.flat['recommended-latest'],
     },
     {
         name: 'React refresh',

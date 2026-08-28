@@ -9,7 +9,8 @@ import { LineStatus } from './network/line-layer';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 type MergeObject<T1, T2> = {
-    [K in keyof T1 & keyof T2]: T1[K] | T2[K]; // Keys that are in both objects
+    [K in keyof T1 & keyof T2]:
+        T1[K] | T2[K]; // Keys that are in both objects
 } & {
     [K in Exclude<keyof T1, keyof T2>]?: T1[K]; // Keys that are only in T1
 } & {
