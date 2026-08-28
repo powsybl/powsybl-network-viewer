@@ -274,7 +274,7 @@ public final class NadDemoFiles {
         Map<String, VoltageLevelLegend> vlDescriptions = new HashMap<>();
         var vl1Legend = new VoltageLevelLegend(
                 List.of("S1VL1 description1"),
-                List.of(),
+                List.of("S1VL1 footer1"),
                 Map.of("S1VL1_0", "S1VL1_0 description"));
         var vl2Legend = new VoltageLevelLegend(
                 List.of("S1VL2 description1"),
