@@ -197,6 +197,20 @@ $ npm login
 $ npm run publish:all
 ```
 
+#### Updating and visualizing the demo files
+
+Run the following:
+```shell
+cd demo/java/network-viewer-demo-data && mvn compile exec:exec
+```
+
+Then to see the result, run:
+```shell
+npm run start
+```
+
+Which will give you a localhost adress to visualize the results.
+
 ### Notes :
 
 - Check [license-checker-config.json](license-checker-config.json) for license white list and exclusion.
