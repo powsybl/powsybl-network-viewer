@@ -1253,7 +1253,14 @@ export class NetworkAreaDiagramViewer {
         }
     }
 
-    private redrawEdge(node: NodeMetadata, edge: EdgeMetadata, iEdge: number, groupedEdgesCount: number, point1?: Point, point2?: Point) {
+    private redrawEdge(
+        node: NodeMetadata,
+        edge: EdgeMetadata,
+        iEdge: number,
+        groupedEdgesCount: number,
+        point1?: Point,
+        point2?: Point
+    ) {
         // get edge type
         const edgeType = MetadataUtils.getEdgeType(edge);
         if (edgeType == EdgeType.UNKNOWN) {
