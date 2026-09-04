@@ -16,7 +16,7 @@ import {
     getEdgeNameAngle,
     getEdgeStart,
     getFormattedPolyline,
-    getLabelData as getLabelInfo,
+    getLabelData,
     getLabelShiftAndStyle,
     getMidPosition,
     getPointAtDistance,
@@ -76,9 +76,9 @@ export function getInfoPoint(halfEdge: HalfEdge, svgParameters: SvgParameters): 
 }
 
 // get the label data: angle and [shift, style] of a external and internal label
-export function getLabelData(halfEdge: HalfEdge, arrowLabelShift: number): LabelData {
+export function getHalfEdgeLabelData(halfEdge: HalfEdge, arrowLabelShift: number): LabelData {
     const angle = getArrowEdgeAngle(halfEdge);
-    return getLabelInfo(angle, arrowLabelShift);
+    return getLabelData(angle, arrowLabelShift);
 }
 
 // get the polyline of a converter station of an HVDC line edge

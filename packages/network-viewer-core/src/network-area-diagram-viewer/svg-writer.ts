@@ -26,6 +26,7 @@ import DefaultLibraryComponents from '../resources/default-library/components.js
 import * as ComponentUtils from './component-utils';
 
 export class SvgWriter {
+    static readonly SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
     static readonly NODES_CLASS = 'nad-vl-nodes';
     static readonly BUS_CLASS = 'nad-busnode';
     static readonly EDGES_CLASS = 'nad-branch-edges';
@@ -139,7 +140,7 @@ export class SvgWriter {
     }
 
     private getSvgRootElement(textBoxSize?: { width: number; height: number }): SVGSVGElement {
-        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        const svg = document.createElementNS(SvgWriter.SVG_NAMESPACE, 'svg');
         const viewBox = MetadataUtils.getViewBox(
             this.diagramMetadata.nodes,
             this.diagramMetadata.textNodes,
@@ -152,10 +153,10 @@ export class SvgWriter {
 
     private getNodesAndInjectionsAndInfos(): { nodes: SVGGElement; injections: SVGGElement; infos: SVGGElement[] } {
         // create g nodes element
-        const gNodesElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        const gNodesElement = document.createElementNS(SvgWriter.SVG_NAMESPACE, 'g');
         gNodesElement.classList.add(SvgWriter.NODES_CLASS);
         // create g injections element
-        const gInjectionsElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        const gInjectionsElement = document.createElementNS(SvgWriter.SVG_NAMESPACE, 'g');
         gInjectionsElement.classList.add(SvgWriter.INJECTIONS_CLASS);
         // create injection infos elements list
         let injectionsInfos: SVGGElement[] = [];
@@ -183,7 +184,7 @@ export class SvgWriter {
         infos: SVGGElement[];
     } {
         // create node
-        const gNodeElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        const gNodeElement = document.createElementNS(SvgWriter.SVG_NAMESPACE, 'g');
         gNodeElement.id = node.svgId;
         if (MetadataUtils.isBoundaryNode(node)) {
             gNodeElement.classList.add(SvgWriter.BOUNDARY_BUS_CLASS);
@@ -194,13 +195,13 @@ export class SvgWriter {
             'translate(' + DiagramUtils.getFormattedPoint(new Point(node.x, node.y)) + ')'
         );
         // create injection
-        const gInjectionNodeElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        const gInjectionNodeElement = document.createElementNS(SvgWriter.SVG_NAMESPACE, 'g');
         SvgUtils.addCssClasses(gInjectionNodeElement, node.classes);
         // create injection infos elements list
         const injectionsInfos: SVGGElement[] = [];
         // add buses
         if (node.unknownBus) {
-            const circleElement = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            const circleElement = document.createElementNS(SvgWriter.SVG_NAMESPACE, 'circle');
             circleElement.classList.add(SvgWriter.UNKNOWN_BUS_CLASS);
             circleElement.setAttribute(
                 'r',
@@ -234,7 +235,7 @@ export class SvgWriter {
     private getBusNode(busNode: BusNodeMetadata, node: NodeMetadata, traversingBusEdgesAngles: number[]): SVGElement {
         const nodeRadius = MetadataUtils.getNodeRadius(busNode, node, this.svgParameters);
         if (MetadataUtils.isBoundaryNode(node)) {
-            const pathElement = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            const pathElement = document.createElementNS(SvgWriter.SVG_NAMESPACE, 'path');
             pathElement.id = busNode.svgId;
             SvgUtils.addCssClasses(pathElement, busNode.classes, SvgWriter.BUS_CLASS);
             SvgUtils.addElementStyle(pathElement, busNode.style);
@@ -246,14 +247,14 @@ export class SvgWriter {
             pathElement.setAttribute('d', path);
             return pathElement;
         } else if (busNode.index == 0) {
-            const circleElement = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            const circleElement = document.createElementNS(SvgWriter.SVG_NAMESPACE, 'circle');
             circleElement.id = busNode.svgId;
             SvgUtils.addCssClasses(circleElement, busNode.classes, SvgWriter.BUS_CLASS);
             SvgUtils.addElementStyle(circleElement, busNode.style);
             circleElement.setAttribute('r', DiagramUtils.getFormattedValue(nodeRadius.busOuterRadius));
             return circleElement;
         } else {
-            const pathElement = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            const pathElement = document.createElementNS(SvgWriter.SVG_NAMESPACE, 'path');
             pathElement.id = busNode.svgId;
             SvgUtils.addCssClasses(pathElement, busNode.classes, SvgWriter.BUS_CLASS);
             SvgUtils.addElementStyle(pathElement, busNode.style);
@@ -297,12 +298,12 @@ export class SvgWriter {
         busNode: BusNodeMetadata,
         injectionsInfos: SVGGElement[]
     ) {
-        const gInjectionBusElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        const gInjectionBusElement = document.createElementNS(SvgWriter.SVG_NAMESPACE, 'g');
         SvgUtils.addCssClasses(gInjectionBusElement, busNode.classes);
         gInjectionNodeElement.appendChild(gInjectionBusElement);
 
         injections.forEach((injection) => {
-            const gInjectionElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+            const gInjectionElement = document.createElementNS(SvgWriter.SVG_NAMESPACE, 'g');
             gInjectionElement.id = injection.svgId;
             SvgUtils.addCssClasses(gInjectionElement, injection.classes);
             SvgUtils.addElementStyle(gInjectionElement, injection.style);
@@ -320,16 +321,16 @@ export class SvgWriter {
     }
 
     private getInjectionEdge(points: Point[]): SVGPolylineElement {
-        const polylineInjectionEdgeElement = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+        const polylineInjectionEdgeElement = document.createElementNS(SvgWriter.SVG_NAMESPACE, 'polyline');
         polylineInjectionEdgeElement.classList.add(SvgWriter.EDGE_CLASS);
         polylineInjectionEdgeElement.setAttribute('points', DiagramUtils.getFormattedPolyline(points));
         return polylineInjectionEdgeElement;
     }
 
     private getInjectionIcon(points: Point[], componentType: string): SVGGElement {
-        const gInjectionIconElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        const gInjectionIconElement = document.createElementNS(SvgWriter.SVG_NAMESPACE, 'g');
 
-        const injectionCircleElement = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        const injectionCircleElement = document.createElementNS(SvgWriter.SVG_NAMESPACE, 'circle');
         const circleCenter = DiagramUtils.getPointAtDistance(
             points[1],
             points[0],
@@ -351,16 +352,16 @@ export class SvgWriter {
     private getInjectionInfo(injectionId: string, info: EdgeInfoMetadata): SVGGElement {
         const infoPoint = this.edgeRouter?.getInjectionInfoPoint(injectionId);
         const infoAngle = this.edgeRouter?.getInjectionInfoAngle(injectionId);
-        const labelData = this.edgeRouter?.getInjectoinLabelData(injectionId);
+        const labelData = this.edgeRouter?.getInjectionLabelData(injectionId);
         return this.getInfoElement(info, infoPoint, infoAngle, labelData);
     }
 
     private getEdgesAndInfos(): { edges: SVGGElement; edgeInfos: SVGGElement } {
         // create g edges element
-        const gEdgesElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        const gEdgesElement = document.createElementNS(SvgWriter.SVG_NAMESPACE, 'g');
         gEdgesElement.classList.add(SvgWriter.EDGES_CLASS);
         // create g edge infos element
-        const gEdgeInfosElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        const gEdgeInfosElement = document.createElementNS(SvgWriter.SVG_NAMESPACE, 'g');
         gEdgeInfosElement.classList.add(SvgWriter.EDGE_INFOS_CLASS);
         // add edges
         this.diagramMetadata.edges.forEach((edge) => {
@@ -384,7 +385,7 @@ export class SvgWriter {
 
     private getEdge(edge: EdgeMetadata): SVGGElement {
         const edgeType = MetadataUtils.getEdgeType(edge);
-        const gEdgeElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        const gEdgeElement = document.createElementNS(SvgWriter.SVG_NAMESPACE, 'g');
         gEdgeElement.id = edge.svgId;
         if (DiagramUtils.isHVDCLineEdge(edgeType)) {
             gEdgeElement.classList.add(SvgWriter.HVDC_EDGE_CLASS);
@@ -415,13 +416,13 @@ export class SvgWriter {
         style: string | undefined
     ): SVGPolylineElement | SVGPathElement {
         if (edge.node1 == edge.node2) {
-            const pathElement = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            const pathElement = document.createElementNS(SvgWriter.SVG_NAMESPACE, 'path');
             SvgUtils.addCssClasses(pathElement, cssClasses, SvgWriter.EDGE_CLASS);
             SvgUtils.addElementStyle(pathElement, style);
             pathElement.setAttribute('d', DiagramUtils.getHalfLoopPath(points));
             return pathElement;
         } else {
-            const polylineElement = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+            const polylineElement = document.createElementNS(SvgWriter.SVG_NAMESPACE, 'polyline');
             SvgUtils.addCssClasses(polylineElement, cssClasses, SvgWriter.EDGE_CLASS);
             SvgUtils.addElementStyle(polylineElement, style);
             polylineElement.setAttribute('points', DiagramUtils.getFormattedPolyline(points));
@@ -435,7 +436,7 @@ export class SvgWriter {
         points2: Point[] | undefined,
         edgeType: EdgeType
     ): SVGGElement {
-        const gTranformerElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        const gTranformerElement = document.createElementNS(SvgWriter.SVG_NAMESPACE, 'g');
         if (points1) {
             gTranformerElement.appendChild(this.getTransformerWinding(points1, edge.classes1, edge.style1));
         }
@@ -453,7 +454,7 @@ export class SvgWriter {
         cssClasses: string[] | undefined,
         style: string | undefined
     ): SVGCircleElement {
-        const transformerCircleElement = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        const transformerCircleElement = document.createElementNS(SvgWriter.SVG_NAMESPACE, 'circle');
         SvgUtils.addCssClasses(transformerCircleElement, cssClasses, SvgWriter.WINDING_CLASS);
         SvgUtils.addElementStyle(transformerCircleElement, style);
         const circleCenter = DiagramUtils.getPointAtDistance(
@@ -471,7 +472,7 @@ export class SvgWriter {
     }
 
     private getTransformerArrow(points1: Point[] | undefined, points2: Point[] | undefined): SVGPathElement {
-        const arrowPathElement = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        const arrowPathElement = document.createElementNS(SvgWriter.SVG_NAMESPACE, 'path');
         arrowPathElement.classList.add(SvgWriter.PST_CLASS);
         const matrix: string = DiagramUtils.getTransformerArrowMatrixString(
             points1,
@@ -484,8 +485,8 @@ export class SvgWriter {
     }
 
     private getHVDCLine(points: Point[]): SVGGElement {
-        const gHVDCLineElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-        const polylineElement = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+        const gHVDCLineElement = document.createElementNS(SvgWriter.SVG_NAMESPACE, 'g');
+        const polylineElement = document.createElementNS(SvgWriter.SVG_NAMESPACE, 'polyline');
         polylineElement.classList.add(SvgWriter.HVDC_CLASS);
         const csPoints = DiagramUtils.getConverterStationPoints(points, this.svgParameters.getConverterStationWidth());
         polylineElement.setAttribute('points', DiagramUtils.getFormattedPolyline(csPoints));
@@ -495,7 +496,7 @@ export class SvgWriter {
 
     private getThreeWTEdges(threeWTEdges: EdgeMetadata[]): SVGGElement {
         // create g 3wt edges element
-        const gThreeWTEdgesElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        const gThreeWTEdgesElement = document.createElementNS(SvgWriter.SVG_NAMESPACE, 'g');
         gThreeWTEdgesElement.classList.add(SvgWriter.THREEWT_EDGES_CLASS);
         // add 3wt edges
         threeWTEdges.forEach((edge) => {
@@ -508,7 +509,7 @@ export class SvgWriter {
     }
 
     private getThreeWTEdge(edge: EdgeMetadata, points: Point[]): SVGGElement {
-        const gThreeWTEdgeElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        const gThreeWTEdgeElement = document.createElementNS(SvgWriter.SVG_NAMESPACE, 'g');
         gThreeWTEdgeElement.id = edge.svgId;
         SvgUtils.addCssClasses(gThreeWTEdgeElement, edge.classes1);
         gThreeWTEdgeElement.appendChild(this.getThreeWTPolyline(points));
@@ -516,7 +517,7 @@ export class SvgWriter {
     }
 
     private getThreeWTPolyline(points: Point[]): SVGPolylineElement {
-        const polylineElement = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+        const polylineElement = document.createElementNS(SvgWriter.SVG_NAMESPACE, 'polyline');
         polylineElement.classList.add(SvgWriter.EDGE_CLASS);
         polylineElement.setAttribute('points', DiagramUtils.getFormattedPolyline(points));
         return polylineElement;
@@ -524,7 +525,7 @@ export class SvgWriter {
 
     private getThreeWTs(threeWTs: NodeMetadata[]): SVGGElement {
         // create g 3wts element
-        const gThreeWTsElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        const gThreeWTsElement = document.createElementNS(SvgWriter.SVG_NAMESPACE, 'g');
         gThreeWTsElement.classList.add(SvgWriter.THREEWTS_CLASS);
         // add 3wts
         threeWTs.forEach((threeWT) => {
@@ -537,7 +538,7 @@ export class SvgWriter {
 
     private getThreeWT(threeWT: NodeMetadata): SVGGElement {
         // create 3wt
-        const gThreeWTElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        const gThreeWTElement = document.createElementNS(SvgWriter.SVG_NAMESPACE, 'g');
         gThreeWTElement.id = threeWT.svgId;
         gThreeWTElement.setAttribute(
             'transform',
@@ -571,7 +572,7 @@ export class SvgWriter {
         points: Point[],
         cssClasses: string[] | undefined
     ): SVGCircleElement {
-        const transformerCircleElement = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        const transformerCircleElement = document.createElementNS(SvgWriter.SVG_NAMESPACE, 'circle');
         SvgUtils.addCssClasses(transformerCircleElement, cssClasses, SvgWriter.WINDING_CLASS);
         const circleCenter = DiagramUtils.getPointAtDistance(
             points[1],
@@ -593,7 +594,7 @@ export class SvgWriter {
         side: string,
         cssClasses: string[] | undefined
     ): SVGPathElement {
-        const arrowPathElement = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        const arrowPathElement = document.createElementNS(SvgWriter.SVG_NAMESPACE, 'path');
         SvgUtils.addCssClasses(arrowPathElement, cssClasses, SvgWriter.WINDING_CLASS);
         const matrix: string = DiagramUtils.getThreeWTArrowMatrixString(
             threeWTPoint,
@@ -620,7 +621,7 @@ export class SvgWriter {
         labelData: LabelData | undefined
     ): SVGGElement {
         // create info element
-        const gInfoElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        const gInfoElement = document.createElementNS(SvgWriter.SVG_NAMESPACE, 'g');
         gInfoElement.id = info.svgId;
         if (infoPoint) {
             gInfoElement.setAttribute('transform', 'translate(' + DiagramUtils.getFormattedPoint(infoPoint) + ')');
@@ -664,7 +665,7 @@ export class SvgWriter {
 
     private getComponentElement(componentType: string, initTrans?: Point): SVGGElement {
         const component = ComponentUtils.getComponent(this.componentLibrary, componentType);
-        const gComponentElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        const gComponentElement = document.createElementNS(SvgWriter.SVG_NAMESPACE, 'g');
         if (component) {
             const trans = new Point(
                 (initTrans?.x ?? 0) - component.size.width / 2,
@@ -708,7 +709,7 @@ export class SvgWriter {
         type: string | undefined,
         shift: number | undefined
     ): SVGPathElement {
-        const edgeInfoArrowElement = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        const edgeInfoArrowElement = document.createElementNS(SvgWriter.SVG_NAMESPACE, 'path');
         if (arrowAngle) {
             let arrowString: string = 'rotate(' + DiagramUtils.getFormattedValue(arrowAngle) + ')';
             if (shift) {
@@ -738,7 +739,7 @@ export class SvgWriter {
         label: string | undefined,
         type: string | undefined
     ): SVGTextElement {
-        const edgeInfoLabelElement = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        const edgeInfoLabelElement = document.createElementNS(SvgWriter.SVG_NAMESPACE, 'text');
         edgeInfoLabelElement.innerHTML = DiagramUtils.getFormattedInfoLabel(label, type, this.svgParameters);
         edgeInfoLabelElement.setAttribute('transform', 'rotate(' + DiagramUtils.getFormattedValue(angle) + ')');
         edgeInfoLabelElement.setAttribute('x', DiagramUtils.getFormattedValue(shift));
@@ -753,7 +754,7 @@ export class SvgWriter {
     }
 
     private getEdgeMiddleInfo(edge: EdgeMetadata, info: EdgeInfoMetadata): SVGGElement {
-        const gEdgeMiddleInfoElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        const gEdgeMiddleInfoElement = document.createElementNS(SvgWriter.SVG_NAMESPACE, 'g');
         gEdgeMiddleInfoElement.id = info.svgId;
         const middleInfoPoint = this.edgeRouter?.getEdgeMiddleInfoPoint(edge.svgId);
         if (middleInfoPoint) {
@@ -798,10 +799,10 @@ export class SvgWriter {
 
     private getTextNodesAndEdges(): { textNodes: SVGGElement; textEdges: SVGGElement } {
         // create text nodes g element
-        const textNodesGElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        const textNodesGElement = document.createElementNS(SvgWriter.SVG_NAMESPACE, 'g');
         textNodesGElement.classList.add(SvgWriter.TEXT_NODES_CLASS);
         // create text edges g element
-        const textEdgesGElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        const textEdgesGElement = document.createElementNS(SvgWriter.SVG_NAMESPACE, 'g');
         textEdgesGElement.classList.add(SvgWriter.TEXT_EDGES_CLASS);
         // create text nodes and edges
         this.diagramMetadata.textNodes.forEach((textNode) => {

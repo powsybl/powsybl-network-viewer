@@ -15,6 +15,8 @@ import * as HalfEdgeUtils from './half-edge-utils';
 import { HalfEdge, LabelData, NodeRadius } from './diagram-types';
 
 export class EdgeRouter {
+    static readonly LOOP_EDGES_SLOT_APERTURE_SCALING = 1.2;
+
     diagramMetadata: DiagramMetadata;
     svgParameters: SvgParameters;
     edgePoints: Record<string, [Point[], Point[]]> = {};
@@ -122,7 +124,7 @@ export class EdgeRouter {
         return injData[3];
     }
 
-    public getInjectoinLabelData(injectionId: string): LabelData | undefined {
+    public getInjectionLabelData(injectionId: string): LabelData | undefined {
         return this.injectionLabelData[injectionId];
     }
 
@@ -234,8 +236,8 @@ export class EdgeRouter {
             ],
         ];
         this.edgeSideLabelData[edgeId] = [
-            HalfEdgeUtils.getLabelData(halfEdges[0], this.svgParameters.getArrowLabelShift()),
-            HalfEdgeUtils.getLabelData(halfEdges[1], this.svgParameters.getArrowLabelShift()),
+            HalfEdgeUtils.getHalfEdgeLabelData(halfEdges[0], this.svgParameters.getArrowLabelShift()),
+            HalfEdgeUtils.getHalfEdgeLabelData(halfEdges[1], this.svgParameters.getArrowLabelShift()),
         ];
     }
 
@@ -273,7 +275,7 @@ export class EdgeRouter {
             const availableAngles = this.findAvailableAngles(
                 this.nodeAngles[loopEdges[0].node1] ?? [],
                 loopEdges.length,
-                this.svgParameters.getLoopEdgesAperture() * 1.2
+                this.svgParameters.getLoopEdgesAperture() * EdgeRouter.LOOP_EDGES_SLOT_APERTURE_SCALING
             );
             loopEdges.forEach((loopEdge, index) => {
                 const angle = availableAngles[index];
@@ -481,15 +483,15 @@ export class EdgeRouter {
 
     private storeInjections() {
         // group injections by node
-        const nodesInjections: Record<string, InjectionMetadata[]> = {};
+        const injectionsByNode: Record<string, InjectionMetadata[]> = {};
         this.diagramMetadata.injections?.forEach((injection) => {
-            const nodeInjections: InjectionMetadata[] = nodesInjections[injection.vlNodeId] ?? [];
+            const nodeInjections: InjectionMetadata[] = injectionsByNode[injection.vlNodeId] ?? [];
             nodeInjections.push(injection);
-            nodesInjections[injection.vlNodeId] = nodeInjections;
+            injectionsByNode[injection.vlNodeId] = nodeInjections;
         });
         // store injections
-        for (const nodeId in nodesInjections) {
-            const nodeInjections = nodesInjections[nodeId];
+        for (const nodeId in injectionsByNode) {
+            const nodeInjections = injectionsByNode[nodeId];
             const availableAngles = this.findAvailableAngles(
                 this.nodeAngles[nodeId] ?? [],
                 nodeInjections.length,
@@ -530,7 +532,9 @@ export class EdgeRouter {
         );
         const arrowShift =
             this.svgParameters.getArrowShift() + (nodeRadius.voltageLevelRadius - nodeRadius.busOuterRadius);
+        // point of the arrow added to the injection edge info
         const arrowCenter = DiagramUtils.getPointAtDistance(busNodePoint, injPoint, arrowShift);
+        // rotation of the arrow added to the injection edge info
         const rotationAngle = DiagramUtils.radToDeg(angle + (angle > Math.PI / 2 ? (-3 * Math.PI) / 2 : Math.PI / 2));
         this.injectionData[injectionId] = [busNodePoint, injPoint, arrowCenter, rotationAngle];
 

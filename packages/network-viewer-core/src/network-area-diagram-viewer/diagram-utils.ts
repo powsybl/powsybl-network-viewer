@@ -406,6 +406,7 @@ export function getLabelShiftAndStyle(
 }
 
 // get the label data: angle and [shift, style] of a external and internal label
+// input angle is in radians, output angle, in LabelData, is in degrees
 export function getLabelData(angle: number, arrowLabelShift: number): LabelData {
     const textFlipped = Math.cos(angle) < 0;
     const internalShiftAndStyle = getLabelShiftAndStyle(angle, false, arrowLabelShift);
