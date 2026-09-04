@@ -73,6 +73,9 @@ export class SvgParameters {
     static readonly LOOP_EDGE_APERTURE_DEFAULT = 60;
     static readonly LOOP_DISTANCE_DEFAULT = 120;
     static readonly LOOP_CONTROL_DISTANCE_DEFAULT = 40;
+    static readonly INJECTION_EDGE_LENGTH_DEFAULT = 145;
+    static readonly INJECTION_APERTURE_DEFAULT = 10;
+    static readonly INJECTION_CIRCLE_RADIUS_DEFAULT = 25;
 
     svgParametersMetadata: SvgParametersMetadata | undefined;
 
@@ -202,5 +205,17 @@ export class SvgParameters {
 
     public getLoopControlDistance(): number {
         return this.svgParametersMetadata?.loopControlDistance ?? SvgParameters.LOOP_CONTROL_DISTANCE_DEFAULT;
+    }
+
+    public getInjectionEdgeLength(): number {
+        return this.svgParametersMetadata?.injectionEdgeLength ?? SvgParameters.INJECTION_EDGE_LENGTH_DEFAULT;
+    }
+
+    public getInjectionAperture(): number {
+        return this.svgParametersMetadata?.injectionAperture ?? SvgParameters.INJECTION_APERTURE_DEFAULT;
+    }
+
+    public getInjectionCircleRadius(): number {
+        return this.svgParametersMetadata?.injectionCircleRadius ?? SvgParameters.INJECTION_CIRCLE_RADIUS_DEFAULT;
     }
 }

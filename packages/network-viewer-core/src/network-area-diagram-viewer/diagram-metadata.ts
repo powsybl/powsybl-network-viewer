@@ -149,6 +149,8 @@ export interface InjectionMetadata {
     busNodeId: string;
     vlNodeId: string;
     edgeInfo?: EdgeInfoMetadata;
+    classes?: string[];
+    style?: string;
 }
 
 export interface EdgeInfoMetadata {

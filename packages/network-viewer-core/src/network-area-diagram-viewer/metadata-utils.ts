@@ -11,6 +11,7 @@ import {
     BusNodeMetadata,
     DiagramMetadata,
     EdgeMetadata,
+    InjectionMetadata,
     NodeMetadata,
     PointMetadata,
     TextNodeMetadata,
@@ -410,4 +411,12 @@ export function isBoundaryNode(node: NodeMetadata): boolean {
 // get the type of a node
 export function getNodeType(node: NodeMetadata): NodeType {
     return node.type === undefined ? NodeType.UNKNOWN : (NodeTypeMapping[node.type] ?? NodeType.UNKNOWN);
+}
+
+export function getInjectionMetadata(
+    nodeId: string,
+    busNodeId: string,
+    injections: InjectionMetadata[]
+): InjectionMetadata[] {
+    return injections.filter((edge) => edge.vlNodeId == nodeId && edge.busNodeId == busNodeId);
 }

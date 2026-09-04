@@ -7,7 +7,7 @@
 
 import { Point } from '@svgdotjs/svg.js';
 import { EdgeInfoEnum, SvgParameters } from './svg-parameters';
-import { EdgeType, NodeRadius } from './diagram-types';
+import { EdgeType, LabelData, NodeRadius } from './diagram-types';
 
 export function getDistance(point1: Point, point2: Point): number {
     const deltax = point1.x - point2.x;
@@ -403,4 +403,17 @@ export function getLabelShiftAndStyle(
     const style: string | undefined = externalLabel == textFlipped ? 'text-anchor:end' : undefined;
     const shift: number = arrowLabelShift * (externalLabel ? 1 : -1);
     return [textFlipped ? -shift : shift, style];
+}
+
+// get the label data: angle and [shift, style] of a external and internal label
+// input angle is in radians, output angle, in LabelData, is in degrees
+export function getLabelData(angle: number, arrowLabelShift: number): LabelData {
+    const textFlipped = Math.cos(angle) < 0;
+    const internalShiftAndStyle = getLabelShiftAndStyle(angle, false, arrowLabelShift);
+    const externalShiftAndStyle = getLabelShiftAndStyle(angle, true, arrowLabelShift);
+    return {
+        angle: radToDeg(textFlipped ? angle - Math.PI : angle),
+        internal: { shift: internalShiftAndStyle[0], style: internalShiftAndStyle[1] },
+        external: { shift: externalShiftAndStyle[0], style: externalShiftAndStyle[1] },
+    };
 }
