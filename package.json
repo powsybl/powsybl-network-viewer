@@ -73,7 +73,7 @@
         "cheap-ruler": "^4.0.0",
         "geolib": "^3.3.4",
         "mapbox-gl": "^3.9.4",
-        "maplibre-gl": "^4.7.1",
+        "maplibre-gl": "^6.8.0",
         "react-map-gl": "^8.0.1",
         "type-fest": "^5.5.0"
     },
