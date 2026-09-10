@@ -21,6 +21,7 @@
 
 # Vitest
 /coverage
+.vitest-attachments
 
 # Byte-compiled
 __pycache__/

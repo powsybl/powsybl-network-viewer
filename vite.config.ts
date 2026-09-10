@@ -13,7 +13,7 @@ import * as path from 'node:path';
 import { defineConfig } from 'vite';
 import dts from 'vite-plugin-dts';
 import svgr from 'vite-plugin-svgr';
-import { viteEslintChecker } from './utils/viteEslintChecker';
+import { viteEslintChecker } from './utils/viteEslintChecker.ts';
 
 export default defineConfig((config) => ({
     plugins: [
@@ -34,12 +34,12 @@ export default defineConfig((config) => ({
         minify: false, // easier to debug on the apps using this lib
         lib: {
             // Could also be a dictionary or array of multiple entry points
-            entry: path.resolve(__dirname, 'src/index.ts'),
+            entry: path.resolve(import.meta.dirname, 'src/index.ts'),
             name: 'PowSyBl network viewer',
             // the proper extensions will be added
             fileName: 'powsybl-network-viewer',
         },
-        rollupOptions: {
+        rolldownOptions: {
             //https://stackoverflow.com/questions/59134241/using-deck-gl-as-webpack-external
             //https://github.com/visgl/deck.gl/blob/94bad4bb209a5da0686fb03f107e86b18199c108/website/webpack.config.js#L128-L141
             external: (id) => !id.startsWith('.') && !path.isAbsolute(id),
