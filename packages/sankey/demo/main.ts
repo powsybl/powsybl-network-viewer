@@ -19,9 +19,9 @@ interface ScenarioSet {
 }
 
 const SCENARIOS: { label: string; data: ScenarioSet }[] = [
-    { label: 'IEEE14 Split (VL4)', data: scenariosVl4 as ScenarioSet },
-    { label: 'IEEE14 Merge (VL5)', data: scenariosMerge as ScenarioSet },
-    { label: 'IEEE14 and contingency', data: scenariosContingencyOnly as ScenarioSet },
+    { label: 'IEEE14 Split (VL4)', data: scenariosVl4 },
+    { label: 'IEEE14 Merge (VL5)', data: scenariosMerge },
+    { label: 'IEEE14 and contingency', data: scenariosContingencyOnly },
 ];
 
 let { baseline, contingency, topology_change } = SCENARIOS[0].data;
