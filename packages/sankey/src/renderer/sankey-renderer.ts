@@ -20,12 +20,47 @@ import {
     rearrangeStackCoordOffset,
 } from '../core/layout.js';
 import type { LayoutIndex, StackCoord, StackCoordOffset } from '../core/layout.js';
-import { createFlowTransitionState, isTransitionDone, transitFlowsState, updateFlows } from '../core/statemanager.js';
+import {
+    createFlowTransitionState,
+    createTopologyTransitionState,
+    isTransitionDone,
+    transitFlowsState,
+    updateFlows,
+} from '../core/statemanager.js';
 import type { FlowTransitionState } from '../core/statemanager.js';
+import { diffTopology } from '../core/topology.js';
 import type { LayoutState, Orientation, SankeyOptions, SankeyScenario, Sfpd } from '../core/types.js';
 import { RafLoop } from './rafloop.js';
-import { createSvgStructure, fitViewBox, updateAttributes } from './renderer.js';
+import { applyTopologyDiff, createSvgStructure, fitViewBox, updateAttributes } from './renderer.js';
 import type { RenderState, SvgElements } from './renderer.js';
+
+function assertSameIdSet(currentIds: Set<string>, incomingIds: Set<string>, kind: string): void {
+    for (const id of incomingIds) {
+        if (!currentIds.has(id)) {
+            throw new Error(
+                `updateScenarioFlows: topology mismatch — ${kind} '${id}' not in current scenario. Use updateTopology()`
+            );
+        }
+    }
+    for (const id of currentIds) {
+        if (!incomingIds.has(id)) {
+            throw new Error(
+                `updateScenarioFlows: topology mismatch — ${kind} '${id}' missing from incoming scenario. Use updateTopology()`
+            );
+        }
+    }
+}
+
+function filterNaNBuses(scenario: SankeyScenario): SankeyScenario {
+    const safeBuses = scenario.buses.filter((b) => Number.isFinite(b.voltage_angle));
+    if (safeBuses.length < scenario.buses.length) {
+        const nanIds = scenario.buses.filter((b) => !Number.isFinite(b.voltage_angle)).map((b) => b.id);
+        console.warn(`SankeyRenderer: excluded buses with non-finite voltage_angle: ${nanIds.join(', ')}`);
+    }
+    const safeIds = new Set(safeBuses.map((b) => b.id));
+    const safeBranches = scenario.branches.filter((br) => safeIds.has(br.from_bus) && safeIds.has(br.to_bus));
+    return { ...scenario, buses: safeBuses, branches: safeBranches };
+}
 
 export class SankeyRenderer {
     private readonly svg: SVGSVGElement;
@@ -82,6 +117,7 @@ export class SankeyRenderer {
     }
 
     private _init(scenario: SankeyScenario): void {
+        scenario = filterNaNBuses(scenario);
         this.scenario = { ...scenario, branches: scenario.branches.map((br) => ({ ...br })) };
         const busIds = scenario.buses.map((b) => b.id);
         const flows = new Map(scenario.branches.map((br) => [branchKey(br), br.flow]));
@@ -137,6 +173,29 @@ export class SankeyRenderer {
                 `${-stackExt - stPad} ${-sMax - sPad} ${2 * stackExt + 2 * stPad} ${sMax - sMin + 2 * sPad}`
             );
         }
+    }
+
+    private _allocAndWarmStart(
+        oldBusIdSet: Set<string>,
+        newBusIds: string[],
+        inheritedPos: Record<string, string>,
+        mpmMax: number,
+        N: number
+    ): Float64Array {
+        flatToMap(this.layoutIndex, this.scFlat, this.stackCoord);
+        const scFlat = new Float64Array(N);
+        const jitterScale = 1e-6 * mpmMax;
+        for (let i = 0; i < N; i++) {
+            const id = newBusIds[i];
+            if (oldBusIdSet.has(id)) {
+                scFlat[i] = this.stackCoord.get(id) ?? 0;
+            } else {
+                const pred = inheritedPos[id];
+                scFlat[i] = pred !== undefined ? (this.stackCoord.get(pred) ?? 0) : 0;
+                scFlat[i] += (Math.random() - 0.5) * 2 * jitterScale;
+            }
+        }
+        return scFlat;
     }
 
     private _buildRenderState(): RenderState {
@@ -207,6 +266,14 @@ export class SankeyRenderer {
     }
 
     updateScenarioFlows(scenario: SankeyScenario): void {
+        const currentBusIds = new Set(this.scenario.buses.map((b) => b.id));
+        const incomingBusIds = new Set(scenario.buses.map((b) => b.id));
+        assertSameIdSet(currentBusIds, incomingBusIds, 'bus');
+
+        const currentBranchKeys = new Set(this.scenario.branches.map((br) => branchKey(br)));
+        const incomingBranchKeys = new Set(scenario.branches.map((br) => branchKey(br)));
+        assertSameIdSet(currentBranchKeys, incomingBranchKeys, 'branch');
+
         const flows = new Map(scenario.branches.map((br) => [branchKey(br), br.flow]));
         const states = new Map(scenario.buses.map((b) => [b.id, b.voltage_angle]));
 
@@ -231,6 +298,50 @@ export class SankeyRenderer {
         }
 
         updateFlows(this.ts, states, flows);
+        this.startLayout();
+    }
+
+    updateTopology(scenario: SankeyScenario): void {
+        scenario = filterNaNBuses(scenario);
+
+        if (!isTransitionDone(this.ts)) {
+            this.ts = createFlowTransitionState(this.ts.nextStates, this.ts.nextFlows);
+        }
+
+        const diff = diffTopology(this.scenario, scenario);
+        this.svgElements = applyTopologyDiff(this.svgElements, this.scenario, scenario, diff);
+
+        const oldBusIdSet = new Set(this.scenario.buses.map((b) => b.id));
+
+        this.scenario = { ...scenario, branches: scenario.branches.map((br) => ({ ...br })) };
+
+        const busIds = this.scenario.buses.map((b) => b.id);
+        const flows = new Map(this.scenario.branches.map((br) => [branchKey(br), br.flow]));
+        const states = new Map(this.scenario.buses.map((b) => [b.id, b.voltage_angle]));
+        this.sfpd = parseSfpd(busIds, this.scenario.branches, flows);
+        this.maxpmax = createMaxpmax(this.sfpd, flows);
+
+        const mpmMax = Math.max(...this.maxpmax.values(), 1);
+        const inheritedPos = scenario.inherited_positions ?? {};
+
+        this.scFlat = this._allocAndWarmStart(oldBusIdSet, busIds, inheritedPos, mpmMax, busIds.length);
+
+        this.layoutIndex = buildLayoutIndex(busIds, this.sfpd, this.maxpmax);
+
+        this.scFlatPrev = new Float64Array(this.scFlat);
+        this.scFlatPrev2 = new Float64Array(this.scFlat);
+        this.scFlatDisplay = new Float64Array(this.scFlat);
+        this.stFlat = new Float64Array(busIds.length);
+        flatFromMap(this.layoutIndex, states, this.stFlat);
+        flatToMap(this.layoutIndex, this.scFlat, this.stackCoord);
+
+        const { stackCoordOffset } = initStackCoord(busIds, this.scenario.branches);
+        this.stackCoordOffset = stackCoordOffset;
+
+        rearrangeStackCoordOffset(this.stackCoordOffset, states, flows, this.stackCoord, this.sfpd, this.maxpmax);
+
+        this.ts = createTopologyTransitionState(this.ts.currentStates, this.ts.currentFlows, states, flows);
+
         this.startLayout();
     }
 
@@ -273,7 +384,7 @@ export class SankeyRenderer {
     exportLayout(): LayoutState {
         flatToMap(this.layoutIndex, this.scFlat, this.stackCoord);
         const layout: Record<string, number> = {};
-        for (const [busId, v] of this.stackCoord) layout[busId] = v;
+        for (const busId of this.layoutIndex.busArr) layout[busId] = this.stackCoord.get(busId) ?? 0;
         return {
             version: 1,
             params: { stretch: this.stretch, align: this.rawAlign, repulse: this.rawRepulse },

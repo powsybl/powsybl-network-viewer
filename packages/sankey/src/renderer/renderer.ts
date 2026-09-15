@@ -9,6 +9,7 @@
 import { bandColor, branchKey, loadRatio } from '../core/datamodel.js';
 import { bandPath, overloadBandPath, trianglePath } from '../core/geometry.js';
 import type { StackCoord, StackCoordOffset } from '../core/layout.js';
+import type { TopologyDiff } from '../core/topology.js';
 import type { BusRecord, SankeyScenario } from '../core/types.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
@@ -44,10 +45,83 @@ function el<T extends SVGElement>(tag: string): T {
     return document.createElementNS(SVG_NS, tag) as T;
 }
 
+function createBandElements(g: SVGGElement): { band: SVGPathElement; overloadBand: SVGPathElement } {
+    const band = el<SVGPathElement>('path');
+    band.setAttribute('class', 'band');
+    band.setAttribute('fill-opacity', '0.7');
+    g.appendChild(band);
+
+    const overloadBand = el<SVGPathElement>('path');
+    overloadBand.setAttribute('class', 'overload-band');
+    overloadBand.setAttribute('fill', 'url(#overload-hatch)');
+    overloadBand.setAttribute('visibility', 'hidden');
+    g.appendChild(overloadBand);
+
+    return { band, overloadBand };
+}
+
+function createBusElements(
+    g: SVGGElement,
+    bus: BusRecord
+): { pin: SVGLineElement; marker: SVGPathElement; label: SVGTextElement } {
+    const pin = el<SVGLineElement>('line');
+    pin.setAttribute('class', 'pin');
+    pin.setAttribute('stroke', 'black');
+    pin.setAttribute('stroke-width', '4');
+    pin.setAttribute('vector-effect', 'non-scaling-stroke');
+    g.appendChild(pin);
+
+    const marker = el<SVGPathElement>('path');
+    marker.setAttribute('class', 'marker');
+    marker.setAttribute('fill', 'steelblue');
+    marker.setAttribute('fill-opacity', '0.8');
+    g.appendChild(marker);
+
+    const label = el<SVGTextElement>('text');
+    label.setAttribute('class', 'label');
+    label.textContent = bus.label ?? bus.id;
+    g.appendChild(label);
+
+    return { pin, marker, label };
+}
+
+const OVERLOAD_HATCH_SPACING_PX = 8;
+
+function createOverloadHatchPattern(g: SVGGElement): void {
+    const pattern = el<SVGPatternElement>('pattern');
+    pattern.setAttribute('id', 'overload-hatch');
+    pattern.setAttribute('patternUnits', 'userSpaceOnUse');
+
+    const stripe = el<SVGRectElement>('rect');
+    stripe.setAttribute('fill', 'darkmagenta');
+    stripe.setAttribute('fill-opacity', '0.75');
+    pattern.appendChild(stripe);
+
+    g.appendChild(pattern);
+}
+
+function updateOverloadHatchPattern(svg: SVGSVGElement, isHorizontal: boolean, ux: number, uy: number): void {
+    const pattern = svg.querySelector<SVGPatternElement>('#overload-hatch');
+    const stripe = pattern?.querySelector<SVGRectElement>('rect');
+    if (!pattern || !stripe) return;
+
+    const pitch = OVERLOAD_HATCH_SPACING_PX * (isHorizontal ? ux : uy);
+    pattern.setAttribute('width', n(pitch));
+    pattern.setAttribute('height', n(pitch));
+    if (isHorizontal) {
+        stripe.setAttribute('width', n(pitch / 2));
+        stripe.setAttribute('height', n(pitch));
+    } else {
+        stripe.setAttribute('width', n(pitch));
+        stripe.setAttribute('height', n(pitch / 2));
+    }
+}
+
 // create all SVG elements for a scenario
 export function createSvgStructure(svg: SVGSVGElement, scenario: SankeyScenario): SvgElements {
     const g = el<SVGGElement>('g');
     svg.appendChild(g);
+    createOverloadHatchPattern(g);
 
     const bands: SVGPathElement[] = [];
     const overloadBands: SVGPathElement[] = [];
@@ -55,20 +129,9 @@ export function createSvgStructure(svg: SVGSVGElement, scenario: SankeyScenario)
     const pMaxValues: number[] = [];
 
     for (const br of scenario.branches) {
-        const band = el<SVGPathElement>('path');
-        band.setAttribute('class', 'band');
-        band.setAttribute('fill-opacity', '0.7');
-        g.appendChild(band);
+        const { band, overloadBand } = createBandElements(g);
         bands.push(band);
-
-        const overload = el<SVGPathElement>('path');
-        overload.setAttribute('class', 'overload-band');
-        overload.setAttribute('fill', 'red');
-        overload.setAttribute('fill-opacity', '0.5');
-        overload.setAttribute('visibility', 'hidden');
-        g.appendChild(overload);
-        overloadBands.push(overload);
-
+        overloadBands.push(overloadBand);
         branchKeys.push(branchKey(br));
         pMaxValues.push(br.p_max);
     }
@@ -78,29 +141,86 @@ export function createSvgStructure(svg: SVGSVGElement, scenario: SankeyScenario)
     const labels: SVGTextElement[] = [];
 
     for (const bus of scenario.buses) {
-        const pin = el<SVGLineElement>('line');
-        pin.setAttribute('class', 'pin');
-        pin.setAttribute('stroke', 'black');
-        pin.setAttribute('stroke-width', '4');
-        pin.setAttribute('vector-effect', 'non-scaling-stroke');
-        g.appendChild(pin);
+        const { pin, marker, label } = createBusElements(g, bus);
         pins.push(pin);
-
-        const marker = el<SVGPathElement>('path');
-        marker.setAttribute('class', 'marker');
-        marker.setAttribute('fill', 'steelblue');
-        marker.setAttribute('fill-opacity', '0.8');
-        g.appendChild(marker);
         markers.push(marker);
-
-        const label = el<SVGTextElement>('text');
-        label.setAttribute('class', 'label');
-        label.textContent = bus.label ?? bus.id;
-        g.appendChild(label);
         labels.push(label);
     }
 
     return { diagramGroup: g, bands, overloadBands, pins, markers, labels, branchKeys, pMaxValues };
+}
+
+// Update SVG elements for a topology change
+export function applyTopologyDiff(
+    elements: SvgElements,
+    oldScenario: SankeyScenario,
+    newScenario: SankeyScenario,
+    diff: TopologyDiff
+): SvgElements {
+    const g = elements.diagramGroup;
+
+    const busEls = new Map<string, { pin: SVGLineElement; marker: SVGPathElement; label: SVGTextElement }>();
+    for (let i = 0; i < oldScenario.buses.length; i++)
+        busEls.set(oldScenario.buses[i].id, {
+            pin: elements.pins[i],
+            marker: elements.markers[i],
+            label: elements.labels[i],
+        });
+
+    const branchEls = new Map<string, { band: SVGPathElement; overloadBand: SVGPathElement }>();
+    for (let i = 0; i < elements.branchKeys.length; i++)
+        branchEls.set(elements.branchKeys[i], { band: elements.bands[i], overloadBand: elements.overloadBands[i] });
+
+    for (const id of diff.removedBusIds) {
+        const e = busEls.get(id);
+        if (e) {
+            e.pin.remove();
+            e.marker.remove();
+            e.label.remove();
+        }
+    }
+
+    for (const key of diff.removedBranchKeys) {
+        const e = branchEls.get(key);
+        if (e) {
+            e.band.remove();
+            e.overloadBand.remove();
+        }
+    }
+
+    const enteredBus = new Map<string, { pin: SVGLineElement; marker: SVGPathElement; label: SVGTextElement }>();
+    for (const bus of diff.addedBuses) enteredBus.set(bus.id, createBusElements(g, bus));
+
+    const enteredBranch = new Map<string, { band: SVGPathElement; overloadBand: SVGPathElement }>();
+    for (const br of diff.addedBranches) {
+        const key = branchKey(br);
+        enteredBranch.set(key, createBandElements(g));
+    }
+
+    const bands: SVGPathElement[] = [];
+    const overloadBands: SVGPathElement[] = [];
+    const newBranchKeys: string[] = [];
+    const pMaxValues: number[] = [];
+    for (const br of newScenario.branches) {
+        const key = branchKey(br);
+        const e = branchEls.get(key) ?? enteredBranch.get(key)!;
+        bands.push(e.band);
+        overloadBands.push(e.overloadBand);
+        newBranchKeys.push(key);
+        pMaxValues.push(br.p_max);
+    }
+
+    const pins: SVGLineElement[] = [];
+    const markers: SVGPathElement[] = [];
+    const labels: SVGTextElement[] = [];
+    for (const bus of newScenario.buses) {
+        const e = busEls.get(bus.id) ?? enteredBus.get(bus.id)!;
+        pins.push(e.pin);
+        markers.push(e.marker);
+        labels.push(e.label);
+    }
+
+    return { diagramGroup: g, bands, overloadBands, pins, markers, labels, branchKeys: newBranchKeys, pMaxValues };
 }
 
 interface BusFrameContext {
@@ -187,6 +307,7 @@ export function updateAttributes(
     const svgH = Math.max(1, svgEl.clientHeight);
     const ux = vb.width / svgW;
     const uy = vb.height / svgH;
+    updateOverloadHatchPattern(svgEl, isHorizontal, ux, uy);
 
     // Update branches
     for (let i = 0; i < scenario.branches.length; i++) {

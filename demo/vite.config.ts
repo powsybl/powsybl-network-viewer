@@ -8,11 +8,11 @@
 import react from '@vitejs/plugin-react';
 import * as path from 'node:path';
 import { defineConfig } from 'vite';
-import { viteEslintChecker } from '../utils/viteEslintChecker';
-const workspaceRoot = path.resolve(__dirname, '..');
+import { viteEslintChecker } from '../utils/viteEslintChecker.ts';
+const workspaceRoot = path.resolve(import.meta.dirname, '..');
 
 export default defineConfig((config) => ({
-    root: __dirname,
+    root: import.meta.dirname,
     plugins: [viteEslintChecker(config.isPreview, config.command), react()],
     resolve: {
         alias: {
@@ -26,12 +26,12 @@ export default defineConfig((config) => ({
         preserveSymlinks: true,
     },
     build: {
-        rollupOptions: {
+        rolldownOptions: {
             input: {
-                main: path.resolve(__dirname, 'index.html'),
-                sld: path.resolve(__dirname, 'sld.html'),
-                maps: path.resolve(__dirname, 'map-viewer.html'),
-                syncedViewers: path.resolve(__dirname, 'synced-viewers.html'),
+                main: path.resolve(import.meta.dirname, 'index.html'),
+                sld: path.resolve(import.meta.dirname, 'sld.html'),
+                maps: path.resolve(import.meta.dirname, 'map-viewer.html'),
+                syncedViewers: path.resolve(import.meta.dirname, 'synced-viewers.html'),
             },
         },
     },

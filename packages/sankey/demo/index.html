@@ -35,7 +35,8 @@
                 border-bottom: 1px solid #ccc;
                 align-items: center;
             }
-            #controls span {
+            #controls span,
+            #controls label {
                 font-size: 12px;
                 color: #555;
                 margin-right: 4px;
@@ -49,6 +50,10 @@
                 font-family: monospace;
                 font-size: 16px;
                 cursor: pointer;
+            }
+            #scenario-select {
+                font-family: monospace;
+                font-size: 16px;
             }
             button:hover {
                 background: #d0d0d0;
@@ -108,9 +113,12 @@
     </head>
     <body>
         <div id="controls">
+            <label for="scenario-select">Dataset:</label>
+            <select id="scenario-select"></select>
             <span style="margin-left: 12px">Scenario:</span>
             <button id="btn-reset">Baseline</button>
             <button id="btn-n1">Outage</button>
+            <button id="btn-topology-change" style="display: none">Topology Change</button>
             <span style="margin-left: 12px">Layout:</span>
             <button id="btn-stop">Stop</button>
             <button id="btn-autoscale">Autoscale</button>
@@ -124,7 +132,7 @@
                 <div id="sliders"></div>
             </span>
         </div>
-        <div id="svg-container" style="width:800px; height:900px"></div>
+        <div id="svg-container" style="width: 800px; height: 900px"></div>
         <script type="module" src="./main.ts"></script>
     </body>
 </html>

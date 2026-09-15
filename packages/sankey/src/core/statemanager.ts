@@ -54,6 +54,31 @@ export function transitFlowsState(ts: FlowTransitionState): void {
     }
 }
 
+export function createTopologyTransitionState(
+    oldStates: Map<string, number>,
+    oldFlows: Map<string, number>,
+    newStates: Map<string, number>,
+    newFlows: Map<string, number>
+): FlowTransitionState {
+    const prevStates = new Map<string, number>();
+    for (const [bus, angle] of newStates) {
+        prevStates.set(bus, oldStates.get(bus) ?? angle);
+    }
+    const prevFlows = new Map<string, number>();
+    for (const key of newFlows.keys()) {
+        prevFlows.set(key, oldFlows.get(key) ?? 0);
+    }
+    return {
+        prevStates,
+        nextStates: new Map(newStates),
+        currentStates: new Map(prevStates),
+        prevFlows,
+        nextFlows: new Map(newFlows),
+        currentFlows: new Map(prevFlows),
+        step: 0,
+    };
+}
+
 export function updateFlows(
     ts: FlowTransitionState,
     newStates: Map<string, number>,

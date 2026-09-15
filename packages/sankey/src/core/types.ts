@@ -37,6 +37,8 @@ export interface SankeyScenario {
         case_name?: string;
         timestamp?: string;
     };
+    bus_breaker_map?: Record<string, string[]>;
+    inherited_positions?: Record<string, string>;
 }
 
 export interface LayoutState {
