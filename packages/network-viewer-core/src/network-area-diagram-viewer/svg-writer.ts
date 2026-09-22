@@ -302,7 +302,7 @@ export class SvgWriter {
             halfEdgePoints1 &&
             halfEdgePoints2 &&
             this.svgWriterParameters.mergeLines &&
-            this.canMergeEdge(edge, edgeType)
+            MetadataUtils.canMergeEdge(edge, edgeType)
         ) {
             gEdgeElement.appendChild(
                 this.getMergedEdge(edge, halfEdgePoints1, halfEdgePoints2, edge.classes1, edge.style1)
@@ -332,16 +332,6 @@ export class SvgWriter {
         return gEdgeElement;
     }
 
-    private canMergeEdge(edge: EdgeMetadata, edgeType: EdgeType): boolean {
-        return (
-            DiagramUtils.isLineEdge(edgeType) &&
-            edge.invisible1 !== true &&
-            edge.invisible2 !== true &&
-            DiagramUtils.sameArray(edge.classes1, edge.classes2) &&
-            edge.style1 == edge.style2
-        );
-    }
-
     private getMergedEdge(
         edge: EdgeMetadata,
         points1: Point[],
@@ -362,9 +352,10 @@ export class SvgWriter {
             const polylineElement = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
             SvgUtils.addCssClasses(polylineElement, cssClasses, SvgWriter.EDGE_CLASS);
             SvgUtils.addElementStyle(polylineElement, style);
-            points1 = points1.slice(0, -1);
-            points2 = points2.slice(0, -1).reverse();
-            polylineElement.setAttribute('points', DiagramUtils.getFormattedPolyline(points1.concat(points2)));
+            polylineElement.setAttribute(
+                'points',
+                DiagramUtils.getFormattedPolyline(DiagramUtils.concatPolylinePoints(points1, points2))
+            );
             return polylineElement;
         }
     }

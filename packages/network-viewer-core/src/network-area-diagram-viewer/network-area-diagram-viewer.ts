@@ -1322,8 +1322,21 @@ export class NetworkAreaDiagramViewer {
         const edgeNode: SVGGraphicsElement | null = this.svgDiv.querySelector("[id='" + edge.svgId + "']");
         if (!edgeNode) return;
 
-        this.redrawHalfEdge(edgeNode, halfEdge1);
-        this.redrawHalfEdge(edgeNode, halfEdge2);
+        const edgePolylines = edgeNode.querySelectorAll(':scope > polyline.nad-edge-path');
+        const isMergedEde =
+            edgePolylines.length == 1 && MetadataUtils.canMergeEdge(edge, MetadataUtils.getEdgeType(edge));
+        if (isMergedEde && halfEdge1?.edgePoints && halfEdge2?.edgePoints) {
+            edgePolylines
+                .item(0)
+                .setAttribute(
+                    'points',
+                    DiagramUtils.getFormattedPolyline(
+                        DiagramUtils.concatPolylinePoints(halfEdge1.edgePoints, halfEdge2.edgePoints)
+                    )
+                );
+        }
+        this.redrawHalfEdge(edgeNode, halfEdge1, isMergedEde ? undefined : edgePolylines);
+        this.redrawHalfEdge(edgeNode, halfEdge2, isMergedEde ? undefined : edgePolylines);
 
         const edgeType = MetadataUtils.getEdgeType(edge);
         const isTransformerEdge = DiagramUtils.isTransformerEdge(edgeType);
@@ -1352,24 +1365,25 @@ export class NetworkAreaDiagramViewer {
         }
     }
 
-    private redrawHalfEdge(edgeNode: SVGGraphicsElement, halfEdge: HalfEdge | null) {
+    private redrawHalfEdge(
+        edgeNode: SVGGraphicsElement,
+        halfEdge: HalfEdge | null,
+        edgePolylines: NodeListOf<Element> | undefined
+    ) {
         if (!halfEdge) return;
 
         // store edge angle, to use them for bus node redrawing
         const edgeAnglesCache = halfEdge.side == '1' ? this.edgeAngles1 : this.edgeAngles2;
         edgeAnglesCache.set(edgeNode.id, HalfEdgeUtils.getEdgeStartAngle(halfEdge));
 
-        // move edge polyline
-        const polyline = this.getHalfEdgeNodeFromEdgeNode(edgeNode, halfEdge.side);
-        polyline?.setAttribute('points', DiagramUtils.getFormattedPolyline(halfEdge.edgePoints));
+        if (edgePolylines) {
+            // move edge polyline
+            const polyline = this.getHalfEdgeNodeFromEdgeElements(edgePolylines, halfEdge.side);
+            polyline?.setAttribute('points', DiagramUtils.getFormattedPolyline(halfEdge.edgePoints));
+        }
 
         // redraw edge arrow and labels
         this.redrawEdgeArrowAndLabels(halfEdge);
-    }
-
-    private getHalfEdgeNodeFromEdgeNode(edgeNode: SVGGraphicsElement, side: string): HTMLElement | null {
-        const allPath = edgeNode.querySelectorAll(':scope > polyline.nad-edge-path');
-        return this.getHalfEdgeNodeFromEdgeElements(allPath, side);
     }
 
     private getHalfEdgeNode(edgeId: string, side: string): HTMLElement | null {
@@ -1651,10 +1665,13 @@ export class NetworkAreaDiagramViewer {
         if (!edgeAngles.has(edgeId)) {
             // if not yet stored in angle map -> compute and store it
             const halfEdgeDrawElement: HTMLElement | null = this.getHalfEdgeNode(edgeId, side);
+            const isMergedEde: boolean =
+                this.edgesSection?.querySelectorAll("[id='" + edgeId + "'] > .nad-edge-path").length == 1 &&
+                MetadataUtils.canMergeEdge(edge, MetadataUtils.getEdgeType(edge));
             if (halfEdgeDrawElement != null) {
                 const angle = isLoopEdge
-                    ? SvgUtils.getPathAngle(halfEdgeDrawElement)
-                    : SvgUtils.getPolylineAngle(halfEdgeDrawElement);
+                    ? SvgUtils.getPathAngle(halfEdgeDrawElement, isMergedEde, side)
+                    : SvgUtils.getPolylineAngle(halfEdgeDrawElement, isMergedEde, side);
                 if (angle != null) {
                     edgeAngles.set(edgeId, angle);
                 }

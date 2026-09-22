@@ -460,3 +460,9 @@ export function intersectionLength(array1: string[] | undefined, array2: string[
 export function sameArray(array1: string[] | undefined, array2: string[] | undefined): boolean {
     return array1?.length == array2?.length && JSON.stringify(array1?.sort()) === JSON.stringify(array2?.sort());
 }
+
+export function concatPolylinePoints(points1: Point[], points2: Point[]): Point[] {
+    points1 = points1.slice(0, -1);
+    points2 = points2.slice(0, -1).reverse();
+    return points1.concat(points2);
+}

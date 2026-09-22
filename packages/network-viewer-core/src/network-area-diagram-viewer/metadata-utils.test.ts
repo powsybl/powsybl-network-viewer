@@ -725,3 +725,78 @@ test('groupBusEdgesMetadata', () => {
     expect(edgesMap.get('7')?.at(2)?.svgId).toBe('20');
     expect(edgesMap.get('7')?.at(3)?.svgId).toBe('22');
 });
+
+test('canMergeEdge', () => {
+    let edge: EdgeMetadata = {
+        svgId: '22',
+        equipmentId: 'NHV1_NHV2_3',
+        node1: '8',
+        node2: '4',
+        busNode1: '11',
+        busNode2: '7',
+        type: 'LineEdge',
+        edgeInfoMiddle: {
+            svgId: '23',
+            infoTypeA: 'Name',
+            labelA: 'NHV1_NHV2_3',
+        },
+        classes1: ['nad-vl300to500'],
+        classes2: ['nad-vl300to500'],
+    };
+    expect(MetadataUtils.canMergeEdge(edge, EdgeType.LINE)).toBe(true);
+
+    edge = {
+        svgId: '22',
+        equipmentId: 'NHV1_NHV2_3',
+        node1: '8',
+        node2: '4',
+        busNode1: '11',
+        busNode2: '7',
+        type: 'LineEdge',
+        edgeInfoMiddle: {
+            svgId: '23',
+            infoTypeA: 'Name',
+            labelA: 'NHV1_NHV2_3',
+        },
+        classes1: ['nad-vl300to500'],
+        classes2: ['nad-vl120to180'],
+    };
+    expect(MetadataUtils.canMergeEdge(edge, EdgeType.LINE)).toBe(false);
+
+    edge = {
+        svgId: '22',
+        equipmentId: 'NHV1_NHV2_3',
+        node1: '8',
+        node2: '4',
+        busNode1: '11',
+        busNode2: '7',
+        type: 'LineEdge',
+        invisible1: true,
+        edgeInfoMiddle: {
+            svgId: '23',
+            infoTypeA: 'Name',
+            labelA: 'NHV1_NHV2_3',
+        },
+        classes1: ['nad-vl300to500'],
+        classes2: ['nad-vl300to500'],
+    };
+    expect(MetadataUtils.canMergeEdge(edge, EdgeType.LINE)).toBe(false);
+
+    edge = {
+        svgId: '16',
+        equipmentId: 'NGEN_NHV1',
+        node1: '0',
+        node2: '4',
+        busNode1: '3',
+        busNode2: '7',
+        type: 'TwoWtEdge',
+        edgeInfoMiddle: {
+            svgId: '17',
+            infoTypeA: 'Name',
+            labelA: 'NGEN_NHV1',
+        },
+        classes1: ['nad-vl0to30'],
+        classes2: ['nad-vl300to500'],
+    };
+    expect(MetadataUtils.canMergeEdge(edge, EdgeType.THREE_WINDINGS_TRANSFORMER)).toBe(false);
+});

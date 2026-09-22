@@ -16,7 +16,14 @@ import {
     TextNodeMetadata,
 } from './diagram-metadata';
 import { SvgParameters } from './svg-parameters';
-import { getDistance, getPointAtDistance, getVoltageLevelCircleRadius, round } from './diagram-utils';
+import {
+    getDistance,
+    getPointAtDistance,
+    getVoltageLevelCircleRadius,
+    isLineEdge,
+    round,
+    sameArray,
+} from './diagram-utils';
 import { EdgeType, ElementData, ElementType, NodeMove, NodeRadius, NodeType, ViewBox } from './diagram-types';
 
 const TEXT_BOX_WIDTH_DEFAULT = 200;
@@ -421,4 +428,14 @@ export function isBoundaryNode(node: NodeMetadata): boolean {
 // get the type of a node
 export function getNodeType(node: NodeMetadata): NodeType {
     return node.type === undefined ? NodeType.UNKNOWN : (NodeTypeMapping[node.type] ?? NodeType.UNKNOWN);
+}
+
+export function canMergeEdge(edge: EdgeMetadata, edgeType: EdgeType): boolean {
+    return (
+        isLineEdge(edgeType) &&
+        edge.invisible1 !== true &&
+        edge.invisible2 !== true &&
+        sameArray(edge.classes1, edge.classes2) &&
+        edge.style1 == edge.style2
+    );
 }

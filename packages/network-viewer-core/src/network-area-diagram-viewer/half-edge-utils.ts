@@ -24,7 +24,14 @@ import {
     isTransformerEdge,
     radToDeg,
 } from './diagram-utils';
-import { getBusNodeMetadata, getEdgePoints, getEdgeType, getNodeMetadata, getNodeRadius } from './metadata-utils';
+import {
+    canMergeEdge,
+    getBusNodeMetadata,
+    getEdgePoints,
+    getEdgeType,
+    getNodeMetadata,
+    getNodeRadius,
+} from './metadata-utils';
 import { HalfEdge, LabelData } from './diagram-types';
 import { getPathPoints, getTransform } from './svg-utils';
 import { MetadataSearch } from './metadata-search';
@@ -369,8 +376,12 @@ export function getHalfEdgesLoop(
     const path1 = paths.length > 0 ? paths[0].getAttribute('d') : null;
     const path2 = paths.length > 1 ? paths[1].getAttribute('d') : null;
 
-    const pathPoints1 = getPathPoints(path1) ?? [];
-    const pathPoints2 = getPathPoints(path2) ?? [];
+    const splittedPaths =
+        paths.length == 1 && canMergeEdge(edge, getEdgeType(edge))
+            ? paths[0].getAttribute('d')?.split(' M')
+            : undefined;
+    const pathPoints1 = getPathPoints(splittedPaths ? splittedPaths[0] : path1) ?? [];
+    const pathPoints2 = getPathPoints(splittedPaths ? splittedPaths[1] : path2) ?? [];
 
     // if a transform exists in the SVG edge's element, apply it to the path's points, too.
     const transform = getTransform(element);
