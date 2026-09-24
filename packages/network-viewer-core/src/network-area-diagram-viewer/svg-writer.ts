@@ -44,10 +44,12 @@ export class SvgWriter {
         2: 'TWO',
         3: 'THREE',
     };
+    fillEmptyElements: boolean | undefined;
 
-    constructor(diagramMetadata: DiagramMetadata) {
+    constructor(diagramMetadata: DiagramMetadata, fillEmptyElements?: boolean) {
         this.diagramMetadata = diagramMetadata;
         this.svgParameters = new SvgParameters(this.diagramMetadata.svgParameters);
+        this.fillEmptyElements = fillEmptyElements;
     }
 
     public getSvg(textBoxSize?: { width: number; height: number }): string {
@@ -60,10 +62,9 @@ export class SvgWriter {
         xmlDoc.appendChild(svg);
         // add nodes
         svg.appendChild(this.getNodes());
-        // add edges and infos
+        // add edges
         const edgesAndInfos = this.getEdgesAndInfos();
         svg.appendChild(edgesAndInfos.edges);
-        svg.appendChild(edgesAndInfos.edgeInfos);
         // add 3wt edges
         if (this.threeWindingsTransformerEdges.length > 0) {
             svg.appendChild(this.getThreeWTEdges(this.threeWindingsTransformerEdges));
@@ -72,6 +73,8 @@ export class SvgWriter {
         if (this.threeWindingsTransformers.length > 0) {
             svg.appendChild(this.getThreeWTs(this.threeWindingsTransformers));
         }
+        // add edges infos
+        svg.appendChild(edgesAndInfos.edgeInfos);
         // add text nodes and edges
         const textNodeAndEdges = this.getTextNodesAndEdges();
         svg.appendChild(textNodeAndEdges.textEdges);
@@ -137,6 +140,7 @@ export class SvgWriter {
                     this.svgParameters.getVoltageLevelCircleRadius() + this.svgParameters.getUnknownBusNodeExtraRadius()
                 )
             );
+            this.fillEmptyElement(circleElement);
             gNodeElement.appendChild(circleElement);
         } else {
             const busNodes = MetadataUtils.getBusNodesMetadata(node.svgId, this.diagramMetadata.busNodes);
@@ -148,6 +152,12 @@ export class SvgWriter {
             });
         }
         return gNodeElement;
+    }
+
+    private fillEmptyElement(element: SVGCircleElement) {
+        if (this.fillEmptyElements) {
+            element.style.fill = '#0000';
+        }
     }
 
     private getBusNode(busNode: BusNodeMetadata, node: NodeMetadata, traversingBusEdgesAngles: number[]): SVGElement {
@@ -322,6 +332,7 @@ export class SvgWriter {
             'r',
             DiagramUtils.getFormattedValue(this.svgParameters.getTransformerCircleRadius())
         );
+        this.fillEmptyElement(transformerCircleElement);
         return transformerCircleElement;
     }
 
@@ -439,6 +450,7 @@ export class SvgWriter {
             'r',
             DiagramUtils.getFormattedValue(this.svgParameters.getTransformerCircleRadius())
         );
+        this.fillEmptyElement(transformerCircleElement);
         return transformerCircleElement;
     }
 
