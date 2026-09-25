@@ -21,4 +21,7 @@ export interface SvgWriterParameters {
 
     // object for searching diagram metadata
     metadataSearch?: MetadataSearch;
+
+    // whether merge half edges of lines
+    mergeLines?: boolean;
 }

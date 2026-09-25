@@ -228,17 +228,23 @@ export function getPolylinePoints(polyline: HTMLElement | null): Point[] | null 
 }
 
 // get angle of first 2 points of a polyline
-export function getPolylineAngle(polyline: HTMLElement): number | null {
-    const points: Point[] | null = getPolylinePoints(polyline);
+export function getPolylineAngle(polyline: HTMLElement, isMergedEde?: boolean, side?: string): number | null {
+    let points: Point[] | null = getPolylinePoints(polyline);
     if (points == null) {
         return null;
+    }
+    if (isMergedEde && side == '2') {
+        points = points.reverse();
     }
     return getAngle(points[0], points[1]);
 }
 
 // get angle of first 2 points of a path
-export function getPathAngle(path: HTMLElement): number | null {
-    const pathPoints = getAttribute(path, 'path', 'd');
+export function getPathAngle(path: HTMLElement, isMergedEde?: boolean, side?: string): number | null {
+    let pathPoints = getAttribute(path, 'path', 'd');
+    if (isMergedEde && pathPoints) {
+        pathPoints = pathPoints?.split(' M')[side == '1' ? 0 : 1];
+    }
     const points: Point[] | null = getPathPoints(pathPoints);
     if (points == null) {
         return null;

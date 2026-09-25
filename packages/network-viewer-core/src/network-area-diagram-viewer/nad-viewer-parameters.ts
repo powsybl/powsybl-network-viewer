@@ -82,6 +82,9 @@ export interface AdaptiveTextZoomOptions {
 
     // Thresholds for the edges.
     edgeThresholds?: VoltageLevelThreshold[];
+
+    // whether merge half edges of lines
+    mergeLines?: boolean;
 }
 
 export interface NadViewerParametersOptions {
@@ -249,6 +252,7 @@ export class NadViewerParameters {
             edgeMiddleArrowThreshold: adaptiveTextZoom?.edgeMiddleArrowThreshold ?? threshold,
             nodeThresholds: nodeThreshold,
             edgeThresholds: edgeThreshold,
+            mergeLines: adaptiveTextZoom?.mergeLines ?? false,
         };
     }
 

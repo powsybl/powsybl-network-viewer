@@ -10,6 +10,7 @@ import * as DiagramUtils from './diagram-utils';
 import { DiagramPaddingMetadata, SvgParametersMetadata } from './diagram-metadata';
 import { Point } from '@svgdotjs/svg.js';
 import { SvgParameters } from './svg-parameters';
+import { EdgeType } from './diagram-types';
 
 test('getFormattedValue', () => {
     expect(DiagramUtils.getFormattedValue(12)).toBe('12.00');
@@ -428,4 +429,44 @@ test('getVLThreshold', () => {
     voltageLevelTheshold = DiagramUtils.getVLThreshold(voltageLevelThesholds, 500);
     expect(voltageLevelTheshold.threshold).toBe(4000);
     expect(voltageLevelTheshold.voltageLevels?.length).toBe(2);
+});
+
+test('isLineEdge', () => {
+    expect(DiagramUtils.isLineEdge(EdgeType.LINE)).toBe(true);
+    expect(DiagramUtils.isLineEdge(EdgeType.TWO_WINDINGS_TRANSFORMER)).toBe(false);
+    expect(DiagramUtils.isLineEdge(EdgeType.BOUNDARY_LINE)).toBe(true);
+    expect(DiagramUtils.isLineEdge(EdgeType.HVDC_LINE_LCC)).toBe(true);
+});
+
+test('sameArray', () => {
+    expect(DiagramUtils.sameArray(['a', 'b', 'c'], ['a', 'b', 'c'])).toBe(true);
+    expect(DiagramUtils.sameArray(['a', 'b', 'c'], ['c', 'a', 'b'])).toBe(true);
+    expect(DiagramUtils.sameArray(['a', 'b', 'c'], ['a', 'b', 'd'])).toBe(false);
+    expect(DiagramUtils.sameArray(['a', 'b', 'c'], ['a', 'b', 'c', 'd'])).toBe(false);
+    expect(DiagramUtils.sameArray(['a', 'b', 'c'], undefined)).toBe(false);
+    expect(DiagramUtils.sameArray(undefined, undefined)).toBe(true);
+});
+
+test('concatPolylinePoints', () => {
+    let point1: Point[] = [new Point(0, 0), new Point(50, 0)];
+    let point2: Point[] = [new Point(100, 0), new Point(50, 0)];
+    let mergedPoints: Point[] = DiagramUtils.concatPolylinePoints(point1, point2);
+    expect(mergedPoints.length).toBe(2);
+    expect(mergedPoints[0].x).toBe(0);
+    expect(mergedPoints[0].y).toBe(0);
+    expect(mergedPoints[1].x).toBe(100);
+    expect(mergedPoints[1].y).toBe(0);
+
+    point1 = [new Point(0, 0), new Point(20, 10), new Point(50, 10)];
+    point2 = [new Point(100, 0), new Point(80, 10), new Point(50, 10)];
+    mergedPoints = DiagramUtils.concatPolylinePoints(point1, point2);
+    expect(mergedPoints.length).toBe(4);
+    expect(mergedPoints[0].x).toBe(0);
+    expect(mergedPoints[0].y).toBe(0);
+    expect(mergedPoints[1].x).toBe(20);
+    expect(mergedPoints[1].y).toBe(10);
+    expect(mergedPoints[2].x).toBe(80);
+    expect(mergedPoints[2].y).toBe(10);
+    expect(mergedPoints[3].x).toBe(100);
+    expect(mergedPoints[3].y).toBe(0);
 });
