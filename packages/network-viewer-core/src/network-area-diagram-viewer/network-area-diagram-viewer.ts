@@ -2223,7 +2223,7 @@ export class NetworkAreaDiagramViewer {
                 elementList: { nodes: nodes, edges: edges },
                 voltageLevels: maxDisplayedSize > edgeVlThreshold.threshold ? edgeVlThreshold.voltageLevels : undefined,
                 metadataSearch: this.metadataSearch,
-                mergeLines: true,
+                mergeLines: adaptiveTextZoom.mergeLines,
             });
             svgWriter.addNodes(<SVGGElement>this.nodesSection!);
             svgWriter.addEdgesAndInfos(<SVGGElement>this.edgesSection!);

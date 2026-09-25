@@ -96,6 +96,7 @@ const initRealGrid = () => {
                             ],
                         },
                     ],
+                    mergeLines: true,
                 },
             };
             const svgContainerNadRealGrid = document.getElementById('svg-container-nad-realgrid');
