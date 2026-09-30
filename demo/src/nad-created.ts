@@ -28,6 +28,8 @@ import NadSvgDoubleArrowsExample from './diagram-viewers/data/nad-double-arrows-
 import NadSvgDoubleArrowsExampleMeta from './diagram-viewers/data/nad-double-arrows-with-middle-values_metadata.json';
 import NadSvgPstHvdcCustomExample from './diagram-viewers/data/nad-four-substations_custom.svg';
 import NadSvgPstHvdcCustomExampleMeta from './diagram-viewers/data/nad-four-substations_custom_metadata.json';
+import NadSvgMultibusVLNodesLimitPercentageExample from './diagram-viewers/data/nad-ieee9-zeroimpedance-cdf-limit-percentage.svg';
+import NadSvgMultibusVLNodesLimitPercentageExampleMeta from './diagram-viewers/data/nad-ieee9-zeroimpedance-cdf-limit-percentage_metadata.json';
 
 import { NadViewerParametersOptions, NetworkAreaDiagramViewer } from '../../src';
 import {
@@ -331,6 +333,36 @@ const addCreatedNadToDemo = () => {
         document.getElementById('svg-container-nad-pst-hvdc-custom-c')!,
         '',
         NadSvgPstHvdcCustomExampleMeta,
+        nadViewerParametersOptions
+    );
+
+    fetch(NadSvgMultibusVLNodesLimitPercentageExample)
+        .then((response) => response.text())
+        .then((svgContent) => {
+            const nadViewerParametersOptions: NadViewerParametersOptions = {
+                enableDragInteraction: true,
+                addButtons: true,
+                onMoveNodeCallback: handleNodeMove,
+                onMoveTextNodeCallback: handleTextNodeMove,
+                onSelectNodeCallback: handleNodeSelect,
+                onToggleHoverCallback: handleToggleNadHover,
+                onRightClickCallback: handleRightClick,
+                onBendLineCallback: handleLineBending,
+
+                adaptiveTextZoom: { enabled: true, threshold: 3000 },
+            };
+            new NetworkAreaDiagramViewer(
+                document.getElementById('svg-container-nad-multibus-vlnodes-limit-percentage')!,
+                svgContent,
+                NadSvgMultibusVLNodesLimitPercentageExampleMeta,
+                nadViewerParametersOptions
+            );
+        });
+
+    new NetworkAreaDiagramViewer(
+        document.getElementById('svg-container-nad-multibus-vlnodes-limit-percentage-c')!,
+        '',
+        NadSvgMultibusVLNodesLimitPercentageExampleMeta,
         nadViewerParametersOptions
     );
 

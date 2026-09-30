@@ -60,10 +60,9 @@ export class SvgWriter {
         xmlDoc.appendChild(svg);
         // add nodes
         svg.appendChild(this.getNodes());
-        // add edges and infos
         const edgesAndInfos = this.getEdgesAndInfos();
+        // add edges
         svg.appendChild(edgesAndInfos.edges);
-        svg.appendChild(edgesAndInfos.edgeInfos);
         // add 3wt edges
         if (this.threeWindingsTransformerEdges.length > 0) {
             svg.appendChild(this.getThreeWTEdges(this.threeWindingsTransformerEdges));
@@ -72,6 +71,8 @@ export class SvgWriter {
         if (this.threeWindingsTransformers.length > 0) {
             svg.appendChild(this.getThreeWTs(this.threeWindingsTransformers));
         }
+        // add edge infos
+        svg.appendChild(edgesAndInfos.edgeInfos);
         // add text nodes and edges
         const textNodeAndEdges = this.getTextNodesAndEdges();
         svg.appendChild(textNodeAndEdges.textEdges);
@@ -130,7 +131,11 @@ export class SvgWriter {
         // add buses
         if (node.unknownBus) {
             const circleElement = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            circleElement.classList.add(SvgWriter.UNKNOWN_BUS_CLASS);
+            if (node.unknownBusClasses) {
+                SvgUtils.addCssClasses(circleElement, node.unknownBusClasses);
+            } else {
+                circleElement.classList.add(SvgWriter.UNKNOWN_BUS_CLASS);
+            }
             circleElement.setAttribute(
                 'r',
                 DiagramUtils.getFormattedValue(
@@ -241,7 +246,9 @@ export class SvgWriter {
         const edgeType = MetadataUtils.getEdgeType(edge);
         const gEdgeElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
         gEdgeElement.id = edge.svgId;
-        if (DiagramUtils.isHVDCLineEdge(edgeType)) {
+        if (edge.classes) {
+            SvgUtils.addCssClasses(gEdgeElement, edge.classes);
+        } else if (DiagramUtils.isHVDCLineEdge(edgeType)) {
             gEdgeElement.classList.add(SvgWriter.HVDC_EDGE_CLASS);
         } else if (DiagramUtils.isBoundaryLineEdge(edgeType)) {
             gEdgeElement.classList.add(SvgWriter.BOUNDARY_LINE_EDGE_CLASS);

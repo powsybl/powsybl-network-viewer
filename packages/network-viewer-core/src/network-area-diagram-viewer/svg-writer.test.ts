@@ -9,6 +9,8 @@
 import '../../../../global.d.ts';
 import IEE14CdfNetworkMetadata from '../resources/test-data/nad-ieee14cdf-solved_metadata.json';
 import FourSubstationsNetworkCustomStyleMetadata from '../resources/test-data/nad-four-substations_custom_metadata.json';
+import IEEE9NetworkLimitPercentageMetadata from '../resources/test-data/nad-ieee9-zeroimpedance-cdf-limit-percentage_metadata.json';
+import ScadaNetworkMetadata from '../resources/test-data/nad-scada_metadata.json';
 
 import { SvgWriter } from './svg-writer';
 import { getSvgFromFile } from './test-utils';
@@ -22,5 +24,17 @@ test('testIEE14CdfNetwork', () => {
 test('testFourSubstationsNetworkCustomStyle', () => {
     const actual = new SvgWriter(FourSubstationsNetworkCustomStyleMetadata).getSvg({ width: 0, height: 0 });
     const expected = getSvgFromFile('../resources/test-data/nad-four-substations_custom.svg');
+    expect(actual).toEqualSvg(expected, { epsilon: 0.1 });
+});
+
+test('testIEEE9NetworkLimitPercentage', () => {
+    const actual = new SvgWriter(IEEE9NetworkLimitPercentageMetadata).getSvg({ width: 0, height: 0 });
+    const expected = getSvgFromFile('../resources/test-data/nad-ieee9-zeroimpedance-cdf-limit-percentage.svg');
+    expect(actual).toEqualSvg(expected, { epsilon: 0.1 });
+});
+
+test('testScadaNetwork', () => {
+    const actual = new SvgWriter(ScadaNetworkMetadata).getSvg({ width: 0, height: 0 });
+    const expected = getSvgFromFile('../resources/test-data/nad-scada.svg');
     expect(actual).toEqualSvg(expected, { epsilon: 0.1 });
 });
