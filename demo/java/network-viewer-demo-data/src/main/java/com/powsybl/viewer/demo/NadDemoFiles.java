@@ -357,7 +357,7 @@ public final class NadDemoFiles {
                 getNadParametersWithDoubleArrows(),
                 VoltageLevelFilter.NO_FILTER);
     }
-    
+
     private static NadParameters getNadParametersWithComponents() {
         SvgParameters svgParameters = new SvgParameters()
                 .setCssLocation(SvgParameters.CssLocation.EXTERNAL_NO_IMPORT);
@@ -384,7 +384,7 @@ public final class NadDemoFiles {
                         );
         return nadParameters;
     }
-    
+
     public static void drawNetworkWithTwoVoltageLevelsAndComponents(Path demoResourcesDirectory) {
         Network network = Networks.createTwoVoltageLevels();
         NetworkAreaDiagram.draw(network, demoResourcesDirectory.resolve("nad-edge-info-components"),

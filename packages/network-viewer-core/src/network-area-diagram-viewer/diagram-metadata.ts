@@ -7,6 +7,7 @@
  */
 
 export interface DiagramMetadata {
+    metadataVersion?: string;
     layoutParameters: LayoutParametersMetadata;
     svgParameters: SvgParametersMetadata;
     busNodes: BusNodeMetadata[];
@@ -14,6 +15,9 @@ export interface DiagramMetadata {
     injections?: InjectionMetadata[];
     edges: EdgeMetadata[];
     textNodes: TextNodeMetadata[];
+    networkId?: string;
+    networkName?: string;
+    networkDate?: string;
 }
 
 export interface LayoutParametersMetadata {
@@ -104,6 +108,7 @@ export interface NodeMetadata {
     type?: string;
     unknownBus?: boolean;
     classes?: string[];
+    unknownBusClasses?: string[];
 }
 
 export interface EdgeMetadata {
@@ -125,6 +130,7 @@ export interface EdgeMetadata {
     classes2?: string[];
     style1?: string;
     style2?: string;
+    classes?: string[];
 }
 
 export interface PointMetadata {
