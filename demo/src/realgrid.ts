@@ -37,9 +37,9 @@ const initRealGrid = () => {
                 adaptiveTextZoom: {
                     enabled: true,
                     edgeSideLabelThreshold: 2000,
-                    edgeMiddleArrowThreshold: 4000,
+                    edgeMiddleArrowThreshold: 8000,
                     edgeMiddleLabelThreshold: 3000,
-                    threshold: 6000,
+                    threshold: 9000,
                     nodeThresholds: [
                         { threshold: 6000, voltageLevels: ['nad-vl0to30', 'nad-vl30to50'] },
                         {
@@ -58,6 +58,16 @@ const initRealGrid = () => {
                         },
                         {
                             threshold: 20000,
+                            voltageLevels: [
+                                'nad-vl0to30',
+                                'nad-vl30to50',
+                                'nad-vl50to70',
+                                'nad-vl70to120',
+                                'nad-vl120to180',
+                            ],
+                        },
+                        {
+                            threshold: 40000,
                             voltageLevels: [
                                 'nad-vl0to30',
                                 'nad-vl30to50',
@@ -86,6 +96,16 @@ const initRealGrid = () => {
                         },
                         {
                             threshold: 20000,
+                            voltageLevels: [
+                                'nad-vl0to30',
+                                'nad-vl30to50',
+                                'nad-vl50to70',
+                                'nad-vl70to120',
+                                'nad-vl120to180',
+                            ],
+                        },
+                        {
+                            threshold: 40000,
                             voltageLevels: [
                                 'nad-vl0to30',
                                 'nad-vl30to50',
