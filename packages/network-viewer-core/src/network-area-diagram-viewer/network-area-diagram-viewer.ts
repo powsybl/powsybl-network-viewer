@@ -49,6 +49,15 @@ interface Cancelable {
     flush(): void;
 }
 
+// adaptive zoom: the edge infos displayed at the current zoom level
+type EdgeInfosDisplay = {
+    sideInfos: boolean;
+    middleArrow: boolean;
+    middleLabel: boolean;
+    // what the middle infos show: their arrow, their label or both
+    middleInfoMode: string;
+};
+
 export type BranchState = {
     branchId: string;
     value1: number | string;
@@ -156,6 +165,11 @@ export class NetworkAreaDiagramViewer {
 
     svgWriter: SvgWriter | undefined = undefined;
     metadataSearch: MetadataSearch | undefined;
+
+    // adaptive zoom: voltage levels whose half edges were hidden when drawing the edges currently in the SVG
+    drawnHiddenEdgeVoltageLevels: string[] | undefined = undefined;
+    // adaptive zoom: what the edge middle infos currently in the SVG show (arrow, label, or both)
+    edgeInfoMiddleModes: WeakMap<Element, string> = new WeakMap<Element, string>();
 
     static readonly ZOOM_CLASS_PREFIX = 'nad-zoom-';
 
@@ -395,7 +409,7 @@ export class NetworkAreaDiagramViewer {
         this.textNodesSection = this.getOrCreateTextNodesSection();
         this.textEdgesSection = this.getOrCreateTextEdgesSection();
         this.edgeInfosSection = this.getOrCreateEdgeInfosSection();
-        if (this.nadViewerParameters.getAdaptiveTextZoom().enabled && this.diagramMetadata) {
+        if (this.diagramMetadata) {
             this.metadataSearch = new MetadataSearch(this.diagramMetadata);
         }
 
@@ -1887,10 +1901,6 @@ export class NetworkAreaDiagramViewer {
     }
 
     private createLegendBox(textNode: TextNodeMetadata, busNodes: BusNodeMetadata[], node: NodeMetadata) {
-        if (this.hasTextNode(textNode)) {
-            return;
-        }
-
         const newTextElement = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject');
         newTextElement.setAttribute('y', DiagramUtils.getFormattedValue(node.y + textNode.shiftY));
         newTextElement.setAttribute('x', DiagramUtils.getFormattedValue(node.x + textNode.shiftX));
@@ -1940,30 +1950,15 @@ export class NetworkAreaDiagramViewer {
     }
 
     private createLegendEdge(textNode: TextNodeMetadata, busNodes: BusNodeMetadata[], node: NodeMetadata) {
-        if (this.hasTextEdge(node)) {
-            return;
-        }
-
         const newLegendEdgeElement = SvgUtils.createTextEdge(textNode, node, busNodes, this.svgParameters);
 
         this.textEdgesSection?.appendChild(newLegendEdgeElement);
         return newLegendEdgeElement;
     }
 
-    private hasEdgeInfo(edgeInfo: EdgeInfoMetadata): boolean {
-        return !!this.getEdgeInfo(edgeInfo.svgId);
-    }
-
+    // walks the whole section: do not call it once per edge, check a Set of the section's child ids instead
     private getEdgeInfo(edgeInfoSvgId: string): SVGElement | null {
         return <SVGElement>this.edgeInfosSection?.querySelector(":scope > [id='" + edgeInfoSvgId + "']") ?? null;
-    }
-
-    private hasTextNode(textNode: TextNodeMetadata) {
-        return !!this.textNodesSection?.querySelector(":scope > [id='" + textNode.svgId + "']");
-    }
-
-    private hasTextEdge(node: NodeMetadata): boolean {
-        return !!this.textEdgesSection?.querySelector(":scope > [id='" + node.legendEdgeSvgId + "']");
     }
 
     private getHalfEdgesForEdgeInfos(edge: EdgeMetadata) {
@@ -1973,7 +1968,13 @@ export class NetworkAreaDiagramViewer {
         if (edge.node1 == edge.node2) {
             const edgeElement: SVGGraphicsElement | null = this.svgDiv.querySelector("[id='" + edge.svgId + "']");
 
-            halfEdges = HalfEdgeUtils.getHalfEdgesLoop(edge, this.diagramMetadata, edgeElement, this.svgParameters);
+            halfEdges = HalfEdgeUtils.getHalfEdgesLoop(
+                edge,
+                this.diagramMetadata,
+                edgeElement,
+                this.svgParameters,
+                this.metadataSearch
+            );
         } else {
             const groupedEdgesIndex = this.buildGroupedEdgesIndexMap();
 
@@ -1995,78 +1996,57 @@ export class NetworkAreaDiagramViewer {
         return halfEdges;
     }
 
-    private createEdgeInfos(edge: EdgeMetadata, maxDisplayedSize: number): void {
-        const halfEdges = this.getHalfEdgesForEdgeInfos(edge);
-        const adaptiveTextZoom = this.nadViewerParameters.getAdaptiveTextZoom();
+    // draws the infos of the edge that are displayed at this zoom level and not drawn yet
+    private createEdgeInfos(edge: EdgeMetadata, drawnEdgeInfoIds: Set<string>, display: EdgeInfosDisplay): void {
+        const isMissing = (edgeInfo: EdgeInfoMetadata | undefined) =>
+            edgeInfo !== undefined && !drawnEdgeInfoIds.has(edgeInfo.svgId);
+        const missingInfo1 = display.sideInfos && isMissing(edge.edgeInfo1);
+        const missingInfo2 = display.sideInfos && isMissing(edge.edgeInfo2);
+        const missingMiddleInfo = (display.middleArrow || display.middleLabel) && isMissing(edge.edgeInfoMiddle);
+        if (!missingInfo1 && !missingInfo2 && !missingMiddleInfo) {
+            return;
+        }
 
-        if (edge.edgeInfo1 && halfEdges[0] && maxDisplayedSize <= adaptiveTextZoom.edgeSideLabelThreshold) {
-            const edgeValue1 = Number(edge.edgeInfo1?.labelB);
+        const halfEdges = this.getHalfEdgesForEdgeInfos(edge);
+
+        if (missingInfo1 && edge.edgeInfo1 && halfEdges[0]) {
+            const edgeValue1 = Number(edge.edgeInfo1.labelB);
             this.setBranchSideLabel(
                 edge,
                 halfEdges[0],
                 edge.edgeInfo1,
                 '1',
-                Number.isNaN(edgeValue1) ? (edge.edgeInfo1?.labelB ?? '') : edgeValue1,
-                true
+                Number.isNaN(edgeValue1) ? (edge.edgeInfo1.labelB ?? '') : edgeValue1,
+                true,
+                this.createEdgeInfo(edge.edgeInfo1.svgId)
             );
         }
 
-        if (edge.edgeInfo2 && halfEdges[1] && maxDisplayedSize <= adaptiveTextZoom.edgeSideLabelThreshold) {
-            const edgeValue2 = Number(edge.edgeInfo2?.labelB);
+        if (missingInfo2 && edge.edgeInfo2 && halfEdges[1]) {
+            const edgeValue2 = Number(edge.edgeInfo2.labelB);
             this.setBranchSideLabel(
                 edge,
                 halfEdges[1],
                 edge.edgeInfo2,
                 '2',
-                Number.isNaN(edgeValue2) ? (edge.edgeInfo2?.labelB ?? '') : edgeValue2,
-                true
+                Number.isNaN(edgeValue2) ? (edge.edgeInfo2.labelB ?? '') : edgeValue2,
+                true,
+                this.createEdgeInfo(edge.edgeInfo2.svgId)
             );
         }
 
-        if (
-            edge.edgeInfoMiddle &&
-            maxDisplayedSize <=
-                Math.max(adaptiveTextZoom.edgeMiddleLabelThreshold, adaptiveTextZoom.edgeMiddleArrowThreshold)
-        ) {
-            const showArrow = maxDisplayedSize <= adaptiveTextZoom.edgeMiddleArrowThreshold;
-            const showLabel = maxDisplayedSize <= adaptiveTextZoom.edgeMiddleLabelThreshold;
-            this.setBranchMiddleLabel(edge, halfEdges[0], halfEdges[1], edge.edgeInfoMiddle, showArrow, showLabel);
-        }
-    }
-
-    private createEdgesInfos(edges: EdgeMetadata[], maxDisplayedSize: number): void {
-        for (const edge of edges) {
-            if (
-                (edge.edgeInfo1 && !this.hasEdgeInfo(edge.edgeInfo1)) ||
-                (edge.edgeInfo2 && !this.hasEdgeInfo(edge.edgeInfo2)) ||
-                (edge.edgeInfoMiddle && !this.hasEdgeInfo(edge.edgeInfoMiddle))
-            ) {
-                this.createEdgeInfos(edge, maxDisplayedSize);
-            }
-        }
-    }
-
-    private static readonly TRANSLATE_POINT_REGEX = /translate\(\s*(-?[\d.]+)\s*,\s*(-?[\d.]+)\s*\)/;
-
-    private removeEdgeInfoItems(viewBox: ViewBox | undefined): void {
-        if (!viewBox) return;
-
-        const xMax = viewBox.x + viewBox.width;
-        const yMax = viewBox.y + viewBox.height;
-
-        for (const g of this.getOrCreateEdgeInfosSection().querySelectorAll<SVGGElement>(':scope > g')) {
-            const transform = g.getAttribute('transform');
-            if (!transform) continue;
-
-            const parsed = NetworkAreaDiagramViewer.TRANSLATE_POINT_REGEX.exec(transform);
-            if (!parsed) continue;
-
-            const x = Number.parseFloat(parsed[1]);
-            const y = Number.parseFloat(parsed[2]);
-
-            if (x < viewBox.x || x > xMax || y < viewBox.y || y > yMax) {
-                g.remove();
-            }
+        if (missingMiddleInfo && edge.edgeInfoMiddle && (halfEdges[0] || halfEdges[1])) {
+            const edgeInfo = this.createEdgeInfo(edge.edgeInfoMiddle.svgId);
+            this.setBranchMiddleLabel(
+                edge,
+                halfEdges[0],
+                halfEdges[1],
+                edge.edgeInfoMiddle,
+                display.middleArrow,
+                display.middleLabel,
+                edgeInfo
+            );
+            this.edgeInfoMiddleModes.set(edgeInfo, display.middleInfoMode);
         }
     }
 
@@ -2093,54 +2073,72 @@ export class NetworkAreaDiagramViewer {
             });
     }
 
-    // filter edge info items that fall outside the viewbox
-    private filterEdgeInfos(
-        edges: EdgeMetadata[],
-        viewBox: ViewBox | undefined,
-        maxDisplayedSize: number,
-        adaptiveTextZoom: Required<AdaptiveTextZoomOptions>
-    ): void {
-        this.removeEdgeInfoItems(viewBox);
-
-        const shouldRemoveSideInfos = maxDisplayedSize > adaptiveTextZoom.edgeSideLabelThreshold;
-        const shouldRemoveMiddleInfo =
-            maxDisplayedSize >
-            Math.min(adaptiveTextZoom.edgeMiddleLabelThreshold, adaptiveTextZoom.edgeMiddleArrowThreshold);
-
-        for (const edge of edges) {
-            if (shouldRemoveSideInfos) {
-                if (edge.edgeInfo1) {
-                    this.getEdgeInfo(edge.edgeInfo1.svgId)?.remove();
-                }
-                if (edge.edgeInfo2) {
-                    this.getEdgeInfo(edge.edgeInfo2.svgId)?.remove();
-                }
-            }
-            if (shouldRemoveMiddleInfo && edge.edgeInfoMiddle) {
-                this.getEdgeInfo(edge.edgeInfoMiddle.svgId)?.remove();
-            }
-        }
-    }
-
     private updateAdaptiveEdgeInfos(
         edges: EdgeMetadata[],
-        viewBox: ViewBox | undefined,
         maxDisplayedSize: number,
         adaptiveTextZoom: Required<AdaptiveTextZoomOptions>
     ): void {
-        if (
-            maxDisplayedSize >
-            Math.max(
-                adaptiveTextZoom.edgeSideLabelThreshold,
-                adaptiveTextZoom.edgeMiddleLabelThreshold,
-                adaptiveTextZoom.edgeMiddleArrowThreshold
-            )
-        ) {
+        const showSideInfos = maxDisplayedSize <= adaptiveTextZoom.edgeSideLabelThreshold;
+        const showMiddleArrow = maxDisplayedSize <= adaptiveTextZoom.edgeMiddleArrowThreshold;
+        const showMiddleLabel = maxDisplayedSize <= adaptiveTextZoom.edgeMiddleLabelThreshold;
+        if (!showSideInfos && !showMiddleArrow && !showMiddleLabel) {
             this.edgeInfosSection?.replaceChildren();
             return;
         }
-        this.filterEdgeInfos(edges, viewBox, maxDisplayedSize, adaptiveTextZoom);
-        this.createEdgesInfos(edges, maxDisplayedSize);
+        const display: EdgeInfosDisplay = {
+            sideInfos: showSideInfos,
+            middleArrow: showMiddleArrow,
+            middleLabel: showMiddleLabel,
+            middleInfoMode: (showMiddleArrow ? 'arrow' : '') + (showMiddleLabel ? 'label' : ''),
+        };
+
+        const { edgeInfoIds, middleEdgeInfoIds } = NetworkAreaDiagramViewer.getDisplayedEdgeInfoIds(edges, display);
+        const drawnEdgeInfoIds = this.filterEdgeInfos(edgeInfoIds, middleEdgeInfoIds, display.middleInfoMode);
+
+        for (const edge of edges) {
+            this.createEdgeInfos(edge, drawnEdgeInfoIds, display);
+        }
+    }
+
+    // ids of the edge infos to display (the ones of the edges in view), and of the middle ones among them
+    private static getDisplayedEdgeInfoIds(
+        edges: EdgeMetadata[],
+        display: EdgeInfosDisplay
+    ): { edgeInfoIds: Set<string>; middleEdgeInfoIds: Set<string> } {
+        const edgeInfoIds = new Set<string>();
+        const middleEdgeInfoIds = new Set<string>();
+        for (const edge of edges) {
+            if (display.sideInfos) {
+                if (edge.edgeInfo1) edgeInfoIds.add(edge.edgeInfo1.svgId);
+                if (edge.edgeInfo2) edgeInfoIds.add(edge.edgeInfo2.svgId);
+            }
+            if ((display.middleArrow || display.middleLabel) && edge.edgeInfoMiddle) {
+                edgeInfoIds.add(edge.edgeInfoMiddle.svgId);
+                middleEdgeInfoIds.add(edge.edgeInfoMiddle.svgId);
+            }
+        }
+        return { edgeInfoIds, middleEdgeInfoIds };
+    }
+
+    // removes the drawn edge infos that are not displayed anymore, and the middle infos drawn for another mode,
+    // and returns the ids of the ones left
+    private filterEdgeInfos(
+        edgeInfoIds: Set<string>,
+        middleEdgeInfoIds: Set<string>,
+        middleInfoMode: string
+    ): Set<string> {
+        const drawnEdgeInfoIds = new Set<string>();
+        for (const edgeInfo of Array.from(this.edgeInfosSection?.children ?? [])) {
+            if (
+                !edgeInfoIds.has(edgeInfo.id) ||
+                (middleEdgeInfoIds.has(edgeInfo.id) && this.edgeInfoMiddleModes.get(edgeInfo) !== middleInfoMode)
+            ) {
+                edgeInfo.remove();
+            } else {
+                drawnEdgeInfoIds.add(edgeInfo.id);
+            }
+        }
+        return drawnEdgeInfoIds;
     }
 
     private updateAdaptiveLegends(
@@ -2156,14 +2154,24 @@ export class NetworkAreaDiagramViewer {
 
         this.filterLegends(nodeList);
 
+        const drawnLegendIds = SvgUtils.getChildIds(this.textNodesSection);
+        const drawnLegendEdgeIds = SvgUtils.getChildIds(this.textEdgesSection);
         for (const node of nodeList) {
-            const textNode = this.diagramMetadata?.textNodes.find((tNode) => tNode.svgId === node.legendSvgId);
-            if (textNode) {
-                const busNodes: BusNodeMetadata[] =
-                    this.diagramMetadata?.busNodes.filter((busNode) => busNode.vlNode == node.svgId) ?? [];
-
-                this.createLegendBox(textNode, busNodes, node);
-                this.createLegendEdge(textNode, busNodes, node);
+            const textNode = node.legendSvgId ? this.metadataSearch?.getTextNode(node.legendSvgId) : undefined;
+            if (!textNode) {
+                continue;
+            }
+            const missingLegend = !drawnLegendIds.has(textNode.svgId);
+            const missingLegendEdge =
+                node.legendEdgeSvgId === undefined || !drawnLegendEdgeIds.has(node.legendEdgeSvgId);
+            if (missingLegend || missingLegendEdge) {
+                const busNodes: BusNodeMetadata[] = this.metadataSearch?.getNodeBuses(node.svgId) ?? [];
+                if (missingLegend) {
+                    this.createLegendBox(textNode, busNodes, node);
+                }
+                if (missingLegendEdge) {
+                    this.createLegendEdge(textNode, busNodes, node);
+                }
             }
         }
     }
@@ -2180,7 +2188,7 @@ export class NetworkAreaDiagramViewer {
 
         this.updateAdaptiveNodesAndEdges(containedElementList, maxDisplayedSize, adaptiveTextZoom);
         this.updateAdaptiveLegends(containedNodeList, maxDisplayedSize, adaptiveTextZoom);
-        this.updateAdaptiveEdgeInfos(containedEdgeList, viewBox, maxDisplayedSize, adaptiveTextZoom);
+        this.updateAdaptiveEdgeInfos(containedEdgeList, maxDisplayedSize, adaptiveTextZoom);
     }
 
     // TODO handle three windings transformers, removing them from the SVG and redrawing them with the SVG writer
@@ -2199,29 +2207,45 @@ export class NetworkAreaDiagramViewer {
             this.edgesSection?.replaceChildren();
             containedElementList.edges = [];
         }
-        if (containedElementList.nodes.length == 0 && containedElementList.edges.length == 0) return;
         const nodeVlThreshold = DiagramUtils.getVLThreshold(adaptiveTextZoom.nodeThresholds, maxDisplayedSize);
         const edgeVlThreshold = DiagramUtils.getVLThreshold(adaptiveTextZoom.edgeThresholds, maxDisplayedSize);
-        const edgePreviousVlThreshold = DiagramUtils.getVLThreshold(
-            adaptiveTextZoom.edgeThresholds,
-            this.getPreviousMaxDisplayedSize()
+        // voltage levels whose half edges are not drawn at this zoom level: when they change, the edges with a half
+        // edge now shown or hidden are redrawn, and so are the nodes with several buses, whose paths depend on edges
+        const hiddenEdgeVoltageLevels =
+            maxDisplayedSize > edgeVlThreshold.threshold ? edgeVlThreshold.voltageLevels : undefined;
+        const previousHiddenEdgeVoltageLevels = this.drawnHiddenEdgeVoltageLevels;
+        const hiddenEdgeVoltageLevelsChanged = !NetworkAreaDiagramViewer.sameVoltageLevels(
+            hiddenEdgeVoltageLevels,
+            previousHiddenEdgeVoltageLevels
         );
-        const nodes = containedElementList.nodes.length
-            ? this.filterNodes(
-                  containedElementList.nodes,
-                  nodeVlThreshold,
-                  edgeVlThreshold.voltageLevels,
-                  maxDisplayedSize
-              )
-            : [];
-        const edges = containedElementList.edges.length
-            ? this.filterEdges(containedElementList.edges, edgeVlThreshold, edgePreviousVlThreshold, maxDisplayedSize)
-            : [];
-        if (this.diagramMetadata) {
+        const nodes = this.filterNodes(
+            containedElementList.nodes,
+            nodeVlThreshold,
+            hiddenEdgeVoltageLevelsChanged,
+            maxDisplayedSize
+        );
+        const edges = this.filterEdges(
+            containedElementList.edges,
+            edgeVlThreshold,
+            previousHiddenEdgeVoltageLevels,
+            hiddenEdgeVoltageLevels,
+            maxDisplayedSize
+        );
+        this.drawnHiddenEdgeVoltageLevels = hiddenEdgeVoltageLevels;
+
+        // only draw what is not in the SVG yet (the SVG writer draws neither invisible nodes nor 3wt here)
+        const drawnNodeIds = SvgUtils.getChildIds(this.nodesSection);
+        const drawnEdgeIds = SvgUtils.getChildIds(this.edgesSection);
+        const nodesToAdd = nodes.filter(
+            (node) => !drawnNodeIds.has(node.svgId) && !node.invisible && !MetadataUtils.isThreeWTNode(node)
+        );
+        const edgesToAdd = edges.filter((edge) => !drawnEdgeIds.has(edge.svgId) && !MetadataUtils.isThreeWTEdge(edge));
+        if (this.diagramMetadata && (nodesToAdd.length > 0 || edgesToAdd.length > 0)) {
             const svgWriter = new SvgWriter({
                 diagramMetadata: this.diagramMetadata,
-                elementList: { nodes: nodes, edges: edges },
-                voltageLevels: maxDisplayedSize > edgeVlThreshold.threshold ? edgeVlThreshold.voltageLevels : undefined,
+                elementList: { nodes: nodesToAdd, edges: edgesToAdd },
+                routedEdges: this.getEdgesToRoute(edges, nodesToAdd, edgesToAdd),
+                voltageLevels: hiddenEdgeVoltageLevels,
                 metadataSearch: this.metadataSearch,
                 mergeLines: adaptiveTextZoom.mergeLines,
             });
@@ -2230,10 +2254,48 @@ export class NetworkAreaDiagramViewer {
         }
     }
 
+    // The routing of an edge depends on all the edges between the same nodes, and the loops and bus paths of a node
+    // on all the edges of the node: route the displayed edges of all the nodes of the elements to add.
+    private getEdgesToRoute(
+        edges: EdgeMetadata[],
+        nodesToAdd: NodeMetadata[],
+        edgesToAdd: EdgeMetadata[]
+    ): EdgeMetadata[] {
+        if (!this.metadataSearch) {
+            return edges;
+        }
+        const nodeIds = new Set<string>(nodesToAdd.map((node) => node.svgId));
+        edgesToAdd.forEach((edge) => {
+            nodeIds.add(edge.node1);
+            nodeIds.add(edge.node2);
+        });
+        const displayedEdgeIds = new Set(edges.map((edge) => edge.svgId));
+        const routedEdgeIds = new Set<string>();
+        for (const nodeId of nodeIds) {
+            for (const edge of this.metadataSearch.getNodeEdges(nodeId)) {
+                if (displayedEdgeIds.has(edge.svgId)) {
+                    routedEdgeIds.add(edge.svgId);
+                }
+            }
+        }
+        // keep the order of the displayed edges, as the edges between two nodes are forked in this order
+        return edges.filter((edge) => routedEdgeIds.has(edge.svgId));
+    }
+
+    private static sameVoltageLevels(
+        voltageLevels1: string[] | undefined,
+        voltageLevels2: string[] | undefined
+    ): boolean {
+        return (
+            (voltageLevels1?.length ?? 0) == (voltageLevels2?.length ?? 0) &&
+            (voltageLevels1 ?? []).every((voltageLevel) => voltageLevels2?.includes(voltageLevel))
+        );
+    }
+
     private filterNodes(
         nodes: NodeMetadata[],
         vlThreshold: VoltageLevelThreshold,
-        edgeVoltageLevels: string[] | undefined,
+        redrawMultiBusNodes: boolean,
         maxDisplayedSize: number
     ): NodeMetadata[] {
         if (vlThreshold.voltageLevels) {
@@ -2246,24 +2308,24 @@ export class NetworkAreaDiagramViewer {
         }
         // filter nodes in SVG, possibly remove also nodes to be redrawn, with multiple buses
         const validNodeIds = new Set(nodes.map((n) => n.svgId));
-        this.nodesSection?.querySelectorAll('g[id]')?.forEach((node) => {
+        for (const nodeElement of Array.from(this.nodesSection?.children ?? [])) {
             if (
-                !validNodeIds.has(node.id) ||
-                (edgeVoltageLevels == undefined && node.querySelectorAll(':scope > path').length > 0)
+                !validNodeIds.has(nodeElement.id) ||
+                (redrawMultiBusNodes && nodeElement.querySelector(':scope > path') !== null)
             ) {
-                node.remove();
+                nodeElement.remove();
             }
-        });
+        }
         return nodes;
     }
 
     private filterEdges(
         edges: EdgeMetadata[],
         vlThreshold: VoltageLevelThreshold,
-        previousVlThreshold: VoltageLevelThreshold,
+        drawnHiddenVoltageLevels: string[] | undefined,
+        hiddenVoltageLevels: string[] | undefined,
         maxDisplayedSize: number
     ): EdgeMetadata[] {
-        let edgeIdsToRemove: Set<string> = new Set();
         if (vlThreshold.voltageLevels) {
             // filter edges metadata, keep edges not belonging to vl classes
             edges = edges.filter(
@@ -2272,31 +2334,29 @@ export class NetworkAreaDiagramViewer {
                     DiagramUtils.intersectionLength(edge.classes1, vlThreshold.voltageLevels) == 0 ||
                     DiagramUtils.intersectionLength(edge.classes2, vlThreshold.voltageLevels) == 0
             );
-            // get edges to be removed and redrawn, with 1 half edge belonging to vl classes
-            edgeIdsToRemove = new Set(
-                edges
-                    .filter(
-                        (edge) =>
-                            (DiagramUtils.intersectionLength(edge.classes1, vlThreshold.voltageLevels) > 0 &&
-                                DiagramUtils.intersectionLength(edge.classes2, vlThreshold.voltageLevels) == 0) ||
-                            (DiagramUtils.intersectionLength(edge.classes1, vlThreshold.voltageLevels) == 0 &&
-                                DiagramUtils.intersectionLength(edge.classes2, vlThreshold.voltageLevels) > 0) ||
-                            (DiagramUtils.intersectionLength(edge.classes1, previousVlThreshold.voltageLevels) > 0 &&
-                                DiagramUtils.intersectionLength(edge.classes2, previousVlThreshold.voltageLevels) ==
-                                    0) ||
-                            (DiagramUtils.intersectionLength(edge.classes1, previousVlThreshold.voltageLevels) == 0 &&
-                                DiagramUtils.intersectionLength(edge.classes2, previousVlThreshold.voltageLevels) > 0)
-                    )
-                    .map((edge) => edge.svgId)
-            );
+        }
+        // get edges to be removed and redrawn, with a half edge hidden when drawn and not anymore, or the opposite
+        const edgeIdsToRedraw = new Set<string>();
+        if (!NetworkAreaDiagramViewer.sameVoltageLevels(drawnHiddenVoltageLevels, hiddenVoltageLevels)) {
+            const isHidden = (classes: string[] | undefined, voltageLevels: string[] | undefined) =>
+                DiagramUtils.intersectionLength(classes, voltageLevels) > 0;
+            edges
+                .filter(
+                    (edge) =>
+                        isHidden(edge.classes1, drawnHiddenVoltageLevels) !=
+                            isHidden(edge.classes1, hiddenVoltageLevels) ||
+                        isHidden(edge.classes2, drawnHiddenVoltageLevels) !=
+                            isHidden(edge.classes2, hiddenVoltageLevels)
+                )
+                .forEach((edge) => edgeIdsToRedraw.add(edge.svgId));
         }
         // filter edges in SVG
         const validEdgeIds = new Set(edges.map((n) => n.svgId));
-        this.edgesSection?.querySelectorAll('g[id]')?.forEach((edge) => {
-            if (!validEdgeIds.has(edge.id) || (vlThreshold.voltageLevels && edgeIdsToRemove.has(edge.id))) {
-                edge.remove();
+        for (const edgeElement of Array.from(this.edgesSection?.children ?? [])) {
+            if (!validEdgeIds.has(edgeElement.id) || edgeIdsToRedraw.has(edgeElement.id)) {
+                edgeElement.remove();
             }
-        });
+        }
         return edges;
     }
 
@@ -2443,7 +2503,8 @@ export class NetworkAreaDiagramViewer {
         edgeInfoMetadata: EdgeInfoMetadata | undefined,
         side: string,
         value: number | string,
-        preserveExistingDirection: boolean = false
+        preserveExistingDirection: boolean = false,
+        edgeInfoElement?: SVGElement
     ) {
         if (!halfEdge) return;
 
@@ -2459,7 +2520,7 @@ export class NetworkAreaDiagramViewer {
             }
         }
         this.updateEdgeInfoMetadata(edgeInfoMetadata, value, preserveExistingDirection);
-        const edgeInfo = this.getOrCreateEdgeInfo(edgeInfoMetadata);
+        const edgeInfo = edgeInfoElement ?? this.getOrCreateEdgeInfo(edgeInfoMetadata);
         if (!halfEdge.edgeInfoId) {
             halfEdge.edgeInfoId = edgeInfo.id;
         }
@@ -2549,7 +2610,8 @@ export class NetworkAreaDiagramViewer {
         halfEdge2: HalfEdge | null,
         edgeInfoMetadata: EdgeInfoMetadata | undefined,
         showArrow: boolean = true,
-        showLabel: boolean = true
+        showLabel: boolean = true,
+        edgeInfoElement?: SVGElement
     ) {
         if (!halfEdge1 && !halfEdge2) {
             return;
@@ -2563,7 +2625,7 @@ export class NetworkAreaDiagramViewer {
             edge.edgeInfoMiddle = edgeInfoMetadata;
         }
 
-        const edgeInfo = this.getOrCreateEdgeInfo(edgeInfoMetadata);
+        const edgeInfo = edgeInfoElement ?? this.getOrCreateEdgeInfo(edgeInfoMetadata);
 
         // componentType replaces the arrow, so it follows the same showArrow threshold
         if (showArrow) {
@@ -2635,15 +2697,13 @@ export class NetworkAreaDiagramViewer {
     }
 
     private getOrCreateEdgeInfo(edgeInfoMetadata: EdgeInfoMetadata): SVGElement {
-        const edgeInfo = this.getEdgeInfo(edgeInfoMetadata.svgId);
-        if (edgeInfo) {
-            return edgeInfo;
-        }
+        return this.getEdgeInfo(edgeInfoMetadata.svgId) ?? this.createEdgeInfo(edgeInfoMetadata.svgId);
+    }
 
+    private createEdgeInfo(edgeInfoSvgId: string): SVGElement {
         const newEdgeInfo = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-        newEdgeInfo.id = edgeInfoMetadata.svgId;
+        newEdgeInfo.id = edgeInfoSvgId;
         this.edgeInfosSection?.appendChild(newEdgeInfo);
-
         return newEdgeInfo;
     }
 
@@ -3155,6 +3215,16 @@ export class NetworkAreaDiagramViewer {
                 this.diagramMetadata,
                 initialPosition,
                 this.svgParameters
+            );
+        } else if (this.metadataSearch) {
+            return HalfEdgeUtils.getHalfEdgesUsingMetadataSearch(
+                edge,
+                iEdge,
+                groupedEdgesCount,
+                this.metadataSearch,
+                this.svgParameters,
+                point1,
+                point2
             );
         } else {
             return HalfEdgeUtils.getHalfEdges(
