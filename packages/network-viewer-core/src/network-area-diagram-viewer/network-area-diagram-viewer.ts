@@ -49,6 +49,15 @@ interface Cancelable {
     flush(): void;
 }
 
+// adaptive zoom: the edge infos displayed at the current zoom level
+type EdgeInfosDisplay = {
+    sideInfos: boolean;
+    middleArrow: boolean;
+    middleLabel: boolean;
+    // what the middle infos show: their arrow, their label or both
+    middleInfoMode: string;
+};
+
 export type BranchState = {
     branchId: string;
     value1: number | string;
@@ -1988,11 +1997,7 @@ export class NetworkAreaDiagramViewer {
     }
 
     // draws the infos of the edge that are displayed at this zoom level and not drawn yet
-    private createEdgeInfos(
-        edge: EdgeMetadata,
-        drawnEdgeInfoIds: Set<string>,
-        display: { sideInfos: boolean; middleArrow: boolean; middleLabel: boolean; middleInfoMode: string }
-    ): void {
+    private createEdgeInfos(edge: EdgeMetadata, drawnEdgeInfoIds: Set<string>, display: EdgeInfosDisplay): void {
         const isMissing = (edgeInfo: EdgeInfoMetadata | undefined) =>
             edgeInfo !== undefined && !drawnEdgeInfoIds.has(edgeInfo.svgId);
         const missingInfo1 = display.sideInfos && isMissing(edge.edgeInfo1);
@@ -2080,24 +2085,48 @@ export class NetworkAreaDiagramViewer {
             this.edgeInfosSection?.replaceChildren();
             return;
         }
-        // a middle info shows its arrow, its label or both, depending on the zoom level
-        const middleInfoMode = (showMiddleArrow ? 'arrow' : '') + (showMiddleLabel ? 'label' : '');
+        const display: EdgeInfosDisplay = {
+            sideInfos: showSideInfos,
+            middleArrow: showMiddleArrow,
+            middleLabel: showMiddleLabel,
+            middleInfoMode: (showMiddleArrow ? 'arrow' : '') + (showMiddleLabel ? 'label' : ''),
+        };
 
-        // edge infos displayed at this zoom level: the ones of the edges in view
+        const { edgeInfoIds, middleEdgeInfoIds } = NetworkAreaDiagramViewer.getDisplayedEdgeInfoIds(edges, display);
+        const drawnEdgeInfoIds = this.filterEdgeInfos(edgeInfoIds, middleEdgeInfoIds, display.middleInfoMode);
+
+        for (const edge of edges) {
+            this.createEdgeInfos(edge, drawnEdgeInfoIds, display);
+        }
+    }
+
+    // ids of the edge infos to display (the ones of the edges in view), and of the middle ones among them
+    private static getDisplayedEdgeInfoIds(
+        edges: EdgeMetadata[],
+        display: EdgeInfosDisplay
+    ): { edgeInfoIds: Set<string>; middleEdgeInfoIds: Set<string> } {
         const edgeInfoIds = new Set<string>();
         const middleEdgeInfoIds = new Set<string>();
         for (const edge of edges) {
-            if (showSideInfos) {
+            if (display.sideInfos) {
                 if (edge.edgeInfo1) edgeInfoIds.add(edge.edgeInfo1.svgId);
                 if (edge.edgeInfo2) edgeInfoIds.add(edge.edgeInfo2.svgId);
             }
-            if ((showMiddleArrow || showMiddleLabel) && edge.edgeInfoMiddle) {
+            if ((display.middleArrow || display.middleLabel) && edge.edgeInfoMiddle) {
                 edgeInfoIds.add(edge.edgeInfoMiddle.svgId);
                 middleEdgeInfoIds.add(edge.edgeInfoMiddle.svgId);
             }
         }
+        return { edgeInfoIds, middleEdgeInfoIds };
+    }
 
-        // remove the drawn edge infos that are not displayed anymore, and the middle infos drawn for another mode
+    // removes the drawn edge infos that are not displayed anymore, and the middle infos drawn for another mode,
+    // and returns the ids of the ones left
+    private filterEdgeInfos(
+        edgeInfoIds: Set<string>,
+        middleEdgeInfoIds: Set<string>,
+        middleInfoMode: string
+    ): Set<string> {
         const drawnEdgeInfoIds = new Set<string>();
         for (const edgeInfo of Array.from(this.edgeInfosSection?.children ?? [])) {
             if (
@@ -2109,17 +2138,7 @@ export class NetworkAreaDiagramViewer {
                 drawnEdgeInfoIds.add(edgeInfo.id);
             }
         }
-
-        // draw the missing ones
-        const display = {
-            sideInfos: showSideInfos,
-            middleArrow: showMiddleArrow,
-            middleLabel: showMiddleLabel,
-            middleInfoMode: middleInfoMode,
-        };
-        for (const edge of edges) {
-            this.createEdgeInfos(edge, drawnEdgeInfoIds, display);
-        }
+        return drawnEdgeInfoIds;
     }
 
     private updateAdaptiveLegends(
