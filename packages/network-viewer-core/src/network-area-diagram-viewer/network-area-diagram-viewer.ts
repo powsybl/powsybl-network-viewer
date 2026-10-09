@@ -1881,12 +1881,18 @@ export class NetworkAreaDiagramViewer {
                 newBusLegendElement.classList.add(cls);
             });
             newBusLegendElement.classList.add('nad-legend-square');
-
+            if (busNode.style) {
+                newBusLegendElement.setAttribute('style', busNode.style);
+            }
             const textNode = document.createTextNode(busNode.legend ?? '');
             newBusDivElement?.appendChild(newBusLegendElement);
             newBusDivElement?.appendChild(textNode);
             newDivElement.appendChild(newBusDivElement);
         }
+        node.legendFooter?.forEach((footer) => {
+            newDivElement.appendChild(this.createTextHeader(footer));
+        });
+
         return newTextElement;
     }
 

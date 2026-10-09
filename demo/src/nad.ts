@@ -615,6 +615,7 @@ const addNadToDemo = () => {
                 onToggleHoverCallback: handleToggleNadHover,
                 onRightClickCallback: handleRightClick,
                 onBendLineCallback: handleLineBending,
+                adaptiveTextZoom: { enabled: true, threshold: 1500 },
             };
             new NetworkAreaDiagramViewer(
                 document.getElementById('svg-container-nad-pst-hvdc-custom')!,
