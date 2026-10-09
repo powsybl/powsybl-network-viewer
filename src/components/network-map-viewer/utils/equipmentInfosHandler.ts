@@ -14,12 +14,12 @@ type EquipmentInfos = {
 
 export const useNameOrId = (useName: boolean) => {
     const getNameOrId = useCallback(
-        (infos: EquipmentInfos | null) => {
-            if (infos != null) {
-                const name = infos.name;
-                return useName && name != null && name.trim() !== '' ? name : (infos?.id ?? null);
+        (infos: EquipmentInfos | null | undefined) => {
+            if (!infos) {
+                return null;
             }
-            return null;
+            const name = infos.name;
+            return useName && name != null && name.trim() !== '' ? name : (infos?.id ?? null);
         },
         [useName]
     );

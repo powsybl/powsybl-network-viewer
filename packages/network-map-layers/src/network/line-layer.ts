@@ -340,8 +340,10 @@ export class LineLayer extends CompositeLayer<Required<_LineLayerProps>> {
     getVoltageLevelIndex(voltageLevelId: string) {
         const { network } = this.props;
         const vl = network.getVoltageLevel(voltageLevelId);
-        // @ts-expect-error TODO: manage undefined case
-        const substation = network.getSubstation(vl?.substationId);
+        if (!vl) {
+            return 0;
+        }
+        const substation = network.getSubstation(vl.substationId);
         return (
             [
                 ...new Set(
@@ -351,8 +353,7 @@ export class LineLayer extends CompositeLayer<Required<_LineLayerProps>> {
                 .sort((a, b) => {
                     return a - b; // force numerical sort
                 })
-                // @ts-expect-error TODO: manage undefined case
-                .indexOf(vl?.nominalV) + 1
+                .indexOf(vl.nominalV) + 1
         );
     }
 

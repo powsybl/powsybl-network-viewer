@@ -19,9 +19,8 @@ export function getNominalVoltageColor(nominalVoltage: number): Color {
         return [160, 32, 240];
     } else if (nominalVoltage >= 30 && nominalVoltage < 50) {
         return [255, 130, 144];
-    } else {
-        return [171, 175, 40];
     }
+    return [171, 175, 40];
 }
 
 export const INVALID_FLOW_OPACITY = 0.2;
