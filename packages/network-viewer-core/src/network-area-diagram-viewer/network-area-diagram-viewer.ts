@@ -377,7 +377,21 @@ export class NetworkAreaDiagramViewer {
 
         this.textNodesSection = this.getOrCreateTextNodesSection();
         this.textEdgesSection = this.getOrCreateTextEdgesSection();
-        this.edgeInfosSection = this.getOrCreateEdgeInfosSection();
+        // Ignore nad-edge-infos from the SVG in the AdaptiveTextZoom mode at init
+        // It will be fullfilled later in the updateAdaptiveEdgeInfos
+        if (this.nadViewerParameters.getAdaptiveTextZoom().enabled) {
+            // if the nad-edge-infos section exists in the SVG, replace it by an empty one
+            const existingEdgeInfos = <SVGElement>this.innerSvg?.querySelector(':scope > g.nad-edge-infos');
+            if (existingEdgeInfos) {
+                existingEdgeInfos.remove();
+                console.warn(
+                    'AdaptiveTextZoom mode activated: creating nad-edge-infos from metadata and ignoring it from the SVG'
+                );
+            }
+            this.edgeInfosSection = this.createEmptyEdgeInfosSection();
+        } else {
+            this.edgeInfosSection = this.getOrCreateEdgeInfosSection();
+        }
 
         // add events
         const hasMetadata = this.diagramMetadata !== null;
@@ -502,12 +516,17 @@ export class NetworkAreaDiagramViewer {
         return legendEdgesSection;
     }
 
+    private createEmptyEdgeInfosSection(): SVGElement {
+        const edgeInfos = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        edgeInfos.classList.add('nad-edge-infos');
+        this.innerSvg?.appendChild(edgeInfos);
+        return edgeInfos;
+    }
+
     private getOrCreateEdgeInfosSection(): SVGElement {
-        let edgeInfos = <SVGElement>this.innerSvg?.querySelector(':scope > g.nad-edge-infos');
+        const edgeInfos = <SVGElement>this.innerSvg?.querySelector(':scope > g.nad-edge-infos');
         if (!edgeInfos) {
-            edgeInfos = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-            edgeInfos.classList.add('nad-edge-infos');
-            this.innerSvg?.appendChild(edgeInfos);
+            return this.createEmptyEdgeInfosSection();
         }
         return edgeInfos;
     }
