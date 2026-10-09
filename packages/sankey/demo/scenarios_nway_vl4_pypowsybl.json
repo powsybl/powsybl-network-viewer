@@ -1,0 +1,717 @@
+{
+  "baseline": {
+    "buses": [
+      {
+        "id": "VL1_0",
+        "voltage_angle": 0.0
+      },
+      {
+        "id": "VL2_0",
+        "voltage_angle": -0.087476
+      },
+      {
+        "id": "VL3_0",
+        "voltage_angle": -0.226084
+      },
+      {
+        "id": "VL4_0",
+        "voltage_angle": -0.18472
+      },
+      {
+        "id": "VL7_0",
+        "voltage_angle": -0.242724
+      },
+      {
+        "id": "VL9_0",
+        "voltage_angle": -0.273924
+      },
+      {
+        "id": "VL5_0",
+        "voltage_angle": -0.158718
+      },
+      {
+        "id": "VL6_0",
+        "voltage_angle": -0.259218
+      },
+      {
+        "id": "VL8_0",
+        "voltage_angle": -0.242724
+      },
+      {
+        "id": "VL10_0",
+        "voltage_angle": -0.278801
+      },
+      {
+        "id": "VL11_0",
+        "voltage_angle": -0.2726
+      },
+      {
+        "id": "VL12_0",
+        "voltage_angle": -0.278678
+      },
+      {
+        "id": "VL13_0",
+        "voltage_angle": -0.281691
+      },
+      {
+        "id": "VL14_0",
+        "voltage_angle": -0.299992
+      }
+    ],
+    "branches": [
+      {
+        "id": "L1-2-1",
+        "from_bus": "VL1_0",
+        "to_bus": "VL2_0",
+        "flow": 1.478386,
+        "p_max": 2.956772
+      },
+      {
+        "id": "L1-5-1",
+        "from_bus": "VL1_0",
+        "to_bus": "VL5_0",
+        "flow": 0.711614,
+        "p_max": 1.423228
+      },
+      {
+        "id": "L2-3-1",
+        "from_bus": "VL2_0",
+        "to_bus": "VL3_0",
+        "flow": 0.700146,
+        "p_max": 1.400293
+      },
+      {
+        "id": "L2-4-1",
+        "from_bus": "VL2_0",
+        "to_bus": "VL4_0",
+        "flow": 0.551519,
+        "p_max": 1.103037
+      },
+      {
+        "id": "L2-5-1",
+        "from_bus": "VL2_0",
+        "to_bus": "VL5_0",
+        "flow": 0.409721,
+        "p_max": 0.819442
+      },
+      {
+        "id": "L3-4-1",
+        "from_bus": "VL3_0",
+        "to_bus": "VL4_0",
+        "flow": -0.241854,
+        "p_max": 0.483707
+      },
+      {
+        "id": "L4-5-1",
+        "from_bus": "VL4_0",
+        "to_bus": "VL5_0",
+        "flow": -0.617465,
+        "p_max": 1.23493
+      },
+      {
+        "id": "L6-11-1",
+        "from_bus": "VL6_0",
+        "to_bus": "VL11_0",
+        "flow": 0.067283,
+        "p_max": 0.134567
+      },
+      {
+        "id": "L6-12-1",
+        "from_bus": "VL6_0",
+        "to_bus": "VL12_0",
+        "flow": 0.076074,
+        "p_max": 0.152147
+      },
+      {
+        "id": "L6-13-1",
+        "from_bus": "VL6_0",
+        "to_bus": "VL13_0",
+        "flow": 0.172513,
+        "p_max": 0.345026
+      },
+      {
+        "id": "L7-8-1",
+        "from_bus": "VL7_0",
+        "to_bus": "VL8_0",
+        "flow": -0.0,
+        "p_max": 1.0
+      },
+      {
+        "id": "L7-9-1",
+        "from_bus": "VL7_0",
+        "to_bus": "VL9_0",
+        "flow": 0.283612,
+        "p_max": 0.567223
+      },
+      {
+        "id": "L9-10-1",
+        "from_bus": "VL9_0",
+        "to_bus": "VL10_0",
+        "flow": 0.057717,
+        "p_max": 0.115433
+      },
+      {
+        "id": "L9-14-1",
+        "from_bus": "VL9_0",
+        "to_bus": "VL14_0",
+        "flow": 0.096413,
+        "p_max": 0.192827
+      },
+      {
+        "id": "L10-11-1",
+        "from_bus": "VL10_0",
+        "to_bus": "VL11_0",
+        "flow": -0.032283,
+        "p_max": 0.064567
+      },
+      {
+        "id": "L12-13-1",
+        "from_bus": "VL12_0",
+        "to_bus": "VL13_0",
+        "flow": 0.015074,
+        "p_max": 0.030147
+      },
+      {
+        "id": "L13-14-1",
+        "from_bus": "VL13_0",
+        "to_bus": "VL14_0",
+        "flow": 0.052587,
+        "p_max": 0.105173
+      },
+      {
+        "id": "T4-7-1",
+        "from_bus": "VL4_0",
+        "to_bus": "VL7_0",
+        "flow": 0.283612,
+        "p_max": 0.567223
+      },
+      {
+        "id": "T4-9-1",
+        "from_bus": "VL4_0",
+        "to_bus": "VL9_0",
+        "flow": 0.165518,
+        "p_max": 0.331037
+      },
+      {
+        "id": "T5-6-1",
+        "from_bus": "VL5_0",
+        "to_bus": "VL6_0",
+        "flow": 0.42787,
+        "p_max": 0.85574
+      }
+    ],
+    "bus_breaker_map": {
+      "VL1_0": [
+        "B1"
+      ],
+      "VL2_0": [
+        "B2"
+      ],
+      "VL3_0": [
+        "B3"
+      ],
+      "VL4_0": [
+        "B4",
+        "busnew1",
+        "busnew2"
+      ],
+      "VL7_0": [
+        "B7"
+      ],
+      "VL9_0": [
+        "B9"
+      ],
+      "VL5_0": [
+        "B5"
+      ],
+      "VL6_0": [
+        "B6"
+      ],
+      "VL8_0": [
+        "B8"
+      ],
+      "VL10_0": [
+        "B10"
+      ],
+      "VL11_0": [
+        "B11"
+      ],
+      "VL12_0": [
+        "B12"
+      ],
+      "VL13_0": [
+        "B13"
+      ],
+      "VL14_0": [
+        "B14"
+      ]
+    }
+  },
+  "contingency": {
+    "buses": [
+      {
+        "id": "VL1_0",
+        "voltage_angle": 0.0
+      },
+      {
+        "id": "VL2_0",
+        "voltage_angle": -0.078873
+      },
+      {
+        "id": "VL3_0",
+        "voltage_angle": -0.393432
+      },
+      {
+        "id": "VL4_0",
+        "voltage_angle": -0.232322
+      },
+      {
+        "id": "VL7_0",
+        "voltage_angle": -0.287603
+      },
+      {
+        "id": "VL9_0",
+        "voltage_angle": -0.317339
+      },
+      {
+        "id": "VL5_0",
+        "voltage_angle": -0.191148
+      },
+      {
+        "id": "VL6_0",
+        "voltage_angle": -0.296598
+      },
+      {
+        "id": "VL8_0",
+        "voltage_angle": -0.287603
+      },
+      {
+        "id": "VL10_0",
+        "voltage_angle": -0.321144
+      },
+      {
+        "id": "VL11_0",
+        "voltage_angle": -0.312505
+      },
+      {
+        "id": "VL12_0",
+        "voltage_angle": -0.316535
+      },
+      {
+        "id": "VL13_0",
+        "voltage_angle": -0.319921
+      },
+      {
+        "id": "VL14_0",
+        "voltage_angle": -0.34114
+      }
+    ],
+    "branches": [
+      {
+        "id": "L1-2-1",
+        "from_bus": "VL1_0",
+        "to_bus": "VL2_0",
+        "flow": 1.332989,
+        "p_max": 2.956772
+      },
+      {
+        "id": "L1-5-1",
+        "from_bus": "VL1_0",
+        "to_bus": "VL5_0",
+        "flow": 0.857011,
+        "p_max": 1.423228
+      },
+      {
+        "id": "L2-4-1",
+        "from_bus": "VL2_0",
+        "to_bus": "VL4_0",
+        "flow": 0.870285,
+        "p_max": 1.103037
+      },
+      {
+        "id": "L2-5-1",
+        "from_bus": "VL2_0",
+        "to_bus": "VL5_0",
+        "flow": 0.645703,
+        "p_max": 0.819442
+      },
+      {
+        "id": "L3-4-1",
+        "from_bus": "VL3_0",
+        "to_bus": "VL4_0",
+        "flow": -0.942,
+        "p_max": 0.483707
+      },
+      {
+        "id": "L4-5-1",
+        "from_bus": "VL4_0",
+        "to_bus": "VL5_0",
+        "flow": -0.977767,
+        "p_max": 1.23493
+      },
+      {
+        "id": "L6-11-1",
+        "from_bus": "VL6_0",
+        "to_bus": "VL11_0",
+        "flow": 0.079976,
+        "p_max": 0.134567
+      },
+      {
+        "id": "L6-12-1",
+        "from_bus": "VL6_0",
+        "to_bus": "VL12_0",
+        "flow": 0.077938,
+        "p_max": 0.152147
+      },
+      {
+        "id": "L6-13-1",
+        "from_bus": "VL6_0",
+        "to_bus": "VL13_0",
+        "flow": 0.179034,
+        "p_max": 0.345026
+      },
+      {
+        "id": "L7-8-1",
+        "from_bus": "VL7_0",
+        "to_bus": "VL8_0",
+        "flow": -0.0,
+        "p_max": 1.0
+      },
+      {
+        "id": "L7-9-1",
+        "from_bus": "VL7_0",
+        "to_bus": "VL9_0",
+        "flow": 0.270301,
+        "p_max": 0.567223
+      },
+      {
+        "id": "L9-10-1",
+        "from_bus": "VL9_0",
+        "to_bus": "VL10_0",
+        "flow": 0.045024,
+        "p_max": 0.115433
+      },
+      {
+        "id": "L9-14-1",
+        "from_bus": "VL9_0",
+        "to_bus": "VL14_0",
+        "flow": 0.088028,
+        "p_max": 0.192827
+      },
+      {
+        "id": "L10-11-1",
+        "from_bus": "VL10_0",
+        "to_bus": "VL11_0",
+        "flow": -0.044976,
+        "p_max": 0.064567
+      },
+      {
+        "id": "L12-13-1",
+        "from_bus": "VL12_0",
+        "to_bus": "VL13_0",
+        "flow": 0.016938,
+        "p_max": 0.030147
+      },
+      {
+        "id": "L13-14-1",
+        "from_bus": "VL13_0",
+        "to_bus": "VL14_0",
+        "flow": 0.060972,
+        "p_max": 0.105173
+      },
+      {
+        "id": "T4-7-1",
+        "from_bus": "VL4_0",
+        "to_bus": "VL7_0",
+        "flow": 0.270301,
+        "p_max": 0.567223
+      },
+      {
+        "id": "T4-9-1",
+        "from_bus": "VL4_0",
+        "to_bus": "VL9_0",
+        "flow": 0.15775,
+        "p_max": 0.331037
+      },
+      {
+        "id": "T5-6-1",
+        "from_bus": "VL5_0",
+        "to_bus": "VL6_0",
+        "flow": 0.448948,
+        "p_max": 0.85574
+      },
+      {
+        "id": "L2-3-1",
+        "from_bus": "VL2_0",
+        "to_bus": "VL3_0",
+        "flow": 0.0,
+        "p_max": 1.400293,
+        "outage": true
+      }
+    ]
+  },
+  "topology_change": {
+    "buses": [
+      {
+        "id": "VL1_0",
+        "voltage_angle": 0.0
+      },
+      {
+        "id": "VL2_0",
+        "voltage_angle": -0.090424
+      },
+      {
+        "id": "VL3_0",
+        "voltage_angle": -0.304628
+      },
+      {
+        "id": "VL4_0",
+        "voltage_angle": -0.143381
+      },
+      {
+        "id": "VL4_1",
+        "voltage_angle": -0.328572
+      },
+      {
+        "id": "VL4_2",
+        "voltage_angle": -0.596233
+      },
+      {
+        "id": "VL7_0",
+        "voltage_angle": -0.57841
+      },
+      {
+        "id": "VL9_0",
+        "voltage_angle": -0.568824
+      },
+      {
+        "id": "VL5_0",
+        "voltage_angle": -0.147606
+      },
+      {
+        "id": "VL6_0",
+        "voltage_angle": -0.386012
+      },
+      {
+        "id": "VL8_0",
+        "voltage_angle": -0.57841
+      },
+      {
+        "id": "VL10_0",
+        "voltage_angle": -0.543825
+      },
+      {
+        "id": "VL11_0",
+        "voltage_angle": -0.469717
+      },
+      {
+        "id": "VL12_0",
+        "voltage_angle": -0.418756
+      },
+      {
+        "id": "VL13_0",
+        "voltage_angle": -0.432149
+      },
+      {
+        "id": "VL14_0",
+        "voltage_angle": -0.531738
+      }
+    ],
+    "branches": [
+      {
+        "id": "L1-2-1",
+        "from_bus": "VL1_0",
+        "to_bus": "VL2_0",
+        "flow": 1.528207,
+        "p_max": 2.956772
+      },
+      {
+        "id": "L1-5-1",
+        "from_bus": "VL1_0",
+        "to_bus": "VL5_0",
+        "flow": 0.661793,
+        "p_max": 1.423228
+      },
+      {
+        "id": "L2-3-1",
+        "from_bus": "VL2_0",
+        "to_bus": "VL3_0",
+        "flow": 1.082,
+        "p_max": 1.400293
+      },
+      {
+        "id": "L2-4-1",
+        "from_bus": "VL2_0",
+        "to_bus": "VL4_0",
+        "flow": 0.300345,
+        "p_max": 1.103037
+      },
+      {
+        "id": "L2-5-1",
+        "from_bus": "VL2_0",
+        "to_bus": "VL5_0",
+        "flow": 0.328861,
+        "p_max": 0.819442
+      },
+      {
+        "id": "L3-4-1",
+        "from_bus": "VL3_0",
+        "to_bus": "VL4_1",
+        "flow": 0.14,
+        "p_max": 0.483707
+      },
+      {
+        "id": "L4-5-1",
+        "from_bus": "VL4_0",
+        "to_bus": "VL5_0",
+        "flow": 0.100345,
+        "p_max": 1.23493
+      },
+      {
+        "id": "L6-11-1",
+        "from_bus": "VL6_0",
+        "to_bus": "VL11_0",
+        "flow": 0.420839,
+        "p_max": 0.134567
+      },
+      {
+        "id": "L6-12-1",
+        "from_bus": "VL6_0",
+        "to_bus": "VL12_0",
+        "flow": 0.128001,
+        "p_max": 0.152147
+      },
+      {
+        "id": "L6-13-1",
+        "from_bus": "VL6_0",
+        "to_bus": "VL13_0",
+        "flow": 0.354159,
+        "p_max": 0.345026
+      },
+      {
+        "id": "L7-8-1",
+        "from_bus": "VL7_0",
+        "to_bus": "VL8_0",
+        "flow": -0.0,
+        "p_max": 1.0
+      },
+      {
+        "id": "L7-9-1",
+        "from_bus": "VL7_0",
+        "to_bus": "VL9_0",
+        "flow": -0.087143,
+        "p_max": 0.567223
+      },
+      {
+        "id": "L9-10-1",
+        "from_bus": "VL9_0",
+        "to_bus": "VL10_0",
+        "flow": -0.295839,
+        "p_max": 0.115433
+      },
+      {
+        "id": "L9-14-1",
+        "from_bus": "VL9_0",
+        "to_bus": "VL14_0",
+        "flow": -0.137161,
+        "p_max": 0.192827
+      },
+      {
+        "id": "L10-11-1",
+        "from_bus": "VL10_0",
+        "to_bus": "VL11_0",
+        "flow": -0.385839,
+        "p_max": 0.064567
+      },
+      {
+        "id": "L12-13-1",
+        "from_bus": "VL12_0",
+        "to_bus": "VL13_0",
+        "flow": 0.067001,
+        "p_max": 0.030147
+      },
+      {
+        "id": "L13-14-1",
+        "from_bus": "VL13_0",
+        "to_bus": "VL14_0",
+        "flow": 0.286161,
+        "p_max": 0.105173
+      },
+      {
+        "id": "T4-7-1",
+        "from_bus": "VL4_2",
+        "to_bus": "VL7_0",
+        "flow": -0.087143,
+        "p_max": 0.567223
+      },
+      {
+        "id": "T4-9-1",
+        "from_bus": "VL4_2",
+        "to_bus": "VL9_0",
+        "flow": -0.050857,
+        "p_max": 0.331037
+      },
+      {
+        "id": "T5-6-1",
+        "from_bus": "VL5_0",
+        "to_bus": "VL6_0",
+        "flow": 1.015,
+        "p_max": 0.85574
+      }
+    ],
+    "bus_breaker_map": {
+      "VL1_0": [
+        "B1"
+      ],
+      "VL2_0": [
+        "B2"
+      ],
+      "VL3_0": [
+        "B3"
+      ],
+      "VL4_0": [
+        "B4"
+      ],
+      "VL4_1": [
+        "busnew1"
+      ],
+      "VL4_2": [
+        "busnew2"
+      ],
+      "VL7_0": [
+        "B7"
+      ],
+      "VL9_0": [
+        "B9"
+      ],
+      "VL5_0": [
+        "B5"
+      ],
+      "VL6_0": [
+        "B6"
+      ],
+      "VL8_0": [
+        "B8"
+      ],
+      "VL10_0": [
+        "B10"
+      ],
+      "VL11_0": [
+        "B11"
+      ],
+      "VL12_0": [
+        "B12"
+      ],
+      "VL13_0": [
+        "B13"
+      ],
+      "VL14_0": [
+        "B14"
+      ]
+    },
+    "inherited_positions": {
+      "VL4_1": "VL4_0",
+      "VL4_2": "VL4_0"
+    }
+  }
+}
