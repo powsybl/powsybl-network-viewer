@@ -12,8 +12,8 @@
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="theme-color" content="#000000" />
-        <meta name="description" content="network-viewer demo app" />
-        <title>Network-viewer examples</title>
+        <meta name="description" content="realgrid network viewer demo" />
+        <title>RealGrid NAD demo</title>
         <link rel="stylesheet" href="src/style.css" />
         <link rel="stylesheet" href="src/zoom.css" />
         <link rel="stylesheet" href="src/demo.css" />
@@ -30,17 +30,11 @@
             </ul>
         </div>
 
-        <div class="flex-container">
-            <div id="map-viewer" class="viewer-section">
-                <h2>Network map viewer</h2>
-                <div class="break"></div>
-                <figure class="diagram-figure">
-                    <figcaption>Basic map</figcaption>
-                    <div id="root"></div>
-                </figure>
-            </div>
+        <div id="realgrid" class="viewer-section">
+            <h2>RealGrid network</h2>
+            <div id="svg-container-nad-realgrid"></div>
         </div>
 
-        <script type="module" src="./src/map-viewer.tsx"></script>
+        <script type="module" src="./src/realgrid.ts"></script>
     </body>
 </html>
