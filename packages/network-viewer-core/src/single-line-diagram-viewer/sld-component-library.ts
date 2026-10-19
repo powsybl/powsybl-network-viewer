@@ -12,8 +12,6 @@ import { LibraryComponent, Orientation } from '../common/library-component';
 const SVG_NS = 'http://www.w3.org/2000/svg';
 const UNKNOWN_COMPONENT = 'UNKNOWN_COMPONENT';
 
-const ALLOWED_TAGS = new Set(['path', 'circle', 'ellipse', 'line', 'polyline', 'polygon', 'rect', 'text', 'g']);
-
 const ROTATION_ANGLE: Record<Orientation, number> = { UP: 0, RIGHT: 90, DOWN: 180, LEFT: 270 };
 
 const svgModules = import.meta.glob<string>('../resources/sld-default-library/*.svg', {
@@ -72,7 +70,7 @@ function getSubComponentElements(fileName: string): Element[] {
     if (!elements) {
         const svgContent = DefaultSldComponentSvgContent[fileName] ?? '';
         const root = new DOMParser().parseFromString(svgContent, 'image/svg+xml').documentElement;
-        elements = Array.from(root.children).filter((element) => ALLOWED_TAGS.has(element.localName));
+        elements = Array.from(root.children);
         elementsCache.set(fileName, elements);
     }
     return elements;
@@ -80,7 +78,7 @@ function getSubComponentElements(fileName: string): Element[] {
 
 function getOrientationTransform(component: LibraryComponent, orientation?: Orientation): string | undefined {
     const transformation = orientation ? component.transformations?.[orientation] : undefined;
-    if (!transformation || !component.size) {
+    if (!transformation) {
         return undefined;
     }
     const { width, height } = component.size;
