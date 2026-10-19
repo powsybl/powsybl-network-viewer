@@ -7,7 +7,7 @@
  */
 
 import * as ComponentUtils from './component-utils';
-import { LibraryComponent } from './library-component';
+import { LibraryComponent } from '../common/library-component';
 
 test('getComponent', () => {
     const componentLibary: LibraryComponent[] = [

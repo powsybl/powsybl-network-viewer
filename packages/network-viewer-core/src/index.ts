@@ -43,3 +43,16 @@ export {
     type SLDMetadataComponentSize,
     type SLDMetadataNode,
 } from './single-line-diagram-viewer/single-line-diagram-viewer';
+export {
+    createSldComponentElement,
+    DefaultSldLibraryComponents,
+    type SldComponentOptions,
+} from './single-line-diagram-viewer/sld-component-library';
+
+export type {
+    ComponentSize,
+    ComponentTransformation,
+    LibraryComponent,
+    Orientation,
+    SubComponents,
+} from './common/library-component';
