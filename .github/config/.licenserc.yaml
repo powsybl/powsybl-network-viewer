@@ -26,6 +26,7 @@ header:
     - '**/*.properties'
     - '**/*.vert'
     - '**/*.frag'
+    - '**/*.xiidm'
     - '**/pom.xml'
 
   comment: on-failure

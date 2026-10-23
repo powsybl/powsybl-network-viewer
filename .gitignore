@@ -5,6 +5,7 @@
 **/dist
 /powsybl-network-viewer-*.tgz
 /powsybl-network-map-layers-*.tgz
+/powsybl-sankey-*.tgz
 
 # webstorm
 /.idea
@@ -21,3 +22,6 @@
 # Vitest
 /coverage
 .vitest-attachments
+
+# Byte-compiled
+__pycache__/
