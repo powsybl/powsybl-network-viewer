@@ -9,7 +9,7 @@
 import { SVG } from '@svgdotjs/svg.js';
 import type { Svg } from '@svgdotjs/svg.js';
 import '@svgdotjs/svg.panzoom.js';
-import { branchKey, createMaxpmax, parseSfpd } from '../core/datamodel.js';
+import { branchKey, createMaxpmax, parseLayoutState, parseSfpd } from '../core/datamodel.js';
 import {
     buildLayoutIndex,
     flatFromMap,
@@ -87,10 +87,13 @@ export class SankeyRenderer {
     private dRepulse = Math.pow(10, this.rawRepulse - 5);
     private isHorizontal = false;
     private readonly rafLoop: RafLoop;
+    private disposed = false;
 
     constructor(container: HTMLElement, scenario: SankeyScenario, options?: SankeyOptions) {
         this.svgDraw = SVG().addTo(container);
         this.svg = this.svgDraw.node;
+        this.svg.setAttribute('role', 'img');
+        this.svg.setAttribute('aria-label', 'Sankey diagram of DC power flows');
         if (options?.width && options?.height) {
             this.svg.style.width = `${options.width}px`;
             this.svg.style.height = `${options.height}px`;
@@ -369,6 +372,7 @@ export class SankeyRenderer {
     }
 
     startLayout(): void {
+        if (this.disposed) return;
         this._layoutStartTime = Date.now();
         this.rafLoop.start();
     }
@@ -392,7 +396,8 @@ export class SankeyRenderer {
         };
     }
 
-    importLayout(data: LayoutState): void {
+    importLayout(layoutState: LayoutState): void {
+        const data = parseLayoutState(layoutState);
         this.rafLoop.stop();
         for (const [busId, v] of Object.entries(data.layout)) this.stackCoord.set(busId, v);
         flatFromMap(this.layoutIndex, this.stackCoord, this.scFlat);
@@ -413,6 +418,14 @@ export class SankeyRenderer {
             this.maxpmax
         );
         updateAttributes(this.svgElements, this.scenario, this._buildRenderState(), this.maxpmax);
+    }
+
+    dispose(): void {
+        if (this.disposed) return;
+        this.disposed = true;
+        this.rafLoop.stop();
+        this.svgDraw?.panZoom(false);
+        this.svgDraw?.remove();
     }
 
     exportSVG(): string {

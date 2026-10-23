@@ -6,7 +6,7 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 
-import type { BranchRecord, Sfpd } from './types.js';
+import type { BranchRecord, LayoutState, Sfpd } from './types.js';
 
 export function branchKey(br: BranchRecord): string {
     return br.id === undefined ? `${br.from_bus}->${br.to_bus}` : `${br.from_bus}->${br.to_bus}->${br.id}`;
@@ -53,4 +53,36 @@ export function bandColor(ratio: number): string {
     if (ratio <= 0.8) return 'green';
     if (ratio <= 1) return 'orange';
     return 'red';
+}
+
+function isPlainObject(v: unknown): v is Record<string, unknown> {
+    return typeof v === 'object' && v !== null && !Array.isArray(v);
+}
+
+function finiteNumber(v: unknown, what: string): number {
+    if (typeof v !== 'number' || !Number.isFinite(v)) {
+        throw new Error(`Invalid layout: ${what} is not a finite number`);
+    }
+    return v;
+}
+
+export function parseLayoutState(data: unknown): LayoutState {
+    if (!isPlainObject(data)) throw new Error('Invalid layout: not an object');
+    if (data.version !== 1) throw new Error(`Invalid layout: unsupported version ${String(data.version)}`);
+    const { params, layout } = data;
+    if (!isPlainObject(params)) throw new Error('Invalid layout: params is missing or not an object');
+    if (!isPlainObject(layout)) throw new Error('Invalid layout: layout is missing or not an object');
+    const positions: Record<string, number> = {};
+    for (const [busId, v] of Object.entries(layout)) {
+        positions[busId] = finiteNumber(v, `layout['${busId}']`);
+    }
+    return {
+        version: 1,
+        params: {
+            stretch: finiteNumber(params.stretch, 'params.stretch'),
+            align: finiteNumber(params.align, 'params.align'),
+            repulse: finiteNumber(params.repulse, 'params.repulse'),
+        },
+        layout: positions,
+    };
 }

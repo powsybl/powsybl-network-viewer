@@ -6,6 +6,11 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 
-export * from './rafloop.js';
-export * from './renderer.js';
-export * from './sankey-renderer.js';
+import { defineConfig } from 'vitest/config';
+
+export default defineConfig({
+    test: {
+        globals: true,
+        environment: 'node',
+    },
+});

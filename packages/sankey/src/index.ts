@@ -6,5 +6,6 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 
-export * from './core/index.js';
-export * from './renderer/index.js';
+export { SankeyRenderer } from './renderer/sankey-renderer.js';
+export { parseLayoutState } from './core/datamodel.js';
+export type { BranchRecord, BusRecord, LayoutState, Orientation, SankeyOptions, SankeyScenario } from './core/types.js';

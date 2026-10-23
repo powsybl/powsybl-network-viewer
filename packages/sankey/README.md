@@ -31,10 +31,10 @@ renderer.startLayout();
 renderer.updateScenarioFlows(contingencyScenario);
 
 // switch scenario (to be used when buses differ - e.g. due to split/merge) with animated transition:
-renderer.updateTopology(topologyChangedScenario)
+renderer.updateTopology(topologyChangedScenario);
 
 // controls:
-renderer.setStretch(); 
+renderer.setStretch();
 renderer.setAlign();
 renderer.setRepulse();
 renderer.autoscale();
@@ -74,15 +74,14 @@ npm run demo -w packages/sankey
 
 Then open the URL printed by Vite (typically `http://localhost:5173`).
 
-
 The demo UI integrates the sankey component and provides:
+
 - a dropdown menu to select case scenarios
 - buttons to switch between a baseline, a contingency scenario, and a topology change scenario (when available in the case scenarios JSON)
 - a button to toggle the layout orientation
-- sliders for the stretch, align and repulse paramteters
+- sliders for the stretch, align and repulse parameters
 - a button to download the current diagram as an SVG file
-- buttons to export/import the layoyt position as JSON
-
+- buttons to export/import the layout position as JSON
 
 ### Local install in another app
 

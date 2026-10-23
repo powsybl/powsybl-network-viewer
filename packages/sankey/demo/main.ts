@@ -6,7 +6,7 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 
-import { SankeyRenderer, type LayoutState, type Orientation, type SankeyScenario } from '../src/index.js';
+import { SankeyRenderer, type Orientation, type SankeyScenario } from '../src/index.js';
 
 import scenariosVl4 from './scenarios_nway_vl4_pypowsybl.json';
 import scenariosMerge from './scenarios_merge_demo_pypowsybl.json';
@@ -170,11 +170,11 @@ const repulseSlider = makeSlider('repulse:', '0', '10', '5', (v) => {
 document.getElementById('btn-import-layout')!.addEventListener('click', () =>
     upload('application/json', (text) => {
         try {
-            const data = JSON.parse(text) as LayoutState;
-            renderer.importLayout(data);
-            stretchSlider.value = String(data.params.stretch);
-            alignSlider.value = String(data.params.align);
-            repulseSlider.value = String(data.params.repulse);
+            renderer.importLayout(JSON.parse(text));
+            const { params } = renderer.exportLayout();
+            stretchSlider.value = String(params.stretch);
+            alignSlider.value = String(params.align);
+            repulseSlider.value = String(params.repulse);
         } catch (e) {
             alert(`Failed to load layout: ${e instanceof Error ? e.message : String(e)}`);
         }
