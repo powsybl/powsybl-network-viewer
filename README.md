@@ -113,6 +113,10 @@ To fix this, run this command from the app **after** running "npm install"
 - Unit tests (fast): `npm run test:unit`
 - Browser visual screenshots (Vitest browser mode): `npm run test:browser`
 - Update screenshot baselines: `npm run test:browser -- -u`
+- SVG NAD performance benchmark (the matching `_metadata.json` file is selected automatically):
+  `NAD_SVG=demo/src/diagram-viewers/data/case1354pegase.svg npm run test:browser:performance`
+  Set `NAD_METADATA=/path/to/metadata.json` as well when the metadata file does not follow the usual
+  `<svg-name>_metadata.json` convention.
 
 According to PowSyBl [branching and release strategy](https://github.com/powsybl/.github/blob/main/BRANCHING_RELEASE_STRATEGY.md), 
 if you want to publish a new release of powsybl-network-viewer in the 
@@ -212,4 +216,3 @@ See [Contributing.md](https://github.com/powsybl/.github/blob/main/CONTRIBUTING.
 on how to contribute to the code.
 
 See [Security.md](https://github.com/powsybl/.github/blob/main/SECURITY.md) to read about the security policy.
-
