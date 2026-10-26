@@ -57,16 +57,6 @@ const initRealGrid = () => {
                             ],
                         },
                         {
-                            threshold: 20000,
-                            voltageLevels: [
-                                'nad-vl0to30',
-                                'nad-vl30to50',
-                                'nad-vl50to70',
-                                'nad-vl70to120',
-                                'nad-vl120to180',
-                            ],
-                        },
-                        {
                             threshold: 40000,
                             voltageLevels: [
                                 'nad-vl0to30',
@@ -86,16 +76,6 @@ const initRealGrid = () => {
                         },
                         {
                             threshold: 12000,
-                            voltageLevels: [
-                                'nad-vl0to30',
-                                'nad-vl30to50',
-                                'nad-vl50to70',
-                                'nad-vl70to120',
-                                'nad-vl120to180',
-                            ],
-                        },
-                        {
-                            threshold: 20000,
                             voltageLevels: [
                                 'nad-vl0to30',
                                 'nad-vl30to50',

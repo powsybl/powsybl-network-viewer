@@ -168,6 +168,8 @@ export class NetworkAreaDiagramViewer {
 
     // adaptive zoom: voltage levels whose half edges were hidden when drawing the edges currently in the SVG
     drawnHiddenEdgeVoltageLevels: string[] | undefined = undefined;
+    // adaptive zoom: whether the edges were all hidden when drawing the nodes currently in the SVG
+    drawnEdgesHidden: boolean = false;
     // adaptive zoom: what the edge middle infos currently in the SVG show (arrow, label, or both)
     edgeInfoMiddleModes: WeakMap<Element, string> = new WeakMap<Element, string>();
 
@@ -1901,52 +1903,10 @@ export class NetworkAreaDiagramViewer {
     }
 
     private createLegendBox(textNode: TextNodeMetadata, busNodes: BusNodeMetadata[], node: NodeMetadata) {
-        const newTextElement = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject');
-        newTextElement.setAttribute('y', DiagramUtils.getFormattedValue(node.y + textNode.shiftY));
-        newTextElement.setAttribute('x', DiagramUtils.getFormattedValue(node.x + textNode.shiftX));
-        newTextElement.setAttribute('height', '1');
-        newTextElement.setAttribute('width', '1');
-        newTextElement.id = textNode.svgId;
-
-        const newDivElement = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
-        node.classes?.forEach((cls) => {
-            newDivElement.classList.add(cls);
-        });
-        newDivElement.classList.add('nad-label-box');
-        newTextElement.appendChild(newDivElement);
+        const newTextElement = SvgUtils.createTextNode(textNode, node, busNodes);
 
         this.textNodesSection?.appendChild(newTextElement);
-
-        if (node.legendHeader) {
-            node.legendHeader.forEach((header) => {
-                newDivElement.appendChild(this.createTextHeader(header));
-            });
-        } else {
-            newDivElement.appendChild(this.createTextHeader(textNode.equipmentId));
-        }
-
-        for (const busNode of busNodes) {
-            const newBusDivElement = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
-            newBusDivElement.classList.add('nad-bus-descr');
-            const newBusLegendElement = document.createElementNS('http://www.w3.org/1999/xhtml', 'span');
-
-            busNode.classes?.forEach((cls) => {
-                newBusLegendElement.classList.add(cls);
-            });
-            newBusLegendElement.classList.add('nad-legend-square');
-
-            const textNode = document.createTextNode(busNode.legend ?? '');
-            newBusDivElement?.appendChild(newBusLegendElement);
-            newBusDivElement?.appendChild(textNode);
-            newDivElement.appendChild(newBusDivElement);
-        }
         return newTextElement;
-    }
-
-    private createTextHeader(header: string): HTMLElement {
-        const newHeaderElement = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
-        newHeaderElement.textContent = header;
-        return newHeaderElement;
     }
 
     private createLegendEdge(textNode: TextNodeMetadata, busNodes: BusNodeMetadata[], node: NodeMetadata) {
@@ -2092,32 +2052,16 @@ export class NetworkAreaDiagramViewer {
             middleInfoMode: (showMiddleArrow ? 'arrow' : '') + (showMiddleLabel ? 'label' : ''),
         };
 
-        const { edgeInfoIds, middleEdgeInfoIds } = NetworkAreaDiagramViewer.getDisplayedEdgeInfoIds(edges, display);
+        const { edgeInfoIds, middleEdgeInfoIds } = MetadataUtils.getEdgeInfoIds(
+            edges,
+            showSideInfos,
+            showMiddleArrow || showMiddleLabel
+        );
         const drawnEdgeInfoIds = this.filterEdgeInfos(edgeInfoIds, middleEdgeInfoIds, display.middleInfoMode);
 
         for (const edge of edges) {
             this.createEdgeInfos(edge, drawnEdgeInfoIds, display);
         }
-    }
-
-    // ids of the edge infos to display (the ones of the edges in view), and of the middle ones among them
-    private static getDisplayedEdgeInfoIds(
-        edges: EdgeMetadata[],
-        display: EdgeInfosDisplay
-    ): { edgeInfoIds: Set<string>; middleEdgeInfoIds: Set<string> } {
-        const edgeInfoIds = new Set<string>();
-        const middleEdgeInfoIds = new Set<string>();
-        for (const edge of edges) {
-            if (display.sideInfos) {
-                if (edge.edgeInfo1) edgeInfoIds.add(edge.edgeInfo1.svgId);
-                if (edge.edgeInfo2) edgeInfoIds.add(edge.edgeInfo2.svgId);
-            }
-            if ((display.middleArrow || display.middleLabel) && edge.edgeInfoMiddle) {
-                edgeInfoIds.add(edge.edgeInfoMiddle.svgId);
-                middleEdgeInfoIds.add(edge.edgeInfoMiddle.svgId);
-            }
-        }
-        return { edgeInfoIds, middleEdgeInfoIds };
     }
 
     // removes the drawn edge infos that are not displayed anymore, and the middle infos drawn for another mode,
@@ -2203,25 +2147,27 @@ export class NetworkAreaDiagramViewer {
             containedElementList.nodes = [];
         }
         const maxEdgesThreshold = DiagramUtils.getMaxThreshold(adaptiveTextZoom.edgeThresholds);
-        if (maxDisplayedSize > maxEdgesThreshold.threshold && maxEdgesThreshold.voltageLevels == undefined) {
+        const edgesHidden =
+            maxDisplayedSize > maxEdgesThreshold.threshold && maxEdgesThreshold.voltageLevels == undefined;
+        if (edgesHidden) {
             this.edgesSection?.replaceChildren();
             containedElementList.edges = [];
         }
         const nodeVlThreshold = DiagramUtils.getVLThreshold(adaptiveTextZoom.nodeThresholds, maxDisplayedSize);
         const edgeVlThreshold = DiagramUtils.getVLThreshold(adaptiveTextZoom.edgeThresholds, maxDisplayedSize);
         // voltage levels whose half edges are not drawn at this zoom level: when they change, the edges with a half
-        // edge now shown or hidden are redrawn, and so are the nodes with several buses, whose paths depend on edges
+        // edge now shown or hidden are redrawn. The nodes with several buses, whose paths depend on edges, are redrawn
+        // too, and also when the edges get all hidden, or shown again
         const hiddenEdgeVoltageLevels =
             maxDisplayedSize > edgeVlThreshold.threshold ? edgeVlThreshold.voltageLevels : undefined;
         const previousHiddenEdgeVoltageLevels = this.drawnHiddenEdgeVoltageLevels;
-        const hiddenEdgeVoltageLevelsChanged = !NetworkAreaDiagramViewer.sameVoltageLevels(
-            hiddenEdgeVoltageLevels,
-            previousHiddenEdgeVoltageLevels
-        );
+        const redrawMultiBusNodes =
+            edgesHidden != this.drawnEdgesHidden ||
+            !DiagramUtils.sameArray(hiddenEdgeVoltageLevels, previousHiddenEdgeVoltageLevels);
         const nodes = this.filterNodes(
             containedElementList.nodes,
             nodeVlThreshold,
-            hiddenEdgeVoltageLevelsChanged,
+            redrawMultiBusNodes,
             maxDisplayedSize
         );
         const edges = this.filterEdges(
@@ -2232,6 +2178,7 @@ export class NetworkAreaDiagramViewer {
             maxDisplayedSize
         );
         this.drawnHiddenEdgeVoltageLevels = hiddenEdgeVoltageLevels;
+        this.drawnEdgesHidden = edgesHidden;
 
         // only draw what is not in the SVG yet (the SVG writer draws neither invisible nodes nor 3wt here)
         const drawnNodeIds = SvgUtils.getChildIds(this.nodesSection);
@@ -2269,7 +2216,10 @@ export class NetworkAreaDiagramViewer {
             nodeIds.add(edge.node1);
             nodeIds.add(edge.node2);
         });
-        const displayedEdgeIds = new Set(edges.map((edge) => edge.svgId));
+        // the three windings transformers are not drawn here, and their edges cannot be routed one without the others
+        const displayedEdgeIds = new Set(
+            edges.filter((edge) => !MetadataUtils.isThreeWTEdge(edge)).map((edge) => edge.svgId)
+        );
         const routedEdgeIds = new Set<string>();
         for (const nodeId of nodeIds) {
             for (const edge of this.metadataSearch.getNodeEdges(nodeId)) {
@@ -2280,16 +2230,6 @@ export class NetworkAreaDiagramViewer {
         }
         // keep the order of the displayed edges, as the edges between two nodes are forked in this order
         return edges.filter((edge) => routedEdgeIds.has(edge.svgId));
-    }
-
-    private static sameVoltageLevels(
-        voltageLevels1: string[] | undefined,
-        voltageLevels2: string[] | undefined
-    ): boolean {
-        return (
-            (voltageLevels1?.length ?? 0) == (voltageLevels2?.length ?? 0) &&
-            (voltageLevels1 ?? []).every((voltageLevel) => voltageLevels2?.includes(voltageLevel))
-        );
     }
 
     private filterNodes(
@@ -2337,7 +2277,7 @@ export class NetworkAreaDiagramViewer {
         }
         // get edges to be removed and redrawn, with a half edge hidden when drawn and not anymore, or the opposite
         const edgeIdsToRedraw = new Set<string>();
-        if (!NetworkAreaDiagramViewer.sameVoltageLevels(drawnHiddenVoltageLevels, hiddenVoltageLevels)) {
+        if (!DiagramUtils.sameArray(drawnHiddenVoltageLevels, hiddenVoltageLevels)) {
             const isHidden = (classes: string[] | undefined, voltageLevels: string[] | undefined) =>
                 DiagramUtils.intersectionLength(classes, voltageLevels) > 0;
             edges

@@ -445,6 +445,11 @@ test('sameArray', () => {
     expect(DiagramUtils.sameArray(['a', 'b', 'c'], ['a', 'b', 'c', 'd'])).toBe(false);
     expect(DiagramUtils.sameArray(['a', 'b', 'c'], undefined)).toBe(false);
     expect(DiagramUtils.sameArray(undefined, undefined)).toBe(true);
+    const array1 = ['c', 'a', 'b'];
+    const array2 = ['b', 'c', 'a'];
+    expect(DiagramUtils.sameArray(array1, array2)).toBe(true);
+    expect(array1).toEqual(['c', 'a', 'b']);
+    expect(array2).toEqual(['b', 'c', 'a']);
 });
 
 test('concatPolylinePoints', () => {
