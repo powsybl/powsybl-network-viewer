@@ -516,3 +516,12 @@ export function addElementStyle(element: SVGElement | HTMLElement, style: string
         element.setAttribute('style', style);
     }
 }
+
+// ids of the children of an element, for checking which elements are already drawn without a lookup per element
+export function getChildIds(element: Element | undefined): Set<string> {
+    const childIds = new Set<string>();
+    for (const child of Array.from(element?.children ?? [])) {
+        childIds.add(child.id);
+    }
+    return childIds;
+}

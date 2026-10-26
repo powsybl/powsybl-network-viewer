@@ -800,3 +800,56 @@ test('canMergeEdge', () => {
     };
     expect(MetadataUtils.canMergeEdge(edge, EdgeType.THREE_WINDINGS_TRANSFORMER)).toBe(false);
 });
+
+test('getEdgeInfoIds', () => {
+    const edges: EdgeMetadata[] = [
+        {
+            svgId: '10',
+            equipmentId: 'LINE1',
+            node1: '0',
+            node2: '4',
+            busNode1: '3',
+            busNode2: '7',
+            type: 'LineEdge',
+            edgeInfo1: { svgId: '11' },
+            edgeInfo2: { svgId: '12' },
+            edgeInfoMiddle: { svgId: '13' },
+        },
+        {
+            svgId: '20',
+            equipmentId: 'LINE2',
+            node1: '0',
+            node2: '4',
+            busNode1: '3',
+            busNode2: '7',
+            type: 'LineEdge',
+            edgeInfo2: { svgId: '22' },
+        },
+        {
+            svgId: '30',
+            equipmentId: 'LINE3',
+            node1: '0',
+            node2: '4',
+            busNode1: '3',
+            busNode2: '7',
+            type: 'LineEdge',
+            edgeInfoMiddle: { svgId: '33' },
+        },
+    ];
+
+    let ids = MetadataUtils.getEdgeInfoIds(edges, true, true);
+    expect([...ids.edgeInfoIds]).toEqual(['11', '12', '13', '22', '33']);
+    expect([...ids.middleEdgeInfoIds]).toEqual(['13', '33']);
+
+    ids = MetadataUtils.getEdgeInfoIds(edges, true, false);
+    expect([...ids.edgeInfoIds]).toEqual(['11', '12', '22']);
+    expect(ids.middleEdgeInfoIds.size).toBe(0);
+
+    ids = MetadataUtils.getEdgeInfoIds(edges, false, true);
+    expect([...ids.edgeInfoIds]).toEqual(['13', '33']);
+    expect([...ids.middleEdgeInfoIds]).toEqual(['13', '33']);
+
+    ids = MetadataUtils.getEdgeInfoIds(edges, false, false);
+    expect(ids.edgeInfoIds.size).toBe(0);
+    expect(ids.middleEdgeInfoIds.size).toBe(0);
+});

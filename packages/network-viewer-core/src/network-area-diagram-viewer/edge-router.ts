@@ -392,7 +392,13 @@ export class EdgeRouter {
     }
 
     private storeLoopHalfEdges(edge: EdgeMetadata, angle: number) {
-        const halfEdges = HalfEdgeUtils.getLoopHalfEdges(edge, angle, this.diagramMetadata, this.svgParameters);
+        const halfEdges = HalfEdgeUtils.getLoopHalfEdges(
+            edge,
+            angle,
+            this.diagramMetadata,
+            this.svgParameters,
+            this.metadataSearch
+        );
         if (!halfEdges[0] || !halfEdges[1]) {
             return;
         }

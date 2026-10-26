@@ -350,25 +350,43 @@ export function getHalfEdgesUsingMetadataSearch(
     );
 }
 
+// the search in the metadata goes through all the nodes or buses: use the index when there is one
+function getNode(
+    nodeId: string,
+    diagramMetadata: DiagramMetadata | null,
+    metadataSearch: MetadataSearch | undefined
+): NodeMetadata | undefined {
+    return metadataSearch ? metadataSearch.getNode(nodeId) : getNodeMetadata(nodeId, diagramMetadata);
+}
+
+function getBusNode(
+    busNodeId: string,
+    diagramMetadata: DiagramMetadata | null,
+    metadataSearch: MetadataSearch | undefined
+): BusNodeMetadata | undefined {
+    return metadataSearch ? metadataSearch.getBus(busNodeId) : getBusNodeMetadata(busNodeId, diagramMetadata);
+}
+
 export function getHalfEdgesLoop(
     edge: EdgeMetadata,
     diagramMetadata: DiagramMetadata | null,
     element: SVGGraphicsElement | null,
-    svgParameters: SvgParameters
+    svgParameters: SvgParameters,
+    metadataSearch?: MetadataSearch
 ): HalfEdge[] | null[] {
     if (!element) {
         return [null, null];
     }
 
-    const node1 = getNodeMetadata(edge.node1, diagramMetadata);
-    const node2 = getNodeMetadata(edge.node2, diagramMetadata);
+    const node1 = getNode(edge.node1, diagramMetadata, metadataSearch);
+    const node2 = getNode(edge.node2, diagramMetadata, metadataSearch);
 
     if (node1 != node2) {
         return [null, null];
     }
 
-    const busNode1 = getBusNodeMetadata(edge.busNode1, diagramMetadata);
-    const busNode2 = getBusNodeMetadata(edge.busNode2, diagramMetadata);
+    const busNode1 = getBusNode(edge.busNode1, diagramMetadata, metadataSearch);
+    const busNode2 = getBusNode(edge.busNode2, diagramMetadata, metadataSearch);
     const nodeRadius1 = getNodeRadius(busNode1, node1, svgParameters);
     const nodeRadius2 = getNodeRadius(busNode2, node2, svgParameters);
 
@@ -434,11 +452,12 @@ export function getLoopHalfEdges(
     edge: EdgeMetadata,
     angle: number,
     diagramMetadata: DiagramMetadata | null,
-    svgParameters: SvgParameters
+    svgParameters: SvgParameters,
+    metadataSearch?: MetadataSearch
 ): HalfEdge[] | null[] {
-    const node = getNodeMetadata(edge.node1, diagramMetadata);
-    const busNode1 = getBusNodeMetadata(edge.busNode1, diagramMetadata);
-    const busNode2 = getBusNodeMetadata(edge.busNode2, diagramMetadata);
+    const node = getNode(edge.node1, diagramMetadata, metadataSearch);
+    const busNode1 = getBusNode(edge.busNode1, diagramMetadata, metadataSearch);
+    const busNode2 = getBusNode(edge.busNode2, diagramMetadata, metadataSearch);
     if (!node || !busNode1 || !busNode2) {
         return [null, null];
     }

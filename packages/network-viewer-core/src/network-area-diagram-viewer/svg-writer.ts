@@ -57,7 +57,7 @@ export class SvgWriter {
         // get edge router, for computing edges points
         this.edgeRouter = new EdgeRouter(
             this.diagramMetadata,
-            this.svgWriterParameters.elementList?.edges,
+            this.svgWriterParameters.routedEdges ?? this.svgWriterParameters.elementList?.edges,
             this.metadataSearch
         );
     }
@@ -141,8 +141,6 @@ export class SvgWriter {
     public addNodes(gNodesElement: SVGGElement) {
         (this.svgWriterParameters.elementList?.nodes ?? this.diagramMetadata.nodes).forEach((node) => {
             if (!node.invisible) {
-                const nodeElement = gNodesElement.querySelector(":scope > [id='" + node.svgId + "']") ?? null;
-                if (nodeElement) return;
                 if (MetadataUtils.isThreeWTNode(node)) {
                     this.threeWindingsTransformers.push(node);
                 } else {
@@ -200,8 +198,9 @@ export class SvgWriter {
             pathElement.id = busNode.svgId;
             SvgUtils.addCssClasses(pathElement, busNode.classes, SvgWriter.BUS_CLASS);
             SvgUtils.addElementStyle(pathElement, busNode.style);
+            // no edge when the adaptive zoom hides the edge of the node
             const edges: EdgeMetadata[] = this.edgeRouter?.getNodeEdges(node.svgId) ?? [];
-            const edgeAngle = this.edgeRouter?.getEdgeAngle(edges[0].svgId, '2');
+            const edgeAngle = edges.length > 0 ? this.edgeRouter?.getEdgeAngle(edges[0].svgId, '2') : undefined;
             const path: string = edgeAngle
                 ? DiagramUtils.getBoundarySemicircle(edgeAngle, nodeRadius.busOuterRadius)
                 : '';
@@ -270,8 +269,6 @@ export class SvgWriter {
             if (MetadataUtils.isThreeWTEdge(edge)) {
                 this.threeWindingsTransformerEdges.push(edge);
             } else {
-                const edgeElement = gEdgesElement.querySelector(":scope > [id='" + edge.svgId + "']") ?? null;
-                if (edgeElement) return;
                 gEdgesElement.appendChild(this.getEdge(edge));
                 if (edge.edgeInfo1 && !edge.invisible1) {
                     gEdgeInfosElement?.appendChild(this.getEdgeSideInfo(edge.svgId, '1', edge.edgeInfo1));

@@ -16,6 +16,10 @@ export interface SvgWriterParameters {
     // nodes and edges to be added by the SVG writer
     elementList?: { nodes: NodeMetadata[]; edges: EdgeMetadata[] };
 
+    // edges to be routed, if not the edges of the element list: the routing of an edge depends on the
+    // edges between the same nodes, and the loops and bus paths of a node on all the edges of the node
+    routedEdges?: EdgeMetadata[];
+
     // elements with these CSS classes should not be added
     voltageLevels?: string[];
 

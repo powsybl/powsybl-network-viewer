@@ -457,8 +457,9 @@ export function intersectionLength(array1: string[] | undefined, array2: string[
     return array1?.filter((value) => array2?.includes(value)).length ?? 0;
 }
 
+// same values, in any order; the arrays are not modified
 export function sameArray(array1: string[] | undefined, array2: string[] | undefined): boolean {
-    return array1?.length == array2?.length && JSON.stringify(array1?.sort()) === JSON.stringify(array2?.sort());
+    return array1?.length == array2?.length && (array1 ?? []).every((value) => array2?.includes(value));
 }
 
 export function concatPolylinePoints(points1: Point[], points2: Point[]): Point[] {
