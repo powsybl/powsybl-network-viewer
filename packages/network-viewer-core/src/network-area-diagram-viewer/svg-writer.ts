@@ -51,6 +51,9 @@ export class SvgWriter {
     }
 
     public getSvg(textBoxSize?: { width: number; height: number }): string {
+        // reset possibly stored transformers data
+        this.threeWindingsTransformers = [];
+        this.threeWindingsTransformerEdges = [];
         // get edge router, for computing edges points
         this.edgeRouter = new EdgeRouter(this.diagramMetadata);
         // create XML doc
@@ -543,7 +546,7 @@ export class SvgWriter {
         shift: number | undefined
     ): SVGPathElement {
         const edgeInfoArrowElement = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        if (arrowAngle) {
+        if (arrowAngle !== undefined) {
             let arrowString: string = 'rotate(' + DiagramUtils.getFormattedValue(arrowAngle) + ')';
             if (shift) {
                 arrowString += ' translate(' + DiagramUtils.getFormattedPoint(new Point(0, shift)) + ')';
@@ -573,7 +576,7 @@ export class SvgWriter {
         type: string | undefined
     ): SVGTextElement {
         const edgeInfoLabelElement = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        edgeInfoLabelElement.innerHTML = DiagramUtils.getFormattedInfoLabel(label, type, this.svgParameters);
+        edgeInfoLabelElement.textContent = DiagramUtils.getFormattedInfoLabel(label, type, this.svgParameters);
         edgeInfoLabelElement.setAttribute('transform', 'rotate(' + DiagramUtils.getFormattedValue(angle) + ')');
         edgeInfoLabelElement.setAttribute('x', DiagramUtils.getFormattedValue(shift));
         if (style) {
@@ -621,7 +624,13 @@ export class SvgWriter {
         }
         // add labelA element
         gEdgeMiddleInfoElement.appendChild(
-            this.getEdgeInfoLabel(labelData.angle, x, style, info.labelA, info.infoTypeA)
+            this.getEdgeInfoLabel(
+                labelData.angle,
+                x,
+                style,
+                info.labelA ?? info.labelB,
+                info.infoTypeA ?? info.infoTypeB
+            )
         );
         return gEdgeMiddleInfoElement;
     }
