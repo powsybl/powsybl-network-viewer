@@ -43,6 +43,20 @@ const CssLocationEnumMapping: { [key: string]: CssLocationEnum } = {
     EXTERNAL_NO_IMPORT: CssLocationEnum.EXTERNAL_NO_IMPORT,
 };
 
+export enum SizeConstraintEnum {
+    NONE,
+    FIXED_SCALE,
+    FIXED_WIDTH,
+    FIXED_HEIGHT,
+}
+
+const SizeConstraintEnumMapping: { [key: string]: SizeConstraintEnum } = {
+    NONE: SizeConstraintEnum.NONE,
+    FIXED_SCALE: SizeConstraintEnum.FIXED_SCALE,
+    FIXED_WIDTH: SizeConstraintEnum.FIXED_WIDTH,
+    FIXED_HEIGHT: SizeConstraintEnum.FIXED_HEIGHT,
+};
+
 export class SvgParameters {
     static readonly VOLTAGE_LEVEL_CIRCLE_RADIUS_DEFAULT = 30;
     static readonly INTER_ANNULUS_SPACE_DEFAULT = 5;
@@ -73,6 +87,11 @@ export class SvgParameters {
     static readonly LOOP_EDGE_APERTURE_DEFAULT = 60;
     static readonly LOOP_DISTANCE_DEFAULT = 120;
     static readonly LOOP_CONTROL_DISTANCE_DEFAULT = 40;
+    static readonly SIZE_CONSTRAINT_DEFAULT = SizeConstraintEnum.FIXED_SCALE;
+    static readonly FIXED_WIDTH_DEFAULT = -1;
+    static readonly FIXED_HEIGHT_DEFAULT = -1;
+    static readonly FIXED_SCALE_DEFAULT = 0.2;
+    static readonly SVG_WIDTH_AND_HEIGHT_ADDED_DEFAULT = false;
 
     svgParametersMetadata: SvgParametersMetadata | undefined;
 
@@ -202,5 +221,27 @@ export class SvgParameters {
 
     public getLoopControlDistance(): number {
         return this.svgParametersMetadata?.loopControlDistance ?? SvgParameters.LOOP_CONTROL_DISTANCE_DEFAULT;
+    }
+
+    public getSizeConstraint(): SizeConstraintEnum {
+        return this.svgParametersMetadata?.sizeConstraint
+            ? SizeConstraintEnumMapping[this.svgParametersMetadata?.sizeConstraint]
+            : SvgParameters.SIZE_CONSTRAINT_DEFAULT;
+    }
+
+    public getFixedWidth(): number {
+        return this.svgParametersMetadata?.fixedWidth ?? SvgParameters.FIXED_WIDTH_DEFAULT;
+    }
+
+    public getFixedHeight(): number {
+        return this.svgParametersMetadata?.fixedHeight ?? SvgParameters.FIXED_HEIGHT_DEFAULT;
+    }
+
+    public getFixedScale(): number {
+        return this.svgParametersMetadata?.fixedScale ?? SvgParameters.FIXED_SCALE_DEFAULT;
+    }
+
+    public getSvgWidthAndHeightAdded(): boolean {
+        return this.svgParametersMetadata?.svgWidthAndHeightAdded ?? SvgParameters.SVG_WIDTH_AND_HEIGHT_ADDED_DEFAULT;
     }
 }

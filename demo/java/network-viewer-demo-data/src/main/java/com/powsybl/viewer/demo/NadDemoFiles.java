@@ -159,7 +159,7 @@ public final class NadDemoFiles {
     public static void drawFourSubstations(Path demoResourcesDirectory) {
         Network network = FourSubstationsNodeBreakerFactory.create();
         NetworkAreaDiagram.draw(network, demoResourcesDirectory.resolve("nad-four-substations.svg"),
-            getNadParametersWithDefaultLabelProvider(),
+            getNadParametersWithSizeAdded(),
             VoltageLevelFilter.NO_FILTER);
     }
 
@@ -240,6 +240,17 @@ public final class NadDemoFiles {
     private static NadParameters getNadParametersWithDefaultLabelProvider() {
         SvgParameters svgParameters = new SvgParameters()
             .setCssLocation(SvgParameters.CssLocation.EXTERNAL_NO_IMPORT);
+        return new NadParameters()
+            .setSvgParameters(svgParameters)
+            .setLayoutFactory(new BasicForceLayoutFactory())
+            .setLabelProviderFactory(DefaultLabelProvider::new);
+    }
+    
+    private static NadParameters getNadParametersWithSizeAdded() {
+        SvgParameters svgParameters = new SvgParameters()
+            .setCssLocation(SvgParameters.CssLocation.EXTERNAL_NO_IMPORT)
+            .setSvgWidthAndHeightAdded(true)
+            .setFixedHeight(600);
         return new NadParameters()
             .setSvgParameters(svgParameters)
             .setLayoutFactory(new BasicForceLayoutFactory())

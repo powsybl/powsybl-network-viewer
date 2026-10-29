@@ -2581,11 +2581,11 @@ export class NetworkAreaDiagramViewer {
     }
 
     public zoomToFit() {
-        const viewBox = MetadataUtils.getViewBox(
+        const viewBox = MetadataUtils.getViewBoxAndDimensions(
             this.diagramMetadata?.nodes,
             this.diagramMetadata?.textNodes,
             this.svgParameters
-        );
+        ).viewbox;
         this.svgDraw?.viewbox(viewBox.x, viewBox.y, viewBox.width, viewBox.height);
     }
 
