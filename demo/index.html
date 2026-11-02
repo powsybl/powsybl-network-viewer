@@ -117,6 +117,21 @@
                     <figcaption>Edge info with components</figcaption>
                     <div id="svg-container-nad-components"></div>
                 </figure>
+                <div class="break"></div>
+                <figure class="diagram-figure">
+                    <figcaption>
+                        Multi-selection
+                        <ul>
+                            <li>Ctrl+click a node: add it to or remove it from the selection</li>
+                            <li>Ctrl+click empty space or use the button: start a polygon</li>
+                            <li>Click: add a polygon point</li>
+                            <li>Right click or Enter: close the polygon, hold Ctrl to invert the selection</li>
+                            <li>Escape: cancel the polygon, or clear the selection</li>
+                            <li>Drag a selected node: move all selected nodes</li>
+                        </ul>
+                    </figcaption>
+                    <div id="svg-container-nad-multi-selection"></div>
+                </figure>
             </div>
         </div>
         <script type="module" src="./src/nad.ts"></script>

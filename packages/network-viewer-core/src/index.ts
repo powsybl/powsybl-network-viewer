@@ -18,8 +18,12 @@ export type {
     TextNodeMetadata,
 } from './network-area-diagram-viewer/diagram-metadata';
 export type {
+    MovedNode,
     OnMoveNodeCallbackType,
+    OnMoveNodesCallbackType,
     OnMoveTextNodeCallbackType,
+    OnPolygonSelectionCallbackType,
+    OnSelectionChangeCallbackType,
     OnSelectNodeCallbackType,
     OnToggleNadHoverCallbackType,
     OnRightClickCallbackType,
