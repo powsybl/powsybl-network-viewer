@@ -5,18 +5,55 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import { coverageConfigDefaults, defineConfig } from 'vitest/config';
+import react from '@vitejs/plugin-react';
+import { playwright } from '@vitest/browser-playwright';
+import { configDefaults, coverageConfigDefaults, defineConfig } from 'vitest/config';
 
 export default defineConfig({
+    plugins: [react()],
     test: {
-        globals: true,
-        environment: 'jsdom',
-        setupFiles: ['./setupTests.ts'],
+        projects: [
+            {
+                extends: true,
+                test: {
+                    name: 'unit-tests',
+                    include: ['**/*.test.{ts,tsx}'],
+                    exclude: [...configDefaults.exclude, '**/*.browser.test.{ts,tsx}'],
+                    globals: true,
+                    environment: 'jsdom',
+                    setupFiles: ['./setupTests.ts'],
+                },
+            },
+            {
+                extends: true,
+                test: {
+                    name: 'browser-tests',
+                    include: ['**/*.browser.test.{ts,tsx}'],
+                    globals: true,
+                    testTimeout: 30000,
+                    browser: {
+                        enabled: true,
+                        provider: playwright(),
+                        headless: true,
+                        // at least one instance is required
+                        instances: [{ browser: 'chromium', viewport: { width: 1000, height: 1000 } }],
+                    },
+                },
+            },
+        ],
         coverage: {
             provider: 'v8',
             reporter: ['text', 'lcov'],
             reportsDirectory: './coverage',
-            exclude: [...coverageConfigDefaults.exclude, '**/*.svg'],
+            include: ['src/**/*.{ts,tsx}', 'packages/*/src/**/*.{ts,tsx}'],
+            exclude: [
+                ...coverageConfigDefaults.exclude,
+                '**/*.svg',
+                '**/*.test.{ts,tsx}',
+                '**/*.browser.test.{ts,tsx}',
+                '**/*.test.utils.ts',
+                '**/__screenshots__/**',
+            ],
         },
     },
 });

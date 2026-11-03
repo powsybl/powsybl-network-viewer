@@ -18,7 +18,7 @@ const svgModules = import.meta.glob('../resources/default-library/*.svg', {
 const DefaultComponentSvgMapping: Record<string, string> = Object.fromEntries(
     Object.entries(svgModules).map(([modulePath, url]) => {
         const fileName = modulePath.split('/').at(-1)!;
-        return [fileName, url as string];
+        return [fileName, url];
     })
 );
 

@@ -1,4 +1,5 @@
 {
+  "metadataVersion" : "1.0",
   "components" : [ {
     "type" : "BUSBAR_SECTION",
     "size" : {
@@ -860,7 +861,8 @@
     "busbarsAlignment" : "FIRST",
     "componentsOnBusbars" : [ "DISCONNECTOR" ],
     "removeFictitiousSwitchNodes" : false,
-    "zoneLayoutSnakeLinePadding" : 90
+    "zoneLayoutSnakeLinePadding" : 90,
+    "displayTeePointsInVoltageLevels" : false
   },
   "svgParams" : {
     "prefixId" : "",
@@ -883,6 +885,7 @@
     "angleLabelShift" : 15.0,
     "labelCentered" : false,
     "labelDiagonal" : false,
+    "busLabelDiagonal" : false,
     "tooltipEnabled" : false,
     "svgWidthAndHeightAdded" : false,
     "cssLocation" : "INSERTED_IN_SVG",
@@ -894,5 +897,8 @@
     "displayEquipmentNodesLabel" : false,
     "displayConnectivityNodesId" : false,
     "unifyVoltageLevelColors" : false
-  }
+  },
+  "networkId" : "urn:uuid:15c8a8ad-08d5-4b59-8417-db80e273bd1a",
+  "networkName" : "urn:uuid:15c8a8ad-08d5-4b59-8417-db80e273bd1a",
+  "networkDate" : "2022-06-16T23:30Z"
 }

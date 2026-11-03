@@ -34,7 +34,7 @@ public final class DemoFilesGenerator {
         NadDemoFiles.drawNetworkWithSvcVscScDlDoubleArrows(demoResources);
         NadDemoFiles.drawNetworkWithTwoVoltageLevelsAndComponents(demoResources);
 
-        SldDemoFiles.drawSldExample(demoResources);
-        SldDemoFiles.drawSldSubExample(demoResources);
+        SldDemoFiles.drawSldExample(demoResources.resolve("sld"));
+        SldDemoFiles.drawSldSubExample(demoResources.resolve("sld"));
     }
 }

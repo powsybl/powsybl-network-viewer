@@ -9,7 +9,7 @@ import CheapRuler from 'cheap-ruler';
 import { computeDestinationPoint, getGreatCircleBearing, getRhumbLineBearing } from 'geolib';
 import { type LonLat, type MapAnyLine } from '../equipment-types';
 import { type Coordinate, Country } from '../powsybl';
-import { ArrowDirection } from './layers/arrow-layer';
+import { ArrowDirection } from './arrow-direction';
 import { type MapEquipments } from './map-equipments';
 
 export type GeoDataEquipment = { id: string };

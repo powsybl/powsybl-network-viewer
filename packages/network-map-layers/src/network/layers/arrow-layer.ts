@@ -23,6 +23,7 @@ import {
 } from '@deck.gl/core';
 import { ShaderModule } from '@luma.gl/shadertools';
 import { type MapAnyLineWithType } from '../../equipment-types';
+import { ArrowDirection } from '../arrow-direction';
 
 import fs from './arrow-layer-fragment.frag?raw';
 import vs from './arrow-layer-vertex.vert?raw';
@@ -69,12 +70,6 @@ const DEFAULT_COLOR = [0, 0, 0, 255] satisfies Color;
 // this value has to be consistent with the one in vertex shader
 const MAX_LINE_POINT_COUNT = 2 ** 15;
 
-export enum ArrowDirection {
-    NONE = 'none',
-    FROM_SIDE_1_TO_SIDE_2 = 'fromSide1ToSide2',
-    FROM_SIDE_2_TO_SIDE_1 = 'fromSide2ToSide1',
-}
-
 type LineAttributes = {
     distance: number;
     positionsTextureOffset: number;
@@ -105,7 +100,8 @@ type _ArrowLayerProps = {
     getLineAngles?: Accessor<Arrow, number[]>;
     /** distance in meters between line when no pixel clamping is applied */
     getDistanceBetweenLines?: Accessor<Arrow, number>;
-    // TODO missing getProximityFactors?: Accessor<Arrow, number[]>;
+    /** accessor for proximity factors */
+    getProximityFactors?: Accessor<Arrow, number[]>;
     /** max pixel distance */
     maxParallelOffset?: number;
     /** min pixel distance */
@@ -126,6 +122,8 @@ const defaultProps: DefaultProps<ArrowLayerProps> = {
     getDirection: { type: 'accessor', value: ArrowDirection.NONE },
     animated: { type: 'boolean', value: true },
     getLineParallelIndex: { type: 'accessor', value: 0 },
+    getDistanceBetweenLines: { type: 'accessor', value: 1000 },
+    getProximityFactors: { type: 'accessor', value: [0, 0] },
     getLineAngles: { type: 'accessor', value: [0, 0, 0] },
     maxParallelOffset: { type: 'number', value: 100 },
     minParallelOffset: { type: 'number', value: 3 },
