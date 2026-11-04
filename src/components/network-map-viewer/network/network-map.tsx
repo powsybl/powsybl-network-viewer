@@ -31,7 +31,8 @@ import {
 import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
 import type { Feature, Polygon } from 'geojson';
 import mapboxgl, { type MapMouseEvent as MapBoxLayerMouseEvent } from 'mapbox-gl';
-import maplibregl, { type MapLayerMouseEvent as MapLibreLayerMouseEvent } from 'maplibre-gl';
+import * as maplibregl from 'maplibre-gl';
+import type { MapLayerMouseEvent as MapLibreLayerMouseEvent } from 'maplibre-gl';
 import {
     forwardRef,
     memo,
