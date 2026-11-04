@@ -42,9 +42,10 @@ function isDraggable(element: SVGElement): boolean {
 
 function isSelectable(element: SVGElement): boolean {
     return (
-        hasId(element) &&
-        element.parentNode != null &&
-        (element.parentNode as SVGElement).classList.contains('nad-vl-nodes')
+        (hasId(element) &&
+            element.parentNode != null &&
+            (element.parentNode as SVGElement).classList.contains('nad-vl-nodes')) ||
+        isTextNode(element)
     );
 }
 
