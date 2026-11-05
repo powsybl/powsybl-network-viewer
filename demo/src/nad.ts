@@ -35,6 +35,7 @@ import NadSvgComponentsExampleMeta from './diagram-viewers/data/nad-edge-info-co
 
 import {
     BranchState,
+    DiagramLabels,
     NadViewerParametersOptions,
     NetworkAreaDiagramViewer,
     OnToggleNadHoverCallbackType,
@@ -150,16 +151,16 @@ const addNadToDemo = () => {
                 nadViewerParametersOptions
             );
 
-            // add button to update branch labels
-            const branchLabels =
+            // add button to update branch states
+            const branchStates =
                 '[{"branchId": "L9-8-0", "value1": 609, "value2": -611,"connectedBus1":"VL3_0","connectedBus2":"VL2_0"}, {"branchId": "L7-5-0", "value1": 609, "value2": -611}]';
             const updateFlowsTextArea = document.createElement('textarea');
             updateFlowsTextArea.rows = 2;
             updateFlowsTextArea.cols = 65;
-            updateFlowsTextArea.value = branchLabels;
+            updateFlowsTextArea.value = branchStates;
             const br = document.createElement('br');
             const updateFlowsButton = document.createElement('button');
-            updateFlowsButton.innerHTML = 'Update Branch Labels';
+            updateFlowsButton.innerHTML = 'Update Branch States';
             updateFlowsButton.addEventListener('click', () => {
                 const branchStatesArray: BranchState[] = JSON.parse(updateFlowsTextArea.value);
                 nadViewer.setBranchStates(branchStatesArray);
@@ -221,12 +222,36 @@ const addNadToDemo = () => {
                 onRightClickCallback: handleRightClick,
                 onBendLineCallback: handleLineBending,
             };
-            new NetworkAreaDiagramViewer(
+            const nadViewer = new NetworkAreaDiagramViewer(
                 document.getElementById('svg-container-nad-multibus-vlnodes14')!,
                 svgContent,
                 NadSvgMultibusVLNodes14ExampleMeta,
                 nadViewerParametersOptions
             );
+
+            // add button to update diagram labels
+            const diagramLabels = `{"branchesLabels": [{"branchId": "L9-10-1", "side1Label": {"labelA": "20", "labelB": "609", "direction": "OUT", "infoTypeA" : "ReactivePower", "infoTypeB" : "ActivePower"},
+                "side2Label": {"labelA": "10", "labelB": "-611", "directionA": "IN", "directionB": "IN"}, "middleLabel": {"labelA": "L_NEW", "labelB": "200", "direction": "IN", "infoTypeA" : "Name", "infoTypeB" : "Current"}},
+                {"branchId": "L7-9-1", "side1Label": {"labelB": "85", "direction": "OUT", "infoTypeB" : "ActivePower"}, "side2Label": {"labelB": "-85", "direction": "IN", "infoTypeB" : "ActivePower"},
+                "middleLabel": {"labelA": "L_NEW2", "labelB": "488", "direction": "OUT", "infoTypeA" : "Name", "infoTypeB" : "Current"}}],
+                "voltageLevelsLabels": [{"voltageLevelId": "VL4", "legendHeader": ["VL4_Header", "VL4_SubHeader"], "legendFooter": ["VL4_Footer"],
+                "busesLegends": [{"busId": "VL4_0", "legend": "VL4_0_Legend"},{"busId": "VL4_1", "legend": "VL4_1_Legend"},{"busId": "VL4_2", "legend": "VL4_2_Legend"}] }]}`;
+            const updatelabelsTextArea = document.createElement('textarea');
+            updatelabelsTextArea.rows = 3;
+            updatelabelsTextArea.cols = 65;
+            updatelabelsTextArea.value = diagramLabels;
+            const br = document.createElement('br');
+            const updateLabelsButton = document.createElement('button');
+            updateLabelsButton.innerHTML = 'Update Diagram Labels';
+            updateLabelsButton.addEventListener('click', () => {
+                const diagramLabels: DiagramLabels = JSON.parse(updatelabelsTextArea.value);
+                nadViewer.setDiagramLabels(diagramLabels);
+            });
+            const updateLabelsDiv = document.createElement('div');
+            updateLabelsDiv.appendChild(updatelabelsTextArea);
+            updateLabelsDiv.appendChild(br);
+            updateLabelsDiv.appendChild(updateLabelsButton);
+            document.getElementById('svg-container-nad-multibus-vlnodes14')?.appendChild(updateLabelsDiv);
         });
 
     fetch(NadSvgPstHvdcExample)
@@ -285,12 +310,32 @@ const addNadToDemo = () => {
                 onRightClickCallback: handleRightClick,
                 onBendLineCallback: handleLineBending,
             };
-            new NetworkAreaDiagramViewer(
+            const nadViewer = new NetworkAreaDiagramViewer(
                 document.getElementById('svg-container-nad-threewt-dl-ub')!,
                 svgContent,
                 NadSvgThreeWTBoundaryLineUnknownBusExampleMeta,
                 nadViewerParametersOptions
             );
+
+            // add button to update diagram labels
+            const diagramLabels = `{"threeWindingsTranformersLabels": [{"transformerId": "t3wt", "side1Label": {"labelA": "20", "labelB": "609", "direction": "OUT", "infoTypeA" : "ReactivePower", "infoTypeB" : "ActivePower"},
+                "side2Label": {"labelA": "10", "labelB": "-611", "directionA": "IN", "directionB": "IN"}, "side3Label": {"labelA": "25", "labelB": "200", "direction": "IN", "infoTypeA" : "ReactivePower", "infoTypeB" : "Current"}}]}`;
+            const updatelabelsTextArea = document.createElement('textarea');
+            updatelabelsTextArea.rows = 3;
+            updatelabelsTextArea.cols = 65;
+            updatelabelsTextArea.value = diagramLabels;
+            const br = document.createElement('br');
+            const updateLabelsButton = document.createElement('button');
+            updateLabelsButton.innerHTML = 'Update Diagram Labels';
+            updateLabelsButton.addEventListener('click', () => {
+                const diagramLabels: DiagramLabels = JSON.parse(updatelabelsTextArea.value);
+                nadViewer.setDiagramLabels(diagramLabels);
+            });
+            const updateLabelsDiv = document.createElement('div');
+            updateLabelsDiv.appendChild(updatelabelsTextArea);
+            updateLabelsDiv.appendChild(br);
+            updateLabelsDiv.appendChild(updateLabelsButton);
+            document.getElementById('svg-container-nad-threewt-dl-ub')?.appendChild(updateLabelsDiv);
         });
 
     fetch(NadSvgPartialNetworkExample)

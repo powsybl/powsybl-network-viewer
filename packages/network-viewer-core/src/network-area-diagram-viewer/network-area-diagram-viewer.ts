@@ -39,6 +39,15 @@ import { Dimensions, EdgeType, ElementType, HalfEdge, ViewBox } from './diagram-
 import { LibraryComponent } from './library-component';
 import DefaultLibraryComponents from '../resources/default-library/components.json';
 import * as ComponentUtils from './component-utils';
+import {
+    BranchLabels,
+    DiagramLabels,
+    getThreeWTInfoLabel,
+    getInfoLabelValue,
+    InfoLabel,
+    ThreeWindingsTranformerLabels,
+    VoltageLevelLabels,
+} from './diagram-label-types';
 
 // Type for cancelable debounced functions (replaces @mui/utils Cancelable)
 interface Cancelable {
@@ -55,6 +64,7 @@ export type BranchState = {
     connectedBus1: string;
     connectedBus2: string;
 };
+
 export type VoltageLevelState = {
     voltageLevelId: string;
     busValue: {
@@ -1259,19 +1269,12 @@ export class NetworkAreaDiagramViewer {
             return;
         }
 
-        if (this.isThreeWtEdge(edgeType)) {
+        if (DiagramUtils.isThreeWTEdgeType(edgeType)) {
             this.redrawThreeWtEdge(edge);
         } else {
             const halfEdges = this.getHalfEdges(edge, iEdge, groupedEdgesCount, point1, point2);
             this.redrawBranchEdge(edge, halfEdges[0], halfEdges[1]);
         }
-    }
-
-    private isThreeWtEdge(edgeType: EdgeType) {
-        return (
-            edgeType == EdgeType.THREE_WINDINGS_TRANSFORMER ||
-            edgeType == EdgeType.THREE_WINDINGS_PHASE_SHIFT_TRANSFORMER
-        );
     }
 
     private redrawBranchEdge(edge: EdgeMetadata, halfEdge1: HalfEdge | null, halfEdge2: HalfEdge | null) {
@@ -1866,10 +1869,10 @@ export class NetworkAreaDiagramViewer {
 
         if (node.legendHeader) {
             node.legendHeader.forEach((header) => {
-                newDivElement.appendChild(this.createTextHeader(header));
+                newDivElement.appendChild(this.createTextDiv(header));
             });
         } else {
-            newDivElement.appendChild(this.createTextHeader(textNode.equipmentId));
+            newDivElement.appendChild(this.createTextDiv(textNode.equipmentId));
         }
 
         for (const busNode of busNodes) {
@@ -1887,10 +1890,17 @@ export class NetworkAreaDiagramViewer {
             newBusDivElement?.appendChild(textNode);
             newDivElement.appendChild(newBusDivElement);
         }
+
+        if (node.legendFooter) {
+            node.legendFooter.forEach((footer) => {
+                newDivElement.appendChild(this.createTextDiv(footer));
+            });
+        }
+
         return newTextElement;
     }
 
-    private createTextHeader(header: string): HTMLElement {
+    private createTextDiv(header: string): HTMLElement {
         const newHeaderElement = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
         newHeaderElement.textContent = header;
         return newHeaderElement;
@@ -1941,8 +1951,23 @@ export class NetworkAreaDiagramViewer {
     private getHalfEdgesForEdgeInfos(edge: EdgeMetadata) {
         let halfEdges;
 
-        //detect a loop
-        if (edge.node1 == edge.node2) {
+        if (MetadataUtils.isThreeWTEdge(edge)) {
+            // 3wt edge
+            const edgeElement: SVGGraphicsElement | null = this.svgDiv.querySelector("[id='" + edge.svgId + "']");
+            const twtEdge: HTMLElement = <HTMLElement>edgeElement?.firstElementChild;
+            if (!twtEdge) return [null, null];
+            const halfEdge = HalfEdgeUtils.getThreeWtHalfEdge(
+                SvgUtils.getPolylinePoints(twtEdge),
+                edge,
+                false,
+                null,
+                this.diagramMetadata,
+                this.svgParameters
+            );
+            if (!halfEdge) return [null, null];
+            halfEdges = [halfEdge, null];
+        } else if (edge.node1 == edge.node2) {
+            // loop edge
             const edgeElement: SVGGraphicsElement | null = this.svgDiv.querySelector("[id='" + edge.svgId + "']");
 
             halfEdges = HalfEdgeUtils.getHalfEdgesLoop(edge, this.diagramMetadata, edgeElement, this.svgParameters);
@@ -2234,6 +2259,127 @@ export class NetworkAreaDiagramViewer {
             if (halfEdges[1]) {
                 this.setBranchSideConnection(branchState.branchId, '2', edgeId, branchState.connected2);
             }
+        });
+    }
+
+    public setJsonDiagramLabels(jsonDiagramLabels: string) {
+        const diagramLabels: DiagramLabels = JSON.parse(jsonDiagramLabels);
+        this.setDiagramLabels(diagramLabels);
+    }
+
+    public setDiagramLabels(diagramLabels: DiagramLabels) {
+        if (diagramLabels.branchesLabels) {
+            this.setBranchesLabels(diagramLabels.branchesLabels);
+        }
+        if (diagramLabels.voltageLevelsLabels) {
+            this.setVoltageLevelsLabels(diagramLabels.voltageLevelsLabels);
+        }
+        if (diagramLabels.threeWindingsTranformersLabels) {
+            this.setThreeWindingsTranformersLabels(diagramLabels.threeWindingsTranformersLabels);
+        }
+    }
+
+    private setBranchesLabels(branchesLabels: BranchLabels[]) {
+        branchesLabels.forEach((branchLabels) => {
+            const edge = (this.diagramMetadata?.edges ?? []).find((edge) => edge.equipmentId == branchLabels.branchId);
+            if (!edge) {
+                console.warn(`Skipping updating branch ${branchLabels.branchId} labels: edge metadata missing`);
+                return;
+            }
+            const halfEdges = this.getHalfEdgesForEdgeInfos(edge);
+            MetadataUtils.updateMetadataFromBranchLabels(edge, branchLabels);
+            if (branchLabels.side1Label) {
+                this.setBranchSideLabel(
+                    edge,
+                    halfEdges[0],
+                    edge.edgeInfo1,
+                    '1',
+                    getInfoLabelValue(branchLabels.side1Label),
+                    (branchLabels.side1Label.directionB ?? branchLabels.side1Label.direction) !== undefined
+                );
+            }
+            if (branchLabels.side2Label) {
+                this.setBranchSideLabel(
+                    edge,
+                    halfEdges[1],
+                    edge.edgeInfo2,
+                    '2',
+                    getInfoLabelValue(branchLabels.side2Label),
+                    (branchLabels.side2Label.directionB ?? branchLabels.side2Label.direction) !== undefined
+                );
+            }
+            if (branchLabels.middleLabel) {
+                this.setBranchMiddleLabel(edge, halfEdges[0], halfEdges[1], edge.edgeInfoMiddle);
+            }
+        });
+    }
+
+    private setVoltageLevelsLabels(voltageLevelsLabels: VoltageLevelLabels[]) {
+        voltageLevelsLabels.forEach((vlLabels) => {
+            const textNode: TextNodeMetadata | undefined = this.diagramMetadata?.textNodes.find(
+                (tnm) => tnm.equipmentId == vlLabels.voltageLevelId
+            );
+            if (!textNode) {
+                console.warn(`Text node for ${vlLabels.voltageLevelId} not found`);
+                return;
+            }
+
+            const node: NodeMetadata | undefined = this.diagramMetadata?.nodes.find(
+                (nm) => nm.equipmentId == vlLabels.voltageLevelId
+            );
+            if (!node) {
+                console.warn(`Node for ${vlLabels.voltageLevelId} not found`);
+                return;
+            }
+
+            const textNodeElement = this.textNodesSection?.querySelector(`:scope > [id='${textNode.svgId}']`);
+            if (textNodeElement) {
+                textNodeElement.remove();
+            }
+
+            const busNodes: BusNodeMetadata[] =
+                this.diagramMetadata?.busNodes.filter((busNode) => busNode.vlNode == node.svgId) ?? [];
+            MetadataUtils.updateMetadataFromVLLabels(node, busNodes, vlLabels);
+            const newTextNodeElement = this.createLegendBox(textNode, busNodes, node);
+
+            if (newTextNodeElement) {
+                const textNodeSize = SvgUtils.getTextNodeSize(newTextNodeElement);
+                this.redrawTextEdge(
+                    node.legendEdgeSvgId,
+                    new Point(node.x + textNode.shiftX, node.y + textNode.shiftY),
+                    node,
+                    textNodeSize.height,
+                    textNodeSize.width
+                );
+            }
+        });
+    }
+
+    private setThreeWindingsTranformersLabels(threeWindingsTranformersLabels: ThreeWindingsTranformerLabels[]) {
+        threeWindingsTranformersLabels.forEach((threeWTLabels) => {
+            const threeWTEdges: EdgeMetadata[] =
+                this.diagramMetadata?.edges.filter((twt) => twt.equipmentId == threeWTLabels.transformerId) ?? [];
+            if (threeWTEdges.length == 0) {
+                console.warn(
+                    `Skipping updating three windings transformer ${threeWTLabels.transformerId} labels: edges metadata missing`
+                );
+                return;
+            }
+            threeWTEdges.forEach((threeWTEdge) => {
+                const halfEdges = this.getHalfEdgesForEdgeInfos(threeWTEdge);
+                const infoLabel: InfoLabel | undefined = getThreeWTInfoLabel(threeWTLabels, threeWTEdge.side);
+                if (infoLabel) {
+                    threeWTEdge.edgeInfo1 = MetadataUtils.getEdgeInfoFromInfoLabel(threeWTEdge.edgeInfo1, infoLabel);
+                    this.setBranchSideLabel(
+                        threeWTEdge,
+                        halfEdges[0],
+                        threeWTEdge.edgeInfo1,
+                        '1',
+                        getInfoLabelValue(infoLabel),
+                        (infoLabel.directionB ?? infoLabel.direction) !== undefined
+                    );
+                }
+            });
         });
     }
 
