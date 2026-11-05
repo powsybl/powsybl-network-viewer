@@ -19,6 +19,7 @@ import {
 import * as MetadataUtils from './metadata-utils';
 import { SvgParameters } from './svg-parameters';
 import { EdgeType, ElementType } from './diagram-types';
+import { BranchLabels, VoltageLevelLabels } from './diagram-label-types';
 
 test('getNodeRadius', () => {
     const diagramPaddingMetadata: DiagramPaddingMetadata = {
@@ -593,4 +594,154 @@ test('getEdgeType', () => {
     };
     expect(MetadataUtils.getEdgeType(edge)).toBe(EdgeType.TWO_WINDINGS_TRANSFORMER);
     expect(MetadataUtils.getStringEdgeType(edge)).toBe('TWO_WINDINGS_TRANSFORMER');
+});
+
+test('isThreeWTEdge', () => {
+    let edge: EdgeMetadata = {
+        svgId: '8',
+        equipmentId: 'NGEN_NHV1',
+        node1: '0',
+        node2: '2',
+        busNode1: '1',
+        busNode2: '3',
+        type: 'TwoWtEdge',
+    };
+    expect(MetadataUtils.isThreeWTEdge(edge)).toBe(false);
+
+    edge = {
+        svgId: '20',
+        equipmentId: 't3wt',
+        node1: '0',
+        node2: '19',
+        busNode1: '3',
+        busNode2: '19',
+        type: 'ThreeWtEdge',
+        side: 'ONE',
+    };
+    expect(MetadataUtils.isThreeWTEdge(edge)).toBe(true);
+});
+
+test('updateMetadataFromBranchLabels', () => {
+    const edge: EdgeMetadata = {
+        svgId: '50',
+        equipmentId: 'L9-10-1',
+        node1: '32',
+        node2: '4',
+        busNode1: '37',
+        busNode2: '7',
+        type: 'LineEdge',
+        classes1: ['nad-vl0to30'],
+        classes2: ['nad-vl0to30'],
+    };
+    const branchLabels: BranchLabels = {
+        branchId: 'L9-10-1',
+        side1Label: {
+            labelA: '20',
+            labelB: '609',
+            direction: 'OUT',
+            infoTypeA: 'ReactivePower',
+            infoTypeB: 'ActivePower',
+        },
+        side2Label: {
+            labelA: '10',
+            labelB: '-611',
+            directionA: 'IN',
+            directionB: 'OUT',
+        },
+        middleLabel: {
+            labelA: 'L_NEW',
+            labelB: '200',
+            direction: 'OUT',
+            infoTypeA: 'Name',
+            infoTypeB: 'Current',
+        },
+    };
+    MetadataUtils.updateMetadataFromBranchLabels(edge, branchLabels);
+    expect(edge.edgeInfo1).toBeDefined();
+    expect(edge.edgeInfo1?.labelA).toBe('20');
+    expect(edge.edgeInfo1?.labelB).toBe('609');
+    expect(edge.edgeInfo1?.direction).toBe('OUT');
+    expect(edge.edgeInfo1?.infoTypeA).toBe('ReactivePower');
+    expect(edge.edgeInfo1?.infoTypeB).toBe('ActivePower');
+    expect(edge.edgeInfo2).toBeDefined();
+    expect(edge.edgeInfo2?.labelA).toBe('10');
+    expect(edge.edgeInfo2?.labelB).toBe('-611');
+    expect(edge.edgeInfo2?.directionA).toBe('IN');
+    expect(edge.edgeInfo2?.directionB).toBe('OUT');
+    expect(edge.edgeInfoMiddle).toBeDefined();
+    expect(edge.edgeInfoMiddle?.labelA).toBe('L_NEW');
+    expect(edge.edgeInfoMiddle?.labelB).toBe('200');
+    expect(edge.edgeInfoMiddle?.direction).toBe('OUT');
+    expect(edge.edgeInfoMiddle?.infoTypeA).toBe('Name');
+    expect(edge.edgeInfoMiddle?.infoTypeB).toBe('Current');
+});
+
+test('updateMetadataFromVLLabels', () => {
+    const node: NodeMetadata = {
+        svgId: '32',
+        equipmentId: 'VL4',
+        x: -140.21,
+        y: -108.15,
+        legendSvgId: '33',
+        legendEdgeSvgId: '34',
+        legendHeader: ['VL4'],
+        classes: ['nad-vl0to30'],
+    };
+    const busNodes: BusNodeMetadata[] = [
+        {
+            svgId: '36',
+            equipmentId: 'VL4_1',
+            nbNeighbours: 2,
+            index: 0,
+            vlNode: '32',
+            legend: '1.1 kV / -13.4°',
+            classes: ['nad-bus-1'],
+        },
+        {
+            svgId: '37',
+            equipmentId: 'VL4_2',
+            nbNeighbours: 2,
+            index: 1,
+            vlNode: '32',
+            legend: '1.1 kV / -14.9°',
+            classes: ['nad-bus-2'],
+        },
+        {
+            svgId: '35',
+            equipmentId: 'VL4_0',
+            nbNeighbours: 2,
+            index: 2,
+            vlNode: '32',
+            legend: '1.0 kV / -10.3°',
+            classes: ['nad-bus-0'],
+        },
+    ];
+    const vlLabels: VoltageLevelLabels = {
+        voltageLevelId: 'VL4',
+        legendHeader: ['VL4_Header', 'VL4_SubHeader'],
+        legendFooter: ['VL4_Footer'],
+        busesLegends: [
+            {
+                busId: 'VL4_0',
+                legend: 'VL4_0_Legend',
+            },
+            {
+                busId: 'VL4_1',
+                legend: 'VL4_1_Legend',
+            },
+            {
+                busId: 'VL4_2',
+                legend: 'VL4_2_Legend',
+            },
+        ],
+    };
+    MetadataUtils.updateMetadataFromVLLabels(node, busNodes, vlLabels);
+    expect(node.legendHeader?.length).toBe(2);
+    expect(node.legendHeader?.at(0)).toBe('VL4_Header');
+    expect(node.legendHeader?.at(1)).toBe('VL4_SubHeader');
+    expect(node.legendFooter?.length).toBe(1);
+    expect(node.legendFooter?.at(0)).toBe('VL4_Footer');
+    expect(busNodes[0].legend).toBe('VL4_1_Legend');
+    expect(busNodes[1].legend).toBe('VL4_2_Legend');
+    expect(busNodes[2].legend).toBe('VL4_0_Legend');
 });
