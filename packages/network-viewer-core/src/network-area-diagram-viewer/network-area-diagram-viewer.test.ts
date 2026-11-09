@@ -9,12 +9,12 @@
 import { NadViewerParametersOptions } from './nad-viewer-parameters';
 import { NetworkAreaDiagramViewer } from './network-area-diagram-viewer';
 import { BusNodeMetadata, NodeMetadata, TextNodeMetadata } from './diagram-metadata';
-import * as SvgUtils from './svg-utils.ts';
+import * as SvgUtils from './svg-utils';
 import { Point } from '@svgdotjs/svg.js';
-import * as DiagramUtils from './diagram-utils.ts';
-import { EdgeMetadata } from './diagram-metadata.ts';
-import * as MetadataUtils from './metadata-utils.ts';
-import { EdgeType } from './diagram-types.ts';
+import * as DiagramUtils from './diagram-utils';
+import { EdgeMetadata } from './diagram-metadata';
+import * as MetadataUtils from './metadata-utils';
+import { EdgeType } from './diagram-types';
 
 describe('Test network-area-diagram-viewer', () => {
     const container: HTMLDivElement = document.createElement('div');
