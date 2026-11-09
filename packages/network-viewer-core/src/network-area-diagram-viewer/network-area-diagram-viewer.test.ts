@@ -108,7 +108,7 @@ describe('Test network-area-diagram-viewer', () => {
                 },
             ],
         };
-        const nad: NetworkAreaDiagramViewer = Object.assign(NetworkAreaDiagramViewer.prototype, {
+        const nad: NetworkAreaDiagramViewer = Object.assign(Object.create(NetworkAreaDiagramViewer.prototype), {
             container: Object.assign(container, { innerHTML: svgContent }),
             svgDiv: Object.assign(container, { innerHTML: svgContent }),
             svgContent: svgContent,
