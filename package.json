@@ -71,7 +71,7 @@
         "@powsybl/network-viewer-core": "^3.8.0-dev.0",
         "@turf/boolean-point-in-polygon": "^7.2.0",
         "cheap-ruler": "^4.0.0",
-        "geolib": "^3.3.4",
+        "geolib": "^4.0.0",
         "mapbox-gl": "^3.9.4",
         "maplibre-gl": "^6.12.0",
         "react-map-gl": "^8.0.1",
