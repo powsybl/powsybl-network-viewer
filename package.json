@@ -108,7 +108,7 @@
         "globals": "^16.0.0",
         "jsdom": "^27.4.0",
         "license-checker": "^25.0.1",
-        "minimatch": "^10.0.1",
+        "minimatch": "^11.0.1",
         "playwright": "^1.61.0",
         "prettier": "^3.5.3",
         "prettier-plugin-properties": "^0.3.0",
