@@ -9,8 +9,11 @@
 import {
     OnBendLineCallbackType,
     OnMoveNodeCallbackType,
+    OnMoveNodesCallbackType,
     OnMoveTextNodeCallbackType,
+    OnPolygonSelectionCallbackType,
     OnRightClickCallbackType,
+    OnSelectionChangeCallbackType,
     OnSelectNodeCallbackType,
     OnToggleNadHoverCallbackType,
 } from '../../../src';
@@ -79,6 +82,21 @@ export const handleNodeSelect: OnSelectNodeCallbackType = (equipmentId, nodeId, 
         msg += ' on mousePosition: x = ' + mousePosition.x + ', y = ' + mousePosition.y;
     }
     console.log(msg);
+};
+
+export const handleNodesMove: OnMoveNodesCallbackType = (movedNodes) => {
+    console.log('Moved ' + movedNodes.length + ' nodes');
+    movedNodes.forEach(({ equipmentId, nodeId, x, y, xOrig, yOrig }) =>
+        handleNodeMove(equipmentId, nodeId, x, y, xOrig, yOrig)
+    );
+};
+
+export const handleSelectionChange: OnSelectionChangeCallbackType = (selectedNodeIds) => {
+    console.log('Selected nodes: [' + selectedNodeIds.join(', ') + ']');
+};
+
+export const handlePolygonSelection: OnPolygonSelectionCallbackType = (isActive) => {
+    console.log('Polygon selection ' + (isActive ? 'started' : 'stopped'));
 };
 
 export const handleToggleNadHover: OnToggleNadHoverCallbackType = (

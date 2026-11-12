@@ -39,6 +39,16 @@ button:hover:not(:disabled) {
     transform: scale(1.4);
 }
 
+.nad-vl-nodes .nad-selected .nad-busnode {
+    stroke: #3bb2d0;
+    stroke-width: 5px;
+    vector-effect: non-scaling-stroke;
+}
+.nad-text-nodes .nad-selected > .nad-label-box {
+    border: 2px solid #3bb2d0;
+    background-color: #3bb2d099;
+}
+
 .nad-branch-edges .nad-edge-path,
 .nad-3wt-edges .nad-edge-path {
     stroke: var(--nad-vl-color, lightgrey);

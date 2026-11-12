@@ -41,6 +41,9 @@ import {
 } from '../../src';
 import {
     handleNodeMove,
+    handleNodesMove,
+    handlePolygonSelection,
+    handleSelectionChange,
     handleTextNodeMove,
     handleNodeSelect,
     handleToggleNadHover,
@@ -666,6 +669,46 @@ const addNadToDemo = () => {
                 NadSvgComponentsExampleMeta,
                 nadViewerParametersOptions
             );
+        });
+
+    fetch(NadSvgMultibusVLNodes14Example)
+        .then((response) => response.text())
+        .then((svgContent) => {
+            const polygonButton = document.createElement('button');
+            polygonButton.textContent = 'Start polygon selection';
+
+            const nadViewerParametersOptions: NadViewerParametersOptions = {
+                enableDragInteraction: true,
+                enableMultiSelection: true,
+                addButtons: true,
+                onMoveNodeCallback: handleNodeMove,
+                onMoveNodesCallback: handleNodesMove,
+                onSelectionChangeCallback: handleSelectionChange,
+                onPolygonSelectionCallback: (isActive) => {
+                    polygonButton.textContent = isActive ? 'Stop polygon selection' : 'Start polygon selection';
+                    handlePolygonSelection(isActive);
+                },
+                onMoveTextNodeCallback: handleTextNodeMove,
+                onSelectNodeCallback: handleNodeSelect,
+                onToggleHoverCallback: handleToggleNadHover,
+                onRightClickCallback: handleRightClick,
+                onBendLineCallback: handleLineBending,
+            };
+            const nadViewer = new NetworkAreaDiagramViewer(
+                document.getElementById('svg-container-nad-multi-selection')!,
+                svgContent,
+                structuredClone(NadSvgMultibusVLNodes14ExampleMeta),
+                nadViewerParametersOptions
+            );
+
+            polygonButton.addEventListener('click', () => {
+                if (nadViewer.polygonSelection) {
+                    nadViewer.stopPolygonSelection();
+                } else {
+                    nadViewer.startPolygonSelection();
+                }
+            });
+            document.getElementById('svg-container-nad-multi-selection')?.appendChild(polygonButton);
         });
 };
 
