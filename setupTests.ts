@@ -11,6 +11,14 @@ declare var SVG: any;
 global.SVG = () => {};
 global.SVG.extend = () => {};
 /* eslint-enable */
+// MOCK use of CSS escape
+import cssEscape from 'css.escape';
+if (!globalThis.CSS) {
+    globalThis.CSS = {} as typeof CSS;
+}
+if (!globalThis.CSS.escape) {
+    globalThis.CSS.escape = cssEscape;
+}
 
 const canvas2DContextStub = {
     font: '',

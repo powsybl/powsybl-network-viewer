@@ -45,7 +45,7 @@ export {
 } from './single-line-diagram-viewer/single-line-diagram-viewer';
 
 export {
-    type NadStyleRegistry,
+    NadStyleRegistry,
     type NadBusNodeStyle,
     type NadLineStyle,
     type NadStyleProvider,

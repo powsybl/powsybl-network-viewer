@@ -16,11 +16,15 @@ import {
     NadThreeWtStyle,
 } from './nad-style-registry.ts';
 
+function findSvgElement(container: HTMLElement, svgId: string): SVGElement | null {
+    return container.querySelector<SVGElement>(`#${CSS.escape(svgId)}`);
+}
+
 // Bus Node Style
 export function updateBusNodesStyle(diagramMetadata: DiagramMetadata, container: HTMLElement, style: NadStyleProvider) {
     diagramMetadata?.busNodes.forEach((busNode) => {
         const busNodeStyle = style?.getBusNodeStyle?.(busNode?.equipmentId) as NadBusNodeStyle;
-        const element = container.querySelector<SVGElement>(`[id="${busNode.svgId}"]`) as SVGElement;
+        const element = findSvgElement(container, busNode.svgId);
         if (element) {
             element.removeAttribute('style');
             applyBusNodeStyle(element, busNodeStyle);
@@ -32,7 +36,7 @@ export function updateBusNodesStyle(diagramMetadata: DiagramMetadata, container:
 export function updateEdgeStyle(diagramMetadata: DiagramMetadata, container: HTMLElement, style: NadStyleProvider) {
     diagramMetadata?.edges.forEach((edge) => {
         const branchStyle = style?.getBranchStyle?.(edge?.equipmentId) as NadBranchStyle;
-        const element = container.querySelector<SVGElement>(`[id="${edge.svgId}"]`) as SVGElement;
+        const element = findSvgElement(container, edge.svgId) as SVGElement;
         const paths = element?.querySelectorAll(':scope > path');
         const polylines = element?.querySelectorAll(':scope > polyline');
         const circles = element?.querySelectorAll(':scope > g > circle');
@@ -50,7 +54,7 @@ export function updateEdgeStyle(diagramMetadata: DiagramMetadata, container: HTM
         }
         if (edge.type == 'ThreeWtEdge') {
             const threeEdgeStyle = style?.getThreeWtStyle?.(edge.equipmentId) as NadThreeWtStyle;
-            const element = container.querySelector<SVGElement>(`[id="${edge.svgId}"]`) as SVGElement;
+            const element = findSvgElement(container, edge.svgId);
             const polyline = element?.querySelector(':scope > polyline') as SVGElement;
             if (edge.side == 'ONE') {
                 polyline.removeAttribute('style');
@@ -76,7 +80,7 @@ export function updateInjectionStyle(
     if (diagramMetadata?.injections) {
         diagramMetadata.injections.forEach((injectionNode) => {
             const injectionNodeStyle = style?.getInjectionStyle?.(injectionNode?.equipmentId) as NadInjectionStyle;
-            const element = container.querySelector<SVGElement>(`[id="${injectionNode.svgId}"]`) as SVGElement;
+            const element = findSvgElement(container, injectionNode.svgId) as SVGElement;
             element?.removeAttribute('style');
             const subElements = element?.querySelectorAll('*');
             subElements.forEach((subElement) => {
@@ -96,7 +100,7 @@ export function updateThreeWTNodeStyle(
     diagramMetadata?.nodes.forEach((node) => {
         const threeNodeStyle = style?.getThreeWtStyle?.(node.equipmentId) as NadThreeWtStyle;
         if (node.type == 'THREEWT') {
-            const element = container.querySelector<SVGElement>(`[id="${node.svgId}"]`) as SVGElement;
+            const element = findSvgElement(container, node.svgId) as SVGElement;
             const circles = element.querySelectorAll(':scope > circle');
             if (circles.length == 3) {
                 circles.forEach((elem) => elem.removeAttribute('style'));
