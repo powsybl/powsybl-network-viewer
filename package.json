@@ -99,6 +99,7 @@
         "@vitest/coverage-v8": "^4.1.10",
         "@vitest/eslint-plugin": "^1.6.26",
         "@vitest/ui": "^4.1.10",
+        "css.escape": "^1.5.1",
         "eslint": "^9.26.0",
         "eslint-config-prettier": "^10.1.2",
         "eslint-plugin-prettier": "^5.2.6",
