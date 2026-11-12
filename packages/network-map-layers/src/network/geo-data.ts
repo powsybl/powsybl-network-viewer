@@ -100,11 +100,21 @@ export class GeoData {
     getLinePositions(network: MapEquipments, line: MapAnyLine, detailed = true): LonLat[] {
         const voltageLevel1 = network.getVoltageLevel(line.voltageLevelId1);
         if (!voltageLevel1) {
-            throw new Error(`Voltage level side 1 '${line.voltageLevelId1}' not found`);
+            console.warn(`Cannot draw line '${line.id}': voltage level side 1 '${line.voltageLevelId1}' not found`);
         }
         const voltageLevel2 = network.getVoltageLevel(line.voltageLevelId2);
         if (!voltageLevel2) {
-            throw new Error(`Voltage level side 2 '${line.voltageLevelId2}' not found`);
+            console.warn(`Cannot draw line '${line.id}': voltage level side 2 '${line.voltageLevelId2}' not found`);
+        }
+        if (!voltageLevel1 || !voltageLevel2) {
+            // A line can reference a voltage level which is not attached to a substation.
+            // Such a voltage level is not part of the map equipment index, so there is no
+            // reliable position from which to draw the line. Return an invisible line,
+            // consistently with the handling of substations without geo-data.
+            return [
+                [0, 0],
+                [0, 0],
+            ];
         }
         const substationPosition1 = this.getSubstationPosition(voltageLevel1.substationId);
         const substationPosition2 = this.getSubstationPosition(voltageLevel2.substationId);
