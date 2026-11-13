@@ -10,14 +10,22 @@ import { Point } from '@svgdotjs/svg.js';
 import {
     BusNodeMetadata,
     DiagramMetadata,
+    EdgeInfoMetadata,
     EdgeMetadata,
     NodeMetadata,
     PointMetadata,
     TextNodeMetadata,
 } from './diagram-metadata';
 import { SvgParameters } from './svg-parameters';
-import { getDistance, getPointAtDistance, getVoltageLevelCircleRadius, round } from './diagram-utils';
+import {
+    getDistance,
+    getPointAtDistance,
+    getVoltageLevelCircleRadius,
+    isThreeWTEdgeType,
+    round,
+} from './diagram-utils';
 import { EdgeType, ElementData, ElementType, NodeMove, NodeRadius, ViewBox } from './diagram-types';
+import { BranchLabels, InfoLabel, VoltageLevelLabels } from './diagram-label-types';
 
 const TEXT_BOX_WIDTH_DEFAULT = 200;
 const TEXT_BOX_HEIGHT_DEFAULT = 100;
@@ -341,4 +349,51 @@ export function getEdgeNodePoints(
     const point1 = new Point(node1.x, node1.y);
     const point2 = new Point(node2.x, node2.y);
     return [point1, point2];
+}
+
+export function isThreeWTEdge(edge: EdgeMetadata) {
+    const edgeType = getEdgeType(edge);
+    return isThreeWTEdgeType(edgeType);
+}
+
+export function updateMetadataFromBranchLabels(edge: EdgeMetadata, branchLabels: BranchLabels) {
+    if (branchLabels.side1Label) {
+        edge.edgeInfo1 = getEdgeInfoFromInfoLabel(edge.edgeInfo1, branchLabels.side1Label);
+    }
+    if (branchLabels.side2Label) {
+        edge.edgeInfo2 = getEdgeInfoFromInfoLabel(edge.edgeInfo2, branchLabels.side2Label);
+    }
+    if (branchLabels.middleLabel) {
+        edge.edgeInfoMiddle = getEdgeInfoFromInfoLabel(edge.edgeInfoMiddle, branchLabels.middleLabel);
+    }
+}
+
+export function getEdgeInfoFromInfoLabel(
+    edgeInfo: EdgeInfoMetadata | undefined,
+    infoLabel: InfoLabel
+): EdgeInfoMetadata {
+    edgeInfo ??= { svgId: crypto.randomUUID() };
+    edgeInfo.labelB = infoLabel.labelB ?? edgeInfo.labelB;
+    edgeInfo.labelA = infoLabel.labelA ?? edgeInfo.labelA;
+    edgeInfo.direction = infoLabel.direction ?? edgeInfo.direction;
+    edgeInfo.directionA = infoLabel.directionA ?? edgeInfo.directionA;
+    edgeInfo.directionB = infoLabel.directionB ?? edgeInfo.directionB;
+    edgeInfo.infoTypeA = infoLabel.infoTypeA ?? edgeInfo.infoTypeA;
+    edgeInfo.infoTypeB = infoLabel.infoTypeB ?? edgeInfo.infoTypeB;
+    return edgeInfo;
+}
+
+export function updateMetadataFromVLLabels(
+    node: NodeMetadata,
+    busNodes: BusNodeMetadata[],
+    vlLabels: VoltageLevelLabels
+) {
+    node.legendHeader = vlLabels.legendHeader ?? node.legendHeader;
+    node.legendFooter = vlLabels.legendFooter ?? node.legendFooter;
+    vlLabels.busesLegends?.forEach((bus) => {
+        const busMetadata = busNodes.find((b) => b.equipmentId == bus.busId);
+        if (busMetadata) {
+            busMetadata.legend = bus.legend ?? busMetadata.legend;
+        }
+    });
 }
