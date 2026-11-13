@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 import { ViewBoxLike, Point } from '@svgdotjs/svg.js';
-import { LibraryComponent } from './library-component';
+import { LibraryComponent } from '../common/library-component';
 
 export type OnMoveNodeCallbackType = (
     equipmentId: string,

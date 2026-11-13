@@ -6,11 +6,15 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 
+export type Orientation = 'UP' | 'DOWN' | 'LEFT' | 'RIGHT';
+export type ComponentTransformation = 'ROTATION' | 'FLIP' | 'NONE';
+
 export interface LibraryComponent {
     type: string;
     size: ComponentSize;
     subComponents: SubComponents[];
     styleClass: string;
+    transformations?: Partial<Record<Orientation, ComponentTransformation>>;
 }
 
 export interface ComponentSize {
@@ -21,4 +25,5 @@ export interface ComponentSize {
 export interface SubComponents {
     name: string;
     fileName: string;
+    styleClass?: string;
 }

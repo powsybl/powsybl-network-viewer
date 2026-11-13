@@ -6,7 +6,7 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 
-import { LibraryComponent } from './library-component';
+import { LibraryComponent } from '../common/library-component';
 import { SVG } from '@svgdotjs/svg.js';
 
 const svgModules = import.meta.glob('../resources/default-library/*.svg', {
