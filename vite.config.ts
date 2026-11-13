@@ -76,6 +76,7 @@ export default defineConfig((config) => ({
                     '@turf/boolean-point-in-polygon': 'BooleanPointInPolygon',
                     '@powsybl/network-viewer-core': 'PowsyblNetworkViewerCore',
                     '@powsybl/network-map-layers': 'PowsyblNetworkMapLayers',
+                    '@powsybl/sankey': 'PowsyblSankey',
                 },
             },
         },

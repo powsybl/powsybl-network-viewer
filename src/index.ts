@@ -77,3 +77,15 @@ export {
     type MapVoltageLevel,
 } from '@powsybl/network-map-layers';
 export { DRAW_EVENT } from './components/network-map-viewer/network/draw_event';
+
+// Re-export from @powsybl/sankey
+export {
+    SankeyRenderer,
+    parseLayoutState,
+    type BranchRecord,
+    type BusRecord,
+    type LayoutState,
+    type Orientation,
+    type SankeyOptions,
+    type SankeyScenario,
+} from '@powsybl/sankey';
