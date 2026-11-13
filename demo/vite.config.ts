@@ -29,6 +29,7 @@ export default defineConfig((config) => ({
         rolldownOptions: {
             input: {
                 main: path.resolve(import.meta.dirname, 'index.html'),
+                nadSvg: path.resolve(import.meta.dirname, 'nad-svg.html'),
                 sld: path.resolve(import.meta.dirname, 'sld.html'),
                 maps: path.resolve(import.meta.dirname, 'map-viewer.html'),
                 syncedViewers: path.resolve(import.meta.dirname, 'synced-viewers.html'),

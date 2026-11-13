@@ -29,6 +29,7 @@ export default defineConfig({
                 test: {
                     name: 'browser-tests',
                     include: ['**/*.browser.test.{ts,tsx}'],
+                    exclude: [...configDefaults.exclude, '**/*performance.browser.test.{ts,tsx}'],
                     globals: true,
                     testTimeout: 30000,
                     browser: {
