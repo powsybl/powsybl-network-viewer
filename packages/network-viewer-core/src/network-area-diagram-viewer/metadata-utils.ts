@@ -411,3 +411,7 @@ export function isBoundaryNode(node: NodeMetadata): boolean {
 export function getNodeType(node: NodeMetadata): NodeType {
     return node.type === undefined ? NodeType.UNKNOWN : (NodeTypeMapping[node.type] ?? NodeType.UNKNOWN);
 }
+
+export function samePosition(node: NodeMetadata, point: Point, epsilon: number = 1e-4): boolean {
+    return Math.abs(point.x - node.x) < epsilon && Math.abs(point.y - node.y) < epsilon;
+}

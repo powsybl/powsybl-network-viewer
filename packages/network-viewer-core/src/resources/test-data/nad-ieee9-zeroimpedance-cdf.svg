@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="-431.89 -778.13 1061.03 1429.18" xmlns="http://www.w3.org/2000/svg">
+    <g class="nad-vl-nodes">
+        <g transform="translate(73.67,333.18)" id="0" class="nad-vl70to120">
+            <circle r="17.50" id="3" class="nad-bus-0 nad-busnode"/>
+            <path d="M-35.311,12.625 A37.500,37.500 337.082 1 1 -27.607,25.379 L-14.393,17.294 A22.500,22.500 -321.803 1 0 -22.005,4.691 Z " id="5" class="nad-bus-2 nad-busnode"/>
+            <path d="M-39.317,-41.957 A57.500,57.500 94.533 0 1 44.933,-35.878 L31.956,-28.019 A42.500,42.500 -89.258 0 0 -27.603,-32.316 Z M52.667,-23.075 A57.500,57.500 165.053 0 1 -44.933,35.878 L-31.956,28.019 A42.500,42.500 -159.778 0 0 39.671,-15.246 Z M-52.667,23.075 A57.500,57.500 55.574 0 1 -48.809,-30.397 L-37.072,-20.783 A42.500,42.500 -50.298 0 0 -39.671,15.246 Z " id="4" class="nad-bus-1 nad-busnode"/>
+        </g>
+        <g transform="translate(-231.89,82.30)" id="6" class="nad-vl70to120">
+            <circle r="27.50" id="9" class="nad-bus-0 nad-busnode"/>
+            <path d="M-55.788,-13.927 A57.500,57.500 345.053 1 1 -57.492,0.933 L-32.279,3.779 A32.500,32.500 -333.556 1 0 -30.585,-10.991 Z " id="10" class="nad-bus-1 nad-busnode"/>
+        </g>
+        <g transform="translate(-206.52,-309.90)" id="11" class="nad-vl70to120">
+            <circle r="27.50" id="14" class="nad-bus-0 nad-busnode"/>
+        </g>
+    </g>
+    <g class="nad-branch-edges">
+        <g id="24">
+            <polyline class="nad-vl70to120 nad-edge-path" points="128.25,351.27 265.64,396.84"/>
+        </g>
+        <g id="26">
+            <path class="nad-vl70to120 nad-edge-path" d="M72.54,275.69 L72.09,253.19 C71.30,213.20 96.58,208.78 131.61,228.09"/>
+            <path class="nad-vl70to120 nad-edge-path" d="M105.77,313.79 L142.15,291.81 C176.39,271.13 166.64,247.40 131.61,228.09"/>
+        </g>
+        <g id="28">
+            <polyline class="nad-vl70to120 nad-edge-path" points="-187.45,118.79 -71.38,214.08"/>
+            <polyline class="nad-vl70to120 nad-edge-path" points="44.69,309.38 -71.38,214.08"/>
+        </g>
+        <g id="30">
+            <path class="nad-vl70to120 nad-edge-path" d="M74.81,390.66 L75.26,413.16 C76.05,453.15 50.77,457.58 42.01,452.75"/>
+            <path class="nad-vl70to120 nad-edge-path" d="M58.69,342.22 L5.20,374.54 C-29.04,395.22 -19.29,418.95 -10.53,423.78"/>
+            <g>
+                <circle class="nad-vl70to120 nad-winding" cx="24.50" cy="443.09" r="20.00"/>
+                <circle class="nad-vl70to120 nad-winding" cx="6.98" cy="433.44" r="20.00"/>
+            </g>
+        </g>
+        <g id="32">
+            <polyline class="nad-vl70to120 nad-edge-path" points="-228.18,24.92 -218.24,-128.77"/>
+            <polyline class="nad-vl70to120 nad-edge-path" points="-208.30,-282.46 -218.24,-128.77"/>
+        </g>
+        <g id="34">
+            <path class="nad-vl70to120 nad-edge-path" d="M-266.13,128.50 L-279.52,146.57 C-303.34,178.71 -326.05,166.76 -330.03,157.59"/>
+            <path class="nad-vl70to120 nad-edge-path" d="M-259.21,79.17 L-311.37,73.18 C-351.11,68.63 -357.90,93.37 -353.92,102.55"/>
+            <g>
+                <circle class="nad-vl70to120 nad-winding" cx="-337.99" cy="139.24" r="20.00"/>
+                <circle class="nad-vl70to120 nad-winding" cx="-345.95" cy="120.89" r="20.00"/>
+            </g>
+        </g>
+        <g id="36">
+            <polyline class="nad-vl70to120 nad-edge-path" points="-187.23,-329.50 -85.08,-433.32"/>
+        </g>
+    </g>
+    <g class="nad-edge-infos">
+        <g id="25" transform="translate(265.64,396.84)">
+            <text transform="rotate(18.35)" class="nad-name" x="0.00" style="text-anchor:middle">L7-5-0</text>
+        </g>
+        <g id="27" transform="translate(131.61,228.09)">
+            <text transform="rotate(28.87)" class="nad-name" x="0.00" style="text-anchor:middle">L7-8-0</text>
+        </g>
+        <g id="29" transform="translate(-71.38,214.08)">
+            <text transform="rotate(39.39)" class="nad-name" x="0.00" style="text-anchor:middle">L9-8-0</text>
+        </g>
+        <g id="31" transform="translate(15.74,438.27)">
+            <text transform="rotate(-331.13)" class="nad-name" x="0.00" style="text-anchor:middle">T7-2-0</text>
+        </g>
+        <g id="33" transform="translate(-218.24,-128.77)">
+            <text transform="rotate(-86.30)" class="nad-name" x="0.00" style="text-anchor:middle">L9-6-0</text>
+        </g>
+        <g id="35" transform="translate(-341.97,130.07)">
+            <text transform="rotate(-293.46)" class="nad-name" x="0.00" style="text-anchor:middle">T9-3-0</text>
+        </g>
+        <g id="37" transform="translate(-85.08,-433.32)">
+            <text transform="rotate(-45.46)" class="nad-name" x="0.00" style="text-anchor:middle">L6-4-0</text>
+        </g>
+    </g>
+    <g class="nad-text-edges">
+        <polyline id="2" points="133.01,324.28 173.67,318.18"/>
+        <polyline id="8" points="-172.55,73.40 -131.89,67.30"/>
+        <polyline id="13" points="-176.85,-314.35 -106.52,-324.90"/>
+    </g>
+    <g class="nad-text-nodes">
+        <foreignObject id="1" y="293.18" x="173.67" height="1" width="1">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="nad-vl70to120 nad-label-box">
+                <div>VL2</div>
+                <div class="nad-bus-descr">
+                    <span class="nad-bus-0 nad-legend-square"></span>102.5 kV / 9.3°</div>
+                <div class="nad-bus-descr">
+                    <span class="nad-bus-2 nad-legend-square"></span>101.5 kV / 0.7°</div>
+                <div class="nad-bus-descr">
+                    <span class="nad-bus-1 nad-legend-square"></span>102.5 kV / 3.7°</div>
+            </div>
+        </foreignObject>
+        <foreignObject id="7" y="42.30" x="-131.89" height="1" width="1">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="nad-vl70to120 nad-label-box">
+                <div>VL3</div>
+                <div class="nad-bus-descr">
+                    <span class="nad-bus-0 nad-legend-square"></span>102.5 kV / 4.7°</div>
+                <div class="nad-bus-descr">
+                    <span class="nad-bus-1 nad-legend-square"></span>103.2 kV / 2.0°</div>
+            </div>
+        </foreignObject>
+        <foreignObject id="12" y="-349.90" x="-106.52" height="1" width="1">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="nad-vl70to120 nad-label-box">
+                <div>VL6</div>
+                <div class="nad-bus-descr">
+                    <span class="nad-bus-0 nad-legend-square"></span>101.2 kV / -3.7°</div>
+            </div>
+        </foreignObject>
+    </g>
+</svg>

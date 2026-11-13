@@ -494,20 +494,22 @@ test('getHalfEdges', () => {
     expect(halfEdges[0]).not.toBeNull();
     if (halfEdges[0]) {
         expect(halfEdges[0].edgePoints.length).toBe(3);
-        expect(round(halfEdges[0].edgePoints[0].x)).toBeCloseTo(-220.63);
-        expect(round(halfEdges[0].edgePoints[0].y)).toBeCloseTo(22.08);
-        expect(round(halfEdges[0].edgePoints[1].x)).toBeCloseTo(-173.6);
-        expect(round(halfEdges[0].edgePoints[1].y)).toBeCloseTo(-1.26);
+        expect(halfEdges[0].side).toBe('1');
+        expect(round(halfEdges[0].edgePoints[0].x)).toBeCloseTo(117.43);
+        expect(round(halfEdges[0].edgePoints[0].y)).toBeCloseTo(43.39);
+        expect(round(halfEdges[0].edgePoints[1].x)).toBeCloseTo(73.7);
+        expect(round(halfEdges[0].edgePoints[1].y)).toBeCloseTo(14.33);
         expect(round(halfEdges[0].edgePoints[2].x)).toBeCloseTo(-49.95);
         expect(round(halfEdges[0].edgePoints[2].y)).toBeCloseTo(6.53);
     }
     expect(halfEdges[1]).not.toBeNull();
     if (halfEdges[1]) {
         expect(halfEdges[1].edgePoints.length).toBe(3);
-        expect(round(halfEdges[1].edgePoints[0].x)).toBeCloseTo(117.43);
-        expect(round(halfEdges[1].edgePoints[0].y)).toBeCloseTo(43.39);
-        expect(round(halfEdges[1].edgePoints[1].x)).toBeCloseTo(73.7);
-        expect(round(halfEdges[1].edgePoints[1].y)).toBeCloseTo(14.33);
+        expect(halfEdges[1].side).toBe('2');
+        expect(round(halfEdges[1].edgePoints[0].x)).toBeCloseTo(-220.63);
+        expect(round(halfEdges[1].edgePoints[0].y)).toBeCloseTo(22.08);
+        expect(round(halfEdges[1].edgePoints[1].x)).toBeCloseTo(-173.6);
+        expect(round(halfEdges[1].edgePoints[1].y)).toBeCloseTo(-1.26);
         expect(round(halfEdges[1].edgePoints[2].x)).toBeCloseTo(-49.95);
         expect(round(halfEdges[1].edgePoints[2].y)).toBeCloseTo(6.53);
     }
