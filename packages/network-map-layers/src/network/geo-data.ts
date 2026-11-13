@@ -259,11 +259,9 @@ export class GeoData {
             // when must shift by the percentange of position of the label on this segment
             const segmentDistance = cumulativeDistances[goodSegment.idx + 1] - cumulativeDistances[goodSegment.idx];
             const alreadyDoneDistance = segmentDistance - remainingDistance;
-            let labelDistanceInSegment;
+            let labelDistanceInSegment = remainingDistance;
             if (goodSegment.idx === 0) {
                 labelDistanceInSegment = -alreadyDoneDistance;
-            } else {
-                labelDistanceInSegment = remainingDistance;
             }
             const labelPercentage = labelDistanceInSegment / segmentDistance;
             position.position = computeDestinationPoint(
