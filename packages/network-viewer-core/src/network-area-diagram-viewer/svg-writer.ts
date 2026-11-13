@@ -100,10 +100,10 @@ export class SvgWriter {
         svg.setAttribute(
             'viewBox',
             [
-                viewBoxAndDimensions.viewbox.x,
-                viewBoxAndDimensions.viewbox.y,
-                viewBoxAndDimensions.viewbox.width,
-                viewBoxAndDimensions.viewbox.height,
+                viewBoxAndDimensions.viewBox.x,
+                viewBoxAndDimensions.viewBox.y,
+                viewBoxAndDimensions.viewBox.width,
+                viewBoxAndDimensions.viewBox.height,
             ].join(' ')
         );
         if (this.svgParameters.getSvgWidthAndHeightAdded()) {

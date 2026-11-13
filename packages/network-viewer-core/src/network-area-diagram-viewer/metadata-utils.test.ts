@@ -316,7 +316,7 @@ test('getRightClickableElementData', () => {
     expect(elementData?.type).toBe(EdgeType[EdgeType.TWO_WINDINGS_TRANSFORMER]);
 });
 
-test('getViewBoxAndDimensions', () => {
+describe('getViewBoxAndDimensions', () => {
     const nodes: NodeMetadata[] = [
         {
             svgId: '0',
@@ -381,13 +381,21 @@ test('getViewBoxAndDimensions', () => {
             connectionShiftY: -15,
         },
     ];
-    const viewBoxAndDimensions = MetadataUtils.getViewBoxAndDimensions(nodes, textNodes, new SvgParameters(undefined));
-    expect(viewBoxAndDimensions.viewbox.x).toBe(-700);
-    expect(viewBoxAndDimensions.viewbox.y).toBe(-740);
-    expect(viewBoxAndDimensions.viewbox.width).toBe(1700);
-    expect(viewBoxAndDimensions.viewbox.height).toBe(1500);
-    expect(viewBoxAndDimensions.width).toBe(340);
-    expect(viewBoxAndDimensions.height).toBe(300);
+    test.each([
+        ['FIXED_SCALE', { fixedScale: 0.5 }, 850, 750],
+        ['FIXED_WIDTH', { fixedWidth: 850 }, 850, 750],
+        ['FIXED_HEIGHT', { fixedHeight: 750 }, 850, 750],
+        ['NONE', {}, 1700, 1500],
+    ])('getViewBoxAndDimensions with %s', (sizeConstraint, extra, expectedWidth, expectedHeight) => {
+        const svgParameters = new SvgParameters({ sizeConstraint, ...extra } as SvgParametersMetadata);
+        const viewBoxAndDimensions = MetadataUtils.getViewBoxAndDimensions(nodes, textNodes, svgParameters);
+        expect(viewBoxAndDimensions.viewBox.x).toBe(-700);
+        expect(viewBoxAndDimensions.viewBox.y).toBe(-740);
+        expect(viewBoxAndDimensions.viewBox.width).toBe(1700);
+        expect(viewBoxAndDimensions.viewBox.height).toBe(1500);
+        expect(viewBoxAndDimensions.width).toBeCloseTo(expectedWidth);
+        expect(viewBoxAndDimensions.height).toBeCloseTo(expectedHeight);
+    });
 });
 
 test('getBendableLines', () => {

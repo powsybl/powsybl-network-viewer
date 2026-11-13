@@ -219,7 +219,7 @@ export function getRightClickableElementData(
     }
 }
 
-// get view box computed starting from node and text positions
+// get view box and dimensions computed starting from node and text positions
 // defined in diagram metadata
 export function getViewBoxAndDimensions(
     nodes: NodeMetadata[] | undefined,
@@ -256,7 +256,7 @@ export function getViewBoxAndDimensions(
     return {
         width: round(width * scale),
         height: round(height * scale),
-        viewbox: {
+        viewBox: {
             x: round(size.minX - svgParameters.getDiagramPadding().left),
             y: round(size.minY - svgParameters.getDiagramPadding().top),
             width: round(width),
@@ -266,16 +266,21 @@ export function getViewBoxAndDimensions(
 }
 
 function getScale(width: number, height: number, svgParameters: SvgParameters): number {
+    let scale: number;
     switch (svgParameters.getSizeConstraint()) {
         case SizeConstraintEnum.FIXED_WIDTH:
-            return svgParameters.getFixedWidth() / width;
+            scale = svgParameters.getFixedWidth() / width;
+            break;
         case SizeConstraintEnum.FIXED_HEIGHT:
-            return svgParameters.getFixedHeight() / height;
+            scale = svgParameters.getFixedHeight() / height;
+            break;
         case SizeConstraintEnum.FIXED_SCALE:
-            return svgParameters.getFixedScale();
+            scale = svgParameters.getFixedScale();
+            break;
         default:
-            return 1;
+            scale = 1;
     }
+    return Number.isFinite(scale) && scale > 0 ? scale : 1;
 }
 
 // get inner and outer radius of bus node and radius of voltage level

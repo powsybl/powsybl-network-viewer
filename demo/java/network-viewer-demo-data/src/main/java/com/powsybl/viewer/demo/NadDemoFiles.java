@@ -245,7 +245,7 @@ public final class NadDemoFiles {
             .setLayoutFactory(new BasicForceLayoutFactory())
             .setLabelProviderFactory(DefaultLabelProvider::new);
     }
-    
+
     private static NadParameters getNadParametersWithSizeAdded() {
         SvgParameters svgParameters = new SvgParameters()
             .setCssLocation(SvgParameters.CssLocation.EXTERNAL_NO_IMPORT)

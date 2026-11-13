@@ -184,10 +184,10 @@ export class SvgParameters {
 
     public getDiagramPadding(): DiagramPadding {
         return {
-            left: this.svgParametersMetadata?.diagramPadding.left ?? SvgParameters.DIAGRAM_PADDING_LEFT_DEFAULT,
-            top: this.svgParametersMetadata?.diagramPadding.top ?? SvgParameters.DIAGRAM_PADDING_TOP_DEFAULT,
-            right: this.svgParametersMetadata?.diagramPadding.right ?? SvgParameters.DIAGRAM_PADDING_RIGHT_DEFAULT,
-            bottom: this.svgParametersMetadata?.diagramPadding.bottom ?? SvgParameters.DIAGRAM_PADDING_BOTTON_DEFAULT,
+            left: this.svgParametersMetadata?.diagramPadding?.left ?? SvgParameters.DIAGRAM_PADDING_LEFT_DEFAULT,
+            top: this.svgParametersMetadata?.diagramPadding?.top ?? SvgParameters.DIAGRAM_PADDING_TOP_DEFAULT,
+            right: this.svgParametersMetadata?.diagramPadding?.right ?? SvgParameters.DIAGRAM_PADDING_RIGHT_DEFAULT,
+            bottom: this.svgParametersMetadata?.diagramPadding?.bottom ?? SvgParameters.DIAGRAM_PADDING_BOTTON_DEFAULT,
         };
     }
 
