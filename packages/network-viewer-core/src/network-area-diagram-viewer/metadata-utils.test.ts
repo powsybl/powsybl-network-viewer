@@ -316,31 +316,31 @@ test('getRightClickableElementData', () => {
     expect(elementData?.type).toBe(EdgeType[EdgeType.TWO_WINDINGS_TRANSFORMER]);
 });
 
-test('getViewBox', () => {
+describe('getViewBoxAndDimensions', () => {
     const nodes: NodeMetadata[] = [
         {
             svgId: '0',
             equipmentId: 'VL1',
-            x: -500.0,
-            y: 0.0,
+            x: -500,
+            y: 0,
         },
         {
             svgId: '1',
             equipmentId: 'VL2',
             x: 0,
-            y: -500.0,
+            y: -500,
         },
         {
             svgId: '2',
             equipmentId: 'VL3',
-            x: 500.0,
-            y: 0.0,
+            x: 500,
+            y: 0,
         },
         {
             svgId: '3',
             equipmentId: 'VL4',
             x: 0,
-            y: 500.0,
+            y: 500,
         },
     ];
     const textNodes: TextNodeMetadata[] = [
@@ -348,44 +348,54 @@ test('getViewBox', () => {
             svgId: '0-textnode',
             equipmentId: 'VL1',
             vlNode: '0',
-            shiftX: 100.0,
-            shiftY: -40.0,
-            connectionShiftX: 100.0,
-            connectionShiftY: -15.0,
+            shiftX: 100,
+            shiftY: -40,
+            connectionShiftX: 100,
+            connectionShiftY: -15,
         },
         {
             svgId: '1-textnode',
             equipmentId: 'VL2',
             vlNode: '1',
-            shiftX: 100.0,
-            shiftY: -40.0,
-            connectionShiftX: 100.0,
-            connectionShiftY: -15.0,
+            shiftX: 100,
+            shiftY: -40,
+            connectionShiftX: 100,
+            connectionShiftY: -15,
         },
         {
             svgId: '2-textnode',
             equipmentId: 'VL3',
             vlNode: '2',
-            shiftX: 100.0,
-            shiftY: -40.0,
-            connectionShiftX: 100.0,
-            connectionShiftY: -15.0,
+            shiftX: 100,
+            shiftY: -40,
+            connectionShiftX: 100,
+            connectionShiftY: -15,
         },
         {
             svgId: '3-textnode',
             equipmentId: 'VL4',
             vlNode: '3',
-            shiftX: 100.0,
-            shiftY: -40.0,
-            connectionShiftX: 100.0,
-            connectionShiftY: -15.0,
+            shiftX: 100,
+            shiftY: -40,
+            connectionShiftX: 100,
+            connectionShiftY: -15,
         },
     ];
-    const viewBox = MetadataUtils.getViewBox(nodes, textNodes, new SvgParameters(undefined));
-    expect(viewBox.x).toBe(-700);
-    expect(viewBox.y).toBe(-740);
-    expect(viewBox.width).toBe(1700);
-    expect(viewBox.height).toBe(1500);
+    test.each([
+        ['FIXED_SCALE', { fixedScale: 0.5 }, 850, 750],
+        ['FIXED_WIDTH', { fixedWidth: 850 }, 850, 750],
+        ['FIXED_HEIGHT', { fixedHeight: 750 }, 850, 750],
+        ['NONE', {}, 1700, 1500],
+    ])('getViewBoxAndDimensions with %s', (sizeConstraint, extra, expectedWidth, expectedHeight) => {
+        const svgParameters = new SvgParameters({ sizeConstraint, ...extra } as SvgParametersMetadata);
+        const viewBoxAndDimensions = MetadataUtils.getViewBoxAndDimensions(nodes, textNodes, svgParameters);
+        expect(viewBoxAndDimensions.viewBox.x).toBe(-700);
+        expect(viewBoxAndDimensions.viewBox.y).toBe(-740);
+        expect(viewBoxAndDimensions.viewBox.width).toBe(1700);
+        expect(viewBoxAndDimensions.viewBox.height).toBe(1500);
+        expect(viewBoxAndDimensions.width).toBeCloseTo(expectedWidth);
+        expect(viewBoxAndDimensions.height).toBeCloseTo(expectedHeight);
+    });
 });
 
 test('getBendableLines', () => {

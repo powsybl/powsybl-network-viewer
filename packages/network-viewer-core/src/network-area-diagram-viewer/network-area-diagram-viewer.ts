@@ -371,10 +371,10 @@ export class NetworkAreaDiagramViewer {
 
         // set the SVG
         const viewBox: ViewBoxLike = this.nadViewerParameters.getInitialViewBox() ?? {
-            x: dimensions.viewbox.x,
-            y: dimensions.viewbox.y,
-            width: dimensions.viewbox.width,
-            height: dimensions.viewbox.height,
+            x: dimensions.viewBox.x,
+            y: dimensions.viewBox.y,
+            width: dimensions.viewBox.width,
+            height: dimensions.viewBox.height,
         };
         this.svgDraw = SVG().addTo(this.svgDiv).size(this.width, this.height).viewbox(viewBox);
         this.innerSvg = <SVGElement>this.svgDraw.svg(this.svgContent).node.firstElementChild;
@@ -432,8 +432,8 @@ export class NetworkAreaDiagramViewer {
 
         // add pan and zoom to the SVG
         // we check if there is an "initial zoom" by checking ratio of width and height of the nad compared with viewBox sizes
-        const widthRatio = dimensions.viewbox.width / this.getWidth();
-        const heightRatio = dimensions.viewbox.height / this.getHeight();
+        const widthRatio = dimensions.viewBox.width / this.getWidth();
+        const heightRatio = dimensions.viewBox.height / this.getHeight();
         this.ratio = Math.max(widthRatio, heightRatio);
         this.enablePanzoom();
         // PowSyBl NAD introduced server side calculated SVG viewbox. This viewBox attribute can be removed as it is copied in the panzoom svg tag.
@@ -636,7 +636,7 @@ export class NetworkAreaDiagramViewer {
         const width = Number(svg.getAttribute('width'));
         const height = Number(svg.getAttribute('height'));
         const viewbox: ViewBox = svg.viewBox.baseVal;
-        return { width: width, height: height, viewbox: viewbox };
+        return { width: width, height: height, viewBox: viewbox };
     }
 
     private enablePanzoom() {
@@ -2581,11 +2581,11 @@ export class NetworkAreaDiagramViewer {
     }
 
     public zoomToFit() {
-        const viewBox = MetadataUtils.getViewBox(
+        const viewBox = MetadataUtils.getViewBoxAndDimensions(
             this.diagramMetadata?.nodes,
             this.diagramMetadata?.textNodes,
             this.svgParameters
-        );
+        ).viewBox;
         this.svgDraw?.viewbox(viewBox.x, viewBox.y, viewBox.width, viewBox.height);
     }
 

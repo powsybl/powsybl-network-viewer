@@ -8,7 +8,7 @@
 
 import { Point } from '@svgdotjs/svg.js';
 
-export type Dimensions = { width: number; height: number; viewbox: ViewBox };
+export type Dimensions = { width: number; height: number; viewBox: ViewBox };
 export type ViewBox = { x: number; y: number; width: number; height: number };
 
 // node move: original and new position
