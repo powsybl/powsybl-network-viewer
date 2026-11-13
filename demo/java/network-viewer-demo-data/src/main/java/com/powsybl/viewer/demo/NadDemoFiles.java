@@ -185,6 +185,21 @@ public final class NadDemoFiles {
             VoltageLevelFilter.createVoltageLevelDepthFilter(n6, "VL9006", 1));
     }
 
+    public static void drawCaseRealGrid(Path demoResourcesDirectory) {
+        Network network = Network.read("RealGridTest.biidm",
+                DemoFilesGenerator.class.getResourceAsStream("/RealGridTest.biidm"));
+
+        EdgeInfoParameters edgeInfoParameters = new EdgeInfoParameters(
+            EdgeInfoEnum.ACTIVE_POWER,
+            EdgeInfoEnum.NAME,
+            EdgeInfoEnum.REACTIVE_POWER,
+            EdgeInfoEnum.VALUE_PERMANENT_LIMIT_PERCENTAGE);
+
+        NetworkAreaDiagram.draw(network, demoResourcesDirectory.resolve("realgrid.svg"),
+            getNadParametersWithSvgWidthAndHeightAddedAndEdgeInfo(edgeInfoParameters),
+            VoltageLevelFilter.NO_FILTER);
+    }
+
     private static NadParameters getNadParametersWithSvgWidthAndHeightAdded() {
         SvgParameters svgParameters = new SvgParameters()
             .setCssLocation(SvgParameters.CssLocation.EXTERNAL_NO_IMPORT)
@@ -192,6 +207,21 @@ public final class NadDemoFiles {
         return new NadParameters()
             .setSvgParameters(svgParameters)
             .setLayoutFactory(new BasicForceLayoutFactory());
+    }
+
+    private static NadParameters getNadParametersWithSvgWidthAndHeightAddedAndEdgeInfo(EdgeInfoParameters edgeInfoParameters) {
+        SvgParameters svgParameters = new SvgParameters()
+            .setCssLocation(SvgParameters.CssLocation.EXTERNAL_NO_IMPORT)
+            .setSvgWidthAndHeightAdded(true);
+        LabelProviderParameters parameters = new LabelProviderParameters();
+        parameters.setEdgeInfoParameters(edgeInfoParameters)
+                .setSubstationDescriptionDisplayed(true)
+                .setDoubleArrowsDisplayed(true)
+                .setIdDisplayed(true);
+        return new NadParameters()
+            .setSvgParameters(svgParameters)
+            .setLabelProviderFactory((n, s) ->
+                new DefaultLabelProvider(n, s.createValueFormatter(), parameters));
     }
 
     private static NadParameters getNadParametersWithDefaultLabelProviderFilled() {
