@@ -143,7 +143,6 @@ export class NetworkAreaDiagramViewer {
     selectedNodeIds: Set<string> = new Set<string>();
     polygonSelection: PolygonSelection | null = null;
     groupDrag: GroupDragNode[] | null = null;
-    movedNodeId: string | null = null;
     onToggleHoverCallback: OnToggleNadHoverCallbackType | null;
     debounceToggleHoverCallback: (OnToggleNadHoverCallbackType | null) & Cancelable;
     previousMaxDisplayedSize: number;
@@ -991,7 +990,6 @@ export class NetworkAreaDiagramViewer {
             this.updateVoltageLevelText(element);
         } else {
             this.initialPosition = SvgUtils.getPosition(element);
-            this.movedNodeId = element.id;
             this.updateVoltageLevelNode(element);
         }
     }
@@ -1350,7 +1348,7 @@ export class NetworkAreaDiagramViewer {
     }
 
     private updateEdges(vlNode: SVGGraphicsElement, position: Point) {
-        // get edges connected to the the node we are moving
+        // get edges connected to the node we are moving
         const edges: EdgeMetadata[] = this.getEdgesMetadata(vlNode.id);
         // group edges, to have multibranches - branches connecting the same nodes - together
         const groupedEdges: Map<string, EdgeMetadata[]> = new Map<string, EdgeMetadata[]>();
@@ -1373,10 +1371,11 @@ export class NetworkAreaDiagramViewer {
                 groupedEdges.set(edgeGroupId, edgeGroup);
             }
         });
-
+        const movedNode = this.diagramMetadata?.nodes.find((n) => n.svgId == vlNode.id);
+        if (!movedNode) return;
         // redraw grouped edges
         for (const edgeGroup of groupedEdges.values()) {
-            this.redrawEdgeGroup(edgeGroup);
+            this.redrawEdgeGroup(movedNode, edgeGroup);
             this.redrawOtherVoltageLevelNode(edgeGroup[0], vlNode.id);
         }
         // redraw loop edges
@@ -1430,14 +1429,21 @@ export class NetworkAreaDiagramViewer {
         }
     }
 
-    private redrawEdgeGroup(edges: EdgeMetadata[]) {
+    private redrawEdgeGroup(node: NodeMetadata, edges: EdgeMetadata[]) {
         const edgeNodePoints = MetadataUtils.getEdgeNodePoints(edges[0], this.diagramMetadata);
         for (let iEdge = 0; iEdge < edges.length; iEdge++) {
-            this.redrawEdge(edges[iEdge], iEdge, edges.length, edgeNodePoints[0], edgeNodePoints[1]);
+            this.redrawEdge(node, edges[iEdge], iEdge, edges.length, edgeNodePoints[0], edgeNodePoints[1]);
         }
     }
 
-    private redrawEdge(edge: EdgeMetadata, iEdge: number, groupedEdgesCount: number, point1?: Point, point2?: Point) {
+    private redrawEdge(
+        node: NodeMetadata,
+        edge: EdgeMetadata,
+        iEdge: number,
+        groupedEdgesCount: number,
+        point1?: Point,
+        point2?: Point
+    ) {
         // get edge type
         const edgeType = MetadataUtils.getEdgeType(edge);
         if (edgeType == EdgeType.UNKNOWN) {
@@ -1445,7 +1451,7 @@ export class NetworkAreaDiagramViewer {
         }
 
         if (this.isThreeWtEdge(edgeType)) {
-            this.redrawThreeWtEdge(edge);
+            this.redrawThreeWtEdge(node, edge);
         } else {
             const halfEdges = this.getHalfEdges(edge, iEdge, groupedEdgesCount, point1, point2);
             this.redrawBranchEdge(edge, halfEdges[0], halfEdges[1]);
@@ -1878,13 +1884,13 @@ export class NetworkAreaDiagramViewer {
         });
     }
 
-    private redrawThreeWtEdge(edge: EdgeMetadata) {
+    private redrawThreeWtEdge(node: NodeMetadata, edge: EdgeMetadata) {
         const edgeNode: SVGGraphicsElement | null = this.svgDiv.querySelector("[id='" + edge.svgId + "']");
         const twtEdge: HTMLElement = <HTMLElement>edgeNode?.firstElementChild;
         if (!twtEdge) return;
 
         // compute polyline points
-        const threeWtMoved = edge.node1 != this.movedNodeId;
+        const threeWtMoved = edge.node1 != node.svgId;
         const halfEdge = HalfEdgeUtils.getThreeWtHalfEdge(
             SvgUtils.getPolylinePoints(twtEdge),
             edge,
@@ -2063,7 +2069,8 @@ export class NetworkAreaDiagramViewer {
             newDivElement.appendChild(this.createTextHeader(textNode.equipmentId));
         }
 
-        for (const busNode of busNodes) {
+        const busNodesFiltered = busNodes.filter((busNodeMetadata) => busNodeMetadata.legend);
+        for (const busNode of busNodesFiltered) {
             const newBusDivElement = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
             newBusDivElement.classList.add('nad-bus-descr');
             const newBusLegendElement = document.createElementNS('http://www.w3.org/1999/xhtml', 'span');

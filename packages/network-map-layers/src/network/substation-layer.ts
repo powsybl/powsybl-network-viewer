@@ -89,7 +89,7 @@ export class SubstationLayer extends CompositeLayer<Required<_SubstationLayerPro
         if (changeFlags.dataChanged) {
             const metaVoltageLevelsByNominalVoltage = new Map<number, MetaVoltageLevel[]>();
 
-            if (props.network != null && props.geoData != null) {
+            if (props.network && props.geoData) {
                 // create meta voltage levels
                 // a meta voltage level is made of:
                 //   - a list of voltage level that belong to same substation and with same nominal voltage
@@ -141,7 +141,7 @@ export class SubstationLayer extends CompositeLayer<Required<_SubstationLayerPro
         ) {
             let substationsLabels = props.data;
 
-            if (props.network != null && props.geoData != null && props.filteredNominalVoltages != null) {
+            if (props.network && props.geoData && props.filteredNominalVoltages) {
                 // we construct the substations where there is at least one voltage level with a nominal voltage
                 // present in the filteredVoltageLevels property, in order to handle correctly the substations labels visibility
                 substationsLabels = substationsLabels.filter((substation) =>
@@ -184,7 +184,7 @@ export class SubstationLayer extends CompositeLayer<Required<_SubstationLayerPro
             this.getSubLayerProps({
                 id: 'Label',
                 data: this.state.substationsLabels,
-                getPosition: (substation) => this.props.geoData.getSubstationPosition(substation.id),
+                getPosition: (substation) => this.props.geoData?.getSubstationPosition(substation.id),
                 getText: (substation) => this.props.getNameOrId(substation) ?? '',
                 getColor: this.props.labelColor,
                 fontFamily: 'Roboto',
@@ -196,7 +196,7 @@ export class SubstationLayer extends CompositeLayer<Required<_SubstationLayerPro
                 visible: this.props.labelsVisible,
                 updateTriggers: {
                     getText: [this.props.getNameOrId],
-                    getPosition: [this.props.geoData.substationPositionsById, this.props.network.substations],
+                    getPosition: [this.props.geoData?.substationPositionsById, this.props.network?.substations],
                 },
             } satisfies TextLayerProps<MapSubstation>)
         );

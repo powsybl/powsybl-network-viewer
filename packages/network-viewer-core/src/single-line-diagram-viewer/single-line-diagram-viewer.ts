@@ -576,20 +576,27 @@ export class SingleLineDiagramViewer {
     private addEquipmentsPopover() {
         this.svgMetadata?.nodes?.forEach((equipment) => {
             const svgEquipment = this.container?.querySelector('#' + equipment.id);
-            const svgLabel = svgEquipment?.querySelector('text[class="sld-label"]');
-            if (svgLabel) {
-                svgLabel.addEventListener('mouseover', (event) => {
-                    this.onToggleHoverCallback?.(
-                        true,
-                        event.currentTarget,
-                        equipment.equipmentId,
-                        equipment.componentType
-                    );
-                });
-                svgLabel.addEventListener('mouseout', () => {
-                    this.onToggleHoverCallback?.(false, null, '', '');
-                });
+            if (!svgEquipment) {
+                console.warn(`Node element with id='${equipment.id}', type='${equipment.componentType}' not found`);
+                return;
             }
+            if (SWITCH_COMPONENT_TYPES.has(equipment.componentType)) {
+                this.hoverOnElement(svgEquipment, equipment);
+            } else {
+                const svgLabel = svgEquipment.querySelector('text[class="sld-label"]');
+                if (svgLabel) {
+                    this.hoverOnElement(svgLabel, equipment);
+                }
+            }
+        });
+    }
+
+    private hoverOnElement(element: Element, equipment: SLDMetadataNode) {
+        element.addEventListener('mouseover', (event) => {
+            this.onToggleHoverCallback?.(true, event.currentTarget, equipment.equipmentId, equipment.componentType);
+        });
+        element.addEventListener('mouseout', () => {
+            this.onToggleHoverCallback?.(false, null, '', '');
         });
     }
 
