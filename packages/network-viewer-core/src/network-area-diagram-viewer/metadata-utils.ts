@@ -418,5 +418,5 @@ export function getInjectionMetadata(
     busNodeId: string,
     injections: InjectionMetadata[]
 ): InjectionMetadata[] {
-    return injections.filter((edge) => edge.vlNodeId == nodeId && edge.busNodeId == busNodeId);
+    return injections.filter((injection) => injection.vlNodeId === nodeId && injection.busNodeId === busNodeId);
 }

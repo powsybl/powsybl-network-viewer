@@ -21,6 +21,7 @@ import {
     getMidPosition,
     getPointAtDistance,
     getPointAtDistanceWithAngle,
+    getRotationAngle,
     isTransformerEdge,
     radToDeg,
 } from './diagram-utils';
@@ -36,7 +37,7 @@ export function getEdgeStartAngle(halfEdge: HalfEdge): number {
 // get the rotation angle of an halfEdge arrow
 export function getArrowRotation(halfEdge: HalfEdge): number {
     const angle = getArrowEdgeAngle(halfEdge);
-    return radToDeg(angle + (angle > Math.PI / 2 ? (-3 * Math.PI) / 2 : Math.PI / 2));
+    return getRotationAngle(angle);
 }
 
 // get the angle of the edge part corresponding to an halfEdge arrow

@@ -166,12 +166,12 @@ export class SvgWriter {
                 if (MetadataUtils.isThreeWTNode(node)) {
                     this.threeWindingsTransformers.push(node);
                 } else {
-                    const nodeAndInjectsionAndInfos = this.getNodeAndInjectionAndInfos(node);
-                    gNodesElement.appendChild(nodeAndInjectsionAndInfos.node);
-                    if (nodeAndInjectsionAndInfos.injection.hasChildNodes()) {
-                        gInjectionsElement.appendChild(nodeAndInjectsionAndInfos.injection);
+                    const nodeAndInjectionAndInfos = this.getNodeAndInjectionAndInfos(node);
+                    gNodesElement.appendChild(nodeAndInjectionAndInfos.node);
+                    if (nodeAndInjectionAndInfos.injection.hasChildNodes()) {
+                        gInjectionsElement.appendChild(nodeAndInjectionAndInfos.injection);
                     }
-                    injectionsInfos = injectionsInfos.concat(nodeAndInjectsionAndInfos.infos);
+                    injectionsInfos = injectionsInfos.concat(nodeAndInjectionAndInfos.infos);
                 }
             }
         });

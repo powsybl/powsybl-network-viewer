@@ -417,3 +417,7 @@ export function getLabelData(angle: number, arrowLabelShift: number): LabelData 
         external: { shift: externalShiftAndStyle[0], style: externalShiftAndStyle[1] },
     };
 }
+
+export function getRotationAngle(angle: number): number {
+    return radToDeg(angle + (angle > Math.PI / 2 ? (-3 * Math.PI) / 2 : Math.PI / 2));
+}

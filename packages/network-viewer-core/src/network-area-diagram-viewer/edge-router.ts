@@ -247,9 +247,7 @@ export class EdgeRouter {
         const halfEdgePoints = edgesPoints ? edgesPoints[0] : undefined;
         if (infoPointAndAngle && halfEdgePoints) {
             const angle = DiagramUtils.getAngle(halfEdgePoints.at(-2)!, halfEdgePoints.at(-1)!);
-            const rotationAngle = DiagramUtils.radToDeg(
-                angle + (angle > Math.PI / 2 ? (-3 * Math.PI) / 2 : Math.PI / 2)
-            );
+            const rotationAngle = DiagramUtils.getRotationAngle(angle);
             this.edgeMiddleData[edgeId] = [infoPointAndAngle[0], rotationAngle];
             const internalShiftAndStyle = DiagramUtils.getLabelShiftAndStyle(
                 angle,
@@ -499,12 +497,12 @@ export class EdgeRouter {
             );
             const vlNode = MetadataUtils.getNodeMetadata(nodeId, this.diagramMetadata);
             const vlPoint = new Point(vlNode?.x ?? 0, vlNode?.y ?? 0);
-            const busNodes = MetadataUtils.getBusNodesMetadata(nodeId, this.diagramMetadata.busNodes);
-            busNodes.forEach((busNode) => {
-                const nodeRadius = MetadataUtils.getNodeRadius(busNode, vlNode, this.svgParameters);
-                nodeInjections.forEach((injection, index) => {
+            nodeInjections.forEach((injection, index) => {
+                const busNode = MetadataUtils.getBusNodeMetadata(injection.busNodeId, this.diagramMetadata);
+                if (busNode) {
+                    const nodeRadius = MetadataUtils.getNodeRadius(busNode, vlNode, this.svgParameters);
                     this.storeInjectionData(injection.svgId, vlPoint, busNode, nodeRadius, availableAngles, index);
-                });
+                }
             });
         }
     }
@@ -535,7 +533,7 @@ export class EdgeRouter {
         // point of the arrow added to the injection edge info
         const arrowCenter = DiagramUtils.getPointAtDistance(busNodePoint, injPoint, arrowShift);
         // rotation of the arrow added to the injection edge info
-        const rotationAngle = DiagramUtils.radToDeg(angle + (angle > Math.PI / 2 ? (-3 * Math.PI) / 2 : Math.PI / 2));
+        const rotationAngle = DiagramUtils.getRotationAngle(angle);
         this.injectionData[injectionId] = [busNodePoint, injPoint, arrowCenter, rotationAngle];
 
         this.injectionLabelData[injectionId] = DiagramUtils.getLabelData(
