@@ -31,7 +31,7 @@
     ],
     "scripts": {
         "check": "tsc --noEmit",
-        "build": "tsdown",
+        "build": "npm run lint && tsdown",
         "build:watch": "tsdown --watch --mode development",
         "build:all": "npm run build --workspaces && npm run build",
         "prepublishOnly": "$npm_execpath run build",
