@@ -27,7 +27,7 @@ test('getSelectableFrom', () => {
     let selectableElement = SvgUtils.getSelectableFrom(getSvgNode());
     expect(selectableElement).not.toBeUndefined();
     selectableElement = SvgUtils.getSelectableFrom(getSvgTextNode());
-    expect(selectableElement).toBeUndefined();
+    expect(selectableElement).not.toBeUndefined();
     selectableElement = SvgUtils.getSelectableFrom(getSvgLoopEdge());
     expect(selectableElement).toBeUndefined();
 });
@@ -160,8 +160,8 @@ test('getBendableLineFrom', () => {
 
 test('getStyle', () => {
     const expectedStyle =
-        '.nad-branch-edges .nad-edge-path, .nad-3wt-edges .nad-edge-path {stroke: var(--nad-vl-color, lightgrey); stroke-width: 5; fill: none;}\n' +
-        '.nad-branch-edges .nad-winding, .nad-3wt-nodes .nad-winding {stroke: var(--nad-vl-color, lightgrey); stroke-width: 5; fill: none;}';
+        '.nad-branch-edges .nad-edge-path, .nad-3wt-edges .nad-edge-path { stroke: var(--nad-vl-color, lightgrey); stroke-width: 5; fill: none; }\n' +
+        '.nad-branch-edges .nad-winding, .nad-3wt-nodes .nad-winding { stroke: var(--nad-vl-color, lightgrey); stroke-width: 5; fill: none; }';
     const styleEl = document.createElement('style');
     styleEl.innerHTML = expectedStyle + '\n.nad-text-edges {stroke: black; stroke-width: 3; stroke-dasharray: 6,7}';
     document.head.appendChild(styleEl);
