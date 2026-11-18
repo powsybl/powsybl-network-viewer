@@ -30,6 +30,8 @@ import NadSvgComponentsExample from './diagram-viewers/data/nad-edge-info-compon
 import NadSvgComponentsExampleMeta from './diagram-viewers/data/nad-edge-info-components_metadata.json';
 import NadSvgPstHvdcCustomExample from './diagram-viewers/data/nad-four-substations_custom.svg';
 import NadSvgPstHvdcCustomExampleMeta from './diagram-viewers/data/nad-four-substations_custom_metadata.json';
+import NadSvgInjectionsExample from './diagram-viewers/data/nad-four-substations-injections.svg';
+import NadSvgInjectionsExampleMeta from './diagram-viewers/data/nad-four-substations-injections_metadata.json';
 
 import { NadViewerParametersOptions, NetworkAreaDiagramViewer } from '../../src';
 import {
@@ -363,6 +365,34 @@ const addCreatedNadToDemo = () => {
         document.getElementById('svg-container-nad-pst-hvdc-custom-c')!,
         '',
         NadSvgPstHvdcCustomExampleMeta,
+        nadViewerParametersOptions
+    );
+
+    fetch(NadSvgInjectionsExample)
+        .then((response) => response.text())
+        .then((svgContent) => {
+            const nadViewerParametersOptions: NadViewerParametersOptions = {
+                enableDragInteraction: true,
+                addButtons: true,
+                onMoveNodeCallback: handleNodeMove,
+                onMoveTextNodeCallback: handleTextNodeMove,
+                onSelectNodeCallback: handleNodeSelect,
+                onToggleHoverCallback: handleToggleNadHover,
+                onRightClickCallback: handleRightClick,
+                onBendLineCallback: handleLineBending,
+            };
+            new NetworkAreaDiagramViewer(
+                document.getElementById('svg-container-nad-injections')!,
+                svgContent,
+                NadSvgInjectionsExampleMeta,
+                nadViewerParametersOptions
+            );
+        });
+
+    new NetworkAreaDiagramViewer(
+        document.getElementById('svg-container-nad-injections-c')!,
+        '',
+        NadSvgInjectionsExampleMeta,
         nadViewerParametersOptions
     );
 

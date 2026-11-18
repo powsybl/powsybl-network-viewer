@@ -1372,7 +1372,7 @@ export class NetworkAreaDiagramViewer {
         const arrowsNum = this.redrawArrows(edgeInfo, HalfEdgeUtils.getArrowRotation(halfEdge));
 
         // move edge labels
-        const labelData = HalfEdgeUtils.getLabelData(halfEdge, this.svgParameters.getArrowLabelShift());
+        const labelData = HalfEdgeUtils.getHalfEdgeLabelData(halfEdge, this.svgParameters.getArrowLabelShift());
         const factor: number = arrowsNum == 2 ? this.svgParameters.getDoubleArrowShiftFactorText() : 1;
         // move edge labelB
         const labelBElement = edgeInfo.querySelector('text:nth-of-type(1)') as SVGGraphicsElement;
