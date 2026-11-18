@@ -33,6 +33,7 @@ public final class DemoFilesGenerator {
         NadDemoFiles.drawFourSubstationsCustomLabelAndStyle(demoResources);
         NadDemoFiles.drawNetworkWithSvcVscScDlDoubleArrows(demoResources);
         NadDemoFiles.drawNetworkWithTwoVoltageLevelsAndComponents(demoResources);
+        NadDemoFiles.drawFourSubstationsWithInjections(demoResources);
 
         SldDemoFiles.drawSldExample(demoResources);
         SldDemoFiles.drawSldSubExample(demoResources);

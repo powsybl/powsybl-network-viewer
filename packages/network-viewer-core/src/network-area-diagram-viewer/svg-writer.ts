@@ -213,10 +213,10 @@ export class SvgWriter {
         } else {
             const busNodes = MetadataUtils.getBusNodesMetadata(node.svgId, this.diagramMetadata.busNodes);
             const busEgdes = MetadataUtils.getBusEdgesMetadata(node.svgId, this.diagramMetadata.edges);
-            const traversingBusEdgesAngles: number[] = [];
+            const traversingBusAngles: number[] = [];
             busNodes.forEach((busNode) => {
-                gNodeElement.appendChild(this.getBusNode(busNode, node, traversingBusEdgesAngles));
-                this.addBusEdgeAngles(node, busNode, busEgdes.get(busNode.svgId) ?? [], traversingBusEdgesAngles);
+                gNodeElement.appendChild(this.getBusNode(busNode, node, traversingBusAngles));
+                this.addBusEdgeAngles(node, busNode, busEgdes.get(busNode.svgId) ?? [], traversingBusAngles);
                 if (this.diagramMetadata.injections) {
                     const injections: InjectionMetadata[] = MetadataUtils.getInjectionMetadata(
                         node.svgId,
@@ -225,6 +225,7 @@ export class SvgWriter {
                     );
                     if (injections.length > 0) {
                         this.addBusNodeInjections(gInjectionNodeElement, injections, busNode, injectionsInfos);
+                        this.addBusInjectionAngles(injections, traversingBusAngles);
                     }
                 }
             });
@@ -232,7 +233,7 @@ export class SvgWriter {
         return { node: gNodeElement, injection: gInjectionNodeElement, infos: injectionsInfos };
     }
 
-    private getBusNode(busNode: BusNodeMetadata, node: NodeMetadata, traversingBusEdgesAngles: number[]): SVGElement {
+    private getBusNode(busNode: BusNodeMetadata, node: NodeMetadata, traversingBusAngles: number[]): SVGElement {
         const nodeRadius = MetadataUtils.getNodeRadius(busNode, node, this.svgParameters);
         if (MetadataUtils.isBoundaryNode(node)) {
             const pathElement = document.createElementNS(SvgWriter.SVG_NAMESPACE, 'path');
@@ -258,7 +259,7 @@ export class SvgWriter {
             pathElement.id = busNode.svgId;
             SvgUtils.addCssClasses(pathElement, busNode.classes, SvgWriter.BUS_CLASS);
             SvgUtils.addElementStyle(pathElement, busNode.style);
-            const edgeAngles = DiagramUtils.getSortedAnglesWithWrapAround(traversingBusEdgesAngles);
+            const edgeAngles = DiagramUtils.getSortedAnglesWithWrapAround(traversingBusAngles);
             const path: string = DiagramUtils.getFragmentedAnnulusPath(
                 edgeAngles,
                 nodeRadius,
@@ -273,7 +274,7 @@ export class SvgWriter {
         node: NodeMetadata,
         busNode: BusNodeMetadata,
         busEdges: EdgeMetadata[],
-        traversingBusEdgesAngles: number[]
+        traversingBusAngles: number[]
     ) {
         busEdges.forEach((edge) => {
             let angle: number | undefined = undefined;
@@ -287,7 +288,16 @@ export class SvgWriter {
                 angle = this.edgeRouter?.getEdgeAngle(edge.svgId, node.svgId == edge.node1 ? '1' : '2');
             }
             if (angle) {
-                traversingBusEdgesAngles.push(angle);
+                traversingBusAngles.push(angle);
+            }
+        });
+    }
+
+    private addBusInjectionAngles(injections: InjectionMetadata[], traversingBusAngles: number[]) {
+        injections.forEach((injection) => {
+            const angle: number | undefined = this.edgeRouter?.getInjectionAngle(injection.svgId);
+            if (angle) {
+                traversingBusAngles.push(angle);
             }
         });
     }

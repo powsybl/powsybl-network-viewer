@@ -10,11 +10,14 @@ package com.powsybl.viewer.demo;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.diagram.test.Networks;
 import com.powsybl.ieeecdf.converter.IeeeCdfNetworkFactory;
+import com.powsybl.iidm.network.Battery;
 import com.powsybl.iidm.network.ImportConfig;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import com.powsybl.iidm.network.test.ScadaNetworkFactory;
@@ -389,6 +392,44 @@ public final class NadDemoFiles {
         Network network = Networks.createTwoVoltageLevels();
         NetworkAreaDiagram.draw(network, demoResourcesDirectory.resolve("nad-edge-info-components"),
                 getNadParametersWithComponents(),
+                VoltageLevelFilter.NO_FILTER);
+    }
+
+    public static void drawFourSubstationsWithInjections(Path demoResourcesDirectory) {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+        // Open the coupler to get a two-nodes voltage level
+        network.getSwitch("S1VL2_COUPLER").setOpen(true);
+        // Add shunt capacitor
+        VoltageLevel s1vl2 = network.getVoltageLevel("S1VL2");
+        s1vl2.getNodeBreakerView().newDisconnector().setId("S1VL2_BBS1_SCC_DISCONNECTOR").setOpen(true).setNode1(0).setNode2(24).add();
+        s1vl2.getNodeBreakerView().newBreaker().setId("S1VL2_BBS1_SCC_BREAKER").setOpen(false).setNode1(24).setNode2(25).add();
+        ShuntCompensator shuntCapacitor = s1vl2.newShuntCompensator()
+                .setId("SHUNT_CAPACITOR")
+                .setNode(25)
+                .setSectionCount(1)
+                .newLinearModel()
+                .setMaximumSectionCount(1)
+                .setBPerSection(0.032)
+                .add()
+                .add();
+        shuntCapacitor.getTerminal().setQ(1920.0).setP(0.);
+        // Add battery
+        VoltageLevel s1vl1 = network.getVoltageLevel("S1VL1");
+        s1vl1.getNodeBreakerView().newDisconnector().setId("S1VL1_BATTERY_DISCONNECTOR").setNode1(0).setNode2(5).add();
+        s1vl1.getNodeBreakerView().newBreaker().setId("S1VL1_BATTERY_BREAKER").setNode1(5).setNode2(6).add();
+        Battery battery = s1vl1.newBattery()
+                .setId("BATTERY")
+                .setNode(6)
+                .setTargetP(50.)
+                .setTargetQ(2.)
+                .setMinP(-5)
+                .setMaxP(60)
+                .add();
+        battery.getTerminal().setP(15.);
+        // Override NaN value on shunt
+        network.getShuntCompensator("SHUNT").getTerminal().setP(0.);
+        NetworkAreaDiagram.draw(network, demoResourcesDirectory.resolve("nad-four-substations-injections.svg"),
+                getNadParametersWithInjectionsAdded(),
                 VoltageLevelFilter.NO_FILTER);
     }
 }

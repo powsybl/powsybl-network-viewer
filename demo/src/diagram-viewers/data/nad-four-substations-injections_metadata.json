@@ -1,0 +1,487 @@
+{
+  "layoutParameters" : {
+    "textNodesForceLayout" : false,
+    "textNodeFixedShift" : {
+      "x" : 100.0,
+      "y" : -40.0
+    },
+    "maxSteps" : 1000,
+    "timeoutSeconds" : 15.0,
+    "textNodeEdgeConnectionYShift" : 25.0,
+    "injectionsAdded" : true,
+    "scaleFactor" : 1.0
+  },
+  "svgParameters" : {
+    "diagramPadding" : {
+      "left" : 200.0,
+      "top" : 200.0,
+      "right" : 200.0,
+      "bottom" : 200.0
+    },
+    "insertNameDesc" : false,
+    "svgWidthAndHeightAdded" : false,
+    "cssLocation" : "EXTERNAL_NO_IMPORT",
+    "sizeConstraint" : "FIXED_SCALE",
+    "fixedWidth" : -1,
+    "fixedHeight" : -1,
+    "fixedScale" : 0.2,
+    "arrowShift" : 30.0,
+    "arrowLabelShift" : 19.0,
+    "converterStationWidth" : 70.0,
+    "voltageLevelCircleRadius" : 30.0,
+    "fictitiousVoltageLevelCircleRadius" : 15.0,
+    "transformerCircleRadius" : 20.0,
+    "nodeHollowWidth" : 15.0,
+    "edgesForkLength" : 80.0,
+    "edgesForkAperture" : 60.0,
+    "edgeStartShift" : 0.0,
+    "unknownBusNodeExtraRadius" : 10.0,
+    "loopDistance" : 120.0,
+    "loopEdgesAperture" : 60.0,
+    "loopControlDistance" : 40.0,
+    "edgeInfoAlongEdge" : true,
+    "interAnnulusSpace" : 5.0,
+    "svgPrefix" : "",
+    "arrowPathIn" : "M-10 -10 H10 L0 10z",
+    "arrowPathOut" : "M-10 10 H10 L0 -10z",
+    "languageTag" : "en",
+    "voltageValuePrecision" : 1,
+    "powerValuePrecision" : 0,
+    "angleValuePrecision" : 1,
+    "currentValuePrecision" : 0,
+    "percentageValuePrecision" : 0,
+    "pstArrowHeadSize" : 8.0,
+    "undefinedValueSymbol" : "",
+    "highlightGraph" : false,
+    "injectionAperture" : 10.0,
+    "injectionEdgeLength" : 145.0,
+    "injectionCircleRadius" : 25.0,
+    "voltageLevelLegendsIncluded" : true,
+    "edgeInfosIncluded" : true,
+    "doubleArrowShiftFactorArrows" : 1.5,
+    "doubleArrowShiftFactorText" : 1.8
+  },
+  "busNodes" : [ {
+    "svgId" : "7",
+    "equipmentId" : "S1VL1_0",
+    "nbNeighbours" : 0,
+    "index" : 0,
+    "vlNode" : "0",
+    "legend" : "224.6 kV / 2.3°",
+    "classes" : [ "nad-bus-0" ]
+  }, {
+    "svgId" : "27",
+    "equipmentId" : "S1VL2_0",
+    "nbNeighbours" : 1,
+    "index" : 0,
+    "vlNode" : "8",
+    "legend" : "400.0 kV / 0.0°",
+    "classes" : [ "nad-bus-0" ]
+  }, {
+    "svgId" : "28",
+    "equipmentId" : "S1VL2_1",
+    "nbNeighbours" : 1,
+    "index" : 1,
+    "vlNode" : "8",
+    "legend" : "400.0 kV / 0.0°",
+    "classes" : [ "nad-bus-1" ]
+  }, {
+    "svgId" : "34",
+    "equipmentId" : "S2VL1_0",
+    "nbNeighbours" : 0,
+    "index" : 0,
+    "vlNode" : "29",
+    "legend" : "408.8 kV / 0.7°",
+    "classes" : [ "nad-bus-0" ]
+  }, {
+    "svgId" : "42",
+    "equipmentId" : "S3VL1_0",
+    "nbNeighbours" : 0,
+    "index" : 0,
+    "vlNode" : "35",
+    "legend" : "400.0 kV / 0.0°",
+    "classes" : [ "nad-bus-0" ]
+  }, {
+    "svgId" : "49",
+    "equipmentId" : "S4VL1_0",
+    "nbNeighbours" : 0,
+    "index" : 0,
+    "vlNode" : "43",
+    "legend" : "400.0 kV / -1.1°",
+    "classes" : [ "nad-bus-0" ]
+  } ],
+  "nodes" : [ {
+    "svgId" : "0",
+    "equipmentId" : "S1VL1",
+    "x" : -220.4,
+    "y" : -515.14,
+    "legendSvgId" : "1",
+    "legendEdgeSvgId" : "2",
+    "legendHeader" : [ "S1VL1" ],
+    "classes" : [ "nad-vl180to300" ]
+  }, {
+    "svgId" : "8",
+    "equipmentId" : "S1VL2",
+    "x" : -152.34,
+    "y" : -133.8,
+    "legendSvgId" : "9",
+    "legendEdgeSvgId" : "10",
+    "legendHeader" : [ "S1VL2" ],
+    "classes" : [ "nad-vl300to500" ]
+  }, {
+    "svgId" : "29",
+    "equipmentId" : "S2VL1",
+    "x" : -162.93,
+    "y" : 231.51,
+    "legendSvgId" : "30",
+    "legendEdgeSvgId" : "31",
+    "legendHeader" : [ "S2VL1" ],
+    "classes" : [ "nad-vl300to500" ]
+  }, {
+    "svgId" : "35",
+    "equipmentId" : "S3VL1",
+    "x" : 171.13,
+    "y" : 91.69,
+    "legendSvgId" : "36",
+    "legendEdgeSvgId" : "37",
+    "legendHeader" : [ "S3VL1" ],
+    "classes" : [ "nad-vl300to500" ]
+  }, {
+    "svgId" : "43",
+    "equipmentId" : "S4VL1",
+    "x" : 497.34,
+    "y" : 302.31,
+    "legendSvgId" : "44",
+    "legendEdgeSvgId" : "45",
+    "legendHeader" : [ "S4VL1" ],
+    "classes" : [ "nad-vl300to500" ]
+  } ],
+  "injections" : [ {
+    "svgId" : "3",
+    "equipmentId" : "LD1",
+    "componentType" : "LOAD",
+    "busNodeId" : "7",
+    "vlNodeId" : "0",
+    "edgeInfo" : {
+      "svgId" : "4",
+      "infoTypeB" : "ActivePower",
+      "direction" : "OUT",
+      "labelB" : "80"
+    }
+  }, {
+    "svgId" : "5",
+    "equipmentId" : "BATTERY",
+    "componentType" : "BATTERY",
+    "busNodeId" : "7",
+    "vlNodeId" : "0",
+    "edgeInfo" : {
+      "svgId" : "6",
+      "infoTypeB" : "ActivePower",
+      "direction" : "OUT",
+      "labelB" : "15"
+    }
+  }, {
+    "svgId" : "11",
+    "equipmentId" : "GH1",
+    "componentType" : "GENERATOR",
+    "busNodeId" : "27",
+    "vlNodeId" : "8",
+    "edgeInfo" : {
+      "svgId" : "12",
+      "infoTypeB" : "ActivePower",
+      "direction" : "IN",
+      "labelB" : "-85"
+    }
+  }, {
+    "svgId" : "13",
+    "equipmentId" : "GH2",
+    "componentType" : "GENERATOR",
+    "busNodeId" : "27",
+    "vlNodeId" : "8",
+    "edgeInfo" : {
+      "svgId" : "14",
+      "infoTypeB" : "ActivePower",
+      "direction" : "IN",
+      "labelB" : "-90"
+    }
+  }, {
+    "svgId" : "15",
+    "equipmentId" : "GH3",
+    "componentType" : "GENERATOR",
+    "busNodeId" : "27",
+    "vlNodeId" : "8",
+    "edgeInfo" : {
+      "svgId" : "16",
+      "infoTypeB" : "ActivePower",
+      "direction" : "IN",
+      "labelB" : "-156"
+    }
+  }, {
+    "svgId" : "23",
+    "equipmentId" : "SHUNT",
+    "componentType" : "SHUNT_COMPENSATOR_INDUCTOR",
+    "busNodeId" : "27",
+    "vlNodeId" : "8",
+    "edgeInfo" : {
+      "svgId" : "24",
+      "infoTypeB" : "ActivePower",
+      "direction" : "OUT",
+      "labelB" : "0"
+    }
+  }, {
+    "svgId" : "25",
+    "equipmentId" : "SHUNT_CAPACITOR",
+    "componentType" : "SHUNT_COMPENSATOR_CAPACITOR",
+    "busNodeId" : "27",
+    "vlNodeId" : "8",
+    "edgeInfo" : {
+      "svgId" : "26",
+      "infoTypeB" : "ActivePower",
+      "direction" : "OUT",
+      "labelB" : "0"
+    },
+    "classes" : [ "nad-disconnected" ]
+  }, {
+    "svgId" : "17",
+    "equipmentId" : "LD2",
+    "componentType" : "LOAD",
+    "busNodeId" : "28",
+    "vlNodeId" : "8",
+    "edgeInfo" : {
+      "svgId" : "18",
+      "infoTypeB" : "ActivePower",
+      "direction" : "OUT",
+      "labelB" : "60"
+    }
+  }, {
+    "svgId" : "19",
+    "equipmentId" : "LD3",
+    "componentType" : "LOAD",
+    "busNodeId" : "28",
+    "vlNodeId" : "8",
+    "edgeInfo" : {
+      "svgId" : "20",
+      "infoTypeB" : "ActivePower",
+      "direction" : "OUT",
+      "labelB" : "60"
+    }
+  }, {
+    "svgId" : "21",
+    "equipmentId" : "LD4",
+    "componentType" : "LOAD",
+    "busNodeId" : "28",
+    "vlNodeId" : "8",
+    "edgeInfo" : {
+      "svgId" : "22",
+      "infoTypeB" : "ActivePower",
+      "direction" : "OUT",
+      "labelB" : "40"
+    }
+  }, {
+    "svgId" : "32",
+    "equipmentId" : "GTH1",
+    "componentType" : "GENERATOR",
+    "busNodeId" : "34",
+    "vlNodeId" : "29",
+    "edgeInfo" : {
+      "svgId" : "33",
+      "infoTypeB" : "ActivePower",
+      "direction" : "IN",
+      "labelB" : "-100"
+    }
+  }, {
+    "svgId" : "38",
+    "equipmentId" : "GTH2",
+    "componentType" : "GENERATOR",
+    "busNodeId" : "42",
+    "vlNodeId" : "35",
+    "edgeInfo" : {
+      "svgId" : "39",
+      "infoTypeB" : "ActivePower",
+      "direction" : "IN",
+      "labelB" : "-251"
+    }
+  }, {
+    "svgId" : "40",
+    "equipmentId" : "LD5",
+    "componentType" : "LOAD",
+    "busNodeId" : "42",
+    "vlNodeId" : "35",
+    "edgeInfo" : {
+      "svgId" : "41",
+      "infoTypeB" : "ActivePower",
+      "direction" : "OUT",
+      "labelB" : "200"
+    }
+  }, {
+    "svgId" : "46",
+    "equipmentId" : "LD6",
+    "componentType" : "LOAD",
+    "busNodeId" : "49",
+    "vlNodeId" : "43",
+    "edgeInfo" : {
+      "svgId" : "47",
+      "infoTypeB" : "ActivePower",
+      "direction" : "OUT",
+      "labelB" : "240"
+    }
+  }, {
+    "svgId" : "48",
+    "equipmentId" : "SVC",
+    "componentType" : "STATIC_VAR_COMPENSATOR",
+    "busNodeId" : "49",
+    "vlNodeId" : "43"
+  } ],
+  "edges" : [ {
+    "svgId" : "50",
+    "equipmentId" : "TWT",
+    "node1" : "0",
+    "node2" : "8",
+    "busNode1" : "7",
+    "busNode2" : "27",
+    "type" : "PstEdge",
+    "edgeInfo1" : {
+      "svgId" : "51",
+      "infoTypeB" : "ActivePower",
+      "direction" : "IN",
+      "labelB" : "-80"
+    },
+    "edgeInfo2" : {
+      "svgId" : "52",
+      "infoTypeB" : "ActivePower",
+      "direction" : "OUT",
+      "labelB" : "80"
+    },
+    "classes1" : [ "nad-vl180to300" ],
+    "classes2" : [ "nad-vl300to500" ]
+  }, {
+    "svgId" : "53",
+    "equipmentId" : "HVDC2",
+    "node1" : "8",
+    "node2" : "35",
+    "busNode1" : "28",
+    "busNode2" : "42",
+    "type" : "HvdcLineLccEdge",
+    "edgeInfo1" : {
+      "svgId" : "54",
+      "infoTypeB" : "ActivePower",
+      "direction" : "OUT",
+      "labelB" : "81"
+    },
+    "edgeInfo2" : {
+      "svgId" : "55",
+      "infoTypeB" : "ActivePower",
+      "direction" : "IN",
+      "labelB" : "-79"
+    },
+    "classes1" : [ "nad-vl300to500" ],
+    "classes2" : [ "nad-vl300to500" ]
+  }, {
+    "svgId" : "56",
+    "equipmentId" : "HVDC1",
+    "node1" : "8",
+    "node2" : "29",
+    "busNode1" : "28",
+    "busNode2" : "34",
+    "type" : "HvdcLineVscEdge",
+    "edgeInfo1" : {
+      "svgId" : "57",
+      "infoTypeB" : "ActivePower",
+      "direction" : "OUT",
+      "labelB" : "10"
+    },
+    "edgeInfo2" : {
+      "svgId" : "58",
+      "infoTypeB" : "ActivePower",
+      "direction" : "IN",
+      "labelB" : "-10"
+    },
+    "classes1" : [ "nad-vl300to500" ],
+    "classes2" : [ "nad-vl300to500" ]
+  }, {
+    "svgId" : "59",
+    "equipmentId" : "LINE_S2S3",
+    "node1" : "29",
+    "node2" : "35",
+    "busNode1" : "34",
+    "busNode2" : "42",
+    "type" : "LineEdge",
+    "edgeInfo1" : {
+      "svgId" : "60",
+      "infoTypeB" : "ActivePower",
+      "direction" : "OUT",
+      "labelB" : "110"
+    },
+    "edgeInfo2" : {
+      "svgId" : "61",
+      "infoTypeB" : "ActivePower",
+      "direction" : "IN",
+      "labelB" : "-110"
+    },
+    "classes1" : [ "nad-vl300to500" ],
+    "classes2" : [ "nad-vl300to500" ]
+  }, {
+    "svgId" : "62",
+    "equipmentId" : "LINE_S3S4",
+    "node1" : "35",
+    "node2" : "43",
+    "busNode1" : "42",
+    "busNode2" : "49",
+    "type" : "LineEdge",
+    "edgeInfo1" : {
+      "svgId" : "63",
+      "infoTypeB" : "ActivePower",
+      "direction" : "OUT",
+      "labelB" : "240"
+    },
+    "edgeInfo2" : {
+      "svgId" : "64",
+      "infoTypeB" : "ActivePower",
+      "direction" : "IN",
+      "labelB" : "-240"
+    },
+    "classes1" : [ "nad-vl300to500" ],
+    "classes2" : [ "nad-vl300to500" ]
+  } ],
+  "textNodes" : [ {
+    "svgId" : "1",
+    "equipmentId" : "S1VL1",
+    "vlNode" : "0",
+    "shiftX" : 100.0,
+    "shiftY" : -40.0,
+    "connectionShiftX" : 100.0,
+    "connectionShiftY" : -15.0
+  }, {
+    "svgId" : "9",
+    "equipmentId" : "S1VL2",
+    "vlNode" : "8",
+    "shiftX" : 100.0,
+    "shiftY" : -40.0,
+    "connectionShiftX" : 100.0,
+    "connectionShiftY" : -15.0
+  }, {
+    "svgId" : "30",
+    "equipmentId" : "S2VL1",
+    "vlNode" : "29",
+    "shiftX" : 100.0,
+    "shiftY" : -40.0,
+    "connectionShiftX" : 100.0,
+    "connectionShiftY" : -15.0
+  }, {
+    "svgId" : "36",
+    "equipmentId" : "S3VL1",
+    "vlNode" : "35",
+    "shiftX" : 100.0,
+    "shiftY" : -40.0,
+    "connectionShiftX" : 100.0,
+    "connectionShiftY" : -15.0
+  }, {
+    "svgId" : "44",
+    "equipmentId" : "S4VL1",
+    "vlNode" : "43",
+    "shiftX" : 100.0,
+    "shiftY" : -40.0,
+    "connectionShiftX" : 100.0,
+    "connectionShiftY" : -15.0
+  } ]
+}

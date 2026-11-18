@@ -25,7 +25,7 @@ export class EdgeRouter {
     edgeMiddleData: Record<string, [Point, number]> = {};
     edgeMiddleLabelData: Record<string, LabelData> = {};
     threeWTEdgePoints: Record<string, [Point, Point]> = {};
-    injectionData: Record<string, [Point, Point, Point, number]> = {};
+    injectionData: Record<string, [Point, Point, Point, number, number]> = {};
     injectionLabelData: Record<string, LabelData> = {};
     nodeAngles: Record<string, number[]> = {};
 
@@ -122,6 +122,14 @@ export class EdgeRouter {
             return undefined;
         }
         return injData[3];
+    }
+
+    public getInjectionAngle(injectionId: string): number | undefined {
+        const injData = this.injectionData[injectionId];
+        if (!injData) {
+            return undefined;
+        }
+        return injData[4];
     }
 
     public getInjectionLabelData(injectionId: string): LabelData | undefined {
@@ -534,7 +542,7 @@ export class EdgeRouter {
         const arrowCenter = DiagramUtils.getPointAtDistance(busNodePoint, injPoint, arrowShift);
         // rotation of the arrow added to the injection edge info
         const rotationAngle = DiagramUtils.getRotationAngle(angle);
-        this.injectionData[injectionId] = [busNodePoint, injPoint, arrowCenter, rotationAngle];
+        this.injectionData[injectionId] = [busNodePoint, injPoint, arrowCenter, rotationAngle, angle];
 
         this.injectionLabelData[injectionId] = DiagramUtils.getLabelData(
             angle,
