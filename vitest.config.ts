@@ -7,10 +7,11 @@
 
 import react from '@vitejs/plugin-react';
 import { playwright } from '@vitest/browser-playwright';
+import glsl from 'vite-plugin-glsl';
 import { configDefaults, coverageConfigDefaults, defineConfig } from 'vitest/config';
 
 export default defineConfig({
-    plugins: [react()],
+    plugins: [react(), glsl()],
     test: {
         projects: [
             {
