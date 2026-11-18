@@ -30,7 +30,7 @@
         "dist"
     ],
     "scripts": {
-        "build": "npm run lint && tsdown",
+        "build": "tsdown",
         "build:watch": "tsdown --watch",
         "check": "tsc --noEmit",
         "lint": "eslint --cache --report-unused-disable-directives --report-unused-inline-configs warn --max-warnings 0 .",

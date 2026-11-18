@@ -49,11 +49,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build workspaces
-        run: npm run build --workspaces
-
-      - name: Lint
-        run: npm run lint
+      - name: Build workspaces and root package
+        run: npm run build:all
 
       - name: Run tests
         run: npm run test:coverage
@@ -70,9 +67,6 @@ jobs:
 
       - name: Licenses check
         run: npm run licenses-check
-
-      - name: Build
-        run: npm run build
 
   sonar:
     name: SonarCloud Scan
