@@ -7,14 +7,11 @@
  */
 package com.powsybl.viewer.demo;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.diagram.test.Networks;
 import com.powsybl.ieeecdf.converter.IeeeCdfNetworkFactory;
-import com.powsybl.iidm.network.ImportConfig;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import com.powsybl.iidm.network.test.ScadaNetworkFactory;
@@ -25,24 +22,13 @@ import com.powsybl.nad.build.iidm.VoltageLevelFilter;
 import com.powsybl.nad.layout.BasicForceLayoutFactory;
 import com.powsybl.nad.model.BranchEdge;
 import com.powsybl.nad.model.ThreeWtEdge;
-import com.powsybl.nad.svg.CustomLabelProvider;
-import com.powsybl.nad.svg.CustomStyleProvider;
-import com.powsybl.nad.svg.EdgeInfo;
-import com.powsybl.nad.svg.EdgeInfoEnum;
-import com.powsybl.nad.svg.EdgeInfoParameters;
-import com.powsybl.nad.svg.LabelProvider;
-import com.powsybl.nad.svg.LabelProviderParameters;
-import com.powsybl.nad.svg.StyleProvider;
-import com.powsybl.nad.svg.SvgParameters;
-import com.powsybl.nad.svg.VoltageLevelLegend;
+import com.powsybl.nad.svg.*;
 import com.powsybl.nad.svg.iidm.DefaultLabelProvider;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
@@ -186,18 +172,24 @@ public final class NadDemoFiles {
     }
 
     public static void drawCaseRealGrid(Path demoResourcesDirectory) {
-        Network network = Network.read("RealGridTest.biidm",
-                DemoFilesGenerator.class.getResourceAsStream("/RealGridTest.biidm"));
+        try (InputStream is = DemoFilesGenerator.class.getResourceAsStream("/RealGridTest.biidm")) {
+            if (is == null) {
+                throw new IllegalStateException("Resource /RealGridTest.biidm not found in classpath.");
+            }
+            Network network = Network.read("RealGridTest.biidm", is);
 
-        EdgeInfoParameters edgeInfoParameters = new EdgeInfoParameters(
-            EdgeInfoEnum.ACTIVE_POWER,
-            EdgeInfoEnum.NAME,
-            EdgeInfoEnum.REACTIVE_POWER,
-            EdgeInfoEnum.VALUE_PERMANENT_LIMIT_PERCENTAGE);
+            EdgeInfoParameters edgeInfoParameters = new EdgeInfoParameters(
+                EdgeInfoEnum.ACTIVE_POWER,
+                EdgeInfoEnum.NAME,
+                EdgeInfoEnum.REACTIVE_POWER,
+                EdgeInfoEnum.VALUE_PERMANENT_LIMIT_PERCENTAGE);
 
-        NetworkAreaDiagram.draw(network, demoResourcesDirectory.resolve("realgrid.svg"),
-            getNadParametersWithSvgWidthAndHeightAddedAndEdgeInfo(edgeInfoParameters),
-            VoltageLevelFilter.NO_FILTER);
+            NetworkAreaDiagram.draw(network, demoResourcesDirectory.resolve("realgrid.svg"),
+                getNadParametersWithSvgWidthAndHeightAddedAndEdgeInfo(edgeInfoParameters),
+                VoltageLevelFilter.NO_FILTER);
+        } catch (IOException e) {
+            throw new PowsyblException("Failed to generate RealGrid NAD demo files", e);
+        }
     }
 
     private static NadParameters getNadParametersWithSvgWidthAndHeightAdded() {
