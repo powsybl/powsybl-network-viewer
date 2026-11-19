@@ -80,6 +80,9 @@ describe('Test network-area-diagram-viewer', () => {
 
     test('context-menu cursor follows hovered edges and nodes within the hover zone', () => {
         const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        const container = document.createElement('div');
+        const popover = document.createElement('div');
+        container.append(svg, popover);
         const nodes = document.createElementNS('http://www.w3.org/2000/svg', 'g');
         nodes.classList.add('nad-vl-nodes');
         const node = document.createElementNS('http://www.w3.org/2000/svg', 'g');
@@ -99,9 +102,10 @@ describe('Test network-area-diagram-viewer', () => {
         const cursorOverlayElement = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
         const viewer = Object.assign(Object.create(NetworkAreaDiagramViewer.prototype), {
             svgDiv: svg,
-            container: svg,
+            container,
             svgDraw: {
                 node: svg,
+                zoom: () => 1,
                 rect: () => ({ attr: () => ({ node: cursorOverlayElement }) }),
             },
             diagramMetadata: {
@@ -140,13 +144,25 @@ describe('Test network-area-diagram-viewer', () => {
         expect(viewer.cursorOverlayRect?.style.cursor).toBe('context-menu');
 
         const clearHighlights = vi.spyOn(viewer as any, 'clearHighlights');
-        viewer['onMouseOut']({ relatedTarget: node } as MouseEvent);
+        viewer['onMouseOut']({ relatedTarget: popover } as MouseEvent);
         expect(clearHighlights).not.toHaveBeenCalled();
         expect(viewer.cursorOverlayRect?.style.cursor).toBe('context-menu');
 
         viewer['onMouseOut']({ relatedTarget: document.body } as MouseEvent);
         expect(clearHighlights).toHaveBeenCalledTimes(1);
         expect(viewer.cursorOverlayRect).toBeNull();
+    });
+
+    test('hover proximity precision scales with zoom', () => {
+        const viewer = Object.assign(Object.create(NetworkAreaDiagramViewer.prototype), {
+            hoveredElement: document.createElementNS('http://www.w3.org/2000/svg', 'g'),
+            hoveredElementPosition: new Point(0, 0),
+            hoverPositionPrecision: 10,
+            svgDraw: { zoom: () => 2 },
+        }) as NetworkAreaDiagramViewer;
+
+        expect(viewer['existsNearbyHoveredElement'](new Point(19, 0))).toBe(true);
+        expect(viewer['existsNearbyHoveredElement'](new Point(21, 0))).toBe(false);
     });
 
     test('moveNodeToCoordinates with the same position must not change edge connections', () => {

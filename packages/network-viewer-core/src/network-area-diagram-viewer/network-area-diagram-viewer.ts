@@ -864,7 +864,11 @@ export class NetworkAreaDiagramViewer {
         if (!this.hoveredElement) {
             return false;
         }
-        return DiagramUtils.getDistance(this.hoveredElementPosition, mousePosition) <= this.hoverPositionPrecision;
+        const zoomFactor = this.svgDraw?.zoom() ?? 1;
+        return (
+            DiagramUtils.getDistance(this.hoveredElementPosition, mousePosition) <=
+            this.hoverPositionPrecision * zoomFactor
+        );
     }
 
     private onHover(mouseEvent: MouseEvent) {
@@ -879,7 +883,7 @@ export class NetworkAreaDiagramViewer {
 
     private onMouseOut(mouseEvent: MouseEvent) {
         const relatedTarget = mouseEvent.relatedTarget;
-        if (relatedTarget instanceof Node && this.svgDiv.contains(relatedTarget)) {
+        if (relatedTarget instanceof Node && this.container.contains(relatedTarget)) {
             return;
         }
 

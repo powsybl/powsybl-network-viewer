@@ -118,7 +118,7 @@ export interface NadViewerParametersOptions {
     // View box to use in the network area diagram initialization.
     initialViewBox?: ViewBoxLike;
 
-    // Size in pixel of the margin that is added to hoverable objects to help the user stay over them.
+    // Base pixel margin for hoverable objects, scaled by the current zoom factor.
     hoverPositionPrecision?: number | null;
 
     // Adaptive zoom options, to improve the performances of the viewer with large networks.
