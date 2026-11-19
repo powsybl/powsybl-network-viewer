@@ -25,12 +25,12 @@ import {
     NadViewerParameters,
     NadViewerParametersOptions,
     OnBendLineCallbackType,
+    OnClickNodeCallbackType,
     OnMoveNodesCallbackType,
     OnMoveTextNodeCallbackType,
     OnPolygonSelectionModeCallbackType,
     OnRightClickCallbackType,
     OnSelectionChangeCallbackType,
-    OnSelectNodeCallbackType,
     OnToggleNadHoverCallbackType,
     SelectedNode,
 } from './nad-viewer-parameters';
@@ -134,7 +134,7 @@ export class NetworkAreaDiagramViewer {
     endTextEdge: Point = new Point(0, 0);
     onMoveNodesCallback: OnMoveNodesCallbackType | null;
     onMoveTextNodeCallback: OnMoveTextNodeCallbackType | null;
-    onSelectNodeCallback: OnSelectNodeCallbackType | null;
+    onClickNodeCallback: OnClickNodeCallbackType | null;
     onSelectionChangeCallback: OnSelectionChangeCallbackType | null;
     onPolygonSelectionModeCallback: OnPolygonSelectionModeCallbackType | null;
     selectedNodeIds: Set<string> = new Set<string>();
@@ -195,7 +195,7 @@ export class NetworkAreaDiagramViewer {
         this.onMoveNodesCallback = this.nadViewerParameters.getOnMoveNodesCallback();
         this.onMoveTextNodeCallback = this.nadViewerParameters.getOnMoveTextNodeCallback();
         this.onRightClickCallback = this.nadViewerParameters.getOnRightClickCallback();
-        this.onSelectNodeCallback = this.nadViewerParameters.getOnSelectNodeCallback();
+        this.onClickNodeCallback = this.nadViewerParameters.getOnClickNodeCallback();
         this.onSelectionChangeCallback = this.nadViewerParameters.getOnSelectionChangeCallback();
         this.onPolygonSelectionModeCallback = this.nadViewerParameters.getOnPolygonSelectionModeCallback();
         this.onToggleHoverCallback = this.nadViewerParameters.getOnToggleHoverCallback();
@@ -444,7 +444,7 @@ export class NetworkAreaDiagramViewer {
             this.enableDragInteraction ||
             this.enableMultiSelection ||
             this.onRightClickCallback != null ||
-            this.onSelectNodeCallback != null
+            this.onClickNodeCallback != null
         );
     }
 
@@ -819,7 +819,7 @@ export class NetworkAreaDiagramViewer {
         if (!selectableElem) {
             return;
         }
-        if (this.onSelectNodeCallback != null) {
+        if (this.onClickNodeCallback != null) {
             this.disablePanzoom(); // keep pan zoom functionality if mouse over a node
         }
         this.selectedElement = selectableElem as SVGGraphicsElement;
@@ -1191,7 +1191,7 @@ export class NetworkAreaDiagramViewer {
     }
 
     private onSelectEnd(mousePosition: Point) {
-        this.callSelectNodeCallback(mousePosition);
+        this.callClickNodeCallback(mousePosition);
     }
 
     // position w.r.t the SVG box
@@ -1935,14 +1935,14 @@ export class NetworkAreaDiagramViewer {
         }
     }
 
-    private callSelectNodeCallback(mousePosition: Point) {
-        // call the select node callback, if defined
-        if (this.onSelectNodeCallback != null) {
+    private callClickNodeCallback(mousePosition: Point) {
+        // call the click node callback, if defined
+        if (this.onClickNodeCallback != null) {
             const nodeSvgId = this.getNodeId(this.selectedElement);
-            // get selected node from metadata
+            // get clicked node from metadata
             const node: NodeMetadata | undefined = this.diagramMetadata?.nodes.find((node) => node.svgId == nodeSvgId);
             if (node != null) {
-                this.onSelectNodeCallback(node.equipmentId, node.svgId, mousePosition);
+                this.onClickNodeCallback(node.equipmentId, node.svgId, mousePosition);
             }
         }
     }

@@ -32,7 +32,7 @@ export type OnMoveTextNodeCallbackType = (
     connectionShiftYOrig: number
 ) => void;
 
-export type OnSelectNodeCallbackType = (equipmentId: string, nodeId: string, mousePosition: Point) => void;
+export type OnClickNodeCallbackType = (equipmentId: string, nodeId: string, mousePosition: Point) => void;
 
 export type SelectedNode = {
     equipmentId: string;
@@ -119,7 +119,7 @@ export interface NadViewerParametersOptions {
     onMoveTextNodeCallback?: OnMoveTextNodeCallbackType | null;
 
     // Callback function triggered when a node is selected.
-    onSelectNodeCallback?: OnSelectNodeCallbackType | null;
+    onClickNodeCallback?: OnClickNodeCallbackType | null;
 
     // Callback function triggered when the multi-selection changes, with the selected nodes.
     onSelectionChangeCallback?: OnSelectionChangeCallbackType | null;
@@ -218,8 +218,8 @@ export class NadViewerParameters {
     public getOnMoveTextNodeCallback(): OnMoveTextNodeCallbackType | null {
         return this.nadViewerParametersOptions?.onMoveTextNodeCallback ?? null;
     }
-    public getOnSelectNodeCallback(): OnSelectNodeCallbackType | null {
-        return this.nadViewerParametersOptions?.onSelectNodeCallback ?? null;
+    public getOnClickNodeCallback(): OnClickNodeCallbackType | null {
+        return this.nadViewerParametersOptions?.onClickNodeCallback ?? null;
     }
     public getOnSelectionChangeCallback(): OnSelectionChangeCallbackType | null {
         return this.nadViewerParametersOptions?.onSelectionChangeCallback ?? null;

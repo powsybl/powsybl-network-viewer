@@ -8,33 +8,17 @@
 
 import {
     OnBendLineCallbackType,
+    OnClickNodeCallbackType,
     OnMoveNodesCallbackType,
     OnMoveTextNodeCallbackType,
     OnPolygonSelectionModeCallbackType,
     OnRightClickCallbackType,
     OnSelectionChangeCallbackType,
-    OnSelectNodeCallbackType,
     OnToggleNadHoverCallbackType,
 } from '../../../src';
 
 export const handleNodesMove: OnMoveNodesCallbackType = (movedNodes) => {
-    movedNodes.forEach(({ equipmentId, nodeId, x, y, xOrig, yOrig }) => {
-        const msg =
-            'Node ' +
-            nodeId +
-            ' equipment ' +
-            equipmentId +
-            ' moved from [' +
-            xOrig +
-            ', ' +
-            yOrig +
-            '] to [' +
-            x +
-            ', ' +
-            y +
-            ']';
-        console.log(msg);
-    });
+    console.log('Moved nodes', movedNodes);
 };
 
 export const handleTextNodeMove: OnMoveTextNodeCallbackType = (
@@ -77,8 +61,8 @@ export const handleTextNodeMove: OnMoveTextNodeCallbackType = (
     console.log(msg);
 };
 
-export const handleNodeSelect: OnSelectNodeCallbackType = (equipmentId, nodeId, mousePosition) => {
-    let msg = 'Node ' + nodeId + ' equipment ' + equipmentId + ' selected';
+export const handleNodeClick: OnClickNodeCallbackType = (equipmentId, nodeId, mousePosition) => {
+    let msg = 'Node ' + nodeId + ' equipment ' + equipmentId + ' clicked';
     if (mousePosition) {
         msg += ' on mousePosition: x = ' + mousePosition.x + ', y = ' + mousePosition.y;
     }

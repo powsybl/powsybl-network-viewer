@@ -21,7 +21,7 @@ export {
     type OnMoveTextNodeCallbackType,
     type OnPolygonSelectionModeCallbackType,
     type OnSelectionChangeCallbackType,
-    type OnSelectNodeCallbackType,
+    type OnClickNodeCallbackType,
     type OnToggleNadHoverCallbackType,
     type OnRightClickCallbackType,
     type OnBendLineCallbackType,

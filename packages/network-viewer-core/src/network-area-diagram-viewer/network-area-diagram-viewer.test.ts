@@ -33,7 +33,7 @@ describe('Test network-area-diagram-viewer', () => {
             addButtons: false,
             onMoveNodesCallback: null,
             onMoveTextNodeCallback: null,
-            onSelectNodeCallback: null,
+            onClickNodeCallback: null,
             onToggleHoverCallback: null,
             onRightClickCallback: null,
         };
