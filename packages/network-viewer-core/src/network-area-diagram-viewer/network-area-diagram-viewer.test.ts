@@ -78,6 +78,76 @@ describe('Test network-area-diagram-viewer', () => {
         expect(buses[0]?.textContent).toEqual('400 kV');
     });
 
+    test('hover callback can discover a nearby edge without a prior mouseover', () => {
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        const nodes = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        nodes.classList.add('nad-vl-nodes');
+        const node = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        node.id = 'node-1';
+        let nodeBounds = { left: 200, right: 210, top: 200, bottom: 210, width: 10, height: 10 } as DOMRect;
+        Object.assign(node, { getBoundingClientRect: () => nodeBounds });
+        nodes.appendChild(node);
+        svg.appendChild(nodes);
+
+        const edges = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        edges.classList.add('nad-branch-edges');
+        const edge = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        edge.id = 'edge-1';
+        const edgePath = document.createElementNS('http://www.w3.org/2000/svg', 'path') as SVGGeometryElement;
+        edgePath.classList.add('nad-edge-path');
+        Object.assign(edgePath, {
+            getTotalLength: () => 100,
+            getPointAtLength: (length: number) => ({ x: length, y: 0 }),
+            getScreenCTM: () => ({ a: 1, b: 0, c: 0, d: 1, e: 0, f: 0 }) as DOMMatrix,
+            getBoundingClientRect: () => ({ left: 0, right: 100, top: 0, bottom: 0 }) as DOMRect,
+        });
+        edge.appendChild(edgePath);
+        edges.appendChild(edge);
+        svg.appendChild(edges);
+
+        const cancelHoverCallback = vi.fn();
+        const debouncedHoverCallback = Object.assign(vi.fn(), { cancel: cancelHoverCallback });
+        const nadViewer = Object.assign(Object.create(NetworkAreaDiagramViewer.prototype), {
+            svgDiv: svg,
+            diagramMetadata: {
+                nodes: [{ svgId: 'node-1', equipmentId: 'vl-1', x: 50, y: 5 }],
+                busNodes: [],
+                edges: [
+                    {
+                        svgId: 'edge-1',
+                        equipmentId: 'line-1',
+                        node1: 'node-1',
+                        node2: 'node-2',
+                        busNode1: 'bus-1',
+                        busNode2: 'bus-2',
+                        type: 'LineEdge',
+                    },
+                ],
+                textNodes: [],
+            },
+            hoveredElement: null,
+            hoveredElementPosition: new Point(0, 0),
+            hoverPositionPrecision: 10,
+            isHoverCallbackUsed: false,
+            debounceToggleHoverCallback: debouncedHoverCallback,
+        }) as NetworkAreaDiagramViewer;
+
+        nadViewer['handleHoverCallBack']({ target: svg, clientX: 50, clientY: 5 } as MouseEvent);
+        nadViewer['handleHoverCallBack']({ target: svg, clientX: 52, clientY: 5 } as MouseEvent);
+        expect(debouncedHoverCallback).toHaveBeenCalledTimes(1);
+
+        nadViewer['handleHoverCallBack']({ target: svg, clientX: 50, clientY: 20 } as MouseEvent);
+        expect(cancelHoverCallback).toHaveBeenCalledTimes(1);
+
+        nadViewer['handleHoverCallBack']({ target: svg, clientX: 50, clientY: 5 } as MouseEvent);
+        expect(debouncedHoverCallback).toHaveBeenCalledTimes(2);
+
+        nodeBounds = { left: 40, right: 60, top: -5, bottom: 15, width: 20, height: 20 } as DOMRect;
+        nadViewer['handleHoverCallBack']({ target: svg, clientX: 50, clientY: 5 } as MouseEvent);
+        expect(nadViewer.hoveredElement).toBe(node);
+        expect(debouncedHoverCallback).toHaveBeenCalledTimes(3);
+    });
+
     test('moveNodeToCoordinates with the same position must not change edge connections', () => {
         // Minimal SVG: extracted from nad-scada.svg: 1 VL node (id '0') and 1 3wt edge (id '16') with its polyline.
         const svgContent = `<svg width="100" height="100" viewBox="-512.98 -717.87 1172.34 1320.65" xmlns="http://www.w3.org/2000/svg">

@@ -7,8 +7,114 @@
  */
 
 import { Point } from '@svgdotjs/svg.js';
-import { getAngle, getFormattedPoint } from './diagram-utils';
+import { getAngle, getDistance, getFormattedPoint } from './diagram-utils';
 import { ElementType, ViewBox } from './diagram-types';
+
+export type NearbyElement = {
+    element: SVGElement;
+    position: Point;
+};
+
+// Find the closest voltage-level node whose rendered bounds are within precision.
+export function findNearbyNode(
+    svgRoot: ParentNode,
+    mousePosition: Point,
+    precision: number
+): NearbyElement | undefined {
+    const nodes = svgRoot.querySelectorAll<SVGGraphicsElement>('.nad-vl-nodes > [id]');
+    let closest: (NearbyElement & { distance: number }) | undefined;
+
+    nodes.forEach((node) => {
+        const bounds = node.getBoundingClientRect();
+        if ((bounds.width === 0 && bounds.height === 0) || !isVoltageLevelElement(node)) {
+            return;
+        }
+
+        // Clamp the pointer to the bounds to get the closest point on the node.
+        const position = new Point(
+            Math.max(bounds.left, Math.min(mousePosition.x, bounds.right)),
+            Math.max(bounds.top, Math.min(mousePosition.y, bounds.bottom))
+        );
+        const distance = getDistance(mousePosition, position);
+        if (distance <= precision && (!closest || distance < closest.distance)) {
+            closest = { element: node, position, distance };
+        }
+    });
+
+    return closest;
+}
+
+export function findNearbyEdge(
+    svgRoot: ParentNode,
+    mousePosition: Point,
+    precision: number
+): NearbyElement | undefined {
+    const edgePaths = svgRoot.querySelectorAll<SVGGeometryElement>(
+        '.nad-branch-edges .nad-edge-path, .nad-3wt-edges .nad-edge-path'
+    );
+    let closest: (NearbyElement & { distance: number }) | undefined;
+
+    edgePaths.forEach((edgePath) => {
+        const element = getHoverableFrom(edgePath);
+        const matrix = edgePath.getScreenCTM();
+        if (!element || !matrix || typeof edgePath.getTotalLength !== 'function') {
+            return;
+        }
+
+        // Skip paths whose bounds are too far away before sampling their geometry.
+        const bounds = edgePath.getBoundingClientRect();
+        const dx = Math.max(bounds.left - mousePosition.x, 0, mousePosition.x - bounds.right);
+        const dy = Math.max(bounds.top - mousePosition.y, 0, mousePosition.y - bounds.bottom);
+        if (Math.hypot(dx, dy) > precision) {
+            return;
+        }
+
+        const totalLength = edgePath.getTotalLength();
+        const scale = Math.max(Math.hypot(matrix.a, matrix.b), Math.hypot(matrix.c, matrix.d));
+        const steps = Math.max(1, Math.ceil((totalLength * scale) / 5));
+        let previousPoint: Point | undefined;
+
+        // Sample at roughly 5 screen-pixel intervals so the precision check works at any zoom.
+        for (let step = 0; step <= steps; step++) {
+            const localPoint = edgePath.getPointAtLength((totalLength * step) / steps);
+            // Convert each path sample from local coordinates to screen coordinates.
+            const point = new Point(
+                matrix.a * localPoint.x + matrix.c * localPoint.y + matrix.e,
+                matrix.b * localPoint.x + matrix.d * localPoint.y + matrix.f
+            );
+
+            if (previousPoint) {
+                const segmentX = point.x - previousPoint.x;
+                const segmentY = point.y - previousPoint.y;
+                const segmentLengthSquared = segmentX * segmentX + segmentY * segmentY;
+                // Project the pointer onto this segment and clamp to its endpoints.
+                const projection = segmentLengthSquared
+                    ? Math.max(
+                          0,
+                          Math.min(
+                              1,
+                              ((mousePosition.x - previousPoint.x) * segmentX +
+                                  (mousePosition.y - previousPoint.y) * segmentY) /
+                                  segmentLengthSquared
+                          )
+                      )
+                    : 0;
+                const nearestPoint = new Point(
+                    previousPoint.x + projection * segmentX,
+                    previousPoint.y + projection * segmentY
+                );
+                const distance = getDistance(mousePosition, nearestPoint);
+                // Keep the closest segment hit within the configured precision.
+                if (distance <= precision && (!closest || distance < closest.distance)) {
+                    closest = { element, position: nearestPoint, distance };
+                }
+            }
+            previousPoint = point;
+        }
+    });
+
+    return closest;
+}
 
 // get the draggable element, if present,
 // from the element selected using the mouse

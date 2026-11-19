@@ -135,6 +135,7 @@ export class NetworkAreaDiagramViewer {
     lastZoomLevel: number = 0;
     zoomLevels: number[] = [0, 1000, 2200, 2500, 3000, 4000, 9000, 12000, 20000];
     isHoverCallbackUsed: boolean = false;
+    hoverCallbackElement: SVGElement | null = null;
     hoverPositionPrecision: number = 0;
     bendLines: boolean = false;
     onBendLineCallback: OnBendLineCallbackType | null;
@@ -650,7 +651,7 @@ export class NetworkAreaDiagramViewer {
     }
     private onMouseLeftDown(event: MouseEvent) {
         let targetElement = event.target as SVGElement;
-        if (this.hoveredElement && this.existsNearbyHoveredElement(this.getMousePosition(event))) {
+        if (this.hoveredElement && this.existsNearbyLastHoveredElement(this.getMousePosition(event))) {
             targetElement = this.hoveredElement;
         }
         const selectableElem = SvgUtils.getSelectableFrom(targetElement);
@@ -834,7 +835,7 @@ export class NetworkAreaDiagramViewer {
         }
     }
 
-    private existsNearbyHoveredElement(mousePosition: Point): boolean {
+    private existsNearbyLastHoveredElement(mousePosition: Point): boolean {
         if (!this.hoveredElement) {
             return false;
         }
@@ -851,20 +852,40 @@ export class NetworkAreaDiagramViewer {
     }
 
     private handleHoverCallBack(mouseEvent: MouseEvent) {
+        const mousePosition = this.getMousePosition(mouseEvent);
+
+        const hoverableElem = SvgUtils.getHoverableFrom(mouseEvent.target as SVGElement);
+        const isEdgeElement = (element: SVGElement | null) =>
+            !!element && !!this.diagramMetadata?.edges.some((edge) => edge.svgId === element.id);
+        const shouldFindNearbyNode =
+            (!hoverableElem || isEdgeElement(hoverableElem)) &&
+            (!this.hoveredElement ||
+                isEdgeElement(this.hoveredElement) ||
+                SvgUtils.isVoltageLevelElement(this.hoveredElement));
+        const nearbyNode = shouldFindNearbyNode
+            ? SvgUtils.findNearbyNode(this.svgDiv, mousePosition, this.hoverPositionPrecision)
+            : undefined;
+
+        if (nearbyNode) {
+            this.hoveredElement = nearbyNode.element;
+            this.hoveredElementPosition = nearbyNode.position;
+        } else if (hoverableElem) {
+            this.hoveredElement = hoverableElem;
+            this.hoveredElementPosition = mousePosition;
+        } else if (!this.existsNearbyLastHoveredElement(mousePosition)) {
+            const nearbyEdge = SvgUtils.findNearbyEdge(this.svgDiv, mousePosition, this.hoverPositionPrecision);
+            this.hoveredElement = nearbyEdge?.element ?? null;
+            this.hoveredElementPosition = nearbyEdge?.position ?? new Point(0, 0);
+        }
+
         if (!this.hoveredElement) {
+            this.clearHighlights();
+            this.resetHoverCallback();
+            this.hideEdgePreviewPoints();
             return;
         }
 
-        const mousePosition = this.getMousePosition(mouseEvent);
-
-        // Check if we are over the hovered object
-        const hoverableElem = SvgUtils.getHoverableFrom(mouseEvent.target as SVGElement);
-        if (hoverableElem && hoverableElem === this.hoveredElement) {
-            // We are still over the hoveredElement, we update the mouse position
-            this.hoveredElementPosition = mousePosition;
-        }
-
-        if (this.existsNearbyHoveredElement(mousePosition)) {
+        if (this.existsNearbyLastHoveredElement(mousePosition)) {
             if (SvgUtils.isHighlightableElement(this.hoveredElement)) {
                 this.handleHighlightableElementHover(this.hoveredElement, mousePosition);
             } else if (SvgUtils.isInjection(this.hoveredElement)) {
@@ -883,10 +904,24 @@ export class NetworkAreaDiagramViewer {
 
     private resetHoverCallback(): void {
         this.debounceToggleHoverCallback.cancel();
+        this.hoverCallbackElement = null;
         if (this.isHoverCallbackUsed) {
             this.isHoverCallbackUsed = false;
             this.onToggleHoverCallback?.(false, null, '', '');
         }
+    }
+
+    private toggleHoverCallbackForElement(
+        element: SVGElement,
+        mousePosition: Point,
+        equipmentId: string,
+        equipmentType: string
+    ): void {
+        if (this.hoverCallbackElement === element) {
+            return;
+        }
+        this.hoverCallbackElement = element;
+        this.debounceToggleHoverCallback(true, mousePosition, equipmentId, equipmentType);
     }
 
     private onMouseLeftUpOrLeave(mouseEvent: MouseEvent) {
@@ -2613,7 +2648,7 @@ export class NetworkAreaDiagramViewer {
             this.diagramMetadata?.textNodes,
             this.diagramMetadata?.edges
         );
-        if (!elementData && this.hoveredElement && this.existsNearbyHoveredElement(mousePosition)) {
+        if (!elementData && this.hoveredElement && this.existsNearbyLastHoveredElement(mousePosition)) {
             const hoverElement = SvgUtils.getRightClickableFrom(this.hoveredElement) ?? null;
             elementData = MetadataUtils.getRightClickableElementData(
                 hoverElement?.id,
@@ -2751,8 +2786,8 @@ export class NetworkAreaDiagramViewer {
             const textNode = this.diagramMetadata?.textNodes.find((node) => node.svgId === element.id);
             if (textNode) {
                 this.highlightRelatedElements(textNode);
-                this.debounceToggleHoverCallback(
-                    true,
+                this.toggleHoverCallbackForElement(
+                    element,
                     mousePosition,
                     textNode.equipmentId,
                     ElementType[ElementType.TEXT_NODE]
@@ -2762,8 +2797,8 @@ export class NetworkAreaDiagramViewer {
             const vlNode = this.diagramMetadata?.nodes.find((node) => node.svgId === element.id);
             if (vlNode) {
                 this.highlightRelatedElements(vlNode);
-                this.debounceToggleHoverCallback(
-                    true,
+                this.toggleHoverCallbackForElement(
+                    element,
                     mousePosition,
                     vlNode.equipmentId,
                     ElementType[ElementType.VOLTAGE_LEVEL]
@@ -2777,7 +2812,7 @@ export class NetworkAreaDiagramViewer {
         if (injection) {
             const equipmentId = injection.equipmentId ?? '';
             const equipmentType = injection.componentType ?? '';
-            this.debounceToggleHoverCallback(true, mousePosition, equipmentId, equipmentType);
+            this.toggleHoverCallbackForElement(element, mousePosition, equipmentId, equipmentType);
         }
     }
 
@@ -2786,7 +2821,7 @@ export class NetworkAreaDiagramViewer {
         if (edge) {
             const equipmentId = edge.equipmentId ?? '';
             const edgeType = MetadataUtils.getStringEdgeType(edge) ?? '';
-            this.debounceToggleHoverCallback(true, mousePosition, equipmentId, edgeType);
+            this.toggleHoverCallbackForElement(element, mousePosition, equipmentId, edgeType);
 
             // Show preview points for bending if bend lines is enabled and edge is bendable
             if (this.bendLines) {
