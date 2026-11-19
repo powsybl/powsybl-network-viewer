@@ -13,6 +13,7 @@ import * as DiagramUtils from './diagram-utils';
 import * as MetadataUtils from './metadata-utils';
 import * as HalfEdgeUtils from './half-edge-utils';
 import { HalfEdge, LabelData } from './diagram-types';
+import { MetadataSearch } from './metadata-search';
 
 export class EdgeRouter {
     diagramMetadata: DiagramMetadata;
@@ -24,13 +25,16 @@ export class EdgeRouter {
     edgeMiddleLabelData: Record<string, LabelData> = {};
     threeWTEdgePoints: Record<string, [Point, Point]> = {};
     nodeAngles: Record<string, number[]> = {};
+    nodeEdges: Record<string, EdgeMetadata[]> = {};
 
     edges: EdgeMetadata[] | undefined = undefined;
+    metadataSearch: MetadataSearch;
 
-    constructor(diagramMetadata: DiagramMetadata, edges?: EdgeMetadata[]) {
+    constructor(diagramMetadata: DiagramMetadata, edges?: EdgeMetadata[], metadataSearch?: MetadataSearch) {
         this.diagramMetadata = diagramMetadata;
         this.svgParameters = new SvgParameters(this.diagramMetadata.svgParameters);
         this.edges = edges;
+        this.metadataSearch = metadataSearch ?? new MetadataSearch(this.diagramMetadata);
         this.init();
     }
 
@@ -99,6 +103,10 @@ export class EdgeRouter {
         return this.threeWTEdgePoints[edgeId];
     }
 
+    public getNodeEdges(nodeId: string): EdgeMetadata[] | undefined {
+        return this.nodeEdges[nodeId];
+    }
+
     private init() {
         const edgeGroups = this.groupEdges();
         this.storeGroupedEdges(edgeGroups.groupedEdges);
@@ -131,6 +139,13 @@ export class EdgeRouter {
             }
             targetMap[key] ??= [];
             targetMap[key].push(edge);
+
+            this.nodeEdges[edge.node1] ??= [];
+            this.nodeEdges[edge.node1].push(edge);
+            if (edge.node1 !== edge.node2) {
+                this.nodeEdges[edge.node2] ??= [];
+                this.nodeEdges[edge.node2].push(edge);
+            }
         });
         return { groupedEdges, loopEdges, threeWtEdges };
     }
@@ -138,7 +153,10 @@ export class EdgeRouter {
     private storeGroupedEdges(edges: Record<string, EdgeMetadata[]>) {
         for (const edgeId in edges) {
             const groupedEdges = edges[edgeId];
-            const edgeNodePoints = MetadataUtils.getEdgeNodePoints(groupedEdges[0], this.diagramMetadata);
+            const edgeNodePoints = MetadataUtils.getNodePoints(
+                this.metadataSearch.getNode(groupedEdges[0].node1),
+                this.metadataSearch.getNode(groupedEdges[0].node2)
+            );
             for (let iEdge = 0; iEdge < groupedEdges.length; iEdge++) {
                 this.storeHalfEdges(
                     groupedEdges[iEdge],
@@ -158,11 +176,11 @@ export class EdgeRouter {
         point1?: Point,
         point2?: Point
     ) {
-        const halfEdges = HalfEdgeUtils.getHalfEdges(
+        const halfEdges = HalfEdgeUtils.getHalfEdgesUsingMetadataSearch(
             edge,
             iEdge,
             groupedEdgesCount,
-            this.diagramMetadata,
+            this.metadataSearch,
             this.svgParameters,
             point1,
             point2

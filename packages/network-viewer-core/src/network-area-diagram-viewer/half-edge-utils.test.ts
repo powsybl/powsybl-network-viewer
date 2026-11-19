@@ -9,10 +9,12 @@
 import { Point } from '@svgdotjs/svg.js';
 import { HalfEdge } from './diagram-types';
 import * as HalfEdgeUtils from './half-edge-utils';
-import { DiagramMetadata, EdgeMetadata, SvgParametersMetadata } from './diagram-metadata';
+import { EdgeMetadata } from './diagram-metadata';
 import { SvgParameters } from './svg-parameters';
 import { round } from './diagram-utils';
 import { getEdgeNodePoints } from './metadata-utils';
+import { MetadataSearch } from './metadata-search';
+import { getDiagramMetadata } from './test-utils';
 
 test('getArrowRotation', () => {
     const halfEdge1: HalfEdge = {
@@ -195,262 +197,58 @@ test('getMiddleLabelData', () => {
 });
 
 test('getHalfEdges', () => {
-    const svgParametersMetadata: SvgParametersMetadata = {
-        diagramPadding: {
-            left: 200,
-            top: 200,
-            right: 200,
-            bottom: 200,
-        },
-        insertNameDesc: false,
-        svgWidthAndHeightAdded: false,
-        cssLocation: 'EXTERNAL_NO_IMPORT',
-        sizeConstraint: 'FIXED_SCALE',
-        fixedWidth: -1,
-        fixedHeight: -1,
-        fixedScale: 0.2,
-        arrowShift: 30,
-        arrowLabelShift: 19,
-        converterStationWidth: 70,
-        voltageLevelCircleRadius: 30,
-        fictitiousVoltageLevelCircleRadius: 15,
-        transformerCircleRadius: 20,
-        nodeHollowWidth: 15,
-        edgesForkLength: 80,
-        edgesForkAperture: 60,
-        edgeStartShift: 0,
-        unknownBusNodeExtraRadius: 10,
-        loopDistance: 120,
-        loopEdgesAperture: 60,
-        loopControlDistance: 40,
-        edgeInfoAlongEdge: true,
-        interAnnulusSpace: 5,
-        svgPrefix: '',
-        arrowPathIn: 'M-10 -10 H10 L0 10z',
-        arrowPathOut: 'M-10 10 H10 L0 -10z',
-        languageTag: 'en',
-        voltageValuePrecision: 1,
-        powerValuePrecision: 0,
-        angleValuePrecision: 1,
-        currentValuePrecision: 0,
-        percentageValuePrecision: 0,
-        pstArrowHeadSize: 8,
-        undefinedValueSymbol: '',
-        highlightGraph: false,
-        injectionAperture: 10,
-        injectionEdgeLength: 145,
-        injectionCircleRadius: 25,
-        voltageLevelLegendsIncluded: true,
-        edgeInfosIncluded: true,
-        doubleArrowShiftFactorArrows: 1.5,
-        doubleArrowShiftFactorText: 1.8,
-    };
-
-    const edge18: EdgeMetadata = {
-        svgId: '18',
-        equipmentId: 'NHV1_NHV2_1',
-        node1: '4',
-        node2: '8',
-        busNode1: '7',
-        busNode2: '11',
-        type: 'LineEdge',
-        edgeInfoMiddle: {
-            svgId: '19',
-            infoTypeA: 'Name',
-            labelA: 'NHV1_NHV2_1',
-        },
-    };
-
-    const edge22: EdgeMetadata = {
-        svgId: '22',
-        equipmentId: 'NHV1_NHV2_3',
-        node1: '8',
-        node2: '4',
-        busNode1: '11',
-        busNode2: '7',
-        type: 'LineEdge',
-        edgeInfoMiddle: {
-            svgId: '23',
-            infoTypeA: 'Name',
-            labelA: 'NHV1_NHV2_3',
-        },
-    };
-
-    const diagramMetadata: DiagramMetadata = {
-        layoutParameters: {
-            textNodesForceLayout: false,
-            textNodeFixedShift: {
-                x: 100,
-                y: -40,
-            },
-            maxSteps: 1000,
-            timeoutSeconds: 15,
-            textNodeEdgeConnectionYShift: 25,
-            injectionsAdded: false,
-            scaleFactor: 1,
-        },
-        svgParameters: svgParametersMetadata,
-        busNodes: [
-            {
-                svgId: '3',
-                equipmentId: 'VLGEN_0',
-                nbNeighbours: 0,
-                index: 0,
-                vlNode: '0',
-                legend: ' kV / °',
-            },
-            {
-                svgId: '7',
-                equipmentId: 'VLHV1_0',
-                nbNeighbours: 0,
-                index: 0,
-                vlNode: '4',
-                legend: ' kV / °',
-            },
-            {
-                svgId: '11',
-                equipmentId: 'VLHV2_0',
-                nbNeighbours: 0,
-                index: 0,
-                vlNode: '8',
-                legend: ' kV / °',
-            },
-            {
-                svgId: '15',
-                equipmentId: 'VLLOAD_0',
-                nbNeighbours: 0,
-                index: 0,
-                vlNode: '12',
-                legend: ' kV / °',
-            },
-        ],
-        nodes: [
-            {
-                svgId: '0',
-                equipmentId: 'VLGEN',
-                x: -452.59,
-                y: -2741,
-                legendSvgId: '1',
-                legendEdgeSvgId: '2',
-                legendHeader: ['VLGEN'],
-            },
-            {
-                svgId: '4',
-                equipmentId: 'VLHV1',
-                x: -245.26,
-                y: 34.3,
-                legendSvgId: '5',
-                legendEdgeSvgId: '6',
-                legendHeader: ['VLHV1'],
-            },
-            {
-                svgId: '8',
-                equipmentId: 'VLHV2',
-                x: 140.33,
-                y: 58.61,
-                legendSvgId: '9',
-                legendEdgeSvgId: '10',
-                legendHeader: ['VLHV2'],
-            },
-            {
-                svgId: '12',
-                equipmentId: 'VLLOAD',
-                x: 430.9,
-                y: -1745,
-                legendSvgId: '13',
-                legendEdgeSvgId: '14',
-                legendHeader: ['VLLOAD'],
-            },
-        ],
-        edges: [
-            {
-                svgId: '16',
-                equipmentId: 'NGEN_NHV1',
-                node1: '0',
-                node2: '4',
-                busNode1: '3',
-                busNode2: '7',
-                type: 'TwoWtEdge',
-                edgeInfoMiddle: {
-                    svgId: '17',
-                    infoTypeA: 'Name',
-                    labelA: 'NGEN_NHV1',
-                },
-            },
-            edge18,
-            {
-                svgId: '20',
-                equipmentId: 'NHV1_NHV2_2',
-                node1: '4',
-                node2: '8',
-                busNode1: '7',
-                busNode2: '11',
-                type: 'LineEdge',
-                edgeInfoMiddle: {
-                    svgId: '21',
-                    infoTypeA: 'Name',
-                    labelA: 'NHV1_NHV2_2',
-                },
-            },
-            edge22,
-            {
-                svgId: '24',
-                equipmentId: 'NHV2_NLOAD',
-                node1: '8',
-                node2: '12',
-                busNode1: '11',
-                busNode2: '15',
-                type: 'TwoWtEdge',
-                edgeInfoMiddle: {
-                    svgId: '25',
-                    infoTypeA: 'Name',
-                    labelA: 'NHV2_NLOAD',
-                },
-            },
-        ],
-        textNodes: [
-            {
-                svgId: '1',
-                equipmentId: 'VLGEN',
-                vlNode: '0',
-                shiftX: 100,
-                shiftY: -40,
-                connectionShiftX: 100,
-                connectionShiftY: -15,
-            },
-            {
-                svgId: '5',
-                equipmentId: 'VLHV1',
-                vlNode: '4',
-                shiftX: 100,
-                shiftY: -40,
-                connectionShiftX: 100,
-                connectionShiftY: -15,
-            },
-            {
-                svgId: '9',
-                equipmentId: 'VLHV2',
-                vlNode: '8',
-                shiftX: 100,
-                shiftY: -40,
-                connectionShiftX: 100,
-                connectionShiftY: -15,
-            },
-            {
-                svgId: '13',
-                equipmentId: 'VLLOAD',
-                vlNode: '12',
-                shiftX: 100,
-                shiftY: -40,
-                connectionShiftX: 100,
-                connectionShiftY: -15,
-            },
-        ],
-    };
-
-    const svgParameters = new SvgParameters(svgParametersMetadata);
+    const edge18: EdgeMetadata = getEdge18();
+    const edge22: EdgeMetadata = getEdge22();
+    const diagramMetadata = getDiagramMetadata();
+    const svgParameters = new SvgParameters(diagramMetadata.svgParameters);
 
     let halfEdges = HalfEdgeUtils.getHalfEdges(edge22, 2, 3, diagramMetadata, svgParameters);
+    checkEdge22(halfEdges);
+
+    const edgeNodePoints = getEdgeNodePoints(edge18, diagramMetadata);
+    expect(edgeNodePoints[0]).not.toBe(undefined);
+    expect(edgeNodePoints[0]?.x).toBeCloseTo(-245.26);
+    expect(edgeNodePoints[0]?.y).toBeCloseTo(34.3);
+    expect(edgeNodePoints[1]).not.toBe(undefined);
+    expect(edgeNodePoints[1]?.x).toBeCloseTo(140.33);
+    expect(edgeNodePoints[1]?.y).toBeCloseTo(58.61);
+
+    halfEdges = HalfEdgeUtils.getHalfEdges(
+        edge22,
+        2,
+        3,
+        diagramMetadata,
+        svgParameters,
+        edgeNodePoints[0],
+        edgeNodePoints[1]
+    );
+    checkEdge22InitialPoints(halfEdges);
+});
+
+test('getHalfEdgesUsingMetadataSearch', () => {
+    const edge18: EdgeMetadata = getEdge18();
+    const edge22: EdgeMetadata = getEdge22();
+    const diagramMetadata = getDiagramMetadata();
+    const svgParameters = new SvgParameters(diagramMetadata.svgParameters);
+    const metadataSearch = new MetadataSearch(diagramMetadata);
+
+    let halfEdges = HalfEdgeUtils.getHalfEdgesUsingMetadataSearch(edge22, 2, 3, metadataSearch, svgParameters);
+    checkEdge22(halfEdges);
+
+    const edgeNodePoints = getEdgeNodePoints(edge18, diagramMetadata);
+    halfEdges = HalfEdgeUtils.getHalfEdgesUsingMetadataSearch(
+        edge22,
+        2,
+        3,
+        metadataSearch,
+        svgParameters,
+        edgeNodePoints[0],
+        edgeNodePoints[1]
+    );
+    checkEdge22InitialPoints(halfEdges);
+});
+
+function checkEdge22(halfEdges: HalfEdge[] | null[]) {
     expect(halfEdges.length).toBe(2);
     expect(halfEdges[0]).not.toBeNull();
     if (halfEdges[0]) {
@@ -472,24 +270,9 @@ test('getHalfEdges', () => {
         expect(round(halfEdges[1].edgePoints[2].x)).toBeCloseTo(-54.98);
         expect(round(halfEdges[1].edgePoints[2].y)).toBeCloseTo(86.38);
     }
+}
 
-    const edgeNodePoints = getEdgeNodePoints(edge18, diagramMetadata);
-    expect(edgeNodePoints[0]).not.toBe(undefined);
-    expect(edgeNodePoints[0]?.x).toBeCloseTo(-245.26);
-    expect(edgeNodePoints[0]?.y).toBeCloseTo(34.3);
-    expect(edgeNodePoints[1]).not.toBe(undefined);
-    expect(edgeNodePoints[1]?.x).toBeCloseTo(140.33);
-    expect(edgeNodePoints[1]?.y).toBeCloseTo(58.61);
-
-    halfEdges = HalfEdgeUtils.getHalfEdges(
-        edge22,
-        2,
-        3,
-        diagramMetadata,
-        svgParameters,
-        edgeNodePoints[0],
-        edgeNodePoints[1]
-    );
+function checkEdge22InitialPoints(halfEdges: HalfEdge[] | null[]) {
     expect(halfEdges.length).toBe(2);
     expect(halfEdges[0]).not.toBeNull();
     if (halfEdges[0]) {
@@ -511,4 +294,38 @@ test('getHalfEdges', () => {
         expect(round(halfEdges[1].edgePoints[2].x)).toBeCloseTo(-49.95);
         expect(round(halfEdges[1].edgePoints[2].y)).toBeCloseTo(6.53);
     }
-});
+}
+
+function getEdge18(): EdgeMetadata {
+    return {
+        svgId: '18',
+        equipmentId: 'NHV1_NHV2_1',
+        node1: '4',
+        node2: '8',
+        busNode1: '7',
+        busNode2: '11',
+        type: 'LineEdge',
+        edgeInfoMiddle: {
+            svgId: '19',
+            infoTypeA: 'Name',
+            labelA: 'NHV1_NHV2_1',
+        },
+    };
+}
+
+function getEdge22(): EdgeMetadata {
+    return {
+        svgId: '22',
+        equipmentId: 'NHV1_NHV2_3',
+        node1: '8',
+        node2: '4',
+        busNode1: '11',
+        busNode2: '7',
+        type: 'LineEdge',
+        edgeInfoMiddle: {
+            svgId: '23',
+            infoTypeA: 'Name',
+            labelA: 'NHV1_NHV2_3',
+        },
+    };
+}

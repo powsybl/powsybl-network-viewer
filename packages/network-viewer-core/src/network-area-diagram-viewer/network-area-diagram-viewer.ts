@@ -41,6 +41,7 @@ import { LibraryComponent } from './library-component';
 import DefaultLibraryComponents from '../resources/default-library/components.json';
 import * as ComponentUtils from './component-utils';
 import { SvgWriter } from './svg-writer';
+import { MetadataSearch } from './metadata-search';
 
 // Type for cancelable debounced functions (replaces @mui/utils Cancelable)
 interface Cancelable {
@@ -154,6 +155,7 @@ export class NetworkAreaDiagramViewer {
     componentLibrary: LibraryComponent[] = DefaultLibraryComponents;
 
     svgWriter: SvgWriter | undefined = undefined;
+    metadataSearch: MetadataSearch | undefined;
 
     static readonly ZOOM_CLASS_PREFIX = 'nad-zoom-';
 
@@ -175,8 +177,19 @@ export class NetworkAreaDiagramViewer {
         this.svgContent = svgContent;
         this.diagramMetadata = diagramMetadata;
         this.nadViewerParameters = new NadViewerParameters(nadViewerParametersOptions ?? undefined);
+        if (
+            (this.nadViewerParameters.getAdaptiveTextZoom().enabled ||
+                this.nadViewerParameters.getCreateSvgFromMetadata()) &&
+            this.diagramMetadata
+        ) {
+            this.metadataSearch = new MetadataSearch(this.diagramMetadata);
+        }
+
         if (this.nadViewerParameters.getCreateSvgFromMetadata() && this.diagramMetadata != null) {
-            this.svgWriter = new SvgWriter({ diagramMetadata: this.diagramMetadata });
+            this.svgWriter = new SvgWriter({
+                diagramMetadata: this.diagramMetadata,
+                metadataSearch: this.metadataSearch,
+            });
             this.svgContent = this.svgWriter.getEmptySvg();
         }
         this.width = 0;
@@ -2194,6 +2207,7 @@ export class NetworkAreaDiagramViewer {
                 diagramMetadata: this.diagramMetadata,
                 elementList: { nodes: nodes, edges: edges },
                 voltageLevels: maxDisplayedSize > edgeVlThreshold.threshold ? edgeVlThreshold.voltageLevels : undefined,
+                metadataSearch: this.metadataSearch,
             });
             svgWriter.addNodes(<SVGGElement>this.nodesSection!);
             svgWriter.addEdgesAndInfos(<SVGGElement>this.edgesSection!);

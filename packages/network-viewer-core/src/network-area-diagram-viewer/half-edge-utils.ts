@@ -27,6 +27,7 @@ import {
 import { getBusNodeMetadata, getEdgePoints, getEdgeType, getNodeMetadata, getNodeRadius } from './metadata-utils';
 import { HalfEdge, LabelData } from './diagram-types';
 import { getPathPoints, getTransform } from './svg-utils';
+import { MetadataSearch } from './metadata-search';
 
 // get the angle between first two points of a halfEdge
 export function getEdgeStartAngle(halfEdge: HalfEdge): number {
@@ -207,15 +208,40 @@ export function getHalfEdges(
     point1?: Point,
     point2?: Point
 ): HalfEdge[] | null[] {
-    const edgeType = getEdgeType(edge);
     const busNode1 = getBusNodeMetadata(edge.busNode1, diagramMetadata);
     const busNode2 = getBusNodeMetadata(edge.busNode2, diagramMetadata);
     const node1 = getNodeMetadata(edge.node1, diagramMetadata);
     const node2 = getNodeMetadata(edge.node2, diagramMetadata);
-    if (node1 == null || node2 == null) {
+    return getHalfEdgesFromNodesAndBuses(
+        edge,
+        iEdge,
+        groupedEdgesCount,
+        svgParameters,
+        node1,
+        node2,
+        busNode1,
+        busNode2,
+        point1,
+        point2
+    );
+}
+
+function getHalfEdgesFromNodesAndBuses(
+    edge: EdgeMetadata,
+    iEdge: number,
+    groupedEdgesCount: number,
+    svgParameters: SvgParameters,
+    node1: NodeMetadata | undefined,
+    node2: NodeMetadata | undefined,
+    busNode1: BusNodeMetadata | undefined,
+    busNode2: BusNodeMetadata | undefined,
+    point1?: Point,
+    point2?: Point
+): HalfEdge[] | null[] {
+    if (node1 == undefined || node2 == undefined) {
         return [null, null];
     }
-
+    const edgeType = getEdgeType(edge);
     point1 ??= new Point(node1.x, node1.y);
     point2 ??= new Point(node2.x, node2.y);
     let edgeFork1: Point | undefined;
@@ -288,6 +314,33 @@ export function getHalfEdges(
         edgePoints: edgePoints[1],
     };
     return [halfEdge1, halfEdge2];
+}
+
+export function getHalfEdgesUsingMetadataSearch(
+    edge: EdgeMetadata,
+    iEdge: number,
+    groupedEdgesCount: number,
+    metadataSearch: MetadataSearch,
+    svgParameters: SvgParameters,
+    point1?: Point,
+    point2?: Point
+): HalfEdge[] | null[] {
+    const busNode1 = metadataSearch.getBus(edge.busNode1);
+    const busNode2 = metadataSearch.getBus(edge.busNode2);
+    const node1 = metadataSearch.getNode(edge.node1);
+    const node2 = metadataSearch.getNode(edge.node2);
+    return getHalfEdgesFromNodesAndBuses(
+        edge,
+        iEdge,
+        groupedEdgesCount,
+        svgParameters,
+        node1,
+        node2,
+        busNode1,
+        busNode2,
+        point1,
+        point2
+    );
 }
 
 export function getHalfEdgesLoop(

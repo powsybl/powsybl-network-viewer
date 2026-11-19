@@ -19,6 +19,7 @@ import {
 import * as MetadataUtils from './metadata-utils';
 import { SvgParameters } from './svg-parameters';
 import { EdgeType, ElementType } from './diagram-types';
+import { getDiagramMetadata } from './test-utils';
 
 test('getNodeRadius', () => {
     const diagramPaddingMetadata: DiagramPaddingMetadata = {
@@ -593,4 +594,134 @@ test('getEdgeType', () => {
     };
     expect(MetadataUtils.getEdgeType(edge)).toBe(EdgeType.TWO_WINDINGS_TRANSFORMER);
     expect(MetadataUtils.getStringEdgeType(edge)).toBe('TWO_WINDINGS_TRANSFORMER');
+});
+
+test('getNodePoints', () => {
+    const node1: NodeMetadata = {
+        svgId: '0',
+        equipmentId: 'VLGEN',
+        x: -452.59,
+        y: -274.01,
+    };
+    const node2: NodeMetadata = {
+        svgId: '2',
+        equipmentId: 'VLHV1',
+        x: -245.26,
+        y: 34.3,
+    };
+
+    let nodePoints = MetadataUtils.getNodePoints(node1, node2);
+    expect(nodePoints[0]).not.toBe(undefined);
+    expect(nodePoints[1]).not.toBe(undefined);
+    expect(nodePoints[0]?.x).toBe(-452.59);
+    expect(nodePoints[0]?.y).toBe(-274.01);
+    expect(nodePoints[1]?.x).toBe(-245.26);
+    expect(nodePoints[1]?.y).toBe(34.3);
+
+    nodePoints = MetadataUtils.getNodePoints(node1, undefined);
+    expect(nodePoints[0]).toBe(undefined);
+    expect(nodePoints[1]).toBe(undefined);
+});
+
+test('getEdgeNodePoints', () => {
+    const edge: EdgeMetadata = {
+        svgId: '22',
+        equipmentId: 'NHV1_NHV2_3',
+        node1: '8',
+        node2: '4',
+        busNode1: '11',
+        busNode2: '7',
+        type: 'LineEdge',
+        edgeInfoMiddle: {
+            svgId: '23',
+            infoTypeA: 'Name',
+            labelA: 'NHV1_NHV2_3',
+        },
+    };
+
+    const nodePoints = MetadataUtils.getEdgeNodePoints(edge, getDiagramMetadata());
+    expect(nodePoints[0]).not.toBe(undefined);
+    expect(nodePoints[1]).not.toBe(undefined);
+    expect(nodePoints[0]?.x).toBe(140.33);
+    expect(nodePoints[0]?.y).toBe(58.61);
+    expect(nodePoints[1]?.x).toBe(-245.26);
+    expect(nodePoints[1]?.y).toBe(34.3);
+});
+
+test('getBusEdgesMetadata', () => {
+    const edgesMap = MetadataUtils.getBusEdgesMetadata('4', getDiagramMetadata().edges);
+    expect(edgesMap.size).toBe(1);
+    expect(edgesMap.get('7')?.length).toBe(4);
+    expect(edgesMap.get('7')?.at(0)?.svgId).toBe('16');
+    expect(edgesMap.get('7')?.at(1)?.svgId).toBe('18');
+    expect(edgesMap.get('7')?.at(2)?.svgId).toBe('20');
+    expect(edgesMap.get('7')?.at(3)?.svgId).toBe('22');
+});
+
+test('groupBusEdgesMetadata', () => {
+    const edges: EdgeMetadata[] = [
+        {
+            svgId: '16',
+            equipmentId: 'NGEN_NHV1',
+            node1: '0',
+            node2: '4',
+            busNode1: '3',
+            busNode2: '7',
+            type: 'TwoWtEdge',
+            edgeInfoMiddle: {
+                svgId: '17',
+                infoTypeA: 'Name',
+                labelA: 'NGEN_NHV1',
+            },
+        },
+        {
+            svgId: '18',
+            equipmentId: 'NHV1_NHV2_1',
+            node1: '4',
+            node2: '8',
+            busNode1: '7',
+            busNode2: '11',
+            type: 'LineEdge',
+            edgeInfoMiddle: {
+                svgId: '19',
+                infoTypeA: 'Name',
+                labelA: 'NHV1_NHV2_1',
+            },
+        },
+        {
+            svgId: '20',
+            equipmentId: 'NHV1_NHV2_2',
+            node1: '4',
+            node2: '8',
+            busNode1: '7',
+            busNode2: '11',
+            type: 'LineEdge',
+            edgeInfoMiddle: {
+                svgId: '21',
+                infoTypeA: 'Name',
+                labelA: 'NHV1_NHV2_2',
+            },
+        },
+        {
+            svgId: '22',
+            equipmentId: 'NHV1_NHV2_3',
+            node1: '8',
+            node2: '4',
+            busNode1: '11',
+            busNode2: '7',
+            type: 'LineEdge',
+            edgeInfoMiddle: {
+                svgId: '23',
+                infoTypeA: 'Name',
+                labelA: 'NHV1_NHV2_3',
+            },
+        },
+    ];
+    const edgesMap = MetadataUtils.groupBusEdgesMetadata('4', edges);
+    expect(edgesMap.size).toBe(1);
+    expect(edgesMap.get('7')?.length).toBe(4);
+    expect(edgesMap.get('7')?.at(0)?.svgId).toBe('16');
+    expect(edgesMap.get('7')?.at(1)?.svgId).toBe('18');
+    expect(edgesMap.get('7')?.at(2)?.svgId).toBe('20');
+    expect(edgesMap.get('7')?.at(3)?.svgId).toBe('22');
 });

@@ -7,8 +7,9 @@
  */
 
 import { DiagramMetadata, EdgeMetadata, NodeMetadata } from './diagram-metadata';
+import { MetadataSearch } from './metadata-search';
 
-export interface SvgWriterParametersOptions {
+export interface SvgWriterParameters {
     // diagram metadata
     diagramMetadata: DiagramMetadata;
 
@@ -17,4 +18,7 @@ export interface SvgWriterParametersOptions {
 
     // elements with these CSS classes should not be added
     voltageLevels?: string[];
+
+    // object for searching diagram metadata
+    metadataSearch?: MetadataSearch;
 }
