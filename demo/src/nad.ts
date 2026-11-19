@@ -40,9 +40,8 @@ import {
     OnToggleNadHoverCallbackType,
 } from '../../src';
 import {
-    handleNodeMove,
     handleNodesMove,
-    handlePolygonSelection,
+    handlePolygonSelectionMode,
     handleSelectionChange,
     handleTextNodeMove,
     handleNodeSelect,
@@ -60,7 +59,7 @@ const addNadToDemo = () => {
             const nadViewerParametersOptions: NadViewerParametersOptions = {
                 enableDragInteraction: true,
                 addButtons: true,
-                onMoveNodeCallback: handleNodeMove,
+                onMoveNodesCallback: handleNodesMove,
                 onMoveTextNodeCallback: handleTextNodeMove,
                 onSelectNodeCallback: handleNodeSelect,
                 onToggleHoverCallback: handleToggleNadHover,
@@ -118,7 +117,7 @@ const addNadToDemo = () => {
         .then((response) => response.text())
         .then((svgContent) => {
             const nadViewerParametersOptions: NadViewerParametersOptions = {
-                onMoveNodeCallback: handleNodeMove,
+                onMoveNodesCallback: handleNodesMove,
                 onMoveTextNodeCallback: handleTextNodeMove,
                 onSelectNodeCallback: handleNodeSelect,
                 onToggleHoverCallback: handleToggleNadHover,
@@ -139,7 +138,7 @@ const addNadToDemo = () => {
             const nadViewerParametersOptions: NadViewerParametersOptions = {
                 enableDragInteraction: true,
                 addButtons: true,
-                onMoveNodeCallback: handleNodeMove,
+                onMoveNodesCallback: handleNodesMove,
                 onMoveTextNodeCallback: handleTextNodeMove,
                 onSelectNodeCallback: handleNodeSelect,
                 onToggleHoverCallback: handleToggleNadHover,
@@ -217,7 +216,7 @@ const addNadToDemo = () => {
             const nadViewerParametersOptions: NadViewerParametersOptions = {
                 enableDragInteraction: true,
                 addButtons: true,
-                onMoveNodeCallback: handleNodeMove,
+                onMoveNodesCallback: handleNodesMove,
                 onMoveTextNodeCallback: handleTextNodeMove,
                 onSelectNodeCallback: handleNodeSelect,
                 onToggleHoverCallback: handleToggleNadHover,
@@ -238,7 +237,7 @@ const addNadToDemo = () => {
             const nadViewerParametersOptions: NadViewerParametersOptions = {
                 enableDragInteraction: true,
                 addButtons: true,
-                onMoveNodeCallback: handleNodeMove,
+                onMoveNodesCallback: handleNodesMove,
                 onMoveTextNodeCallback: handleTextNodeMove,
                 onSelectNodeCallback: handleNodeSelect,
                 onToggleHoverCallback: handleToggleNadHover,
@@ -259,7 +258,7 @@ const addNadToDemo = () => {
             const nadViewerParametersOptions: NadViewerParametersOptions = {
                 enableDragInteraction: true,
                 addButtons: true,
-                onMoveNodeCallback: handleNodeMove,
+                onMoveNodesCallback: handleNodesMove,
                 onMoveTextNodeCallback: handleTextNodeMove,
                 onSelectNodeCallback: handleNodeSelect,
                 onToggleHoverCallback: handleToggleNadHover,
@@ -281,12 +280,13 @@ const addNadToDemo = () => {
             const nadViewerParametersOptions: NadViewerParametersOptions = {
                 enableDragInteraction: true,
                 addButtons: true,
-                onMoveNodeCallback: handleNodeMove,
+                onMoveNodesCallback: handleNodesMove,
                 onMoveTextNodeCallback: handleTextNodeMove,
                 onSelectNodeCallback: handleNodeSelect,
                 onToggleHoverCallback: handleToggleNadHover,
                 onRightClickCallback: handleRightClick,
                 onBendLineCallback: handleLineBending,
+                enableMultiSelection: true,
             };
             new NetworkAreaDiagramViewer(
                 document.getElementById('svg-container-nad-threewt-dl-ub')!,
@@ -302,7 +302,7 @@ const addNadToDemo = () => {
             const nadViewerParametersOptions: NadViewerParametersOptions = {
                 enableDragInteraction: true,
                 addButtons: true,
-                onMoveNodeCallback: handleNodeMove,
+                onMoveNodesCallback: handleNodesMove,
                 onMoveTextNodeCallback: handleTextNodeMove,
                 onSelectNodeCallback: handleNodeSelect,
                 onToggleHoverCallback: handleToggleNadHover,
@@ -323,7 +323,7 @@ const addNadToDemo = () => {
             const nadViewerParametersOptions: NadViewerParametersOptions = {
                 enableDragInteraction: true,
                 addButtons: true,
-                onMoveNodeCallback: handleNodeMove,
+                onMoveNodesCallback: handleNodesMove,
                 onMoveTextNodeCallback: handleTextNodeMove,
                 onSelectNodeCallback: handleNodeSelect,
                 onToggleHoverCallback: handleToggleNadHover,
@@ -352,12 +352,13 @@ const addNadToDemo = () => {
                 enableLevelOfDetail: true,
                 zoomLevels: [0, 1000, 2200, 2500, 3000, 4000, 9000, 12000, 20000],
                 addButtons: true,
-                onMoveNodeCallback: handleNodeMove,
+                onMoveNodesCallback: handleNodesMove,
                 onMoveTextNodeCallback: handleTextNodeMove,
                 onSelectNodeCallback: handleNodeSelect,
                 onToggleHoverCallback: handleToggleNadHover,
                 onRightClickCallback: handleRightClick,
                 onBendLineCallback: handleLineBending,
+                enableMultiSelection: true,
             };
             const svgContainerNadPegase = document.getElementById('svg-container-nad-pegase-network');
             new NetworkAreaDiagramViewer(
@@ -374,7 +375,7 @@ const addNadToDemo = () => {
             const nadViewerParametersOptions: NadViewerParametersOptions = {
                 enableDragInteraction: true,
                 addButtons: true,
-                onMoveNodeCallback: handleNodeMove,
+                onMoveNodesCallback: handleNodesMove,
                 onMoveTextNodeCallback: handleTextNodeMove,
                 onSelectNodeCallback: handleNodeSelect,
                 onToggleHoverCallback: handleToggleNadHover,
@@ -401,7 +402,7 @@ const addNadToDemo = () => {
             const nadViewerParametersOptions: NadViewerParametersOptions = {
                 enableDragInteraction: true,
                 addButtons: true,
-                onMoveNodeCallback: handleNodeMove,
+                onMoveNodesCallback: handleNodesMove,
                 onMoveTextNodeCallback: handleTextNodeMove,
                 onSelectNodeCallback: handleNodeSelect,
                 onToggleHoverCallback: handleToggleNadHover,
@@ -424,7 +425,7 @@ const addNadToDemo = () => {
             const nadViewerParametersOptions: NadViewerParametersOptions = {
                 enableDragInteraction: true,
                 addButtons: true,
-                onMoveNodeCallback: handleNodeMove,
+                onMoveNodesCallback: handleNodesMove,
                 onMoveTextNodeCallback: handleTextNodeMove,
                 onSelectNodeCallback: handleNodeSelect,
                 onToggleHoverCallback: handleToggleNadHover,
@@ -447,12 +448,13 @@ const addNadToDemo = () => {
             const nadViewerParametersOptions: NadViewerParametersOptions = {
                 enableDragInteraction: true,
                 addButtons: true,
-                onMoveNodeCallback: handleNodeMove,
+                onMoveNodesCallback: handleNodesMove,
                 onMoveTextNodeCallback: handleTextNodeMove,
                 onSelectNodeCallback: handleNodeSelect,
                 onToggleHoverCallback: handleToggleNadHover,
                 onRightClickCallback: handleRightClick,
                 onBendLineCallback: handleLineBending,
+                enableMultiSelection: true,
 
                 adaptiveTextZoom: {
                     enabled: true,
@@ -476,7 +478,7 @@ const addNadToDemo = () => {
             const nadViewerParametersOptions: NadViewerParametersOptions = {
                 enableDragInteraction: true,
                 addButtons: true,
-                onMoveNodeCallback: handleNodeMove,
+                onMoveNodesCallback: handleNodesMove,
                 onMoveTextNodeCallback: handleTextNodeMove,
                 onSelectNodeCallback: handleNodeSelect,
                 onToggleHoverCallback: handleToggleNadHover,
@@ -548,7 +550,7 @@ const addNadToDemo = () => {
                 enableDragInteraction: true,
                 enableLevelOfDetail: true,
                 addButtons: true,
-                onMoveNodeCallback: handleNodeMove,
+                onMoveNodesCallback: handleNodesMove,
                 onMoveTextNodeCallback: handleTextNodeMove,
                 onSelectNodeCallback: handleNodeSelect,
                 onToggleHoverCallback: showHoveredEquipmentId,
@@ -612,7 +614,7 @@ const addNadToDemo = () => {
             const nadViewerParametersOptions: NadViewerParametersOptions = {
                 enableDragInteraction: true,
                 addButtons: true,
-                onMoveNodeCallback: handleNodeMove,
+                onMoveNodesCallback: handleNodesMove,
                 onMoveTextNodeCallback: handleTextNodeMove,
                 onSelectNodeCallback: handleNodeSelect,
                 onToggleHoverCallback: handleToggleNadHover,
@@ -633,7 +635,7 @@ const addNadToDemo = () => {
             const nadViewerParametersOptions: NadViewerParametersOptions = {
                 enableDragInteraction: true,
                 addButtons: true,
-                onMoveNodeCallback: handleNodeMove,
+                onMoveNodesCallback: handleNodesMove,
                 onMoveTextNodeCallback: handleTextNodeMove,
                 onSelectNodeCallback: handleNodeSelect,
                 onToggleHoverCallback: handleToggleNadHover,
@@ -655,7 +657,7 @@ const addNadToDemo = () => {
             const nadViewerParametersOptions: NadViewerParametersOptions = {
                 enableDragInteraction: true,
                 addButtons: true,
-                onMoveNodeCallback: handleNodeMove,
+                onMoveNodesCallback: handleNodesMove,
                 onMoveTextNodeCallback: handleTextNodeMove,
                 onSelectNodeCallback: handleNodeSelect,
                 onToggleHoverCallback: handleToggleNadHover,
@@ -671,7 +673,7 @@ const addNadToDemo = () => {
             );
         });
 
-    fetch(NadSvgMultibusVLNodes14Example)
+    fetch(NadSvgThreeWTBoundaryLineUnknownBusExample)
         .then((response) => response.text())
         .then((svgContent) => {
             const polygonButton = document.createElement('button');
@@ -681,12 +683,12 @@ const addNadToDemo = () => {
                 enableDragInteraction: true,
                 enableMultiSelection: true,
                 addButtons: true,
-                onMoveNodeCallback: handleNodeMove,
+                adaptiveTextZoom: { enabled: true, threshold: 2000 },
                 onMoveNodesCallback: handleNodesMove,
                 onSelectionChangeCallback: handleSelectionChange,
-                onPolygonSelectionCallback: (isActive) => {
+                onPolygonSelectionModeCallback: (isActive) => {
                     polygonButton.textContent = isActive ? 'Stop polygon selection' : 'Start polygon selection';
-                    handlePolygonSelection(isActive);
+                    handlePolygonSelectionMode(isActive);
                 },
                 onMoveTextNodeCallback: handleTextNodeMove,
                 onSelectNodeCallback: handleNodeSelect,
@@ -697,7 +699,7 @@ const addNadToDemo = () => {
             const nadViewer = new NetworkAreaDiagramViewer(
                 document.getElementById('svg-container-nad-multi-selection')!,
                 svgContent,
-                structuredClone(NadSvgMultibusVLNodes14ExampleMeta),
+                structuredClone(NadSvgThreeWTBoundaryLineUnknownBusExampleMeta),
                 nadViewerParametersOptions
             );
 

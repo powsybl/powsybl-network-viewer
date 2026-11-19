@@ -19,10 +19,9 @@ export type {
 } from './network-area-diagram-viewer/diagram-metadata';
 export type {
     MovedNode,
-    OnMoveNodeCallbackType,
     OnMoveNodesCallbackType,
     OnMoveTextNodeCallbackType,
-    OnPolygonSelectionCallbackType,
+    OnPolygonSelectionModeCallbackType,
     OnSelectionChangeCallbackType,
     OnSelectNodeCallbackType,
     OnToggleNadHoverCallbackType,
@@ -30,6 +29,7 @@ export type {
     OnBendLineCallbackType,
     NadViewerParametersOptions,
     NadViewerParameters,
+    SelectedNode,
 } from './network-area-diagram-viewer/nad-viewer-parameters';
 export { LayoutParameters } from './network-area-diagram-viewer/layout-parameters';
 export { SvgParameters } from './network-area-diagram-viewer/svg-parameters';

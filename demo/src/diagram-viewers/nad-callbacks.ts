@@ -8,32 +8,33 @@
 
 import {
     OnBendLineCallbackType,
-    OnMoveNodeCallbackType,
     OnMoveNodesCallbackType,
     OnMoveTextNodeCallbackType,
-    OnPolygonSelectionCallbackType,
+    OnPolygonSelectionModeCallbackType,
     OnRightClickCallbackType,
     OnSelectionChangeCallbackType,
     OnSelectNodeCallbackType,
     OnToggleNadHoverCallbackType,
 } from '../../../src';
 
-export const handleNodeMove: OnMoveNodeCallbackType = (equipmentId, nodeId, x, y, xOrig, yOrig) => {
-    const msg =
-        'Node ' +
-        nodeId +
-        ' equipment ' +
-        equipmentId +
-        ' moved from [' +
-        xOrig +
-        ', ' +
-        yOrig +
-        '] to [' +
-        x +
-        ', ' +
-        y +
-        ']';
-    console.log(msg);
+export const handleNodesMove: OnMoveNodesCallbackType = (movedNodes) => {
+    movedNodes.forEach(({ equipmentId, nodeId, x, y, xOrig, yOrig }) => {
+        const msg =
+            'Node ' +
+            nodeId +
+            ' equipment ' +
+            equipmentId +
+            ' moved from [' +
+            xOrig +
+            ', ' +
+            yOrig +
+            '] to [' +
+            x +
+            ', ' +
+            y +
+            ']';
+        console.log(msg);
+    });
 };
 
 export const handleTextNodeMove: OnMoveTextNodeCallbackType = (
@@ -84,18 +85,15 @@ export const handleNodeSelect: OnSelectNodeCallbackType = (equipmentId, nodeId, 
     console.log(msg);
 };
 
-export const handleNodesMove: OnMoveNodesCallbackType = (movedNodes) => {
-    console.log('Moved ' + movedNodes.length + ' nodes');
-    movedNodes.forEach(({ equipmentId, nodeId, x, y, xOrig, yOrig }) =>
-        handleNodeMove(equipmentId, nodeId, x, y, xOrig, yOrig)
+export const handleSelectionChange: OnSelectionChangeCallbackType = (selectedNodes) => {
+    console.log(
+        'Selected nodes: [' +
+            selectedNodes.map(({ equipmentId, nodeId }) => equipmentId + ' (' + nodeId + ')').join(', ') +
+            ']'
     );
 };
 
-export const handleSelectionChange: OnSelectionChangeCallbackType = (selectedNodeIds) => {
-    console.log('Selected nodes: [' + selectedNodeIds.join(', ') + ']');
-};
-
-export const handlePolygonSelection: OnPolygonSelectionCallbackType = (isActive) => {
+export const handlePolygonSelectionMode: OnPolygonSelectionModeCallbackType = (isActive) => {
     console.log('Polygon selection ' + (isActive ? 'started' : 'stopped'));
 };
 

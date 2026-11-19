@@ -22,18 +22,17 @@ import {
 import debounce from 'lodash.debounce';
 import {
     AdaptiveTextZoomOptions,
-    MovedNode,
     NadViewerParameters,
     NadViewerParametersOptions,
     OnBendLineCallbackType,
-    OnMoveNodeCallbackType,
     OnMoveNodesCallbackType,
     OnMoveTextNodeCallbackType,
-    OnPolygonSelectionCallbackType,
+    OnPolygonSelectionModeCallbackType,
     OnRightClickCallbackType,
     OnSelectionChangeCallbackType,
     OnSelectNodeCallbackType,
     OnToggleNadHoverCallbackType,
+    SelectedNode,
 } from './nad-viewer-parameters';
 import * as ViewerButtons from './viewer-buttons';
 import * as SvgUtils from './svg-utils';
@@ -51,8 +50,7 @@ interface Cancelable {
     flush(): void;
 }
 
-interface GroupDragNode {
-    element: SVGGraphicsElement;
+interface DraggedNode {
     node: NodeMetadata;
     xOrig: number;
     yOrig: number;
@@ -134,15 +132,14 @@ export class NetworkAreaDiagramViewer {
     isDragging: boolean = false;
     cursorOverlayRect: SVGRectElement | null = null;
     endTextEdge: Point = new Point(0, 0);
-    onMoveNodeCallback: OnMoveNodeCallbackType | null;
+    onMoveNodesCallback: OnMoveNodesCallbackType | null;
     onMoveTextNodeCallback: OnMoveTextNodeCallbackType | null;
     onSelectNodeCallback: OnSelectNodeCallbackType | null;
     onSelectionChangeCallback: OnSelectionChangeCallbackType | null;
-    onMoveNodesCallback: OnMoveNodesCallbackType | null;
-    onPolygonSelectionCallback: OnPolygonSelectionCallbackType | null;
+    onPolygonSelectionModeCallback: OnPolygonSelectionModeCallbackType | null;
     selectedNodeIds: Set<string> = new Set<string>();
     polygonSelection: PolygonSelection | null = null;
-    groupDrag: GroupDragNode[] | null = null;
+    draggedNodes: Map<string, DraggedNode> = new Map<string, DraggedNode>();
     onToggleHoverCallback: OnToggleNadHoverCallbackType | null;
     debounceToggleHoverCallback: (OnToggleNadHoverCallbackType | null) & Cancelable;
     previousMaxDisplayedSize: number;
@@ -195,13 +192,12 @@ export class NetworkAreaDiagramViewer {
         this.originalHeight = 0;
         this.enableDragInteraction = this.nadViewerParameters.getEnableDragInteraction();
         this.enableMultiSelection = this.nadViewerParameters.getEnableMultiSelection();
-        this.onMoveNodeCallback = this.nadViewerParameters.getOnMoveNodeCallback();
+        this.onMoveNodesCallback = this.nadViewerParameters.getOnMoveNodesCallback();
         this.onMoveTextNodeCallback = this.nadViewerParameters.getOnMoveTextNodeCallback();
         this.onRightClickCallback = this.nadViewerParameters.getOnRightClickCallback();
         this.onSelectNodeCallback = this.nadViewerParameters.getOnSelectNodeCallback();
         this.onSelectionChangeCallback = this.nadViewerParameters.getOnSelectionChangeCallback();
-        this.onMoveNodesCallback = this.nadViewerParameters.getOnMoveNodesCallback();
-        this.onPolygonSelectionCallback = this.nadViewerParameters.getOnPolygonSelectionCallback();
+        this.onPolygonSelectionModeCallback = this.nadViewerParameters.getOnPolygonSelectionModeCallback();
         this.onToggleHoverCallback = this.nadViewerParameters.getOnToggleHoverCallback();
         this.debounceToggleHoverCallback = this.initDebounceToggleHoverCallback();
         this.onBendLineCallback = this.nadViewerParameters.getOnBendingLineCallback();
@@ -210,6 +206,7 @@ export class NetworkAreaDiagramViewer {
         this.hoverPositionPrecision = this.nadViewerParameters.getHoverPositionPrecision();
         this.svgParameters = new SvgParameters(this.diagramMetadata?.svgParameters);
         if (this.enableMultiSelection) {
+            // focusable, to receive the keys of the multi-selection
             this.svgDiv.tabIndex = -1;
             this.svgDiv.style.outline = 'none';
             this.svgDiv.addEventListener('keydown', (event) => this.onMultiSelectionKeyDown(event));
@@ -292,18 +289,16 @@ export class NetworkAreaDiagramViewer {
     }
 
     public moveNodeToCoordinates(equipmentId: string, x: number, y: number) {
-        const nodeId = this.getNodeIdFromEquipmentId(equipmentId);
-        if (nodeId != null) {
-            const elemToMove: SVGGraphicsElement | null = this.svgDiv.querySelector('[id="' + nodeId + '"]');
-            if (elemToMove) {
-                // update metadata only
-                this.updateNodeMetadata(elemToMove, new Point(x, y));
-                // update and redraw element
-                this.updateElement(elemToMove);
-                // reset initial position now that node is moved
-                // to avoid wrong offset if the node is moved again before mouse up
-                this.initialPosition = null;
-            }
+        const node: NodeMetadata | undefined = this.diagramMetadata?.nodes.find(
+            (node) => node.equipmentId == equipmentId
+        );
+        if (node) {
+            const previousPosition = new Point(node.x, node.y);
+            this.moveNodeMetadata(node, new Point(x, y));
+            this.redrawMovedNode(node, previousPosition);
+            // reset initial position now that node is moved
+            // to avoid wrong offset if the node is moved again before mouse up
+            this.initialPosition = null;
         }
     }
 
@@ -351,17 +346,31 @@ export class NetworkAreaDiagramViewer {
         this.initialPosition = null;
     }
 
+    // replaces the selection, keeping only the voltage level nodes
     public setSelectedNodeIds(nodeIds: string[]) {
-        const selectedNodeIds = new Set(nodeIds);
-        const changedNodeIds = [...this.selectedNodeIds, ...selectedNodeIds].filter(
-            (nodeId) => this.selectedNodeIds.has(nodeId) !== selectedNodeIds.has(nodeId)
-        );
-        if (changedNodeIds.length === 0) {
+        const selectedNodeIds = new Set(nodeIds.filter((nodeId) => this.isVoltageLevelNodeId(nodeId)));
+        const addedNodeIds = [...selectedNodeIds].filter((nodeId) => !this.selectedNodeIds.has(nodeId));
+        const removedNodeIds = [...this.selectedNodeIds].filter((nodeId) => !selectedNodeIds.has(nodeId));
+        if (addedNodeIds.length === 0 && removedNodeIds.length === 0) {
             return;
         }
         this.selectedNodeIds = selectedNodeIds;
-        changedNodeIds.forEach((nodeId) => this.setNodeSelectedClass(nodeId, selectedNodeIds.has(nodeId)));
-        this.onSelectionChangeCallback?.([...selectedNodeIds]);
+        addedNodeIds.forEach((nodeId) => this.setNodeSelectedClass(nodeId, true));
+        removedNodeIds.forEach((nodeId) => this.setNodeSelectedClass(nodeId, false));
+        this.onSelectionChangeCallback?.(this.getSelectedNodes());
+    }
+
+    // voltage level nodes have no type, unlike three windings transformer and boundary nodes
+    private isVoltageLevelNodeId(nodeId: string): boolean {
+        const node = this.getNodeMap().get(nodeId);
+        return node !== undefined && !node.type && !node.invisible;
+    }
+
+    private getSelectedNodes(): SelectedNode[] {
+        return [...this.selectedNodeIds].flatMap((nodeId) => {
+            const node = this.getNodeMap().get(nodeId);
+            return node ? [{ equipmentId: node.equipmentId, nodeId }] : [];
+        });
     }
 
     private toggleNodesSelection(nodeIds: string[]) {
@@ -394,17 +403,17 @@ export class NetworkAreaDiagramViewer {
         }
     }
 
-    public startPolygonSelection(start?: MouseEvent) {
+    public startPolygonSelection(startEvent?: MouseEvent) {
         if (this.polygonSelection || !this.svgDraw) {
             return;
         }
         this.polygonSelection = new PolygonSelection(
             this.svgDraw,
             (ctrlKey) => this.onPolygonSelectionClose(ctrlKey),
-            start
+            startEvent
         );
         this.svgDiv.focus({ preventScroll: true });
-        this.onPolygonSelectionCallback?.(true);
+        this.onPolygonSelectionModeCallback?.(true);
     }
 
     public stopPolygonSelection() {
@@ -414,17 +423,13 @@ export class NetworkAreaDiagramViewer {
         this.polygonSelection.stop();
         this.polygonSelection = null;
         this.svgDiv.focus({ preventScroll: true });
-        this.onPolygonSelectionCallback?.(false);
+        this.onPolygonSelectionModeCallback?.(false);
     }
 
     private onPolygonSelectionClose(invertSelection: boolean) {
+        // from the metadata, to also select the nodes that are not drawn
         const nodeIds = (this.diagramMetadata?.nodes ?? [])
-            .filter(
-                (node) =>
-                    !node.type &&
-                    this.polygonSelection?.contains(new Point(node.x, node.y)) &&
-                    this.svgDiv.querySelector("[id='" + node.svgId + "']")?.checkVisibility()
-            )
+            .filter((node) => this.polygonSelection?.contains(new Point(node.x, node.y)))
             .map((node) => node.svgId);
         this.stopPolygonSelection();
         if (invertSelection) {
@@ -802,8 +807,8 @@ export class NetworkAreaDiagramViewer {
     private onMultiSelectionMouseDown(event: MouseEvent, selectableElem?: SVGElement) {
         event.preventDefault();
         event.stopImmediatePropagation();
-        const nodeId = this.getVoltageLevelNodeId(selectableElem);
-        if (nodeId) {
+        const nodeId = this.getNodeId(selectableElem);
+        if (nodeId && this.isVoltageLevelNodeId(nodeId)) {
             this.toggleNodesSelection([nodeId]);
         } else {
             this.startPolygonSelection(event);
@@ -836,18 +841,37 @@ export class NetworkAreaDiagramViewer {
             this.draggedElementType = DraggedElementType.TEXT_NODE;
         } else {
             this.draggedElementType = DraggedElementType.VOLTAGE_LEVEL_NODE;
-            if (this.selectedNodeIds.has(draggableElem.id)) {
-                this.groupDrag = this.getGroupDrag();
-            }
+            this.draggedNodes = this.getDraggedNodes(
+                this.selectedNodeIds.has(draggableElem.id) ? this.selectedNodeIds : new Set([draggableElem.id])
+            );
         }
     }
 
-    private getGroupDrag(): GroupDragNode[] {
-        return [...this.selectedNodeIds].flatMap((nodeId) => {
-            const element: SVGGraphicsElement | null = this.svgDiv.querySelector("[id='" + nodeId + "']");
+    private getDraggedNodes(nodeIds: Set<string>): Map<string, DraggedNode> {
+        const draggedNodes = new Map<string, DraggedNode>();
+        [...nodeIds, ...this.getAttachedNodeIds(nodeIds)].forEach((nodeId) => {
             const node = this.getNodeMap().get(nodeId);
-            return element && node ? [{ element, node, xOrig: node.x, yOrig: node.y }] : [];
+            if (node) {
+                draggedNodes.set(nodeId, { node, xOrig: node.x, yOrig: node.y });
+            }
         });
+        return draggedNodes;
+    }
+
+    // the boundary and three windings transformer nodes, at the second end of their edges, whose voltage levels all move
+    private getAttachedNodeIds(movedNodeIds: Set<string>): string[] {
+        const attachedNodeIds = new Set<string>();
+        const fixedNodeIds = new Set<string>();
+        this.diagramMetadata?.edges.forEach((edge) => {
+            if (this.getNodeMap().get(edge.node2)?.type && this.isVoltageLevelNodeId(edge.node1)) {
+                if (movedNodeIds.has(edge.node1)) {
+                    attachedNodeIds.add(edge.node2);
+                } else {
+                    fixedNodeIds.add(edge.node2);
+                }
+            }
+        });
+        return [...attachedNodeIds].filter((nodeId) => !fixedNodeIds.has(nodeId));
     }
 
     // Appends a transparent overlay rect on top of svgDraw with the given cursor.
@@ -932,34 +956,40 @@ export class NetworkAreaDiagramViewer {
             this.updateTextNodeMetadata(this.draggedElement.id, topLeftCornerPosition);
             this.updateElement(this.draggedElement);
         } else if (this.draggedElementType === DraggedElementType.VOLTAGE_LEVEL_NODE) {
-            if (this.groupDrag) {
-                this.moveGroup(this.groupDrag, mousePosition);
-            } else {
-                this.updateNodeMetadata(this.draggedElement, mousePosition);
-                this.updateElement(this.draggedElement);
-            }
+            this.moveDraggedNodes(mousePosition);
         } else if (this.draggedElementType === DraggedElementType.BENT_SQUARE) {
             this.updateEdgeMetadata(this.draggedElement, mousePosition, LineOperation.BEND);
             this.redrawBentLine(this.draggedElement, LineOperation.BEND);
         }
     }
 
-    private moveGroup(groupDrag: GroupDragNode[], mousePosition: Point) {
+    private moveDraggedNodes(mousePosition: Point) {
         const dx = mousePosition.x - this.originalNodePosition.x;
         const dy = mousePosition.y - this.originalNodePosition.y;
-        groupDrag.forEach(({ element, xOrig, yOrig }) =>
-            this.updateNodeMetadata(element, new Point(xOrig + dx, yOrig + dy))
-        );
-        groupDrag.forEach(({ element }) => this.updateElement(element));
+        // all the nodes are moved in the metadata before redrawing, as the edges between them depend on both ends
+        const previousPositions = new Map<NodeMetadata, Point>();
+        this.draggedNodes.forEach(({ node, xOrig, yOrig }) => {
+            previousPositions.set(node, new Point(node.x, node.y));
+            this.moveNodeMetadata(node, new Point(xOrig + dx, yOrig + dy));
+        });
+        previousPositions.forEach((previousPosition, node) => this.redrawMovedNode(node, previousPosition));
     }
 
-    private updateNodeMetadata(vlNode: SVGGraphicsElement, position: Point) {
-        const node: NodeMetadata | undefined = this.diagramMetadata?.nodes.find((node) => node.svgId == vlNode.id);
-        if (node != null) {
-            const nodeMove = MetadataUtils.getNodeMove(node, position);
-            node.x = nodeMove.xNew;
-            node.y = nodeMove.yNew;
+    private redrawMovedNode(node: NodeMetadata, previousPosition: Point) {
+        const vlNode: SVGGraphicsElement | null = this.svgDiv.querySelector("[id='" + node.svgId + "']");
+        if (vlNode) {
+            this.updateElement(vlNode);
+        } else {
+            // not drawn: its previous position cannot be read from the SVG
+            this.initialPosition = previousPosition;
+            this.updateVoltageLevelNode(node.svgId, null);
         }
+    }
+
+    private moveNodeMetadata(node: NodeMetadata, position: Point) {
+        const nodeMove = MetadataUtils.getNodeMove(node, position);
+        node.x = nodeMove.xNew;
+        node.y = nodeMove.yNew;
     }
 
     private updateTextNodeMetadata(textNodeId: string, position: Point) {
@@ -990,7 +1020,7 @@ export class NetworkAreaDiagramViewer {
             this.updateVoltageLevelText(element);
         } else {
             this.initialPosition = SvgUtils.getPosition(element);
-            this.updateVoltageLevelNode(element);
+            this.updateVoltageLevelNode(element.id, element);
         }
     }
 
@@ -1081,7 +1111,7 @@ export class NetworkAreaDiagramViewer {
         this.isDragging = false;
         this.draggedElement = null;
         this.draggedElementType = null;
-        this.groupDrag = null;
+        this.draggedNodes = new Map<string, DraggedNode>();
         this.initialPosition = null;
         this.ctm = null;
         this.originalNodePosition = new Point(0, 0);
@@ -1104,49 +1134,28 @@ export class NetworkAreaDiagramViewer {
                 this.callMoveTextNodeCallback(this.draggedElement);
                 break;
             case DraggedElementType.VOLTAGE_LEVEL_NODE:
-                if (this.groupDrag) {
-                    this.callMoveNodesCallback(this.groupDrag);
-                } else {
-                    this.callMoveNodeCallback(this.draggedElement);
+                // the moved nodes may have entered or left the displayed area
+                if (this.nadViewerParameters.getAdaptiveTextZoom().enabled) {
+                    this.adaptiveZoomViewboxUpdate(this.getCurrentlyMaxDisplayedSize());
                 }
+                this.callMoveNodesCallback();
                 break;
             default:
                 return;
         }
     }
 
-    private callMoveNodeCallback(vlNode: SVGGraphicsElement) {
-        if (this.onMoveNodeCallback) {
-            const node: NodeMetadata | undefined = this.diagramMetadata?.nodes.find((node) => node.svgId == vlNode.id);
-            if (node != null) {
-                this.onMoveNodeCallback(
-                    node.equipmentId,
-                    node.svgId,
-                    node.x,
-                    node.y,
-                    this.originalNodePosition.x,
-                    this.originalNodePosition.y
-                );
-            }
-        }
-    }
-
-    private callMoveNodesCallback(groupDrag: GroupDragNode[]) {
-        const movedNodes: MovedNode[] = groupDrag.map(({ node, xOrig, yOrig }) => ({
-            equipmentId: node.equipmentId,
-            nodeId: node.svgId,
-            x: node.x,
-            y: node.y,
-            xOrig,
-            yOrig,
-        }));
-        if (this.onMoveNodesCallback) {
-            this.onMoveNodesCallback(movedNodes);
-        } else {
-            movedNodes.forEach(({ equipmentId, nodeId, x, y, xOrig, yOrig }) =>
-                this.onMoveNodeCallback?.(equipmentId, nodeId, x, y, xOrig, yOrig)
-            );
-        }
+    private callMoveNodesCallback() {
+        this.onMoveNodesCallback?.(
+            [...this.draggedNodes.values()].map(({ node, xOrig, yOrig }) => ({
+                equipmentId: node.equipmentId,
+                nodeId: node.svgId,
+                x: node.x,
+                y: node.y,
+                xOrig,
+                yOrig,
+            }))
+        );
     }
 
     private callMoveTextNodeCallback(textNodeElement: SVGGraphicsElement) {
@@ -1219,19 +1228,21 @@ export class NetworkAreaDiagramViewer {
         }
     }
 
-    private updateVoltageLevelNode(vlNode: SVGGraphicsElement) {
-        const nodeMetadata = this.diagramMetadata?.nodes.find((node) => node.svgId === vlNode.id);
+    private updateVoltageLevelNode(nodeId: string, vlNode: SVGGraphicsElement | null) {
+        const nodeMetadata = this.diagramMetadata?.nodes.find((node) => node.svgId === nodeId);
         if (nodeMetadata) {
             const position = new Point(nodeMetadata.x, nodeMetadata.y);
-            this.updateNodePosition(vlNode, position);
+            if (vlNode) {
+                this.updateNodePosition(vlNode, position);
+            }
             const textNode: SVGGraphicsElement | null = this.svgDiv.querySelector(
                 "[id='" + nodeMetadata.legendSvgId + "']"
             );
             if (textNode) {
                 this.updateVoltageLevelText(textNode);
             }
-            this.updateEdges(vlNode, position);
-            this.updateInjections(vlNode, position);
+            this.updateEdges(nodeId, vlNode, position);
+            this.updateInjections(nodeId, position);
         }
     }
 
@@ -1244,7 +1255,8 @@ export class NetworkAreaDiagramViewer {
         this.updateTextNodePosition(textNode, position);
 
         // redraw text edge
-        const textNodeSize = this.groupDrag ? { width: 0, height: 0 } : SvgUtils.getTextNodeSize(textNode);
+        // moved with its node, the legend keeps its connection: it does not need to be measured
+        const textNodeSize = this.draggedNodes.size > 0 ? { width: 0, height: 0 } : SvgUtils.getTextNodeSize(textNode);
         this.redrawTextEdge(
             nodeMetadata.legendEdgeSvgId,
             position,
@@ -1335,10 +1347,10 @@ export class NetworkAreaDiagramViewer {
         }
     }
 
-    private updateInjections(vlNode: SVGGraphicsElement, position: Point) {
+    private updateInjections(vlNodeId: string, position: Point) {
         // get edges connected to the the node we are moving
         const injections: InjectionMetadata[] | undefined = this.diagramMetadata?.injections?.filter(
-            (inj) => inj.vlNodeId == vlNode.id
+            (inj) => inj.vlNodeId == vlNodeId
         );
         injections?.forEach((inj) => {
             const translation = this.getTranslation(position);
@@ -1347,9 +1359,9 @@ export class NetworkAreaDiagramViewer {
         });
     }
 
-    private updateEdges(vlNode: SVGGraphicsElement, position: Point) {
+    private updateEdges(vlNodeId: string, vlNode: SVGGraphicsElement | null, position: Point) {
         // get edges connected to the node we are moving
-        const edges: EdgeMetadata[] = this.getEdgesMetadata(vlNode.id);
+        const edges: EdgeMetadata[] = this.getEdgesMetadata(vlNodeId);
         // group edges, to have multibranches - branches connecting the same nodes - together
         const groupedEdges: Map<string, EdgeMetadata[]> = new Map<string, EdgeMetadata[]>();
         const loopEdges: Map<string, EdgeMetadata[]> = new Map<string, EdgeMetadata[]>();
@@ -1371,12 +1383,12 @@ export class NetworkAreaDiagramViewer {
                 groupedEdges.set(edgeGroupId, edgeGroup);
             }
         });
-        const movedNode = this.diagramMetadata?.nodes.find((n) => n.svgId == vlNode.id);
+        const movedNode = this.diagramMetadata?.nodes.find((n) => n.svgId == vlNodeId);
         if (!movedNode) return;
         // redraw grouped edges
         for (const edgeGroup of groupedEdges.values()) {
             this.redrawEdgeGroup(movedNode, edgeGroup);
-            this.redrawOtherVoltageLevelNode(edgeGroup[0], vlNode.id);
+            this.redrawOtherVoltageLevelNode(edgeGroup[0], vlNodeId);
         }
         // redraw loop edges
         for (const edgeGroup of loopEdges.values()) {
@@ -1862,7 +1874,8 @@ export class NetworkAreaDiagramViewer {
 
     private redrawOtherVoltageLevelNode(edge: EdgeMetadata, vlNodeId: string) {
         const otherNodeId = vlNodeId === edge.node1 ? edge.node2 : edge.node1;
-        if (this.groupDrag && this.selectedNodeIds.has(otherNodeId)) return;
+        // a dragged node is redrawn when it is updated itself
+        if (this.draggedNodes.has(otherNodeId)) return;
         const otherNode: SVGGraphicsElement | null = this.svgDiv.querySelector("[id='" + otherNodeId + "']");
         if (!otherNode) return;
 
@@ -1925,7 +1938,7 @@ export class NetworkAreaDiagramViewer {
     private callSelectNodeCallback(mousePosition: Point) {
         // call the select node callback, if defined
         if (this.onSelectNodeCallback != null) {
-            const nodeSvgId = this.getVoltageLevelNodeId(this.selectedElement);
+            const nodeSvgId = this.getNodeId(this.selectedElement);
             // get selected node from metadata
             const node: NodeMetadata | undefined = this.diagramMetadata?.nodes.find((node) => node.svgId == nodeSvgId);
             if (node != null) {
@@ -1935,7 +1948,7 @@ export class NetworkAreaDiagramViewer {
     }
 
     // a selected text node stands for the voltage level node it labels
-    private getVoltageLevelNodeId(selectableElement: SVGElement | null = null): string | undefined {
+    private getNodeId(selectableElement: SVGElement | null = null): string | undefined {
         return SvgUtils.isTextNode(selectableElement)
             ? this.diagramMetadata?.textNodes.find((textNode) => textNode.svgId == selectableElement?.id)?.vlNode
             : selectableElement?.id;
@@ -2050,7 +2063,6 @@ export class NetworkAreaDiagramViewer {
         newTextElement.setAttribute('height', '1');
         newTextElement.setAttribute('width', '1');
         newTextElement.id = textNode.svgId;
-        newTextElement.classList.toggle(NetworkAreaDiagramViewer.SELECTED_CLASS, this.selectedNodeIds.has(node.svgId));
 
         const newDivElement = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
         node.classes?.forEach((cls) => {
@@ -2353,6 +2365,9 @@ export class NetworkAreaDiagramViewer {
 
         this.updateAdaptiveLegends(containedNodeList, maxDisplayedSize, adaptiveTextZoom);
         this.updateAdaptiveEdgeInfos(containedEdgeList, viewBox, maxDisplayedSize, adaptiveTextZoom);
+
+        // highlight the selected nodes and legends drawn again
+        this.selectedNodeIds.forEach((nodeId) => this.setNodeSelectedClass(nodeId, true));
     }
 
     public setJsonBranchStates(branchStates: string) {

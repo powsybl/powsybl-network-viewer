@@ -39,9 +39,16 @@ button:hover:not(:disabled) {
     transform: scale(1.4);
 }
 
-.nad-vl-nodes .nad-selected .nad-busnode {
+.nad-vl-nodes > .nad-selected > .nad-busnode:last-child {
     stroke: #3bb2d0;
-    stroke-width: 5px;
+    stroke-width: 8px;
+    vector-effect: non-scaling-stroke;
+    paint-order: stroke;
+}
+.nad-vl-nodes > .nad-selected > .nad-unknown-busnode {
+    stroke: #3bb2d0;
+    stroke-width: 4px;
+    stroke-dasharray: none;
     vector-effect: non-scaling-stroke;
 }
 .nad-text-nodes .nad-selected > .nad-label-box {

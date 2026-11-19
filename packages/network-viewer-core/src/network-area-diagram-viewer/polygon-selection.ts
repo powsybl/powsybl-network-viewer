@@ -19,7 +19,7 @@ export class PolygonSelection {
     constructor(
         private readonly svg: Svg,
         private readonly onClose: (ctrlKey: boolean) => void,
-        start?: MouseEvent
+        startEvent?: MouseEvent
     ) {
         this.polygon = svg
             .polygon()
@@ -40,8 +40,8 @@ export class PolygonSelection {
         this.overlay.addEventListener('pointermove', this.handlePointerMove);
         this.overlay.addEventListener('wheel', this.handleWheel, { passive: false });
         svg.node.parentElement?.appendChild(this.overlay);
-        if (start) {
-            this.handleClick(start);
+        if (startEvent) {
+            this.handleClick(startEvent);
         }
     }
 
