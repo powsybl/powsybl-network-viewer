@@ -177,8 +177,19 @@ export class NetworkAreaDiagramViewer {
         this.svgContent = svgContent;
         this.diagramMetadata = diagramMetadata;
         this.nadViewerParameters = new NadViewerParameters(nadViewerParametersOptions ?? undefined);
+        if (
+            (this.nadViewerParameters.getAdaptiveTextZoom().enabled ||
+                this.nadViewerParameters.getCreateSvgFromMetadata()) &&
+            this.diagramMetadata
+        ) {
+            this.metadataSearch = new MetadataSearch(this.diagramMetadata);
+        }
+
         if (this.nadViewerParameters.getCreateSvgFromMetadata() && this.diagramMetadata != null) {
-            this.svgWriter = new SvgWriter({ diagramMetadata: this.diagramMetadata });
+            this.svgWriter = new SvgWriter({
+                diagramMetadata: this.diagramMetadata,
+                metadataSearch: this.metadataSearch,
+            });
             this.svgContent = this.svgWriter.getEmptySvg();
         }
         this.width = 0;
@@ -395,9 +406,6 @@ export class NetworkAreaDiagramViewer {
         this.textNodesSection = this.getOrCreateTextNodesSection();
         this.textEdgesSection = this.getOrCreateTextEdgesSection();
         this.edgeInfosSection = this.getOrCreateEdgeInfosSection();
-        if (this.nadViewerParameters.getAdaptiveTextZoom().enabled && this.diagramMetadata) {
-            this.metadataSearch = new MetadataSearch(this.diagramMetadata);
-        }
 
         // add events
         const hasMetadata = this.diagramMetadata !== null;

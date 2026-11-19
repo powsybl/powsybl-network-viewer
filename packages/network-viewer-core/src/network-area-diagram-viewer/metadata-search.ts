@@ -22,6 +22,10 @@ export class MetadataSearch {
             this.nodeBuses[bus.vlNode] ??= [];
             this.nodeBuses[bus.vlNode].push(bus);
         });
+        // to have the buses associated to a node sorted by index
+        for (const buses of Object.values(this.nodeBuses)) {
+            buses.sort((a, b) => a.index - b.index);
+        }
     }
 
     public getNode(nodeId: string): NodeMetadata | undefined {

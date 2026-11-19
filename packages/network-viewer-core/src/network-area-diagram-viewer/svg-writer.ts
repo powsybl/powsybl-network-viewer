@@ -181,14 +181,14 @@ export class SvgWriter {
             const busNodes = this.metadataSearch
                 ? this.metadataSearch.getNodeBuses(node.svgId)
                 : MetadataUtils.getBusNodesMetadata(node.svgId, this.diagramMetadata.busNodes);
-            const busEgdes = MetadataUtils.groupBusEdgesMetadata(
+            const busEdges = MetadataUtils.groupBusEdgesMetadata(
                 node.svgId,
                 this.edgeRouter?.getNodeEdges(node.svgId) ?? []
             );
             const traversingBusEdgesAngles: number[] = [];
             busNodes.forEach((busNode) => {
                 gNodeElement.appendChild(this.getBusNode(busNode, node, traversingBusEdgesAngles));
-                this.addBusEdgeAngles(node, busNode, busEgdes.get(busNode.svgId) ?? [], traversingBusEdgesAngles);
+                this.addBusEdgeAngles(node, busNode, busEdges.get(busNode.svgId) ?? [], traversingBusEdgesAngles);
             });
         }
         return gNodeElement;
@@ -202,7 +202,7 @@ export class SvgWriter {
             SvgUtils.addCssClasses(pathElement, busNode.classes, SvgWriter.BUS_CLASS);
             SvgUtils.addElementStyle(pathElement, busNode.style);
             const edges: EdgeMetadata[] = this.edgeRouter?.getNodeEdges(node.svgId) ?? [];
-            const edgeAngle = this.edgeRouter?.getEdgeAngle(edges[0].svgId, '2');
+            const edgeAngle = edges.length > 0 ? this.edgeRouter?.getEdgeAngle(edges[0].svgId, '2') : undefined;
             const path: string = edgeAngle
                 ? DiagramUtils.getBoundarySemicircle(edgeAngle, nodeRadius.busOuterRadius)
                 : '';
