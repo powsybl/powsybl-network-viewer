@@ -430,6 +430,27 @@ export function getNodeType(node: NodeMetadata): NodeType {
     return node.type === undefined ? NodeType.UNKNOWN : (NodeTypeMapping[node.type] ?? NodeType.UNKNOWN);
 }
 
+// ids of the infos of the edges, side and/or middle ones, and of the middle ones among them
+export function getEdgeInfoIds(
+    edges: EdgeMetadata[],
+    sideInfos: boolean,
+    middleInfos: boolean
+): { edgeInfoIds: Set<string>; middleEdgeInfoIds: Set<string> } {
+    const edgeInfoIds = new Set<string>();
+    const middleEdgeInfoIds = new Set<string>();
+    for (const edge of edges) {
+        if (sideInfos) {
+            if (edge.edgeInfo1) edgeInfoIds.add(edge.edgeInfo1.svgId);
+            if (edge.edgeInfo2) edgeInfoIds.add(edge.edgeInfo2.svgId);
+        }
+        if (middleInfos && edge.edgeInfoMiddle) {
+            edgeInfoIds.add(edge.edgeInfoMiddle.svgId);
+            middleEdgeInfoIds.add(edge.edgeInfoMiddle.svgId);
+        }
+    }
+    return { edgeInfoIds, middleEdgeInfoIds };
+}
+
 export function canMergeEdge(edge: EdgeMetadata, edgeType: EdgeType): boolean {
     return (
         isLineEdge(edgeType) &&
