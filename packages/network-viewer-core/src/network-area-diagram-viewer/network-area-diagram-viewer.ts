@@ -401,10 +401,7 @@ export class NetworkAreaDiagramViewer {
                 this.onHover(e as MouseEvent);
             });
 
-            this.svgDraw.on('mouseout', () => {
-                this.clearHighlights();
-                this.hideEdgePreviewPoints();
-            });
+            this.svgDraw.on('mouseout', (e: Event) => this.onMouseOut(e as MouseEvent));
         }
         if (this.onRightClickCallback != null && hasMetadata) {
             this.svgDraw.on('mousedown', (e: Event) => {
@@ -649,7 +646,7 @@ export class NetworkAreaDiagramViewer {
         });
     }
     private onMouseLeftDown(event: MouseEvent) {
-        let targetElement = event.target as SVGElement;
+        let targetElement = this.getMouseEventTarget(event);
         if (this.hoveredElement && this.existsNearbyHoveredElement(this.getMousePosition(event))) {
             targetElement = this.hoveredElement;
         }
@@ -712,6 +709,9 @@ export class NetworkAreaDiagramViewer {
         if (!this.svgDraw) {
             return;
         }
+        if (this.cursorOverlayRect?.style.cursor === cursor) {
+            return;
+        }
         // Detach any existing overlay before creating a new one
         this.detachCursorOverlay();
 
@@ -725,9 +725,35 @@ export class NetworkAreaDiagramViewer {
         this.cursorOverlayRect = overlay.node;
     }
 
-    private detachCursorOverlay() {
+    private detachCursorOverlay(cursor?: string) {
+        if (cursor && this.cursorOverlayRect?.style.cursor !== cursor) {
+            return;
+        }
         this.cursorOverlayRect?.remove();
         this.cursorOverlayRect = null;
+    }
+
+    private getMouseEventTarget(mouseEvent: MouseEvent): SVGElement {
+        const target = mouseEvent.target as SVGElement;
+        const overlay = this.cursorOverlayRect;
+        if (target !== overlay || !overlay) {
+            return target;
+        }
+
+        const pointerEvents = overlay.style.pointerEvents;
+        overlay.style.pointerEvents = 'none';
+        try {
+            // avoid the cursor overlay by searching in the svg with
+            // the mouse position
+            return (
+                (this.svgDiv.ownerDocument.elementFromPoint(
+                    mouseEvent.clientX,
+                    mouseEvent.clientY
+                ) as SVGElement | null) ?? target
+            );
+        } finally {
+            overlay.style.pointerEvents = pointerEvents;
+        }
     }
 
     private onDragStart() {
@@ -842,23 +868,35 @@ export class NetworkAreaDiagramViewer {
     }
 
     private onHover(mouseEvent: MouseEvent) {
-        const hoverableElem = SvgUtils.getHoverableFrom(mouseEvent.target as SVGElement);
+        const hoverableElem = SvgUtils.getHoverableFrom(this.getMouseEventTarget(mouseEvent));
         if (!hoverableElem) {
             return;
         }
         this.hoveredElement = hoverableElem;
         this.hoveredElementPosition = this.getMousePosition(mouseEvent);
+        this.updateContextMenuCursor(this.hoveredElementPosition);
     }
 
-    private handleHoverCallBack(mouseEvent: MouseEvent) {
-        if (!this.hoveredElement) {
+    private onMouseOut(mouseEvent: MouseEvent) {
+        const relatedTarget = mouseEvent.relatedTarget;
+        if (relatedTarget instanceof Node && this.svgDiv.contains(relatedTarget)) {
             return;
         }
 
+        this.clearHighlights();
+        this.hideEdgePreviewPoints();
+        this.detachCursorOverlay('context-menu');
+    }
+
+    private handleHoverCallBack(mouseEvent: MouseEvent) {
         const mousePosition = this.getMousePosition(mouseEvent);
+        if (!this.hoveredElement) {
+            this.updateContextMenuCursor(mousePosition);
+            return;
+        }
 
         // Check if we are over the hovered object
-        const hoverableElem = SvgUtils.getHoverableFrom(mouseEvent.target as SVGElement);
+        const hoverableElem = SvgUtils.getHoverableFrom(this.getMouseEventTarget(mouseEvent));
         if (hoverableElem && hoverableElem === this.hoveredElement) {
             // We are still over the hoveredElement, we update the mouse position
             this.hoveredElementPosition = mousePosition;
@@ -873,11 +911,32 @@ export class NetworkAreaDiagramViewer {
                 this.handleEdgeHover(this.hoveredElement, mousePosition);
             }
             this.isHoverCallbackUsed = true;
+            this.updateContextMenuCursor(mousePosition);
         } else {
             this.clearHighlights();
             this.resetHoverCallback();
             this.hoveredElement = null;
             this.hideEdgePreviewPoints();
+            this.updateContextMenuCursor(mousePosition);
+        }
+    }
+
+    private updateContextMenuCursor(mousePosition: Point) {
+        if (!this.onRightClickCallback) {
+            return;
+        }
+
+        const cursor = this.cursorOverlayRect?.style.cursor;
+        if (cursor && cursor !== 'context-menu') {
+            return;
+        }
+
+        const isNode = SvgUtils.isHighlightableElement(this.hoveredElement);
+        const isEdge = this.diagramMetadata?.edges.some((edge) => edge.svgId === this.hoveredElement?.id) ?? false;
+        if (this.existsNearbyHoveredElement(mousePosition) && (isNode || isEdge)) {
+            this.attachCursorOverlay('context-menu');
+        } else {
+            this.detachCursorOverlay('context-menu');
         }
     }
 
@@ -2605,7 +2664,7 @@ export class NetworkAreaDiagramViewer {
 
     private onMouseRightDown(event: MouseEvent) {
         const mousePosition: Point = this.getMousePosition(event);
-        const element = SvgUtils.getRightClickableFrom(event.target as SVGElement) ?? null;
+        const element = SvgUtils.getRightClickableFrom(this.getMouseEventTarget(event)) ?? null;
         let elementData = MetadataUtils.getRightClickableElementData(
             element?.id,
             SvgUtils.getElementType(element),

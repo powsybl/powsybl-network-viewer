@@ -78,6 +78,77 @@ describe('Test network-area-diagram-viewer', () => {
         expect(buses[0]?.textContent).toEqual('400 kV');
     });
 
+    test('context-menu cursor follows hovered edges and nodes within the hover zone', () => {
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        const nodes = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        nodes.classList.add('nad-vl-nodes');
+        const node = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        node.id = 'node-1';
+        nodes.appendChild(node);
+        svg.appendChild(nodes);
+
+        const edges = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        edges.classList.add('nad-branch-edges');
+        const edge = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        edge.id = 'edge-1';
+        const edgePath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        edge.appendChild(edgePath);
+        edges.appendChild(edge);
+        svg.appendChild(edges);
+
+        const cursorOverlayElement = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        const viewer = Object.assign(Object.create(NetworkAreaDiagramViewer.prototype), {
+            svgDiv: svg,
+            container: svg,
+            svgDraw: {
+                node: svg,
+                rect: () => ({ attr: () => ({ node: cursorOverlayElement }) }),
+            },
+            diagramMetadata: {
+                nodes: [{ svgId: node.id, equipmentId: 'vl-1', x: 0, y: 0 }],
+                busNodes: [],
+                edges: [
+                    {
+                        svgId: edge.id,
+                        equipmentId: 'line-1',
+                        node1: node.id,
+                        node2: 'node-2',
+                        busNode1: 'bus-1',
+                        busNode2: 'bus-2',
+                        type: 'LineEdge',
+                    },
+                ],
+                textNodes: [],
+            },
+            onRightClickCallback: vi.fn(),
+            hoveredElement: null,
+            hoveredElementPosition: new Point(0, 0),
+            hoverPositionPrecision: 10,
+            cursorOverlayRect: null,
+        }) as NetworkAreaDiagramViewer;
+
+        viewer['onHover']({ target: edgePath, clientX: 20, clientY: 20 } as MouseEvent);
+        expect(viewer.cursorOverlayRect?.style.cursor).toBe('context-menu');
+
+        viewer['updateContextMenuCursor'](new Point(25, 20));
+        expect(viewer.cursorOverlayRect?.style.cursor).toBe('context-menu');
+
+        viewer['updateContextMenuCursor'](new Point(40, 20));
+        expect(viewer.cursorOverlayRect).toBeNull();
+
+        viewer['onHover']({ target: node, clientX: 10, clientY: 10 } as MouseEvent);
+        expect(viewer.cursorOverlayRect?.style.cursor).toBe('context-menu');
+
+        const clearHighlights = vi.spyOn(viewer as any, 'clearHighlights');
+        viewer['onMouseOut']({ relatedTarget: node } as MouseEvent);
+        expect(clearHighlights).not.toHaveBeenCalled();
+        expect(viewer.cursorOverlayRect?.style.cursor).toBe('context-menu');
+
+        viewer['onMouseOut']({ relatedTarget: document.body } as MouseEvent);
+        expect(clearHighlights).toHaveBeenCalledTimes(1);
+        expect(viewer.cursorOverlayRect).toBeNull();
+    });
+
     test('moveNodeToCoordinates with the same position must not change edge connections', () => {
         // Minimal SVG: extracted from nad-scada.svg: 1 VL node (id '0') and 1 3wt edge (id '16') with its polyline.
         const svgContent = `<svg width="100" height="100" viewBox="-512.98 -717.87 1172.34 1320.65" xmlns="http://www.w3.org/2000/svg">
