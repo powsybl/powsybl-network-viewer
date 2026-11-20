@@ -7,8 +7,8 @@
  */
 
 import { Point, SVG } from '@svgdotjs/svg.js';
-import * as SvgUtils from './svg-utils';
 import { radToDeg } from './diagram-utils';
+import * as SvgUtils from './svg-utils';
 
 test('getDraggableFrom', () => {
     let draggagleElement = SvgUtils.getDraggableFrom(getSvgNode());
