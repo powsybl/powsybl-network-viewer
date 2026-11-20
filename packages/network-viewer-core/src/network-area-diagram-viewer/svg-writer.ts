@@ -338,7 +338,7 @@ export class SvgWriter {
         points2: Point[],
         cssClasses: string[] | undefined,
         style: string | undefined
-    ): any {
+    ): SVGElement {
         if (edge.node1 == edge.node2) {
             const pathElement = document.createElementNS('http://www.w3.org/2000/svg', 'path');
             SvgUtils.addCssClasses(pathElement, cssClasses, SvgWriter.EDGE_CLASS);
