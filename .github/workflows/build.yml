@@ -2,7 +2,7 @@ name: CI
 on:
   push:
     branches:
-      - 'main'
+      - "main"
   pull_request:
 
 permissions: {}
@@ -30,7 +30,7 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event.pull_request.head.repo.fork == false
     container:
-      image: mcr.microsoft.com/playwright:v1.61.0-noble
+      image: mcr.microsoft.com/playwright:v1.62.1-noble
     steps:
       - name: Checkout sources
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
@@ -49,11 +49,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build workspaces
-        run: npm run build --workspaces
-
-      - name: Lint
-        run: npm run lint
+      - name: Build workspaces and root package
+        run: npm run build:all
 
       - name: Run tests
         run: npm run test:coverage
@@ -70,9 +67,6 @@ jobs:
 
       - name: Licenses check
         run: npm run licenses-check
-
-      - name: Build
-        run: npm run build
 
   sonar:
     name: SonarCloud Scan
