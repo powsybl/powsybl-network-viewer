@@ -8,29 +8,17 @@
 
 import {
     OnBendLineCallbackType,
-    OnMoveNodeCallbackType,
+    OnClickNodeCallbackType,
+    OnMoveNodesCallbackType,
     OnMoveTextNodeCallbackType,
+    OnPolygonSelectionModeCallbackType,
     OnRightClickCallbackType,
-    OnSelectNodeCallbackType,
+    OnSelectionChangeCallbackType,
     OnToggleNadHoverCallbackType,
 } from '../../../src';
 
-export const handleNodeMove: OnMoveNodeCallbackType = (equipmentId, nodeId, x, y, xOrig, yOrig) => {
-    const msg =
-        'Node ' +
-        nodeId +
-        ' equipment ' +
-        equipmentId +
-        ' moved from [' +
-        xOrig +
-        ', ' +
-        yOrig +
-        '] to [' +
-        x +
-        ', ' +
-        y +
-        ']';
-    console.log(msg);
+export const handleNodesMove: OnMoveNodesCallbackType = (movedNodes) => {
+    console.log('Moved nodes', movedNodes);
 };
 
 export const handleTextNodeMove: OnMoveTextNodeCallbackType = (
@@ -73,12 +61,24 @@ export const handleTextNodeMove: OnMoveTextNodeCallbackType = (
     console.log(msg);
 };
 
-export const handleNodeSelect: OnSelectNodeCallbackType = (equipmentId, nodeId, mousePosition) => {
-    let msg = 'Node ' + nodeId + ' equipment ' + equipmentId + ' selected';
+export const handleNodeClick: OnClickNodeCallbackType = (equipmentId, nodeId, mousePosition) => {
+    let msg = 'Node ' + nodeId + ' equipment ' + equipmentId + ' clicked';
     if (mousePosition) {
         msg += ' on mousePosition: x = ' + mousePosition.x + ', y = ' + mousePosition.y;
     }
     console.log(msg);
+};
+
+export const handleSelectionChange: OnSelectionChangeCallbackType = (selectedNodes) => {
+    console.log(
+        'Selected nodes: [' +
+            selectedNodes.map(({ equipmentId, nodeId }) => equipmentId + ' (' + nodeId + ')').join(', ') +
+            ']'
+    );
+};
+
+export const handlePolygonSelectionMode: OnPolygonSelectionModeCallbackType = (isActive) => {
+    console.log('Polygon selection ' + (isActive ? 'started' : 'stopped'));
 };
 
 export const handleToggleNadHover: OnToggleNadHoverCallbackType = (
