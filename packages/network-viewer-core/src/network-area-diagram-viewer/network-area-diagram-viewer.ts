@@ -410,6 +410,7 @@ export class NetworkAreaDiagramViewer {
         this.polygonSelection = new PolygonSelection(
             this.svgDraw,
             (ctrlKey) => this.onPolygonSelectionClose(ctrlKey),
+            () => this.stopPolygonSelection(),
             startEvent
         );
         this.svgDiv.focus({ preventScroll: true });

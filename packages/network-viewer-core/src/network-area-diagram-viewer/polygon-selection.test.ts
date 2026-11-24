@@ -14,17 +14,20 @@ test('draw a polygon', () => {
     const svg = SVG().addTo(container);
     vi.spyOn(svg, 'point').mockImplementation((x, y) => new Point(x, y));
     const onClose = vi.fn();
+    const onCancel = vi.fn();
 
     // the start event is the first point
     const polygonSelection = new PolygonSelection(
         svg,
         onClose,
+        onCancel,
         new MouseEvent('mousedown', { clientX: 100, clientY: 100 })
     );
     const overlay = container.lastElementChild!;
 
-    // not closed with less than two points
+    // cancelled by a right click with only one point
     overlay.dispatchEvent(new MouseEvent('contextmenu', { clientX: 300, clientY: 300 }));
+    expect(onCancel).toHaveBeenCalledOnce();
     expect(onClose).not.toHaveBeenCalled();
 
     overlay.dispatchEvent(new MouseEvent('click', { clientX: 300, clientY: 100 }));

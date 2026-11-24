@@ -19,6 +19,7 @@ export class PolygonSelection {
     constructor(
         private readonly svg: Svg,
         private readonly onClose: (ctrlKey: boolean) => void,
+        private readonly onCancel: () => void,
         startEvent?: MouseEvent
     ) {
         this.polygon = svg
@@ -70,7 +71,11 @@ export class PolygonSelection {
     private readonly handleContextMenu = (event: MouseEvent) => {
         event.preventDefault();
         this.pointer = event;
-        this.close(event.ctrlKey);
+        if (this.points.length === 1) {
+            this.onCancel();
+        } else {
+            this.close(event.ctrlKey);
+        }
     };
 
     private readonly handlePointerMove = (event: PointerEvent) => {
