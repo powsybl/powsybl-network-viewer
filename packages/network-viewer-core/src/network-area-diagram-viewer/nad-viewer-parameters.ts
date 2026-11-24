@@ -118,7 +118,7 @@ export interface NadViewerParametersOptions {
     // Callback function triggered when a text node is moved.
     onMoveTextNodeCallback?: OnMoveTextNodeCallbackType | null;
 
-    // Callback function triggered when a node is selected.
+    // Callback function triggered when a node is clicked.
     onClickNodeCallback?: OnClickNodeCallbackType | null;
 
     // Callback function triggered when the multi-selection changes, with the selected nodes.
