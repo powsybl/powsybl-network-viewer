@@ -38,6 +38,7 @@ import com.powsybl.nad.svg.VoltageLevelLegend;
 import com.powsybl.nad.svg.iidm.DefaultLabelProvider;
 
 import java.nio.file.Path;
+import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,6 +62,8 @@ public final class NadDemoFiles {
             DemoFilesGenerator.class.getResourceAsStream("/case1354pegase.mat"),
             LocalComputationManager.getDefault(), new ImportConfig(), properties);
 
+        network.setCaseDate(ZonedDateTime.parse("2026-07-21T18:45:00.000+01:00"));
+
         NetworkAreaDiagram.draw(network, demoResourcesDirectory.resolve("case1354pegase.svg"),
             getNadParametersWithSvgWidthAndHeightAdded(),
             VoltageLevelFilter.NO_FILTER);
@@ -68,6 +71,7 @@ public final class NadDemoFiles {
 
     public static void drawEurostag(Path demoResourcesDirectory) {
         Network network = EurostagTutorialExample1Factory.create();
+        network.setCaseDate(ZonedDateTime.parse("2026-07-21T18:45:00.000+01:00"));
         Line lineToDuplicateAndInvert = network.getLine("NHV1_NHV2_2");
         Terminal terminal1 = lineToDuplicateAndInvert.getTerminal(TwoSides.ONE);
         Terminal terminal2 = lineToDuplicateAndInvert.getTerminal(TwoSides.TWO);
@@ -86,6 +90,7 @@ public final class NadDemoFiles {
 
     public static void draw9ZeroImpedance(Path demoResourcesDirectory) {
         Network network = IeeeCdfNetworkFactory.create9zeroimpedance();
+        network.setCaseDate(ZonedDateTime.parse("2026-07-21T18:45:00.000+01:00"));
         NetworkAreaDiagram.draw(network, demoResourcesDirectory.resolve("nad-ieee9-zeroimpedance-cdf.svg"),
             getNadParametersWithDefaultLabelProviderFilled(),
             VoltageLevelFilter.createVoltageLevelDepthFilter(network, "VL3", 1));
@@ -387,6 +392,7 @@ public final class NadDemoFiles {
 
     public static void drawNetworkWithTwoVoltageLevelsAndComponents(Path demoResourcesDirectory) {
         Network network = Networks.createTwoVoltageLevels();
+        network.setCaseDate(ZonedDateTime.parse("2026-07-21T18:45:00.000+01:00"));
         NetworkAreaDiagram.draw(network, demoResourcesDirectory.resolve("nad-edge-info-components"),
                 getNadParametersWithComponents(),
                 VoltageLevelFilter.NO_FILTER);
