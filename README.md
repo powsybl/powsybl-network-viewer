@@ -50,27 +50,28 @@ npm install @powsybl/network-viewer-core
 Usage:
 
 ```typescript
-import {
-    NetworkAreaDiagramViewer,
-    SingleLineDiagramViewer,
-    LayoutParameters,
-    SvgParameters,
-} from '@powsybl/network-viewer-core';
+import { NetworkAreaDiagramViewer, SingleLineDiagramViewer } from '@powsybl/network-viewer-core';
 
 // Create NAD viewer
 const nadViewer = new NetworkAreaDiagramViewer(
     container,
     svgContent,
     metadata,
+    options,
+);
+
+// Create SLD viewer
+const sldViewer = new SingleLineDiagramViewer(
+    container,
+    svgContent,
+    metadata,
+    svgType,
     minWidth,
     minHeight,
     maxWidth,
     maxHeight,
-    parameters
+    /* callbacks... */,
 );
-
-// Create SLD viewer
-const sldViewer = new SingleLineDiagramViewer(container, svgContent, metadata, options);
 ```
 
 ### For Deck.gl map layers only
@@ -114,9 +115,11 @@ To fix this, run this command from the app **after** running "npm install"
 - Browser visual screenshots (Vitest browser mode): `npm run test:browser`
 - Update screenshot baselines: `npm run test:browser -- -u`
 
+## Release
+
 According to PowSyBl [branching and release strategy](https://github.com/powsybl/.github/blob/main/BRANCHING_RELEASE_STRATEGY.md), 
-if you want to publish a new release of powsybl-network-viewer in the 
-[NPM package registry](https://www.npmjs.com/package/@powsybl/powsybl-network-viewer), you need to follow the steps below:
+if you want to publish a new release of network-viewer in the 
+[NPM package registry](https://www.npmjs.com/package/@powsybl/network-viewer), you need to follow the steps below:
 
 ---
 ##### 1/ Update your main branch to the latest version:
