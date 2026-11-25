@@ -14,5 +14,5 @@ export default defineConfig({
     sourcemap: true,
     publint: true,
     attw: true,
-    loader: { '.svg': 'asset' },
+    loader: { '.svg': 'text' },
 });
