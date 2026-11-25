@@ -46,18 +46,17 @@ import {
     useState,
 } from 'react';
 import { FormattedMessage } from 'react-intl';
+import { Map, type MapRef, NavigationControl, useControl, type ViewState } from 'react-map-gl/mapbox-legacy';
 import {
-    Map,
-    type MapProps,
-    type MapRef,
-    NavigationControl,
-    useControl,
-    type ViewState,
-} from 'react-map-gl/mapbox-legacy';
+    Map as MapLibreMap,
+    type MapRef as MapLibreMapRef,
+    NavigationControl as MapLibreNavigationControl,
+    useControl as useMapLibreControl,
+} from 'react-map-gl/maplibre';
 import type { LiteralUnion } from 'type-fest';
 import { useNameOrId } from '../utils/equipmentInfosHandler';
 import LoaderWithOverlay from '../utils/loader-with-overlay';
-import DrawControl, { type DrawControlProps } from './draw-control';
+import DrawControl, { type DrawControlProps, MapLibreDrawControl } from './draw-control';
 
 import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -72,6 +71,13 @@ const MOUSE_EVENT_BUTTON_RIGHT = 2;
 // see https://deck.gl/docs/api-reference/mapbox/mapbox-overlay#using-with-react-map-gl
 const DeckGLOverlay = forwardRef<MapboxOverlay, MapboxOverlayProps>((props, ref) => {
     const overlay = useControl<MapboxOverlay>(() => new MapboxOverlay(props));
+    overlay.setProps(props);
+    useImperativeHandle(ref, () => overlay, [overlay]);
+    return null;
+});
+
+const MapLibreDeckGLOverlay = forwardRef<MapboxOverlay, MapboxOverlayProps>((props, ref) => {
+    const overlay = useMapLibreControl<MapboxOverlay>(() => new MapboxOverlay(props));
     overlay.setProps(props);
     useImperativeHandle(ref, () => overlay, [overlay]);
     return null;
@@ -249,7 +255,7 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
     const [labelsVisible, setLabelsVisible] = useState(false);
     const [showLineFlow, setShowLineFlow] = useState(true);
     const [showTooltip, setShowTooltip] = useState(true);
-    const mapRef = useRef<MapRef>(null); //TODO replaced since v7.? by https://visgl.github.io/react-map-gl/docs/api-reference/mapbox/use-map
+    const mapRef = useRef<MapRef | MapLibreMapRef>(null); //TODO replaced since v7.? by https://visgl.github.io/react-map-gl/docs/api-reference/mapbox/use-map
     const deckRef = useRef<MapboxOverlay>(null);
     const [centered, setCentered] = useState(INITIAL_CENTERED);
     const lastViewStateRef = useRef<ViewState>(undefined);
@@ -395,8 +401,8 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
         }
     }
 
-    const onViewStateChange = useCallback<NonNullable<MapProps['onMove']>>(
-        (info) => {
+    const onViewStateChange = useCallback(
+        (info: { viewState: ViewState; interactionState?: { inTransition?: boolean } }) => {
             lastViewStateRef.current = info.viewState;
             if (
                 !info.interactionState || // first event of before an animation (e.g. clicking the +/- buttons of the navigation controls, gives the target
@@ -538,8 +544,8 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
         ]
     );
 
-    const onMapContextMenu = useCallback<NonNullable<MapProps['onContextMenu']>>(
-        (event) => {
+    const onMapContextMenu = useCallback(
+        (event: MapBoxLayerMouseEvent | MapLibreLayerMouseEvent) => {
             const info = deckRef.current?.pickObject({
                 x: event.point.x,
                 y: event.point.y,
@@ -676,25 +682,17 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
 
     const mapStyle = useMemo(() => getMapStyle(props.mapLibrary, props.mapTheme), [props.mapLibrary, props.mapTheme]);
 
-    const mapLib =
-        props.mapLibrary === MAPBOX
-            ? (mToken && {
-                  key: 'mapboxgl',
-                  mapLib: mapboxgl,
-                  mapboxAccessToken: mToken,
-              }) ||
-              undefined
-            : {
-                  key: 'maplibregl',
-                  mapLib: maplibregl,
-              };
+    const isMapbox = props.mapLibrary === MAPBOX;
+    const AdapterDeckGLOverlay = isMapbox ? DeckGLOverlay : MapLibreDeckGLOverlay;
+    const AdapterNavigationControl = isMapbox ? NavigationControl : MapLibreNavigationControl;
+    const AdapterDrawControl = isMapbox ? DrawControl : MapLibreDrawControl;
 
     // because the mapLib prop of react-map-gl is not reactive, we need to
     // unmount/mount the Map with 'key', so we need also to reset all state
     // associated with uncontrolled state of the map
     useEffect(() => {
         setCentered(INITIAL_CENTERED);
-    }, [mapLib?.key]);
+    }, [isMapbox]);
 
     const onUpdate = useCallback(() => {
         onPolygonChanged(getPolygonFeatures());
@@ -787,84 +785,101 @@ const NetworkMap = forwardRef<NetworkMapRef, NetworkMapProps>((rawProps, ref) =>
         onDrawEvent(DRAW_EVENT.DELETE);
     }, [onPolygonChanged, onDrawEvent]);
 
-    return (
-        mapLib && (
-            <Map
-                ref={mapRef}
-                style={{ zIndex: 0 }}
-                onMove={onViewStateChange}
-                doubleClickZoom={false}
-                mapStyle={mapStyle}
-                styleDiffing={false}
-                key={mapLib.key} // to reset the map when the mapLib changes
-                // @ts-expect-error TODO TS2322: Type typeof mapboxgl is not assignable to type MapLib<Map>|Promise<MapLib<Map>>|undefined
-                mapLib={mapLib.mapLib}
-                mapboxAccessToken={mapLib.mapboxAccessToken}
-                initialViewState={initialViewState}
-                cursor={cursorHandler()} //TODO needed for pointer on our polygonFeatures, but forces us to reeimplement grabbing/grab for panning. Can we avoid reimplementing?
-                onDrag={() => setDragging(true)}
-                onDragEnd={() => setDragging(false)}
-                onContextMenu={onMapContextMenu}
-                pitchWithRotate={props.enablePitchAndRotate}
-                dragRotate={props.enablePitchAndRotate}
-                onMouseOut={() => {
-                    // Sometimes onHover on layers is not triggered when the mouse leaves the layer
-                    // (e.g. when leaving the map container too fast),
-                    // so we need to reset the tooltip on mouse out of the map container
-                    setTooltip(null);
-                }}
-            >
-                {props.displayOverlayLoader && renderOverlay()}
-                {props.isManualRefreshBackdropDisplayed && (
-                    <Box sx={styles.mapManualRefreshBackdrop}>
-                        <Button
-                            sx={styles.manualRefreshButton}
-                            onClick={props.onManualRefreshClick}
-                            aria-label="reload"
-                            color="inherit"
-                            size="large"
-                        >
-                            <Replay />
-                            <FormattedMessage id="ManuallyRefreshGeoData" />
-                        </Button>
-                    </Box>
-                )}
-                {!props.isManualRefreshBackdropDisplayed && (
-                    <DeckGLOverlay
-                        ref={deckRef}
-                        onClick={(info, event) => {
-                            // @ts-expect-error TODO: we have MouseEvent|TouchEvent|PointerEvent here...
-                            onClickHandler(info, event.srcEvent, props.mapEquipments);
-                        }}
-                        onAfterRender={onAfterRender} // TODO simplify this
-                        layers={layers}
-                        pickingRadius={PICKING_RADIUS}
-                    />
-                )}
-                {showTooltip && renderTooltip()}
-                {/* visualizePitch true makes the compass reset the pitch when clicked in addition to visualizing it */}
-                <NavigationControl visualizePitch={true} showCompass={props.enablePitchAndRotate} />
-                <DrawControl
-                    ref={drawControlRef}
-                    position="bottom-left"
-                    displayControlsDefault={false}
-                    controls={{
-                        polygon: true,
-                        trash: true,
+    const mapProps = {
+        style: { zIndex: 0 },
+        onMove: onViewStateChange,
+        doubleClickZoom: false,
+        mapStyle,
+        styleDiffing: false,
+        initialViewState,
+        cursor: cursorHandler(),
+        onDrag: () => setDragging(true),
+        onDragEnd: () => setDragging(false),
+        onContextMenu: onMapContextMenu,
+        pitchWithRotate: props.enablePitchAndRotate,
+        dragRotate: props.enablePitchAndRotate,
+        onMouseOut: () => {
+            // Sometimes onHover on layers is not triggered when the mouse leaves the layer
+            // (e.g. when leaving the map container too fast),
+            // so we need to reset the tooltip on mouse out of the map container
+            setTooltip(null);
+        },
+    };
+    const children = (
+        <>
+            {props.displayOverlayLoader && renderOverlay()}
+            {props.isManualRefreshBackdropDisplayed && (
+                <Box sx={styles.mapManualRefreshBackdrop}>
+                    <Button
+                        sx={styles.manualRefreshButton}
+                        onClick={props.onManualRefreshClick}
+                        aria-label="reload"
+                        color="inherit"
+                        size="large"
+                    >
+                        <Replay />
+                        <FormattedMessage id="ManuallyRefreshGeoData" />
+                    </Button>
+                </Box>
+            )}
+            {!props.isManualRefreshBackdropDisplayed && (
+                <AdapterDeckGLOverlay
+                    ref={deckRef}
+                    onClick={(info, event) => {
+                        // @ts-expect-error TODO: we have MouseEvent|TouchEvent|PointerEvent here...
+                        onClickHandler(info, event.srcEvent, props.mapEquipments);
                     }}
-                    //
-                    // defaultMode="simple_select | draw_polygon | ...
-                    defaultMode="simple_select"
-                    readyToDisplay={readyToDisplay}
-                    onDrawPolygonModeActive={(polygon_draw) => {
-                        props.onDrawPolygonModeActive(polygon_draw);
-                    }}
-                    onCreate={onCreate}
-                    onUpdate={onUpdate}
-                    onDelete={onDelete}
+                    onAfterRender={onAfterRender} // TODO simplify this
+                    layers={layers}
+                    pickingRadius={PICKING_RADIUS}
                 />
-            </Map>
-        )
+            )}
+            {showTooltip && renderTooltip()}
+            {/* visualizePitch true makes the compass reset the pitch when clicked in addition to visualizing it */}
+            <AdapterNavigationControl visualizePitch={true} showCompass={props.enablePitchAndRotate} />
+            <AdapterDrawControl
+                ref={drawControlRef}
+                position="bottom-left"
+                displayControlsDefault={false}
+                controls={{
+                    polygon: true,
+                    trash: true,
+                }}
+                //
+                // defaultMode="simple_select | draw_polygon | ...
+                defaultMode="simple_select"
+                readyToDisplay={readyToDisplay}
+                onDrawPolygonModeActive={(polygon_draw) => {
+                    props.onDrawPolygonModeActive(polygon_draw);
+                }}
+                onCreate={onCreate}
+                onUpdate={onUpdate}
+                onDelete={onDelete}
+            />
+        </>
+    );
+
+    return isMapbox ? (
+        <Map
+            {...mapProps}
+            ref={(map) => {
+                mapRef.current = map;
+            }}
+            mapLib={mapboxgl}
+            mapboxAccessToken={mToken}
+        >
+            {children}
+        </Map>
+    ) : (
+        <MapLibreMap
+            {...mapProps}
+            ref={(map) => {
+                mapRef.current = map;
+            }}
+            mapLib={maplibregl}
+        >
+            {children}
+        </MapLibreMap>
     );
 });
 
