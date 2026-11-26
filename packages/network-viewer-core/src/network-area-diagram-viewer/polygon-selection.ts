@@ -14,7 +14,6 @@ export class PolygonSelection {
     private readonly polygon: Polygon;
     private readonly dots: Path[];
     private readonly points: Point[] = [];
-    private pointer?: MouseEvent;
 
     constructor(
         private readonly svg: Svg,
@@ -37,7 +36,8 @@ export class PolygonSelection {
         this.overlay = document.createElement('div');
         Object.assign(this.overlay.style, { position: 'absolute', inset: '0', cursor: 'crosshair' });
         this.overlay.addEventListener('click', this.handleClick);
-        this.overlay.addEventListener('contextmenu', this.handleContextMenu);
+        this.overlay.addEventListener('dblclick', this.handleDoubleClick);
+        this.overlay.addEventListener('contextmenu', (event) => event.preventDefault());
         this.overlay.addEventListener('pointermove', this.handlePointerMove);
         this.overlay.addEventListener('wheel', this.handleWheel, { passive: false });
         svg.node.parentElement?.appendChild(this.overlay);
@@ -52,10 +52,13 @@ export class PolygonSelection {
         this.dots.forEach((dot) => dot.remove());
     }
 
+    // the polygon is made of the clicked points only, and is cancelled with less than 3 points
     public close(ctrlKey: boolean) {
-        if (this.pointer && this.points.length >= 2) {
-            this.draw(this.toDiagramPoint(this.pointer));
+        if (this.points.length >= 3) {
+            this.draw();
             this.onClose(ctrlKey);
+        } else {
+            this.onCancel();
         }
     }
 
@@ -68,18 +71,12 @@ export class PolygonSelection {
         this.draw();
     };
 
-    private readonly handleContextMenu = (event: MouseEvent) => {
-        event.preventDefault();
-        this.pointer = event;
-        if (this.points.length === 1) {
-            this.onCancel();
-        } else {
-            this.close(event.ctrlKey);
-        }
+    private readonly handleDoubleClick = (event: MouseEvent) => {
+        this.points.pop(); // the same point added twice by the double click
+        this.close(event.ctrlKey);
     };
 
     private readonly handlePointerMove = (event: PointerEvent) => {
-        this.pointer = event;
         if (this.points.length > 0) {
             this.draw(this.toDiagramPoint(event));
         }
