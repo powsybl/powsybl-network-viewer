@@ -18,14 +18,18 @@ export type {
     TextNodeMetadata,
 } from './network-area-diagram-viewer/diagram-metadata';
 export type {
-    OnMoveNodeCallbackType,
+    MovedNode,
+    OnMoveNodesCallbackType,
     OnMoveTextNodeCallbackType,
-    OnSelectNodeCallbackType,
+    OnPolygonSelectionModeCallbackType,
+    OnSelectionChangeCallbackType,
+    OnClickNodeCallbackType,
     OnToggleNadHoverCallbackType,
     OnRightClickCallbackType,
     OnBendLineCallbackType,
     NadViewerParametersOptions,
     NadViewerParameters,
+    SelectedNode,
 } from './network-area-diagram-viewer/nad-viewer-parameters';
 export { LayoutParameters } from './network-area-diagram-viewer/layout-parameters';
 export { SvgParameters } from './network-area-diagram-viewer/svg-parameters';

@@ -7,14 +7,16 @@
 import { ViewBoxLike, Point } from '@svgdotjs/svg.js';
 import { LibraryComponent } from './library-component';
 
-export type OnMoveNodeCallbackType = (
-    equipmentId: string,
-    nodeId: string,
-    x: number,
-    y: number,
-    XOrig: number,
-    yOrig: number
-) => void;
+export type MovedNode = {
+    equipmentId: string;
+    nodeId: string;
+    x: number;
+    y: number;
+    xOrig: number;
+    yOrig: number;
+};
+
+export type OnMoveNodesCallbackType = (movedNodes: MovedNode[]) => void;
 
 export type OnMoveTextNodeCallbackType = (
     equipmentId: string,
@@ -30,7 +32,16 @@ export type OnMoveTextNodeCallbackType = (
     connectionShiftYOrig: number
 ) => void;
 
-export type OnSelectNodeCallbackType = (equipmentId: string, nodeId: string, mousePosition: Point) => void;
+export type OnClickNodeCallbackType = (equipmentId: string, nodeId: string, mousePosition: Point) => void;
+
+export type SelectedNode = {
+    equipmentId: string;
+    nodeId: string;
+};
+
+export type OnSelectionChangeCallbackType = (selectedNodes: SelectedNode[]) => void;
+
+export type OnPolygonSelectionModeCallbackType = (isActive: boolean) => void;
 
 export type OnToggleNadHoverCallbackType = (
     hovered: boolean,
@@ -87,6 +98,9 @@ export interface NadViewerParametersOptions {
     // Whether dragging interaction on node or label is enabled.
     enableDragInteraction?: boolean;
 
+    // Whether several voltage level nodes can be selected, with Ctrl+click or a selection polygon, and moved together.
+    enableMultiSelection?: boolean;
+
     // Whether level-of-detail rendering is enabled based on zoom level.
     enableLevelOfDetail?: boolean;
 
@@ -97,14 +111,21 @@ export interface NadViewerParametersOptions {
     // Whether to add zoom control buttons (zoom in, zoom out, zoom to fit) to the viewer.
     addButtons?: boolean;
 
-    // Callback function triggered when a node is moved.
-    onMoveNodeCallback?: OnMoveNodeCallbackType | null;
+    // Callback function triggered when nodes are moved: the dragged node, or all the selected nodes when a selected node
+    // is dragged, with their boundary nodes and the three windings transformers whose voltage levels all move.
+    onMoveNodesCallback?: OnMoveNodesCallbackType | null;
 
     // Callback function triggered when a text node is moved.
     onMoveTextNodeCallback?: OnMoveTextNodeCallbackType | null;
 
-    // Callback function triggered when a node is selected.
-    onSelectNodeCallback?: OnSelectNodeCallbackType | null;
+    // Callback function triggered when a node is clicked.
+    onClickNodeCallback?: OnClickNodeCallbackType | null;
+
+    // Callback function triggered when the multi-selection changes, with the selected nodes.
+    onSelectionChangeCallback?: OnSelectionChangeCallbackType | null;
+
+    // Callback function triggered when the selection polygon mode starts or stops.
+    onPolygonSelectionModeCallback?: OnPolygonSelectionModeCallbackType | null;
 
     // Callback function triggered when hovering over a node or edge.
     onToggleHoverCallback?: OnToggleNadHoverCallbackType | null;
@@ -143,6 +164,7 @@ export class NadViewerParameters {
     static readonly MAX_WIDTH_DEFAULT = 1000;
     static readonly MAX_HEIGHT_DEFAULT = 1200;
     static readonly ENABLE_DRAG_INTERACTION_DEFAULT = false;
+    static readonly ENABLE_MULTI_SELECTION_DEFAULT = false;
     static readonly ENABLE_LEVEL_OF_DETAIL_DEFAULT = false;
     static readonly ZOOM_LEVELS_DEFAULT = [0, 1000, 2200, 2500, 3000, 4000, 9000, 12000, 20000];
     static readonly ADD_BUTTONS_DEFAULT = false;
@@ -174,6 +196,11 @@ export class NadViewerParameters {
             NadViewerParameters.ENABLE_DRAG_INTERACTION_DEFAULT
         );
     }
+    public getEnableMultiSelection(): boolean {
+        return (
+            this.nadViewerParametersOptions?.enableMultiSelection ?? NadViewerParameters.ENABLE_MULTI_SELECTION_DEFAULT
+        );
+    }
     public getEnableLevelOfDetail(): boolean {
         return (
             this.nadViewerParametersOptions?.enableLevelOfDetail ?? NadViewerParameters.ENABLE_LEVEL_OF_DETAIL_DEFAULT
@@ -185,14 +212,20 @@ export class NadViewerParameters {
     public getAddButtons(): boolean {
         return this.nadViewerParametersOptions?.addButtons ?? NadViewerParameters.ADD_BUTTONS_DEFAULT;
     }
-    public getOnMoveNodeCallback(): OnMoveNodeCallbackType | null {
-        return this.nadViewerParametersOptions?.onMoveNodeCallback ?? null;
+    public getOnMoveNodesCallback(): OnMoveNodesCallbackType | null {
+        return this.nadViewerParametersOptions?.onMoveNodesCallback ?? null;
     }
     public getOnMoveTextNodeCallback(): OnMoveTextNodeCallbackType | null {
         return this.nadViewerParametersOptions?.onMoveTextNodeCallback ?? null;
     }
-    public getOnSelectNodeCallback(): OnSelectNodeCallbackType | null {
-        return this.nadViewerParametersOptions?.onSelectNodeCallback ?? null;
+    public getOnClickNodeCallback(): OnClickNodeCallbackType | null {
+        return this.nadViewerParametersOptions?.onClickNodeCallback ?? null;
+    }
+    public getOnSelectionChangeCallback(): OnSelectionChangeCallbackType | null {
+        return this.nadViewerParametersOptions?.onSelectionChangeCallback ?? null;
+    }
+    public getOnPolygonSelectionModeCallback(): OnPolygonSelectionModeCallbackType | null {
+        return this.nadViewerParametersOptions?.onPolygonSelectionModeCallback ?? null;
     }
     public getOnToggleHoverCallback(): OnToggleNadHoverCallbackType | null {
         return this.nadViewerParametersOptions?.onToggleHoverCallback ?? null;
