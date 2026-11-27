@@ -16,7 +16,7 @@ import BendLinesSvg from '../resources/material-icons/bend-lines.svg';
 
 function getButton(inputImg: string, title: string, size: string): HTMLButtonElement {
     const button = document.createElement('button');
-    button.style.backgroundImage = `url("${inputImg.replaceAll(/"/g, '\\"')}")`; // escape embedded "
+    button.style.backgroundImage = `url("${inputImg.replaceAll('"', String.raw`\"`)}")`; // escape embedded "
     button.style.backgroundRepeat = 'no-repeat';
     button.style.backgroundPosition = 'center center';
     button.title = title;
