@@ -29,6 +29,13 @@ export type {
 } from './network-area-diagram-viewer/nad-viewer-parameters';
 export { LayoutParameters } from './network-area-diagram-viewer/layout-parameters';
 export { SvgParameters } from './network-area-diagram-viewer/svg-parameters';
+export type {
+    InfoLabel,
+    BranchLabels,
+    DiagramLabels,
+    ThreeWindingsTranformerLabels,
+    VoltageLevelLabels,
+} from './network-area-diagram-viewer/diagram-label-types';
 
 // Single Line Diagram Viewer exports
 export {

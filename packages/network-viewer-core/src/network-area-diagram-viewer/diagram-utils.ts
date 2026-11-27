@@ -292,3 +292,9 @@ export function getLabelShiftAndStyle(
     const shift: number = arrowLabelShift * (externalLabel ? 1 : -1);
     return [textFlipped ? -shift : shift, style];
 }
+
+export function isThreeWTEdgeType(edgeType: EdgeType) {
+    return (
+        edgeType == EdgeType.THREE_WINDINGS_TRANSFORMER || edgeType == EdgeType.THREE_WINDINGS_PHASE_SHIFT_TRANSFORMER
+    );
+}
