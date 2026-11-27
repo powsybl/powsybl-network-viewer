@@ -14,13 +14,9 @@ import SavePng from '../resources/material-icons/save_png.svg';
 import ScreenshotSvg from '../resources/material-icons/screenshot.svg';
 import BendLinesSvg from '../resources/material-icons/bend-lines.svg';
 
-function encodeSVGforURL(svg: string): string {
-    return `data:image/svg+xml,${encodeURIComponent(svg)}`;
-}
-
 function getButton(inputImg: string, title: string, size: string): HTMLButtonElement {
     const button = document.createElement('button');
-    button.style.backgroundImage = `url("${encodeSVGforURL(inputImg)}")`;
+    button.style.backgroundImage = `url("${inputImg.replace(/"/g, '\\"')}")`; // escape embedded "
     button.style.backgroundRepeat = 'no-repeat';
     button.style.backgroundPosition = 'center center';
     button.title = title;
