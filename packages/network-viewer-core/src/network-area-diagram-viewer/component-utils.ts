@@ -9,8 +9,7 @@
 import { LibraryComponent } from './library-component';
 import { SVG } from '@svgdotjs/svg.js';
 
-const svgModules = import.meta.glob('../resources/default-library/*.svg', {
-    query: '?url',
+const svgModules = import.meta.glob<string>('../resources/default-library/*.svg', {
     import: 'default',
     eager: true,
 });
